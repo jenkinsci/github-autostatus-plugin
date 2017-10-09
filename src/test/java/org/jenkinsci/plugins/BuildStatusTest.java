@@ -64,7 +64,6 @@ public class BuildStatusTest {
      */
     @Test
     public void testGetContext() {
-        System.out.println("getContext");
         String expResult = "test context";
         BuildStatus instance = new BuildStatus(null, "", "", expResult);
         String result = instance.getContext();
@@ -76,7 +75,6 @@ public class BuildStatusTest {
      */
     @Test
     public void testGetCommitState() {
-        System.out.println("getCommitState");
         BuildStatus instance = new BuildStatus(null, "", "", "");
 
         GHCommitState result = instance.getCommitState();
@@ -87,9 +85,7 @@ public class BuildStatusTest {
      * Test of setCommitState method, of class BuildStatus.
      */
     @Test
-    public void testSetCommitState() throws Exception {
-        System.out.println("setCommitState");
-        
+    public void testSetCommitState() throws Exception {        
         GHRepository repository = mock(GHRepository.class);
         BuildStatus instance = new BuildStatus(repository, "", "", "");
 
@@ -97,8 +93,8 @@ public class BuildStatusTest {
 
         GHCommitState result = instance.getCommitState();
         assertEquals(GHCommitState.SUCCESS, result);
-        //String sha1, GHCommitState state, String targetUrl, String description, String context
-        verify(repository).createCommitStatus("", GHCommitState.SUCCESS, "", "Building stage", "");
+
+        verify(repository).createCommitStatus("", GHCommitState.SUCCESS, "", "Stage built successfully", "");
     }
     
 }
