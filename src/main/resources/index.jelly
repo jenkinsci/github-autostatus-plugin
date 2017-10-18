@@ -1,4 +1,5 @@
 <?jelly escape-by-default='true'?>
 <div>
-    TODO
+    This plugin provides status to github for each stage of a multibranch pipeline job
+    (declarative pipeline only)
 </div>
