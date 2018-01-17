@@ -61,9 +61,9 @@ public class BuildStatusAction extends InvisibleAction {
     
     public void addBuildStatus(String stageName) {
         try {
-            BuildStatus buildStatus = new BuildStatus(repository, shaString, targetUrl, stageName);
-            buildStatus.setCommitState(GHCommitState.PENDING);        
+            BuildStatus buildStatus = new BuildStatus(repository, shaString, targetUrl, stageName);            
             buildStatuses. put(buildStatus.getContext(), buildStatus);
+            buildStatus.setCommitState(GHCommitState.PENDING);        
         } catch (IOException ex) {
             Logger.getLogger(BuildStatusAction.class.getName()).log(Level.SEVERE, null, ex);
         }

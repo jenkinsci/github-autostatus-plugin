@@ -35,10 +35,20 @@ import hudson.model.Queue;
 import hudson.model.Run;
 import hudson.model.TaskListener;
 import hudson.security.ACL;
+import java.io.BufferedReader;
+import java.io.DataOutputStream;
 import java.io.IOException;
+import java.io.InputStreamReader;
+import java.io.OutputStreamWriter;
+import java.net.HttpURLConnection;
+import java.net.InetSocketAddress;
+import java.net.Proxy;
+import java.net.URL;
+import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
+import java.util.Random;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import javax.annotation.CheckForNull;
@@ -56,7 +66,7 @@ import org.jenkinsci.plugins.workflow.actions.ErrorAction;
 import org.jenkinsci.plugins.workflow.flow.GraphListener;
 import org.jenkinsci.plugins.workflow.graph.FlowNode;
 import org.jenkinsci.plugins.workflow.actions.LabelAction;
-import org.jenkinsci.plugins.workflow.actions.StageAction;
+import org.jenkinsci.plugins.workflow.actions.StageAction;      
 import org.jenkinsci.plugins.workflow.actions.ThreadNameAction;
 import org.jenkinsci.plugins.workflow.cps.nodes.StepEndNode;
 import org.jenkinsci.plugins.workflow.cps.nodes.StepStartNode;
@@ -97,10 +107,21 @@ public class GithubBuildStatusGraphListener implements GraphListener {
                     return;
                 }
                 LabelAction label = startNode.getAction(LabelAction.class);
+                
                 if (label != null) {
                     BuildStatus buildStatus = buildStatusAction.getBuildStatusForStage(label.getDisplayName());
-                    if (buildStatus != null) {
+                       if (buildStatus != null) {
                         ErrorAction errorAction = fn.getAction(ErrorAction.class);
+                        // link to influxdb source
+                        URL url = new URL( "http://10.33.178.125:8086/write?db=jenkins_db" );
+                        int val = 1;
+                        if(errorAction != null) {
+                           val = 0;       
+                        }
+                        
+                        String data = String.format("%s value=%d", label.getDisplayName().replaceAll("\\s", ""), val);
+                        postData(data, url);
+                        
                         buildStatus.setCommitState(errorAction == null ?
                                 GHCommitState.SUCCESS :
                                 GHCommitState.ERROR);
@@ -121,7 +142,39 @@ public class GithubBuildStatusGraphListener implements GraphListener {
         return node !=null && ((node.getAction(StageAction.class) != null)
             || (node.getAction(LabelAction.class) != null && node.getAction(ThreadNameAction.class) == null));
     }
+    
+    private static void postData(String urlParameters, URL url) {
+        try {    
+            HttpURLConnection client = (HttpURLConnection) url.openConnection();
+            client.setRequestMethod("POST");
+            client.setDoOutput(true);
+            Random rn = new Random();
+            System.out.println(urlParameters);
 
+            try (OutputStreamWriter writer =
+                    new OutputStreamWriter(client.getOutputStream())) {
+                writer.write(urlParameters);
+            }
+            catch(Exception e) {
+               System.out.println("Exception" + e);
+            }
+
+            try (BufferedReader in = new BufferedReader(new InputStreamReader(
+                    client.getInputStream()))) {
+                String decodedString;
+                while ((decodedString = in.readLine()) != null) {
+                    System.out.println(decodedString);
+                }
+            }
+            catch(Exception e) {
+               System.out.println("Exception" + e);
+            }
+                
+        }
+        catch(IOException e) {
+            System.out.println("Exception" + e);
+        }
+    }
     /**
      * Checks whether the current build meets our requirements for providing status,
      * and adds a BuildStatusAction to the build if so.
