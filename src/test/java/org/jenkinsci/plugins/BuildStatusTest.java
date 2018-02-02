@@ -65,7 +65,7 @@ public class BuildStatusTest {
     @Test
     public void testGetContext() {
         String expResult = "test context";
-        BuildStatus instance = new BuildStatus(null, "", "", expResult);
+        BuildStatus instance = new BuildStatus("", "", expResult);
         String result = instance.getContext();
         assertEquals(expResult, result);
     }
@@ -75,7 +75,7 @@ public class BuildStatusTest {
      */
     @Test
     public void testGetCommitState() {
-        BuildStatus instance = new BuildStatus(null, "", "", "");
+        BuildStatus instance = new BuildStatus("", "", "");
 
         GHCommitState result = instance.getCommitState();
         assertEquals(GHCommitState.PENDING, result);
@@ -87,9 +87,9 @@ public class BuildStatusTest {
     @Test
     public void testSetCommitState() throws Exception {        
         GHRepository repository = mock(GHRepository.class);
-        BuildStatus instance = new BuildStatus(repository, "", "", "");
+        BuildStatus instance = new BuildStatus("", "", "");
 
-        instance.setCommitState(GHCommitState.SUCCESS);
+        instance.setCommitState(repository, GHCommitState.SUCCESS);
 
         GHCommitState result = instance.getCommitState();
         assertEquals(GHCommitState.SUCCESS, result);

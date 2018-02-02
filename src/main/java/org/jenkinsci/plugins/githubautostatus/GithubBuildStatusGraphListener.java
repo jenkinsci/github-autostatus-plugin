@@ -59,10 +59,8 @@ import org.jenkinsci.plugins.workflow.actions.LabelAction;
 import org.jenkinsci.plugins.workflow.actions.StageAction;
 import org.jenkinsci.plugins.workflow.actions.ThreadNameAction;
 import org.jenkinsci.plugins.workflow.cps.nodes.StepEndNode;
-import org.jenkinsci.plugins.workflow.cps.nodes.StepStartNode;
 import org.jenkinsci.plugins.workflow.flow.FlowExecution;
 import org.jenkinsci.plugins.workflow.multibranch.WorkflowMultiBranchProject;
-import org.jenkinsci.plugins.workflow.support.steps.StageStep;
 import org.kohsuke.github.GHCommitState;
 import org.kohsuke.github.GHRepository;
 import org.kohsuke.github.GitHub;
@@ -100,10 +98,13 @@ public class GithubBuildStatusGraphListener implements GraphListener {
                 if (label != null) {
                     BuildStatus buildStatus = buildStatusAction.getBuildStatusForStage(label.getDisplayName());
                     if (buildStatus != null) {
-                        ErrorAction errorAction = fn.getAction(ErrorAction.class);
-                        buildStatus.setCommitState(errorAction == null ?
+                        GHRepository repo = getGHRepository(fn.getExecution());
+                        if (null != repo) {
+                            ErrorAction errorAction = fn.getAction(ErrorAction.class);
+                            buildStatus.setCommitState(repo, errorAction == null ?
                                 GHCommitState.SUCCESS :
                                 GHCommitState.ERROR);
+                        }
                     }
                 }  
             }         
@@ -247,6 +248,14 @@ public class GithubBuildStatusGraphListener implements GraphListener {
         return shaString;
     }
     
+    private static GHRepository getGHRepository(FlowExecution exec) throws IOException {
+        Run<?, ?> run = runFor(exec);
+        if (run != null) {
+            return getGHRepository(run, exec.getOwner().getListener());
+        }
+        return null;
+    }
+
     private static GHRepository getGHRepository (Run<?, ?> run, TaskListener listener) throws IOException {
         ItemGroup parent = run.getParent().getParent();
         WorkflowMultiBranchProject project = null;

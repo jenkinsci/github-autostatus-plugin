@@ -39,8 +39,7 @@ import org.kohsuke.github.GHRepository;
  */
 public class BuildStatus {
     
-    public BuildStatus(GHRepository repository, String shaString, String targetUrl, String context) {
-        this.repository = repository;
+    public BuildStatus(String shaString, String targetUrl, String context) {
         this.shaString = shaString;
         this.targetUrl = targetUrl;
         this.context = context;
@@ -58,8 +57,6 @@ public class BuildStatus {
     private final String shaString;
     
     private GHCommitState commitState;
-    
-    private final GHRepository repository;
     
     private final String targetUrl;
 
@@ -81,10 +78,11 @@ public class BuildStatus {
 
     /**
      * Sets the commit state and sends the new state to GitHub
+     * @param repository the repository to notify
      * @param commitState the commitState to set
      * @throws java.io.IOException downstream error
      */
-    public void setCommitState(GHCommitState commitState) throws IOException {
+    public void setCommitState(GHRepository repository, GHCommitState commitState) throws IOException {
         this.commitState = commitState;
         repository.createCommitStatus(shaString, commitState, targetUrl, DESCRIPTION_MAP.get(commitState), context);
     }
