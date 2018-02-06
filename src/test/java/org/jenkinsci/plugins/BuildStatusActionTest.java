@@ -71,7 +71,7 @@ public class BuildStatusActionTest {
         GHRepository repository = mock(GHRepository.class);
       
         BuildStatusAction instance = new BuildStatusAction(repository, "sha", "targetUrl", new ArrayList<String>());
-        instance.addBuildStatus(stageName);
+        instance.addBuildStatus(repository, stageName);
         
         verify(repository).createCommitStatus("sha", GHCommitState.PENDING, "targetUrl", "Building stage", stageName);
     }
@@ -86,7 +86,7 @@ public class BuildStatusActionTest {
         GHRepository repository = mock(GHRepository.class);
       
         BuildStatusAction instance = new BuildStatusAction(repository, "sha", "targetUrl", new ArrayList<String>());
-        instance.addBuildStatus(stageName);
+        instance.addBuildStatus(repository, stageName);
         
         assertNotNull(instance.getBuildStatusForStage(stageName));
     }
@@ -100,7 +100,7 @@ public class BuildStatusActionTest {
         GHRepository repository = mock(GHRepository.class);
       
         BuildStatusAction instance = new BuildStatusAction(repository, "sha", "targetUrl", new ArrayList<String>());
-        instance.addBuildStatus(stageName);
+        instance.addBuildStatus(repository, stageName);
         
         assertNull(instance.getBuildStatusForStage("Stage 2"));
     }

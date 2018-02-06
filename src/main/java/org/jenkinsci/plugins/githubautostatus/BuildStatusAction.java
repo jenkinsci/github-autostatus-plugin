@@ -42,28 +42,25 @@ public class BuildStatusAction extends InvisibleAction {
             String shaString, 
             String targetUrl, 
             List<String> stageList) throws IOException {
-        this.repository = repository;
         this.shaString = shaString;
         this.targetUrl = targetUrl;
         this.buildStatuses = new HashMap<>();
         for (String stageName : stageList) {
-            addBuildStatus(stageName);
+            addBuildStatus(repository, stageName);
         }            
     }
     
     private final HashMap<String, BuildStatus> buildStatuses;
     
-    private final GHRepository repository;
-    
     private final String shaString;
     
     private final String targetUrl;
     
-    public void addBuildStatus(String stageName) {
+    public final void addBuildStatus(GHRepository repository, String stageName) {
         try {
-            BuildStatus buildStatus = new BuildStatus(repository, shaString, targetUrl, stageName);
-            buildStatus.setCommitState(GHCommitState.PENDING);        
+            BuildStatus buildStatus = new BuildStatus(shaString, targetUrl, stageName);
             buildStatuses. put(buildStatus.getContext(), buildStatus);
+            buildStatus.setCommitState(repository, GHCommitState.PENDING);        
         } catch (IOException ex) {
             Logger.getLogger(BuildStatusAction.class.getName()).log(Level.SEVERE, null, ex);
         }
