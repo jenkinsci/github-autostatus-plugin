@@ -66,13 +66,11 @@ import org.jenkinsci.plugins.workflow.actions.ErrorAction;
 import org.jenkinsci.plugins.workflow.flow.GraphListener;
 import org.jenkinsci.plugins.workflow.graph.FlowNode;
 import org.jenkinsci.plugins.workflow.actions.LabelAction;
-import org.jenkinsci.plugins.workflow.actions.StageAction;      
+import org.jenkinsci.plugins.workflow.actions.StageAction;
 import org.jenkinsci.plugins.workflow.actions.ThreadNameAction;
 import org.jenkinsci.plugins.workflow.cps.nodes.StepEndNode;
-import org.jenkinsci.plugins.workflow.cps.nodes.StepStartNode;
 import org.jenkinsci.plugins.workflow.flow.FlowExecution;
 import org.jenkinsci.plugins.workflow.multibranch.WorkflowMultiBranchProject;
-import org.jenkinsci.plugins.workflow.support.steps.StageStep;
 import org.kohsuke.github.GHCommitState;
 import org.kohsuke.github.GHRepository;
 import org.kohsuke.github.GitHub;
@@ -82,10 +80,10 @@ import org.kohsuke.github.GitHubBuilder;
  *
  * @author jxpearce
  */
-
 /**
  * GithubBuildStatusGraphListener watches builds, and provides status (pending,
  * error or success) to the github page for multibranch jobs
+ *
  * @author jxpearce@godaddy.com
  */
 @Extension
@@ -101,62 +99,65 @@ public class GithubBuildStatusGraphListener implements GraphListener {
                 if (buildStatusAction == null) {
                     return;
                 }
-                String startId = ((StepEndNode)fn).getStartNode().getId();
+                String startId = ((StepEndNode) fn).getStartNode().getId();
                 FlowNode startNode = fn.getExecution().getNode(startId);
                 if (null == startNode) {
                     return;
                 }
                 LabelAction label = startNode.getAction(LabelAction.class);
-                
+
                 if (label != null) {
                     BuildStatus buildStatus = buildStatusAction.getBuildStatusForStage(label.getDisplayName());
-                       if (buildStatus != null) {
+                    if (buildStatus != null) {
                         ErrorAction errorAction = fn.getAction(ErrorAction.class);
                         // link to influxdb source
-                        URL url = new URL( "http://10.33.178.125:8086/write?db=jenkins_db" );
+                        URL url = new URL("http://10.33.178.125:8086/write?db=jenkins_db");
                         int val = 1;
-                        if(errorAction != null) {
-                           val = 0;       
+                        if (errorAction != null) {
+                            val = 0;
                         }
-                        
+
                         String data = String.format("%s value=%d", label.getDisplayName().replaceAll("\\s", ""), val);
                         postData(data, url);
-                        
-                        buildStatus.setCommitState(errorAction == null ?
-                                GHCommitState.SUCCESS :
-                                GHCommitState.ERROR);
+
+                        GHRepository repo = getGHRepository(fn.getExecution());
+                        if (null != repo) {
+                            buildStatus.setCommitState(repo, errorAction == null
+                                    ? GHCommitState.SUCCESS
+                                    : GHCommitState.ERROR);
+                        }
                     }
-                }  
-            }         
+                }
+            }
         } catch (IOException ex) {
             getLogger().log(Level.SEVERE, null, ex);
         }
     }
-    
+
     /**
      * Determines if a FlowNode describes a stage
+     *
      * @param node
      * @return true if it's a stage node; false otherwise
      */
-    private static boolean isStage(FlowNode node){
-        return node !=null && ((node.getAction(StageAction.class) != null)
-            || (node.getAction(LabelAction.class) != null && node.getAction(ThreadNameAction.class) == null));
+    private static boolean isStage(FlowNode node) {
+        return node != null && ((node.getAction(StageAction.class) != null)
+                || (node.getAction(LabelAction.class) != null && node.getAction(ThreadNameAction.class) == null));
     }
-    
+
     private static void postData(String urlParameters, URL url) {
-        try {    
+        try {
             HttpURLConnection client = (HttpURLConnection) url.openConnection();
             client.setRequestMethod("POST");
             client.setDoOutput(true);
             Random rn = new Random();
             System.out.println(urlParameters);
 
-            try (OutputStreamWriter writer =
-                    new OutputStreamWriter(client.getOutputStream())) {
+            try (OutputStreamWriter writer
+                    = new OutputStreamWriter(client.getOutputStream())) {
                 writer.write(urlParameters);
-            }
-            catch(Exception e) {
-               System.out.println("Exception" + e);
+            } catch (Exception e) {
+                System.out.println("Exception" + e);
             }
 
             try (BufferedReader in = new BufferedReader(new InputStreamReader(
@@ -165,30 +166,30 @@ public class GithubBuildStatusGraphListener implements GraphListener {
                 while ((decodedString = in.readLine()) != null) {
                     System.out.println(decodedString);
                 }
+            } catch (Exception e) {
+                System.out.println("Exception" + e);
             }
-            catch(Exception e) {
-               System.out.println("Exception" + e);
-            }
-                
-        }
-        catch(IOException e) {
+
+        } catch (IOException e) {
             System.out.println("Exception" + e);
         }
     }
+
     /**
-     * Checks whether the current build meets our requirements for providing status,
-     * and adds a BuildStatusAction to the build if so.
-     * @param exec 
+     * Checks whether the current build meets our requirements for providing
+     * status, and adds a BuildStatusAction to the build if so.
+     *
+     * @param exec
      */
-    private static void checkEnableBuildStatus(FlowExecution exec) {        
+    private static void checkEnableBuildStatus(FlowExecution exec) {
         try {
             BuildStatusAction buildStatusAction = buildStatusActionFor(exec);
-            
+
             if (null != buildStatusAction) {
                 getLogger().log(Level.INFO, "BuildStatusAction set by previous step");
                 return;
             }
-            
+
             Run<?, ?> run = runFor(exec);
             if (null == run) {
                 getLogger().log(Level.INFO, "Could not find Run - status will not be provided for this build");
@@ -211,7 +212,7 @@ public class GithubBuildStatusGraphListener implements GraphListener {
                 return;
             }
             String targetUrl = DisplayURLProvider.get().getRunURL(run);
-            
+
             GHRepository repo = getGHRepository(run, exec.getOwner().getListener());
             if (null == repo) {
                 getLogger().log(Level.INFO, "Could not find commit GHRepository - status will not be provided for this build");
@@ -228,8 +229,8 @@ public class GithubBuildStatusGraphListener implements GraphListener {
                     commitSha,
                     targetUrl,
                     convertList(stageList));
-            
-            run.addAction(buildStatusAction);        
+
+            run.addAction(buildStatusAction);
         } catch (IOException ex) {
             try {
                 exec.getOwner().getListener().getLogger().println(ex.toString());
@@ -239,9 +240,10 @@ public class GithubBuildStatusGraphListener implements GraphListener {
             Logger.getLogger(GithubBuildStatusGraphListener.class.getName()).log(Level.SEVERE, null, ex);
         }
     }
-    
+
     /**
      * Converts a list of ModelAStage objects to a list of stage names
+     *
      * @param modelList list to convert
      * @return list of stage names
      */
@@ -253,7 +255,8 @@ public class GithubBuildStatusGraphListener implements GraphListener {
         return result;
     }
 
-    private static @CheckForNull BuildStatusAction buildStatusActionFor(FlowExecution exec) {
+    private static @CheckForNull
+    BuildStatusAction buildStatusActionFor(FlowExecution exec) {
         BuildStatusAction buildStatusAction = null;
         Run<?, ?> run = runFor(exec);
         if (run != null) {
@@ -262,7 +265,8 @@ public class GithubBuildStatusGraphListener implements GraphListener {
         return buildStatusAction;
     }
 
-    private static @CheckForNull Run<?, ?> runFor(FlowExecution exec) {
+    private static @CheckForNull
+    Run<?, ?> runFor(FlowExecution exec) {
         Queue.Executable executable;
         try {
             executable = exec.getOwner().getExecutable();
@@ -276,15 +280,15 @@ public class GithubBuildStatusGraphListener implements GraphListener {
             return null;
         }
     }
-    
-        private static <T extends Credentials> T getCredentials(@Nonnull Class<T> type, @Nonnull String credentialsId, Item context) {
+
+    private static <T extends Credentials> T getCredentials(@Nonnull Class<T> type, @Nonnull String credentialsId, Item context) {
         return CredentialsMatchers.firstOrNull(lookupCredentials(
-            type, context, ACL.SYSTEM,
-            Collections.<DomainRequirement>emptyList()), CredentialsMatchers.allOf(
-            CredentialsMatchers.withId(credentialsId),
-            CredentialsMatchers.instanceOf(type)));
+                type, context, ACL.SYSTEM,
+                Collections.<DomainRequirement>emptyList()), CredentialsMatchers.allOf(
+                CredentialsMatchers.withId(credentialsId),
+                CredentialsMatchers.instanceOf(type)));
     }
-    
+
     private static String getCommitSha(Run<?, ?> run) {
         String shaString = null;
         SCMRevisionAction scmRevisionAction = run.getAction(SCMRevisionAction.class);
@@ -296,16 +300,24 @@ public class GithubBuildStatusGraphListener implements GraphListener {
         } else if (scmRevisionAction.getRevision() instanceof PullRequestSCMRevision) {
             shaString = ((PullRequestSCMRevision) scmRevisionAction.getRevision()).getPullHash();
         }
-        
+
         return shaString;
     }
-    
-    private static GHRepository getGHRepository (Run<?, ?> run, TaskListener listener) throws IOException {
+
+    private static GHRepository getGHRepository(FlowExecution exec) throws IOException {
+        Run<?, ?> run = runFor(exec);
+        if (run != null) {
+            return getGHRepository(run, exec.getOwner().getListener());
+        }
+        return null;
+    }
+
+    private static GHRepository getGHRepository(Run<?, ?> run, TaskListener listener) throws IOException {
         ItemGroup parent = run.getParent().getParent();
         WorkflowMultiBranchProject project = null;
         if (parent instanceof WorkflowMultiBranchProject) {
-            project = (WorkflowMultiBranchProject)parent;
-        } 
+            project = (WorkflowMultiBranchProject) parent;
+        }
         if (null == project) {
             getLogger().log(Level.INFO, "Project is not a multibranch project - status will not be provided for this build");
             return null;
@@ -313,7 +325,7 @@ public class GithubBuildStatusGraphListener implements GraphListener {
         GitHubSCMSource gitHubScmSource = null;
         SCMSource scmSource = project.getSCMSources().get(0);
         if (scmSource != null && scmSource instanceof GitHubSCMSource) {
-            gitHubScmSource = (GitHubSCMSource)scmSource;
+            gitHubScmSource = (GitHubSCMSource) scmSource;
         }
         if (null == gitHubScmSource) {
             getLogger().log(Level.INFO, "Could not find githubSCMSource - status will not be provided for this build");
@@ -331,7 +343,7 @@ public class GithubBuildStatusGraphListener implements GraphListener {
         if (null == url) {
             url = GitHubSCMSource.GITHUB_URL;
         }
-        
+
         listener.getLogger().println(repoOwner);
         listener.getLogger().println(repository);
         listener.getLogger().println(url);
@@ -339,18 +351,18 @@ public class GithubBuildStatusGraphListener implements GraphListener {
         getLogger().log(Level.INFO, "Repository is + ", repository);
         getLogger().log(Level.INFO, "Github API is + ", url);
 
-        UsernamePasswordCredentials credentials = getCredentials(UsernamePasswordCredentials.class, credentialsId, run.getParent());        
-        
+        UsernamePasswordCredentials credentials = getCredentials(UsernamePasswordCredentials.class, credentialsId, run.getParent());
+
         GitHubBuilder githubBuilder = new GitHubBuilder().withEndpoint(url);
         githubBuilder.withPassword(credentials.getUsername(), credentials.getPassword().getPlainText());
-        
+
         GitHub github = githubBuilder.build();
         GHRepository repo = github.getUser(repoOwner).getRepository(repository);
-        
+
         return repo;
     }
-    
+
     private static Logger getLogger() {
-        return Logger.getLogger(GithubBuildStatusGraphListener.class.getName());   
-    }    
+        return Logger.getLogger(GithubBuildStatusGraphListener.class.getName());
+    }
 }
