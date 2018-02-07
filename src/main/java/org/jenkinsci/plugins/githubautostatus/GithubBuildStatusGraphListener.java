@@ -117,7 +117,13 @@ public class GithubBuildStatusGraphListener implements GraphListener {
                             val = 0;
                         }
 
-                        String data = String.format("%s value=%d", label.getDisplayName().replaceAll("\\s", ""), val);
+                        String labelDisplayName = label.getDisplayName();
+                        if (labelDisplayName == null) {
+                            labelDisplayName = "";
+                        } else {
+                            labelDisplayName = labelDisplayName.replaceAll("\\s", "");
+                        }
+                        String data = String.format("%s value=%d", labelDisplayName, val);
                         postData(data, url);
 
                         GHRepository repo = getGHRepository(fn.getExecution());
@@ -150,18 +156,17 @@ public class GithubBuildStatusGraphListener implements GraphListener {
             HttpURLConnection client = (HttpURLConnection) url.openConnection();
             client.setRequestMethod("POST");
             client.setDoOutput(true);
-            Random rn = new Random();
             System.out.println(urlParameters);
 
             try (OutputStreamWriter writer
-                    = new OutputStreamWriter(client.getOutputStream())) {
+                    = new OutputStreamWriter(client.getOutputStream(), StandardCharsets.UTF_8)) {
                 writer.write(urlParameters);
             } catch (Exception e) {
                 System.out.println("Exception" + e);
             }
 
             try (BufferedReader in = new BufferedReader(new InputStreamReader(
-                    client.getInputStream()))) {
+                    client.getInputStream(), StandardCharsets.UTF_8))) {
                 String decodedString;
                 while ((decodedString = in.readLine()) != null) {
                     System.out.println(decodedString);
