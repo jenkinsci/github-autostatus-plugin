@@ -216,7 +216,12 @@ public class GithubBuildStatusGraphListener implements GraphListener {
                 getLogger().log(Level.INFO, "Could not find commit sha - status will not be provided for this build");
                 return;
             }
-            String targetUrl = DisplayURLProvider.get().getRunURL(run);
+            String targetUrl; 
+            try {
+                targetUrl = DisplayURLProvider.get().getRunURL(run);
+            } catch (Exception e) {
+                targetUrl = "";
+            }
 
             GHRepository repo = getGHRepository(run, exec.getOwner().getListener());
             if (null == repo) {
