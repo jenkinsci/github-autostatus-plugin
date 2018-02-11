@@ -29,6 +29,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.logging.Level;
 import java.util.logging.Logger;
+import javax.xml.ws.http.HTTPException;
 import org.kohsuke.github.GHCommitState;
 import org.kohsuke.github.GHRepository;
 
@@ -61,6 +62,10 @@ public class BuildStatusAction extends InvisibleAction {
             BuildStatus buildStatus = new BuildStatus(shaString, targetUrl, stageName);
             buildStatuses. put(buildStatus.getContext(), buildStatus);
             buildStatus.setCommitState(repository, GHCommitState.PENDING);        
+        } catch (org.kohsuke.github.HttpException ex) {
+            if (ex.getResponseCode() < 200 || ex.getResponseCode() > 299) {
+                Logger.getLogger(BuildStatusAction.class.getName()).log(Level.SEVERE, null, ex);                
+            }
         } catch (IOException ex) {
             Logger.getLogger(BuildStatusAction.class.getName()).log(Level.SEVERE, null, ex);
         }

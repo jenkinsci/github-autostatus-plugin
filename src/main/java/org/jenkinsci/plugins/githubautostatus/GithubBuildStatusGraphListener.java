@@ -36,19 +36,15 @@ import hudson.model.Run;
 import hudson.model.TaskListener;
 import hudson.security.ACL;
 import java.io.BufferedReader;
-import java.io.DataOutputStream;
 import java.io.IOException;
 import java.io.InputStreamReader;
 import java.io.OutputStreamWriter;
 import java.net.HttpURLConnection;
-import java.net.InetSocketAddress;
-import java.net.Proxy;
 import java.net.URL;
 import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
-import java.util.Random;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import javax.annotation.CheckForNull;
@@ -110,21 +106,24 @@ public class GithubBuildStatusGraphListener implements GraphListener {
                     BuildStatus buildStatus = buildStatusAction.getBuildStatusForStage(label.getDisplayName());
                     if (buildStatus != null) {
                         ErrorAction errorAction = fn.getAction(ErrorAction.class);
-                        // link to influxdb source
-                        URL url = new URL("http://10.33.178.125:8086/write?db=jenkins_db");
-                        int val = 1;
-                        if (errorAction != null) {
-                            val = 0;
-                        }
 
-                        String labelDisplayName = label.getDisplayName();
-                        if (labelDisplayName == null) {
-                            labelDisplayName = "";
-                        } else {
-                            labelDisplayName = labelDisplayName.replaceAll("\\s", "");
+                        String influxDbUrl = BuildStatusConfig.get().getInfluxDbUrl();
+                        if (influxDbUrl != null) {
+                            URL url = new URL(influxDbUrl);
+                            int val = 1;
+                            if (errorAction != null) {
+                                val = 0;
+                            }
+
+                            String labelDisplayName = label.getDisplayName();
+                            if (labelDisplayName == null) {
+                                labelDisplayName = "";
+                            } else {
+                                labelDisplayName = labelDisplayName.replaceAll("\\s", "");
+                            }
+                            String data = String.format("%s value=%d", labelDisplayName, val);
+                            postData(data, url);
                         }
-                        String data = String.format("%s value=%d", labelDisplayName, val);
-                        postData(data, url);
 
                         GHRepository repo = getGHRepository(fn.getExecution());
                         if (null != repo) {

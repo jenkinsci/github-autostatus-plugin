@@ -26,6 +26,8 @@ package org.jenkinsci.plugins.githubautostatus;
 import com.google.common.collect.ImmutableMap;
 import java.io.IOException;
 import java.util.Map;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 import org.kohsuke.github.GHCommitState;
 import org.kohsuke.github.GHRepository;
 
@@ -84,7 +86,12 @@ public class BuildStatus {
      */
     public void setCommitState(GHRepository repository, GHCommitState commitState) throws IOException {
         this.commitState = commitState;
-        repository.createCommitStatus(shaString, commitState, targetUrl, DESCRIPTION_MAP.get(commitState), context);
+        try {
+            repository.createCommitStatus(shaString, commitState, targetUrl, DESCRIPTION_MAP.get(commitState), context);
+        } catch (org.kohsuke.github.HttpException ex) {
+            if (ex.getResponseCode() < 200 || ex.getResponseCode() > 299) {
+                Logger.getLogger(BuildStatus.class.getName()).log(Level.SEVERE, null, ex);                
+            }
+        }
     }
-    
 }
