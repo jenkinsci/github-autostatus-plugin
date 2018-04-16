@@ -1,10 +1,25 @@
 <?jelly escape-by-default='true'?>
 <j:jelly xmlns:j="jelly:core" xmlns:st="jelly:stapler" xmlns:d="jelly:define" xmlns:l="/lib/layout" xmlns:t="/lib/hudson" xmlns:f="/lib/form">
 
-  <f:section title="Autostatus Config">
-    <f:entry title="Optional influxdb url" field="influxDbUrl" name="influxDbUrl">
-        <f:textbox />
-    </f:entry>
-  </f:section>
+    <f:section title="Autostatus Config">
+        <f:advanced title="Influxdb">
+        <f:entry title="Optional influxdb url" field="influxDbUrl" name="influxDbUrl">
+            <f:textbox />
+        </f:entry>
+        <f:entry title="influxdb database" field="influxDbDatabase" name="influxDbDatabase">
+            <f:textbox />
+        </f:entry>
+        <f:entry title="influxdb user" field="influxDbUser" name="influxDbUser">
+            <f:textbox />
+        </f:entry>
+        <f:entry title="influxdb password" field="influxDbPassword" name="influxDbPassword">
+            <f:textbox />
+        </f:entry>
+        <f:entry title="retention policy" field="influxDbRetentionPolicy" name="influxDbRetentionPolicy">
+            <f:textbox />
+        </f:entry>
+        </f:advanced>
+ 
+    </f:section>
 </j:jelly>
 

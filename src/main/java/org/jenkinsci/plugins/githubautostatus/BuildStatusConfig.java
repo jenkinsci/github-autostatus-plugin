@@ -40,6 +40,13 @@ import org.kohsuke.stapler.StaplerRequest;
  */
 @Extension
 public class BuildStatusConfig extends GlobalConfiguration {
+
+    private String influxDbUrl;
+    private String influxDbDatabase;
+    private String influxDbUser;
+    private String influxDbPassword;
+    private String influxDbRetentionPolicy;
+
     /**
      * Convenience method to get the configuration object
      *
@@ -65,22 +72,20 @@ public class BuildStatusConfig extends GlobalConfiguration {
     public String getDisplayName() {
         return "Global configuration object for the autostatus plugin";
     }
-    
+
     /**
      * Invoked when the global configuration page is submitted
-     * 
+     *
      * @param req Request that represents the form submission
      * @param json The JSON object that captures the configuration data
      * @return always returns true (allow config page to be closed)
-     * @throws hudson.model.Descriptor.FormException 
+     * @throws hudson.model.Descriptor.FormException
      */
     @Override
     public boolean configure(StaplerRequest req, JSONObject json) throws FormException {
         req.bindJSON(this, json);
         return true;
     }
-    
-    private String influxDbUrl;
 
     /**
      * Get the value of influxDbUrl
@@ -100,5 +105,85 @@ public class BuildStatusConfig extends GlobalConfiguration {
     public void setInfluxDbUrl(String influxDbUrl) {
         this.influxDbUrl = influxDbUrl;
         save();
-    }    
+    }
+
+    /**
+     * Get the value of influxDbPassword
+     *
+     * @return the value of influxDbPassword
+     */
+    public String getInfluxDbPassword() {
+        return influxDbPassword;
+    }
+
+    /**
+     * Set the value of influxDbPassword
+     *
+     * @param influxDbPassword new value of influxDbPassword
+     */
+    @DataBoundSetter
+    public void setInfluxDbPassword(String influxDbPassword) {
+        this.influxDbPassword = influxDbPassword;
+        save();
+    }
+
+    /**
+     * Get the value of influxDbDatabase
+     *
+     * @return the value of influxDbDatabase
+     */
+    public String getInfluxDbDatabase() {
+        return influxDbDatabase;
+    }
+
+    /**
+     * Set the value of influxDbDatabase
+     *
+     * @param influxDbDatabase new value of influxDbDatabase
+     */
+    @DataBoundSetter
+    public void setInfluxDbDatabase(String influxDbDatabase) {
+        this.influxDbDatabase = influxDbDatabase;
+        save();
+    }
+
+    /**
+     * Get the value of influxDbUser
+     *
+     * @return the value of influxDbUser
+     */
+    public String getInfluxDbUser() {
+        return influxDbUser;
+    }
+
+    /**
+     * Set the value of influxDbUser
+     *
+     * @param influxDbUser new value of influxDbUser
+     */
+    @DataBoundSetter
+    public void setInfluxDbUser(String influxDbUser) {
+        this.influxDbUser = influxDbUser;
+        save();
+    }
+
+    /**
+     * Get the value of influxDbRetentionPolicy
+     *
+     * @return the value of influxDbRetentionPolicy
+     */
+    public String getInfluxDbRetentionPolicy() {
+        return influxDbRetentionPolicy;
+    }
+
+    /**
+     * Set the value of influxDbRetentionPolicy
+     *
+     * @param influxDbRetentionPolicy new value of influxDbRetentionPolicy
+     */
+    @DataBoundSetter
+    public void setInfluxDbRetentionPolicy(String influxDbRetentionPolicy) {
+        this.influxDbRetentionPolicy = influxDbRetentionPolicy;
+        save();
+    }
 }

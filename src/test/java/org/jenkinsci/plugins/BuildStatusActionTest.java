@@ -25,13 +25,15 @@ package org.jenkinsci.plugins;
 
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.Arrays;
 import org.jenkinsci.plugins.githubautostatus.BuildStatusAction;
+import org.jenkinsci.plugins.githubautostatus.GithubNotificationConfig;
+import org.jenkinsci.plugins.githubautostatus.notifiers.BuildState;
 import org.junit.After;
 import org.junit.AfterClass;
 import org.junit.Before;
 import org.junit.BeforeClass;
 import org.junit.Test;
-import static org.junit.Assert.*;
 import org.kohsuke.github.GHCommitState;
 import org.kohsuke.github.GHRepository;
 import static org.mockito.Mockito.*;
@@ -41,68 +43,151 @@ import static org.mockito.Mockito.*;
  * @author jxpearce
  */
 public class BuildStatusActionTest {
-    
+
+    static String jobName = "mock-job";
+    static String stageName = "Stage 1";
+    static String repoName = "mock-repo";
+    static String branchName = "mock-branch";
+    static String sha = "mock-sha";
+    static String targetUrl = "http://mock-target";
+    static GHRepository repository;
+    static GithubNotificationConfig githubConfig;
+
     public BuildStatusActionTest() {
     }
-    
+
     @BeforeClass
     public static void setUpClass() {
     }
-    
+
     @AfterClass
     public static void tearDownClass() {
     }
-    
+
     @Before
     public void setUp() {
+        repository = mock(GHRepository.class);
+        when(repository.getName()).thenReturn(repoName);
+
+        githubConfig = mock(GithubNotificationConfig.class);
+        when(githubConfig.getRepo()).thenReturn(repository);
+        when(githubConfig.getShaString()).thenReturn(sha);
+        when(githubConfig.getBranchName()).thenReturn(branchName);
     }
-    
+
     @After
     public void tearDown() {
     }
 
     /**
-     * Verifies addBuildStatus calls createCommitStatus with a status of pending
+     * Verifies status is sent for initial stages when notifier is added
+     *
      * @throws java.io.IOException
      */
     @Test
-    public void testAddBuildStatus() throws IOException {
-        String stageName = "Stage 1";
-        GHRepository repository = mock(GHRepository.class);
-      
-        BuildStatusAction instance = new BuildStatusAction(repository, "sha", "targetUrl", new ArrayList<String>());
-        instance.addBuildStatus(repository, stageName);
-        
-        verify(repository).createCommitStatus("sha", GHCommitState.PENDING, "targetUrl", "Building stage", stageName);
+    public void testInitialStage() throws IOException {
+        BuildStatusAction instance = new BuildStatusAction(jobName, targetUrl, new ArrayList<>(Arrays.asList(stageName)));
+        instance.addGithubNofifier(githubConfig);
+
+        verify(repository).createCommitStatus(sha, GHCommitState.PENDING, targetUrl, "Building stage", stageName);
     }
 
     /**
-     * Verifies getBuildStatus with an invalid stage name returns build status
+     * Verifies addBuildStatus calls createCommitStatus with a status of pending
+     *
      * @throws java.io.IOException
      */
     @Test
-    public void testValidGetBuildStatus() throws IOException {
-        String stageName = "Stage 1";
-        GHRepository repository = mock(GHRepository.class);
-      
-        BuildStatusAction instance = new BuildStatusAction(repository, "sha", "targetUrl", new ArrayList<String>());
-        instance.addBuildStatus(repository, stageName);
-        
-        assertNotNull(instance.getBuildStatusForStage(stageName));
+    public void testAddBuildStatusGitHub() throws IOException {
+        BuildStatusAction instance = new BuildStatusAction(jobName, targetUrl, new ArrayList<>());
+        instance.addGithubNofifier(githubConfig);
+        instance.addBuildStatus(stageName);
+
+        verify(repository).createCommitStatus(sha, GHCommitState.PENDING, targetUrl, "Building stage", stageName);
     }
-    
+
     /**
-     * Verifies getBuildStatus with an invalid stage name returns null
+     * Verifies updating a stage with success sends the correct status
+     *
      * @throws java.io.IOException
      */
-    public void testInvalidGetBuildStatus() throws IOException {
-        String stageName = "Stage 1";
-        GHRepository repository = mock(GHRepository.class);
-      
-        BuildStatusAction instance = new BuildStatusAction(repository, "sha", "targetUrl", new ArrayList<String>());
-        instance.addBuildStatus(repository, stageName);
-        
-        assertNull(instance.getBuildStatusForStage("Stage 2"));
+    @Test
+    public void testStageSuccessGitHub() throws IOException {
+        BuildStatusAction instance = new BuildStatusAction(jobName, targetUrl, new ArrayList<>());
+        instance.addGithubNofifier(githubConfig);
+        instance.addBuildStatus(stageName);
+
+        instance.updateBuildStatusForStage(stageName, BuildState.CompletedSuccess);
+
+        verify(repository).createCommitStatus(sha, GHCommitState.PENDING, targetUrl, "Building stage", stageName);
+        verify(repository).createCommitStatus(sha, GHCommitState.SUCCESS, targetUrl, "Stage built successfully", stageName);
+    }
+
+    /**
+     * Verifies updating a stage with an error sends the correct status
+     *
+     * @throws java.io.IOException
+     */
+    @Test
+    public void testStageErrorGitHub() throws IOException {
+        BuildStatusAction instance = new BuildStatusAction(jobName, targetUrl, new ArrayList<>());
+        instance.addGithubNofifier(githubConfig);
+        instance.addBuildStatus(stageName);
+
+        instance.updateBuildStatusForStage(stageName, BuildState.CompletedError);
+
+        verify(repository).createCommitStatus(sha, GHCommitState.PENDING, targetUrl, "Building stage", stageName);
+        verify(repository).createCommitStatus(sha, GHCommitState.ERROR, targetUrl, "Failed to build stage", stageName);
+    }
+
+    /**
+     * Verifies attempt to send status for invalid stage is ignored
+     *
+     * @throws java.io.IOException
+     */
+    @Test
+    public void testIgnoreInvalidStageGitHub() throws IOException {
+        BuildStatusAction instance = new BuildStatusAction(jobName, targetUrl, new ArrayList<>());
+        instance.addGithubNofifier(githubConfig);
+
+        instance.updateBuildStatusForStage(stageName, BuildState.CompletedSuccess);
+
+        verify(repository, never()).createCommitStatus(any(), any(), any(), any());
+    }
+
+    /**
+     * Verifies pending status recorded before the notifier was added are sent
+     *
+     * @throws java.io.IOException
+     */
+    @Test
+    public void testSendUnsentPendingStages() throws IOException {
+        BuildStatusAction instance = new BuildStatusAction(jobName, targetUrl, new ArrayList<>());
+        instance.addBuildStatus(stageName);
+
+        verify(repository, never()).createCommitStatus(any(), any(), any(), any());
+
+        instance.addGithubNofifier(githubConfig);
+
+        verify(repository).createCommitStatus(sha, GHCommitState.PENDING, targetUrl, "Building stage", stageName);
+    }
+
+    /**
+     * Verifies completed status recorded before the notifier was added are sent
+     *
+     * @throws java.io.IOException
+     */
+    @Test
+    public void testSendUnsentCompletedStages() throws IOException {
+        BuildStatusAction instance = new BuildStatusAction(jobName, targetUrl, new ArrayList<>());
+        instance.addBuildStatus(stageName);
+        instance.updateBuildStatusForStage(stageName, BuildState.CompletedSuccess);
+
+        verify(repository, never()).createCommitStatus(any(), any(), any(), any());
+
+        instance.addGithubNofifier(githubConfig);
+
+        verify(repository).createCommitStatus(sha, GHCommitState.SUCCESS, targetUrl, "Stage built successfully", stageName);
     }
 
 }
