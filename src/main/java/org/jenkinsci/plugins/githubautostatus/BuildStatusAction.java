@@ -63,6 +63,18 @@ public class BuildStatusAction extends InvisibleAction {
     }
 
     /**
+     * Cleans up by sending "complete" status to any steps that are currently
+     * pending. Needed because some complex jobs, particularly using down
+     */
+    public void close() {
+        this.buildStatuses.forEach((nodeName, buildState) -> {
+            if (buildState == BuildState.Pending) {
+                this.updateBuildStatusForStage(nodeName, BuildState.CompletedSuccess);
+            }
+        });
+    }
+
+    /**
      * Sets flag indicating whether notifications are for a declarative pipeline
      *
      * @return
@@ -149,6 +161,7 @@ public class BuildStatusAction extends InvisibleAction {
      * @param buildDuration build duration
      */
     public void updateBuildStatusForJob(BuildState buildState, long buildDuration) {
+        close();
         buildNotifierManager.notifyFinalBuildStatus(buildState, buildDuration);
     }
 
