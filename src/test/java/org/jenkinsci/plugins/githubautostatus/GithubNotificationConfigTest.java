@@ -52,6 +52,7 @@ import org.kohsuke.github.GitHubBuilder;
 import org.mockito.Matchers;
 import static org.mockito.Matchers.any;
 import static org.mockito.Matchers.anyString;
+import org.mockito.Mock;
 import org.mockito.Mockito;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
@@ -64,24 +65,31 @@ import org.powermock.modules.junit4.PowerMockRunner;
  * @author jxpearce
  */
 @RunWith(PowerMockRunner.class)
-@PrepareForTest( { CredentialsMatchers.class, SCMRevision.class, PullRequestSCMRevision.class })
+@PrepareForTest({CredentialsMatchers.class, SCMRevision.class, PullRequestSCMRevision.class, BuildStatusConfig.class})
 public class GithubNotificationConfigTest {
+
+    @Mock
+    private BuildStatusConfig config;// = mock(BuildStatusConfig.class);
 
     public GithubNotificationConfigTest() {
     }
-    
+
     @BeforeClass
     public static void setUpClass() {
     }
-    
+
     @AfterClass
     public static void tearDownClass() {
     }
-    
+
     @Before
     public void setUp() {
+        PowerMockito.mockStatic(BuildStatusConfig.class);
+//        config = mock(BuildStatusConfig.class);
+        when(config.getEnableGithub()).thenReturn(true);
+        when(BuildStatusConfig.get()).thenReturn(config);
     }
-    
+
     @After
     public void tearDown() {
     }
@@ -90,7 +98,7 @@ public class GithubNotificationConfigTest {
     public void testConfigBranchSource() throws Exception {
         AbstractBuild build = Mockito.mock(AbstractBuild.class);
         SCMRevisionAction mockSCMRevisionAction = mock(SCMRevisionAction.class);
-        when(build.getAction(SCMRevisionAction.class)).thenReturn(mockSCMRevisionAction);   
+        when(build.getAction(SCMRevisionAction.class)).thenReturn(mockSCMRevisionAction);
 
         GitHubSCMSource source = mock(GitHubSCMSource.class);
         when(source.getCredentialsId()).thenReturn("git-user");
@@ -99,13 +107,12 @@ public class GithubNotificationConfigTest {
         BranchSCMHead head = new BranchSCMHead("test-branch");
         SCMRevisionImpl revision = new SCMRevisionImpl(head, "what-the-hash");
         when(mockSCMRevisionAction.getRevision()).thenReturn(revision);
-        
-        
+
         WorkflowMultiBranchProject mockProject = mock(WorkflowMultiBranchProject.class);
         WorkflowJob mockJob = new WorkflowJob(mockProject, "job-name");
         when(build.getParent()).thenReturn(mockJob);
         when(mockProject.getSCMSources()).thenReturn(Collections.singletonList(source));
-        
+
         PowerMockito.mockStatic(CredentialsMatchers.class);
         when(CredentialsMatchers.firstOrNull(any(), any())).thenReturn(new UsernamePasswordCredentialsImpl(CredentialsScope.GLOBAL, "user-pass", null, "git-user", "git-password"));
 
@@ -121,11 +128,17 @@ public class GithubNotificationConfigTest {
         PowerMockito.when(builder.build()).thenReturn(github);
         PowerMockito.when(builder.withEndpoint(any())).thenReturn(builder);
 
-        GithubNotificationConfig instance = GithubNotificationConfig.fromRun((Run<WorkflowJob,?>)build, null, builder);
+        GithubNotificationConfig instance = GithubNotificationConfig.fromRun((Run<WorkflowJob, ?>) build, null, builder);
         assertEquals("what-the-hash", instance.getShaString());
         assertEquals("test-branch", instance.getBranchName());
     }
-    
+
+    @Test
+    public void testDisabledInConfig() {
+        when(config.getEnableGithub()).thenReturn(false);
+        assertNull(GithubNotificationConfig.fromRun(mock(AbstractBuild.class), null));
+    }
+
 //    @Test
 //    public void testConfigPullRequest() throws Exception {
 //        AbstractBuild build = Mockito.mock(AbstractBuild.class);
@@ -159,5 +172,4 @@ public class GithubNotificationConfigTest {
 //        
 //        GithubNotificationConfig instance = GithubNotificationConfig.fromRun(build, null, builder);
 //    }
-
 }

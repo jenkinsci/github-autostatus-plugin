@@ -165,15 +165,17 @@ public class InfluxDbNotifierConfig {
 
         InfluxDbNotifierConfig influxDbNotifierConfig = new InfluxDbNotifierConfig();
 
-        influxDbNotifierConfig.repoOwner = repoOwner;
-        influxDbNotifierConfig.repoName = repoName;
-        influxDbNotifierConfig.branchName = branchName;
+        if (config.getEnableInfluxDb()) {
+            influxDbNotifierConfig.repoOwner = repoOwner;
+            influxDbNotifierConfig.repoName = repoName;
+            influxDbNotifierConfig.branchName = branchName;
 
-        influxDbNotifierConfig.influxDbUrlString = config.getInfluxDbUrl();
-        influxDbNotifierConfig.influxDbDatabase = config.getInfluxDbDatabase();
-        influxDbNotifierConfig.influxDbUser = config.getInfluxDbUser();
-        influxDbNotifierConfig.influxDbPassword = config.getInfluxDbPassword();
-        influxDbNotifierConfig.influxDbRetentionPolicy = config.getInfluxDbRetentionPolicy();
+            influxDbNotifierConfig.influxDbUrlString = config.getInfluxDbUrl();
+            influxDbNotifierConfig.influxDbDatabase = config.getInfluxDbDatabase();
+            influxDbNotifierConfig.influxDbUser = config.getInfluxDbUser();
+            influxDbNotifierConfig.influxDbPassword = config.getInfluxDbPassword();
+            influxDbNotifierConfig.influxDbRetentionPolicy = config.getInfluxDbRetentionPolicy();
+        }
 
         return influxDbNotifierConfig;
     }

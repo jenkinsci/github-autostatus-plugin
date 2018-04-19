@@ -72,6 +72,7 @@ public class InfluxDbNotifierConfigTest {
         BuildStatusConfig config = mock(BuildStatusConfig.class);
         when(BuildStatusConfig.get()).thenReturn(config);
 
+        when(config.getEnableInfluxDb()).thenReturn(true);
         when(config.getInfluxDbUrl()).thenReturn(influxUrl);
         when(config.getInfluxDbDatabase()).thenReturn(influxDatabase);
         when(config.getInfluxDbUser()).thenReturn(influxDbUser);

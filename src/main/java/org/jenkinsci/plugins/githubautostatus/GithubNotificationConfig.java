@@ -38,6 +38,7 @@ import java.util.Collections;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import javax.annotation.Nonnull;
+import javax.annotation.Nullable;
 import jenkins.plugins.git.AbstractGitSCMSource;
 import jenkins.scm.api.SCMRevisionAction;
 import jenkins.scm.api.SCMSource;
@@ -83,26 +84,31 @@ public class GithubNotificationConfig {
         return repoName;
     }
 
-    public static GithubNotificationConfig fromRun(Run<?, ?> run, TaskListener listener) {
+    public static @Nullable
+    GithubNotificationConfig fromRun(Run<?, ?> run, TaskListener listener) {
         return GithubNotificationConfig.fromRun(run, listener, new GitHubBuilder());
     }
 
-    public static GithubNotificationConfig fromRun(Run<?, ?> run, TaskListener listener, GitHubBuilder githubBuilder) {
-        try {
-            GithubNotificationConfig result = new GithubNotificationConfig();
-            result.githubBuilder = githubBuilder;
-            if (!result.setCommitSha(run)) {
-                return null;
+    public static @Nullable
+    GithubNotificationConfig fromRun(Run<?, ?> run, TaskListener listener, GitHubBuilder githubBuilder) {
+        BuildStatusConfig buildStatusConfig = BuildStatusConfig.get();
+        if (buildStatusConfig.getEnableGithub()) {
+            try {
+                GithubNotificationConfig result = new GithubNotificationConfig();
+                result.githubBuilder = githubBuilder;
+                if (!result.setCommitSha(run)) {
+                    return null;
+                }
+                if (!result.setBranchInfo(run)) {
+                    return null;
+                }
+                if (!result.setGHRepositoryInfo(run)) {
+                    return null;
+                }
+                return result;
+            } catch (IOException ex) {
+                log(Level.SEVERE, ex);
             }
-            if (!result.setBranchInfo(run)) {
-                return null;
-            }
-            if (!result.setGHRepositoryInfo(run)) {
-                return null;
-            }
-            return result;
-        } catch (IOException ex) {
-            log(Level.SEVERE, ex);
         }
         return null;
     }

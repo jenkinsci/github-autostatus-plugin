@@ -46,6 +46,8 @@ public class BuildStatusConfig extends GlobalConfiguration {
     private String influxDbUser;
     private String influxDbPassword;
     private String influxDbRetentionPolicy;
+    private boolean enableInfluxDb;
+    private boolean disableGithub;
 
     /**
      * Convenience method to get the configuration object
@@ -85,6 +87,26 @@ public class BuildStatusConfig extends GlobalConfiguration {
     public boolean configure(StaplerRequest req, JSONObject json) throws FormException {
         req.bindJSON(this, json);
         return true;
+    }
+
+    public boolean getEnableGithub() {
+        return !disableGithub;
+    }
+
+    @DataBoundSetter
+    public void setEnableGithub(boolean enableGithub) {
+        this.disableGithub = !enableGithub;
+        save();
+    }
+
+    public boolean getEnableInfluxDb() {
+        return enableInfluxDb;
+    }
+
+    @DataBoundSetter
+    public void setEnableInfluxDb(boolean enableInfluxDb) {
+        this.enableInfluxDb = enableInfluxDb;
+        save();
     }
 
     /**
