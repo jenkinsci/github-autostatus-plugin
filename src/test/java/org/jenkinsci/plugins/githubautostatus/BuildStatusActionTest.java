@@ -21,7 +21,7 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
  * THE SOFTWARE.
  */
-package org.jenkinsci.plugins;
+package org.jenkinsci.plugins.githubautostatus;
 
 import java.io.IOException;
 import java.util.ArrayList;
@@ -186,6 +186,25 @@ public class BuildStatusActionTest {
         verify(repository, never()).createCommitStatus(any(), any(), any(), any());
 
         instance.addGithubNofifier(githubConfig);
+
+        verify(repository).createCommitStatus(sha, GHCommitState.SUCCESS, targetUrl, "Stage built successfully", stageName);
+    }
+
+    /**
+     * Verifies close sends updated status information for "pending" stages
+     *
+     * @throws java.io.IOException
+     */
+    @Test
+    public void testCloseUpdatesPendingStatuses() throws IOException {
+        BuildStatusAction instance = new BuildStatusAction(jobName, targetUrl, new ArrayList<>());
+        instance.addBuildStatus(stageName);
+
+        instance.addGithubNofifier(githubConfig);
+
+        verify(repository, never()).createCommitStatus(sha, GHCommitState.SUCCESS, targetUrl, "Stage built successfully", stageName);
+        
+        instance.close();
 
         verify(repository).createCommitStatus(sha, GHCommitState.SUCCESS, targetUrl, "Stage built successfully", stageName);
     }
