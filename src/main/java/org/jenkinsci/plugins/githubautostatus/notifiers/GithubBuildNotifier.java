@@ -24,6 +24,7 @@
 package org.jenkinsci.plugins.githubautostatus.notifiers;
 
 import com.google.common.collect.ImmutableMap;
+import com.google.common.collect.ImmutableMap.Builder;
 import java.util.Map;
 import java.util.logging.Level;
 import java.util.logging.Logger;
@@ -40,15 +41,23 @@ public class GithubBuildNotifier implements BuildNotifier {
     private final String shaString;
     private final String targetUrl;
 
-    private final Map<BuildState, GHCommitState> STATE_MAP = ImmutableMap.of(
-            BuildState.Pending, GHCommitState.PENDING,
-            BuildState.CompletedError, GHCommitState.ERROR,
-            BuildState.CompletedSuccess, GHCommitState.SUCCESS);
+    static final ImmutableMap<BuildState, GHCommitState> STATE_MAP = new ImmutableMap.Builder()
+            .put(BuildState.Pending, GHCommitState.PENDING)
+            .put(BuildState.CompletedError, GHCommitState.ERROR)
+            .put(BuildState.CompletedSuccess, GHCommitState.SUCCESS)
+            .put(BuildState.SkippedFailure, GHCommitState.SUCCESS)
+            .put(BuildState.SkippedUnstable, GHCommitState.SUCCESS)
+            .put(BuildState.SkippedConditional, GHCommitState.SUCCESS)
+            .build();
 
-    static final Map<BuildState, String> DESCRIPTION_MAP = ImmutableMap.of(
-            BuildState.Pending, "Building stage",
-            BuildState.CompletedError, "Failed to build stage",
-            BuildState.CompletedSuccess, "Stage built successfully");
+    static final ImmutableMap<BuildState, String> DESCRIPTION_MAP = new ImmutableMap.Builder()
+            .put(BuildState.Pending, "Building stage")
+            .put(BuildState.CompletedError, "Failed to build stage")
+            .put(BuildState.CompletedSuccess, "Stage built successfully")
+            .put(BuildState.SkippedFailure, "Stage did not run due to earlier failure(s)")
+            .put(BuildState.SkippedUnstable, "Stage did not run due earlier stage marking build unstable")
+            .put(BuildState.SkippedConditional, "Stage did not run due when conditional")
+            .build();
 
     /**
      * Constructor
@@ -127,8 +136,8 @@ public class GithubBuildNotifier implements BuildNotifier {
      * @param nodeName the name of the node that failed
      */
     @Override
-    public void sendOutOfBandError(String jobName, String nodeName) {
-
+    public void sendNonStageError(String jobName, String nodeName) {
+        notifyBuildState(jobName, nodeName, BuildState.CompletedError);
     }
 
     private static void log(Level level, Throwable exception) {

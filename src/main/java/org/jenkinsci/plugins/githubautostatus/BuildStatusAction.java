@@ -170,8 +170,8 @@ public class BuildStatusAction extends InvisibleAction {
      *
      * @param nodeName name of node
      */
-    public void sendOutOfBandError(String nodeName) {
+    public void sendNonStageError(String nodeName) {
         buildStatuses.put(nodeName, BuildState.CompletedError);
-        buildNotifierManager.sendOutOfBandError(nodeName);
+        buildNotifierManager.sendNonStageError(nodeName);
     }
 }

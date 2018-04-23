@@ -35,6 +35,7 @@ import java.util.logging.Logger;
 import javax.annotation.CheckForNull;
 import org.jenkinsci.plugins.displayurlapi.DisplayURLProvider;
 import org.jenkinsci.plugins.githubautostatus.notifiers.BuildState;
+import org.jenkinsci.plugins.pipeline.StageStatus;
 import org.jenkinsci.plugins.pipeline.modeldefinition.actions.ExecutionModelAction;
 import org.jenkinsci.plugins.pipeline.modeldefinition.ast.ModelASTStage;
 import org.jenkinsci.plugins.pipeline.modeldefinition.ast.ModelASTStages;
@@ -43,6 +44,7 @@ import org.jenkinsci.plugins.workflow.flow.GraphListener;
 import org.jenkinsci.plugins.workflow.graph.FlowNode;
 import org.jenkinsci.plugins.workflow.actions.LabelAction;
 import org.jenkinsci.plugins.workflow.actions.StageAction;
+import org.jenkinsci.plugins.workflow.actions.TagsAction;
 import org.jenkinsci.plugins.workflow.actions.ThreadNameAction;
 import org.jenkinsci.plugins.workflow.actions.TimingAction;
 import org.jenkinsci.plugins.workflow.cps.nodes.StepAtomNode;
@@ -106,7 +108,7 @@ public class GithubBuildStatusGraphListener implements GraphListener {
                     return;
                 }
 
-                buildStatusAction.sendOutOfBandError(fn.getDisplayName());
+                buildStatusAction.sendNonStageError(fn.getDisplayName());
 
             } else if (fn instanceof StepEndNode) {
                 BuildStatusAction buildStatusAction = buildStatusActionFor(fn.getExecution());
@@ -133,14 +135,41 @@ public class GithubBuildStatusGraphListener implements GraphListener {
                 }
 
                 if (nodeName != null) {
-                    BuildState buildState = errorAction == null ? BuildState.CompletedSuccess : BuildState.CompletedError;
-
+                    BuildState buildState = buildStateForStage(startNode, errorAction);
                     buildStatusAction.updateBuildStatusForStage(nodeName, buildState, time);
                 }
             }
         } catch (IOException ex) {
             getLogger().log(Level.SEVERE, null, ex);
         }
+    }
+
+    /**
+     * Determines the appropriate state for a stage
+     *
+     * @param flowNode The stage start node
+     * @param errorAction The error action from the stage end node
+     * @return Build state
+     */
+    BuildState buildStateForStage(FlowNode flowNode, ErrorAction errorAction) {
+        BuildState buildState = errorAction == null ? BuildState.CompletedSuccess : BuildState.CompletedError;;
+        TagsAction tags = flowNode.getAction(TagsAction.class);
+        if (tags != null) {
+            String status = tags.getTagValue(StageStatus.TAG_NAME);
+            if (status != null) {
+                if (status.equals(StageStatus.getSkippedForFailure())) {
+                    return BuildState.SkippedFailure;
+                } else if (status.equals(StageStatus.getSkippedForUnstable())) {
+                    return BuildState.SkippedUnstable;
+                } else if (status.equals(StageStatus.getSkippedForConditional())) {
+                    return BuildState.SkippedConditional;
+                } else if (status.equals(StageStatus.getFailedAndContinued())) {
+                    return BuildState.CompletedError;
+                }
+
+            }
+        }
+        return buildState;
     }
 
     static long getTime(FlowNode startNode, FlowNode endNode) {
@@ -155,6 +184,8 @@ public class GithubBuildStatusGraphListener implements GraphListener {
 
     /**
      * Determines if a FlowNode describes a stage
+     *
+     * Note: this check is copied from PipelineNodeUtil.java in blueocean-plugin
      *
      * @param node
      * @return true if it's a stage node; false otherwise
@@ -183,8 +214,9 @@ public class GithubBuildStatusGraphListener implements GraphListener {
             log(Level.INFO, "Processing build %s", run.getFullDisplayName());
 
             // Declarative pipeline jobs come with a nice execution model, which allows you
-            // to get all of the stages at once. Older scripted pipeline jobs do not, so we
-            // have to add them one at a time as we discover them.
+            // to get all of the stages at once at the beginning of the kob. 
+            // Older scripted pipeline jobs do not, so we have to add them one at a 
+            // time as we discover them.
             List<String> stageNames = getDeclarativeStages(run);
             boolean isDeclarativePipeline = stageNames != null;
 

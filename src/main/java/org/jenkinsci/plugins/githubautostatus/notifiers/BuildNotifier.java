@@ -72,5 +72,5 @@ public interface BuildNotifier {
      * @param jobName the name of the job
      * @param nodeName the name of the node that failed
      */
-    void sendOutOfBandError(String jobName, String nodeName);
+    void sendNonStageError(String jobName, String nodeName);
 }

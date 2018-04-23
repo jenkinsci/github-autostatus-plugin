@@ -49,7 +49,7 @@ public class InfluxDbNotifierConfigTest {
     private final String repositoryOwner = "mock-pwner";
     private final String repository = "mock-repo";
     private final String branch = "mock-branch";
-    private final String influxUrl = "mock-url";
+    private final String influxUrl = "http://mock-url";
     private final String influxDatabase = "mock-usdatabase";
     private final String influxDbUser = "mock-user";
     private final String influxDbPassword = "mock-password";

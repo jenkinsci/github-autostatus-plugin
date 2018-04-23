@@ -41,6 +41,7 @@ import org.jenkinsci.plugins.pipeline.modeldefinition.shaded.com.google.common.b
  */
 public class InfluxDbNotifier implements BuildNotifier {
 
+    protected final String DEFAULT_STRING = "none";
     protected String repoOwner;
     protected String repoName;
     protected String branchName;
@@ -76,6 +77,15 @@ public class InfluxDbNotifier implements BuildNotifier {
             this.repoOwner = config.getRepoOwner().replace(" ", "\\ ");
             this.repoName = config.getRepoName().replace(" ", "\\ ");
             this.branchName = config.getBranchName().replace(" ", "\\ ");
+            if (Strings.isNullOrEmpty(this.repoOwner)) {
+                this.repoOwner = DEFAULT_STRING;
+            }
+            if (Strings.isNullOrEmpty(this.repoName)) {
+                this.repoName = DEFAULT_STRING;
+            }
+            if (Strings.isNullOrEmpty(this.branchName)) {
+                this.branchName = DEFAULT_STRING;
+            }
             this.influxDbUrlString = urlString;
             this.config = config;
         }
@@ -117,7 +127,8 @@ public class InfluxDbNotifier implements BuildNotifier {
             return;
         }
 
-        int passed = buildState == BuildState.CompletedSuccess ? 1 : 0;
+        // Success and all Skipped stages are marked as successful
+        int passed = buildState == BuildState.CompletedError ? 0 : 1;
         String transFormedNodeName = nodeName.replace(" ", "\\ ");
         String result = buildState.toString();
 
@@ -156,7 +167,7 @@ public class InfluxDbNotifier implements BuildNotifier {
     }
 
     @Override
-    public void sendOutOfBandError(String jobName, String nodeName) {
+    public void sendNonStageError(String jobName, String nodeName) {
         notifyBuildState(jobName, nodeName, BuildState.CompletedError);
     }
 

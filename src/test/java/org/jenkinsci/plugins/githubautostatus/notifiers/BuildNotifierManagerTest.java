@@ -126,15 +126,15 @@ public class BuildNotifierManagerTest {
     }
 
     /**
-     * Verifies sendOutOfBandError calls notifiers
+     * Verifies sendNonStageError calls notifiers
      */
     @Test
-    public void testSendOutOfBandError() {
+    public void testSendNonStageError() {
         GithubBuildNotifier notifier = mock(GithubBuildNotifier.class);
         instance.notifiers.add(notifier);
-        instance.sendOutOfBandError(stageName);
+        instance.sendNonStageError(stageName);
 
-        verify(notifier).sendOutOfBandError(mockJobName, stageName);
+        verify(notifier).sendNonStageError(mockJobName, stageName);
     }
 
     /**

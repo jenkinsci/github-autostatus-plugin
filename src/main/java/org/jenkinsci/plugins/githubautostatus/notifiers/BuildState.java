@@ -32,6 +32,9 @@ public enum BuildState {
 
     Pending,
     CompletedSuccess,
-    CompletedError
+    CompletedError,
+    SkippedFailure,
+    SkippedUnstable,
+    SkippedConditional
 
 }

@@ -116,13 +116,13 @@ public class BuildNotifierManager {
     /**
      * Sends a notification for an error regardless of whether initial pending
      * status was sent. Useful for reporting errors for non-declarative
-     * pipelines since they can happen outside of a stage.
+     * pipelines when they happen outside of a stage.
      *
      * @param nodeName the name of the node that failed
      */
-    public void sendOutOfBandError(String nodeName) {
+    public void sendNonStageError(String nodeName) {
         notifiers.forEach((notifier) -> {
-            notifier.sendOutOfBandError(jobName, nodeName);
+            notifier.sendNonStageError(jobName, nodeName);
         });
     }
 }
