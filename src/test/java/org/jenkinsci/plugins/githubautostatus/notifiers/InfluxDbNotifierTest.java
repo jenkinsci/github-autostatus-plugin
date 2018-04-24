@@ -215,10 +215,10 @@ public class InfluxDbNotifierTest {
     }
 
     @Test
-    public void testNotifyOutOfBandError() throws IOException {
+    public void testNotifyNonStageError() throws IOException {
         InfluxDbNotifier instance = new InfluxDbNotifier(config);
 
-        instance.sendOutOfBandError("mockjobname", "mockstage");
+        instance.sendNonStageError("mockjobname", "mockstage");
 
         verify(mockHttpClient).execute(any());
         assertEquals(statusLine,

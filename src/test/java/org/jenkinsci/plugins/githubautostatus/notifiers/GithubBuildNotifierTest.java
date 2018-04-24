@@ -128,15 +128,25 @@ public class GithubBuildNotifierTest {
         verify(repository).createCommitStatus(sha, GHCommitState.ERROR, targetUrl, "Failed to build stage", stageName);
     }
 
+    /**
+     * Verifies nofitfyFinalBuildStatus doesn't send any commit status
+     * @throws IOException 
+     */
     @Test
-    public void testNotifyFinalBuildStatus() {
+    public void testNotifyFinalBuildStatus() throws IOException {
         GithubBuildNotifier notifier = new GithubBuildNotifier(repository, sha, targetUrl);
         notifier.notifyFinalBuildStatus(jobName, BuildState.CompletedSuccess, 0);
+        verify(repository, never()).createCommitStatus(any(), any(), any(), any());
     }
 
+    /**
+     * Verifies sendNonStageError sends a commit status for the error
+     * @throws IOException 
+     */
     @Test
-    public void testSendOutOfBandError() {
+    public void testSendNonStageError() throws IOException {
         GithubBuildNotifier notifier = new GithubBuildNotifier(repository, sha, targetUrl);
-        notifier.sendOutOfBandError(jobName, "");
+        notifier.sendNonStageError(jobName, stageName);
+        verify(repository).createCommitStatus(sha, GHCommitState.ERROR, targetUrl, "Failed to build stage", stageName);
     }
 }

@@ -11,12 +11,12 @@
     <version>2.1-SNAPSHOT</version>
     <packaging>hpi</packaging>
     <properties>
-        <jenkins.version>2.7.3</jenkins.version>
+        <jenkins.version>2.73.3</jenkins.version>
         <java.level>8</java.level>
         <powermock.version>1.7.4</powermock.version>
     </properties>
     <name>Github Autostatus Plugin</name>
-    <description>Automatically generates github status for each stage in a declarative pipeline.</description>
+    <description>Automatically generates github status for each stage in a pipeline.</description>
     <url>https://wiki.jenkins.io/display/JENKINS/Github+Autostatus+Plugin</url>
     <licenses>
         <license>

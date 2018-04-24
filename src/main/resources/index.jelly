@@ -1,5 +1,5 @@
 <?jelly escape-by-default='true'?>
 <div>
-    This plugin provides status to github for each stage of a multibranch pipeline job
-    (declarative pipeline only)
+    Automatically provides status to github for each stage of a multibranch pipeline job.
+    Can also be configured to send job and stage status information to an influxdb instance for build health monitoring. 
 </div>
