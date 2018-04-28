@@ -46,6 +46,7 @@ import org.powermock.modules.junit4.PowerMockRunner;
 @PowerMockIgnore("javax.*")
 public class InfluxDbNotifierConfigTest {
 
+    private BuildStatusConfig config;
     private final String repositoryOwner = "mock-pwner";
     private final String repository = "mock-repo";
     private final String branch = "mock-branch";
@@ -69,7 +70,7 @@ public class InfluxDbNotifierConfigTest {
     @Before
     public void setUp() {
         PowerMockito.mockStatic(BuildStatusConfig.class);
-        BuildStatusConfig config = mock(BuildStatusConfig.class);
+        config = mock(BuildStatusConfig.class);
         when(BuildStatusConfig.get()).thenReturn(config);
 
         when(config.getEnableInfluxDb()).thenReturn(true);
@@ -152,6 +153,15 @@ public class InfluxDbNotifierConfigTest {
 
     @Test
     public void testinfluxDbIsReachableFalse() {
+        InfluxDbNotifierConfig instance
+                = InfluxDbNotifierConfig.fromGlobalConfig("", "", branch);
+        assertFalse(instance.influxDbIsReachable());
+
+    }
+
+    @Test
+    public void testinfluxDbIsReachableMalformed() {
+        when(config.getInfluxDbUrl()).thenReturn("not-a-url");
         InfluxDbNotifierConfig instance
                 = InfluxDbNotifierConfig.fromGlobalConfig("", "", branch);
         assertFalse(instance.influxDbIsReachable());
