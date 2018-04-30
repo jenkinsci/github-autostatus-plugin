@@ -308,7 +308,7 @@ public class BuildStatusConfig extends GlobalConfiguration {
 
     /**
      * Validates the plaintext influxdb user field - returns a warning if it's not empty
-     * @param value value to validate
+     * @param value to validate
      * @return FormValidation
      */
     public FormValidation doCheckInfluxDbUser(
@@ -321,7 +321,7 @@ public class BuildStatusConfig extends GlobalConfiguration {
 
     /**
      * Validates the plaintext influxdb password field - returns a warning if it's not empty
-     * @param value value to validate
+     * @param value to validate
      * @return FormValidation
      */
     public FormValidation doCheckInfluxDbPassword(
@@ -335,7 +335,7 @@ public class BuildStatusConfig extends GlobalConfiguration {
     /**
      * Validates the credentialsId
      * @param item context for validation
-     * @param value value to validate
+     * @param value to validate
      * @return FormValidation
      */
     public FormValidation doCheckCredentialsId(
@@ -366,7 +366,6 @@ public class BuildStatusConfig extends GlobalConfiguration {
                         credentialsId);
         secureDbUser = credentials.getUsername();
         secureDbPassword = credentials.getPassword().getPlainText();
-
     }
 
     private static <T extends Credentials> T getCredentials(@Nonnull Class<T> type, @Nonnull String credentialsId) {
