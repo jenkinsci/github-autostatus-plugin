@@ -52,7 +52,7 @@ import org.powermock.modules.junit4.PowerMockRunner;
  * @author jxpearce
  */
 @RunWith(PowerMockRunner.class)
-@PrepareForTest({GlobalConfiguration.class/*, CredentialsMatchers.class, CredentialsProvider.class*/})
+@PrepareForTest({GlobalConfiguration.class})
 @PowerMockIgnore({"javax.crypto.*"})
 public class BuildStatusConfigTest {
 
