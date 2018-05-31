@@ -37,6 +37,9 @@ import hudson.model.Item;
 import hudson.security.ACL;
 import hudson.util.FormValidation;
 import hudson.util.ListBoxModel;
+import java.io.IOException;
+import java.io.ObjectInputStream;
+import java.io.ObjectStreamClass;
 import java.util.Collections;
 import javax.annotation.Nonnull;
 import jenkins.model.GlobalConfiguration;
@@ -64,6 +67,10 @@ public class BuildStatusConfig extends GlobalConfiguration {
     private String credentialsId;
     private String influxDbUrl;
     private String influxDbDatabase;
+    @Deprecated
+    private transient String influxDbUser;
+    @Deprecated
+    private transient String influxDbPassword;
     private String influxDbRetentionPolicy;
     private boolean enableInfluxDb;
     private boolean disableGithub;
@@ -110,8 +117,10 @@ public class BuildStatusConfig extends GlobalConfiguration {
 
     /**
      * Get a flag indicating whether to enable GitHub. For compatibility reasons
-     * the flag is stored as the inverse (disableGithub) so that GitHub is enabled
-     * by default for users who upgrade from a version prior to the flag.
+     * the flag is stored as the inverse (disableGithub) so that GitHub is
+     * enabled by default for users who upgrade from a version prior to the
+     * flag.
+     *
      * @return true if writing to github is enabled
      */
     public boolean getEnableGithub() {
@@ -120,6 +129,7 @@ public class BuildStatusConfig extends GlobalConfiguration {
 
     /**
      * Set whether sending status to github is enabled
+     *
      * @param enableGithub true to enable sending status to github
      */
     @DataBoundSetter
@@ -130,6 +140,7 @@ public class BuildStatusConfig extends GlobalConfiguration {
 
     /**
      * Get the credentials Id
+     *
      * @return the credentials
      */
     public String getCredentialsId() {
@@ -138,6 +149,7 @@ public class BuildStatusConfig extends GlobalConfiguration {
 
     /**
      * Sets the credentials Id
+     *
      * @param credentialsId the credentials Id
      */
     @DataBoundSetter
@@ -148,6 +160,7 @@ public class BuildStatusConfig extends GlobalConfiguration {
 
     /**
      * Get flag determining whether writing to influxdb is enabled
+     *
      * @return true if writing to influxdb is enabled
      */
     public boolean getEnableInfluxDb() {
@@ -156,6 +169,7 @@ public class BuildStatusConfig extends GlobalConfiguration {
 
     /**
      * Set whether writing to influxdb is enabled
+     *
      * @param enableInfluxDb true to enable writing to influxdb
      */
     @DataBoundSetter
@@ -226,6 +240,7 @@ public class BuildStatusConfig extends GlobalConfiguration {
 
     /**
      * Fill the list box in the settings page with valid credentials
+     *
      * @param credentialsId the current credentials Id
      * @return ListBoxModel containing credentials to show
      */
@@ -234,7 +249,7 @@ public class BuildStatusConfig extends GlobalConfiguration {
         if (!Jenkins.getInstance().hasPermission(Jenkins.ADMINISTER)) {
             return new StandardListBoxModel().includeCurrentValue(credentialsId);
         }
-         return new StandardListBoxModel()
+        return new StandardListBoxModel()
                 .includeEmptyValue()
                 .includeMatchingAs(
                         ACL.SYSTEM,
@@ -247,6 +262,7 @@ public class BuildStatusConfig extends GlobalConfiguration {
 
     /**
      * Validates the credentialsId
+     *
      * @param item context for validation
      * @param value to validate
      * @return FormValidation
@@ -280,5 +296,18 @@ public class BuildStatusConfig extends GlobalConfiguration {
                 Collections.<DomainRequirement>emptyList()), CredentialsMatchers.allOf(
                 CredentialsMatchers.withId(credentialsId),
                 CredentialsMatchers.instanceOf(type)));
+    }
+
+    private void readObject(ObjectInputStream in) throws IOException, ClassNotFoundException {
+        in.defaultReadObject();
+    }
+
+    private Object readResolve() throws IOException {
+        if (influxDbUser != null || influxDbPassword != null) {
+            influxDbUser = null;
+            influxDbPassword = null;
+            save();
+        }
+        return this;
     }
 }
