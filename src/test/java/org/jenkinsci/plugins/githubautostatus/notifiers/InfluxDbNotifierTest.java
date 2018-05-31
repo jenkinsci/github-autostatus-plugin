@@ -23,6 +23,9 @@
  */
 package org.jenkinsci.plugins.githubautostatus.notifiers;
 
+import com.cloudbees.plugins.credentials.CredentialsScope;
+import com.cloudbees.plugins.credentials.common.UsernamePasswordCredentials;
+import com.cloudbees.plugins.credentials.impl.UsernamePasswordCredentialsImpl;
 import java.io.IOException;
 import java.net.MalformedURLException;
 import org.apache.http.HttpEntity;
@@ -52,6 +55,9 @@ import org.mockito.invocation.InvocationOnMock;
 public class InfluxDbNotifierTest {
 
     private InfluxDbNotifierConfig config;
+    private final String influxDbCredentialsId = "mock-credentials";
+    private final String influxDbUser = "mock-user";
+    private final String influxDbPassword = "mock-password";
     private String statusLine;
     private CloseableHttpClient mockHttpClient;
     private StatusLine mockStatusLine;
@@ -129,13 +135,23 @@ public class InfluxDbNotifierTest {
         assertEquals("http://fake/write?db=mockdb", instance.influxDbUrlString);
     }
 
-//    @Test
-//    public void testUrlUser() {
-//        when(config.getInfluxDbUser()).thenReturn("mockuser");
-//        when(config.getInfluxDbPassword()).thenReturn("mockpassword");
-//        InfluxDbNotifier instance = new InfluxDbNotifier(config);
-//        assertEquals("http://fake/write?db=mockdb&u=mockuser&p=mockpassword", instance.influxDbUrlString);
-//    }
+    @Test
+    public void testUrlUser() {
+        UsernamePasswordCredentials credentials = 
+                new UsernamePasswordCredentialsImpl(CredentialsScope.GLOBAL, 
+                        influxDbCredentialsId, 
+                        "Description", 
+                        influxDbUser, 
+                        influxDbPassword);
+        when(config.getCredentials())
+                .thenReturn(credentials);
+
+        InfluxDbNotifier instance = new InfluxDbNotifier(config);
+        assertEquals("http://fake/write?db=mockdb&u=" 
+                + influxDbUser 
+                + "&p=" + influxDbPassword,
+                instance.influxDbUrlString);
+    }
 
     @Test
     public void testUrlRetention() throws Exception {
