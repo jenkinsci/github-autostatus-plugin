@@ -117,18 +117,6 @@ public class BuildStatusConfigTest {
     }
 
     /**
-     * Test of get/setInfluxDbPassword method, of class BuildStatusConfig.
-     */
-    @Test
-    public void testInfluxDbPassword() {
-        BuildStatusConfig instance = new BuildStatusConfig();
-        String expResult = "mock-value";
-        instance.setInfluxDbPassword(expResult);
-        String result = instance.getInfluxDbPassword();
-        assertEquals(expResult, result);
-    }
-
-    /**
      * Test of get/setInfluxDbDatabase method, of class BuildStatusConfig.
      */
     @Test
@@ -137,18 +125,6 @@ public class BuildStatusConfigTest {
         String expResult = "mock-value";
         instance.setInfluxDbDatabase(expResult);
         String result = instance.getInfluxDbDatabase();
-        assertEquals(expResult, result);
-    }
-
-    /**
-     * Test of get/setInfluxDbUser method, of class BuildStatusConfig.
-     */
-    @Test
-    public void testInfluxDbUser() {
-        BuildStatusConfig instance = new BuildStatusConfig();
-        String expResult = "mock-value";
-        instance.setInfluxDbUser(expResult);
-        String result = instance.getInfluxDbUser();
         assertEquals(expResult, result);
     }
 
@@ -163,72 +139,6 @@ public class BuildStatusConfigTest {
         instance.setInfluxDbRetentionPolicy(expResult);
         String result = instance.getInfluxDbRetentionPolicy();
         assertEquals(expResult, result);
-    }
-
-    /** 
-     * Verifies config returns user correctly for credentials with no password
-     * @throws IOException 
-     */
-    @Test
-    public void testUsesCredentialsNoPassword() throws IOException {
-        StandardUsernameCredentials user = new UsernamePasswordCredentialsImpl(CredentialsScope.GLOBAL, testCredentials, "Description", testCredentialsUser, "");
-        CredentialsProvider.lookupStores(j.getInstance()).iterator().next().addCredentials(Domain.global(), user);
-
-        BuildStatusConfig instance = new BuildStatusConfig();
-        instance.setCredentialsId(testCredentials);
-        assertEquals(testCredentialsUser, instance.getInfluxDbUser());
-        assertNull(instance.getInfluxDbPassword());
-    }
-
-    /** 
-     * Verifies config returns user correctly for credentials with password
-     * @throws IOException 
-     */
-    @Test
-    public void testUsesCredentialsWithPassword() throws IOException {
-        StandardUsernameCredentials user = new UsernamePasswordCredentialsImpl(CredentialsScope.GLOBAL, testCredentials, "Description", testCredentialsUser, testCredentialsPassword);
-        CredentialsProvider.lookupStores(j.getInstance()).iterator().next().addCredentials(Domain.global(), user);
-
-        BuildStatusConfig instance = new BuildStatusConfig();
-        instance.setCredentialsId(testCredentials);
-        assertEquals(testCredentialsPassword, instance.getInfluxDbPassword());
-        assertEquals(testCredentialsUser, instance.getInfluxDbUser());
-    }
-
-    /**
-     * Verifies getShowPlainText is true if user is set
-     * @throws IOException 
-     */
-    @Test
-    public void testShowPlainTextUser() throws IOException {
-        BuildStatusConfig instance = new BuildStatusConfig();
-        instance.setInfluxDbUser("test");
-        instance.setInfluxDbPassword("");
-        assertTrue(instance.getShowPlainText());
-    }
-
-    /**
-     * Verifies getShowPlainText is true if password is set
-     * @throws IOException 
-     */
-    @Test
-    public void testShowPlainTextPassword() throws IOException {
-        BuildStatusConfig instance = new BuildStatusConfig();
-        instance.setInfluxDbUser("");
-        instance.setInfluxDbPassword("test");
-        assertTrue(instance.getShowPlainText());
-    }
-
-    /**
-     * Verifies getShowPlainText is false if neither password or user set
-     * @throws IOException 
-     */
-    @Test
-    public void testShowPlainTextBothEmpty() throws IOException {
-        BuildStatusConfig instance = new BuildStatusConfig();
-        instance.setInfluxDbUser("");
-        instance.setInfluxDbPassword("");
-        assertFalse(instance.getShowPlainText());
     }
 
     /**
@@ -273,46 +183,6 @@ public class BuildStatusConfigTest {
         BuildStatusConfig instance = new BuildStatusConfig();
         instance.setEnableInfluxDb(false);
         assertFalse(instance.getEnableInfluxDb());
-    }
-
-    /**
-     * Verifies doCheckInfluxDbUser returns OK if empty 
-     * @throws IOException 
-     */
-    @Test
-    public void testDoCheckInfluxDbUserEmpty() throws IOException {
-        BuildStatusConfig instance = new BuildStatusConfig();
-        assertEquals(Kind.OK, instance.doCheckInfluxDbUser("").kind);
-    }
-
-    /**
-     * Verifies doCheckInfluxDbUser returns warning if not empty 
-     * @throws IOException 
-     */
-    @Test
-    public void testDoCheckInfluxDbUserNotEmpty() throws IOException {
-        BuildStatusConfig instance = new BuildStatusConfig();
-        assertEquals(Kind.WARNING, instance.doCheckInfluxDbUser("not-secure").kind);
-    }
-
-    /**
-     * Verifies doCheckInfluxDbPassword returns OK if empty 
-     * @throws IOException 
-     */
-    @Test
-    public void testDoCheckInfluxDbPasswordEmpty() throws IOException {
-        BuildStatusConfig instance = new BuildStatusConfig();
-        assertEquals(Kind.OK, instance.doCheckInfluxDbPassword("").kind);
-    }
-
-    /**
-     * Verifies doCheckInfluxDbPassword returns warning if empty 
-     * @throws IOException 
-     */
-    @Test
-    public void testDoCheckInfluxDbPasswordNotEmpty() throws IOException {
-        BuildStatusConfig instance = new BuildStatusConfig();
-        assertEquals(Kind.WARNING, instance.doCheckInfluxDbPassword("not-secure").kind);
     }
 
     /**

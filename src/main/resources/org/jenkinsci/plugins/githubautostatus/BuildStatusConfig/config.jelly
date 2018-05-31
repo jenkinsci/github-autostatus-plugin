@@ -13,14 +13,6 @@
             <f:entry field="credentialsId" title="Influxdb credentials">
                 <c:select/>
             </f:entry>    
-            <j:if test="${instance.showPlainText}">
-                <f:entry title="Influxdb user" field="influxDbUser" name="influxDbUser">
-                    <f:textbox />
-                </f:entry>
-                <f:entry title="Influxdb password" field="influxDbPassword" name="influxDbPassword">
-                    <f:textbox />
-                </f:entry>
-            </j:if>
             <f:entry title="Retention policy" field="influxDbRetentionPolicy" name="influxDbRetentionPolicy">
                 <f:textbox />
             </f:entry>

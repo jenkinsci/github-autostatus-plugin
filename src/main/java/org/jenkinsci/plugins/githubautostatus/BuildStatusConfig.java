@@ -47,6 +47,7 @@ import org.kohsuke.stapler.AncestorInPath;
 import org.kohsuke.stapler.DataBoundSetter;
 import org.kohsuke.stapler.QueryParameter;
 import org.kohsuke.stapler.StaplerRequest;
+import org.kohsuke.stapler.interceptor.RequirePOST;
 
 /**
  *
@@ -61,12 +62,8 @@ import org.kohsuke.stapler.StaplerRequest;
 public class BuildStatusConfig extends GlobalConfiguration {
 
     private String credentialsId;
-    private transient String secureDbUser;
-    private transient String secureDbPassword;
     private String influxDbUrl;
     private String influxDbDatabase;
-    private String influxDbUser;
-    private String influxDbPassword;
     private String influxDbRetentionPolicy;
     private boolean enableInfluxDb;
     private boolean disableGithub;
@@ -188,41 +185,6 @@ public class BuildStatusConfig extends GlobalConfiguration {
     }
 
     /**
-     * Get the value of influxDbPassword
-     *
-     * @return the value of influxDbPassword
-     */
-    public String getInfluxDbPassword() {
-        if (!Strings.isNullOrEmpty(credentialsId) && Strings.isNullOrEmpty(secureDbPassword)) {
-            loadCredentials();
-        }
-        return !Strings.isNullOrEmpty(secureDbPassword) ? secureDbPassword : influxDbPassword;
-    }
-
-    /**
-     * Set the value of influxDbPassword
-     *
-     * @param influxDbPassword new value of influxDbPassword
-     */
-    @DataBoundSetter
-    public void setInfluxDbPassword(String influxDbPassword) {
-        this.influxDbPassword = influxDbPassword;
-        save();
-    }
-
-    /**
-     * Get flag determining whether to show the plaintext user/password fields
-     * in addition to the credentials ID. We will only show them if the user has
-     * configured them in the past - otherwise the credentials have to be used to
-     * specify user and password
-     * @return true to show the plaintext user and password
-     */
-    public Boolean getShowPlainText() {
-        return !Strings.isNullOrEmpty(influxDbUser)
-                || !Strings.isNullOrEmpty(influxDbPassword);
-    }
-
-    /**
      * Get the value of influxDbDatabase
      *
      * @return the value of influxDbDatabase
@@ -239,29 +201,6 @@ public class BuildStatusConfig extends GlobalConfiguration {
     @DataBoundSetter
     public void setInfluxDbDatabase(String influxDbDatabase) {
         this.influxDbDatabase = influxDbDatabase;
-        save();
-    }
-
-    /**
-     * Get the value of influxDbUser
-     *
-     * @return the value of influxDbUser
-     */
-    public String getInfluxDbUser() {
-        if (!Strings.isNullOrEmpty(credentialsId) && Strings.isNullOrEmpty(secureDbUser)) {
-            loadCredentials();
-        }
-        return !Strings.isNullOrEmpty(secureDbUser) ? secureDbUser : influxDbUser;
-    }
-
-    /**
-     * Set the value of influxDbUser
-     *
-     * @param influxDbUser new value of influxDbUser
-     */
-    @DataBoundSetter
-    public void setInfluxDbUser(String influxDbUser) {
-        this.influxDbUser = influxDbUser;
         save();
     }
 
@@ -307,37 +246,12 @@ public class BuildStatusConfig extends GlobalConfiguration {
     }
 
     /**
-     * Validates the plaintext influxdb user field - returns a warning if it's not empty
-     * @param value to validate
-     * @return FormValidation
-     */
-    public FormValidation doCheckInfluxDbUser(
-            @QueryParameter String value) {
-        if (Strings.isNullOrEmpty(value)) {
-            return FormValidation.ok();
-        }
-        return FormValidation.warning("Using a plain text user is not secure - please use credentials instead");
-    }
-
-    /**
-     * Validates the plaintext influxdb password field - returns a warning if it's not empty
-     * @param value to validate
-     * @return FormValidation
-     */
-    public FormValidation doCheckInfluxDbPassword(
-            @QueryParameter String value) {
-        if (Strings.isNullOrEmpty(value)) {
-            return FormValidation.ok();
-        }
-        return FormValidation.warning("Using a plain text password is not secure - please use credentials instead");
-    }
-
-    /**
      * Validates the credentialsId
      * @param item context for validation
      * @param value to validate
      * @return FormValidation
      */
+    @RequirePOST
     public FormValidation doCheckCredentialsId(
             @AncestorInPath Item item,
             @QueryParameter String value) {
@@ -360,15 +274,7 @@ public class BuildStatusConfig extends GlobalConfiguration {
         return FormValidation.ok();
     }
 
-    private void loadCredentials() {
-        UsernamePasswordCredentials credentials
-                = getCredentials(UsernamePasswordCredentials.class,
-                        credentialsId);
-        secureDbUser = credentials.getUsername();
-        secureDbPassword = credentials.getPassword().getPlainText();
-    }
-
-    private static <T extends Credentials> T getCredentials(@Nonnull Class<T> type, @Nonnull String credentialsId) {
+    public static <T extends Credentials> T getCredentials(@Nonnull Class<T> type, @Nonnull String credentialsId) {
         return CredentialsMatchers.firstOrNull(lookupCredentials(
                 type, Jenkins.getInstance(), ACL.SYSTEM,
                 Collections.<DomainRequirement>emptyList()), CredentialsMatchers.allOf(

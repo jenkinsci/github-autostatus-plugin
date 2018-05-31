@@ -129,13 +129,13 @@ public class InfluxDbNotifierTest {
         assertEquals("http://fake/write?db=mockdb", instance.influxDbUrlString);
     }
 
-    @Test
-    public void testUrlUser() {
-        when(config.getInfluxDbUser()).thenReturn("mockuser");
-        when(config.getInfluxDbPassword()).thenReturn("mockpassword");
-        InfluxDbNotifier instance = new InfluxDbNotifier(config);
-        assertEquals("http://fake/write?db=mockdb&u=mockuser&p=mockpassword", instance.influxDbUrlString);
-    }
+//    @Test
+//    public void testUrlUser() {
+//        when(config.getInfluxDbUser()).thenReturn("mockuser");
+//        when(config.getInfluxDbPassword()).thenReturn("mockpassword");
+//        InfluxDbNotifier instance = new InfluxDbNotifier(config);
+//        assertEquals("http://fake/write?db=mockdb&u=mockuser&p=mockpassword", instance.influxDbUrlString);
+//    }
 
     @Test
     public void testUrlRetention() throws Exception {

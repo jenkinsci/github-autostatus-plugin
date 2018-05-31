@@ -23,6 +23,7 @@
  */
 package org.jenkinsci.plugins.githubautostatus.notifiers;
 
+import com.cloudbees.plugins.credentials.common.UsernamePasswordCredentials;
 import java.io.IOException;
 import java.io.UnsupportedEncodingException;
 import java.net.URLEncoder;
@@ -60,11 +61,14 @@ public class InfluxDbNotifier implements BuildNotifier {
         }
         String urlString = String.format("%s/write?db=%s", config.getInfluxDbUrlString(), config.getInfluxDbDatabase());
         try {
-            if (!Strings.isNullOrEmpty(config.getInfluxDbUser())) {
-                urlString = urlString.concat(String.format("&u=%s", URLEncoder.encode(config.getInfluxDbUser(), "UTF-8")));
-            }
-            if (!Strings.isNullOrEmpty(config.getInfluxDbPassword())) {
-                urlString = urlString.concat(String.format("&p=%s", URLEncoder.encode(config.getInfluxDbPassword(), "UTF-8")));
+            UsernamePasswordCredentials credentials = config.getCredentials();
+            if (credentials != null) {
+                String influxDbUser = credentials.getUsername();
+                String influxDbPassword = credentials.getPassword().getPlainText();
+                urlString = urlString.concat(String.format("&u=%s", URLEncoder.encode(influxDbUser, "UTF-8")));
+                if (!Strings.isNullOrEmpty(influxDbPassword)) {
+                    urlString = urlString.concat(String.format("&p=%s", URLEncoder.encode(influxDbPassword, "UTF-8")));
+                }
             }
             if (!Strings.isNullOrEmpty(config.getInfluxDbRetentionPolicy())) {
                 urlString = urlString.concat(String.format("&rp=%s", URLEncoder.encode(config.getInfluxDbRetentionPolicy(), "UTF-8")));
