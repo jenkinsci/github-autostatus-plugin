@@ -28,6 +28,7 @@ import com.cloudbees.plugins.credentials.common.UsernamePasswordCredentials;
 import com.cloudbees.plugins.credentials.impl.UsernamePasswordCredentialsImpl;
 import java.io.IOException;
 import java.net.MalformedURLException;
+import java.util.Base64;
 import org.apache.http.HttpEntity;
 import org.apache.http.StatusLine;
 import org.apache.http.client.methods.CloseableHttpResponse;
@@ -136,7 +137,7 @@ public class InfluxDbNotifierTest {
     }
 
     @Test
-    public void testUrlUser() {
+    public void testBasicAuth() {
         UsernamePasswordCredentials credentials = 
                 new UsernamePasswordCredentialsImpl(CredentialsScope.GLOBAL, 
                         influxDbCredentialsId, 
@@ -147,10 +148,10 @@ public class InfluxDbNotifierTest {
                 .thenReturn(credentials);
 
         InfluxDbNotifier instance = new InfluxDbNotifier(config);
-        assertEquals("http://fake/write?db=mockdb&u=" 
-                + influxDbUser 
-                + "&p=" + influxDbPassword,
+        assertEquals("http://fake/write?db=mockdb",
                 instance.influxDbUrlString);
+        assertEquals(new String(Base64.getDecoder().decode(instance.authorization)), 
+                "mock-user:mock-password");
     }
 
     @Test

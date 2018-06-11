@@ -27,6 +27,7 @@ import com.cloudbees.plugins.credentials.common.UsernamePasswordCredentials;
 import java.io.IOException;
 import java.io.UnsupportedEncodingException;
 import java.net.URLEncoder;
+import java.util.Base64;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import org.apache.http.client.methods.CloseableHttpResponse;
@@ -48,6 +49,7 @@ public class InfluxDbNotifier implements BuildNotifier {
     protected String branchName;
     protected String influxDbUrlString;
     protected InfluxDbNotifierConfig config;
+    protected transient String authorization;
 
     /**
      * Constructor
@@ -65,10 +67,8 @@ public class InfluxDbNotifier implements BuildNotifier {
             if (credentials != null) {
                 String influxDbUser = credentials.getUsername();
                 String influxDbPassword = credentials.getPassword().getPlainText();
-                urlString = urlString.concat(String.format("&u=%s", URLEncoder.encode(influxDbUser, "UTF-8")));
-                if (!Strings.isNullOrEmpty(influxDbPassword)) {
-                    urlString = urlString.concat(String.format("&p=%s", URLEncoder.encode(influxDbPassword, "UTF-8")));
-                }
+                
+                authorization = Base64.getEncoder().encodeToString(String.format("%s:%s", influxDbUser, influxDbPassword).getBytes());
             }
             if (!Strings.isNullOrEmpty(config.getInfluxDbRetentionPolicy())) {
                 urlString = urlString.concat(String.format("&rp=%s", URLEncoder.encode(config.getInfluxDbRetentionPolicy(), "UTF-8")));
@@ -185,6 +185,10 @@ public class InfluxDbNotifier implements BuildNotifier {
             HttpPost httppost = new HttpPost(influxDbUrlString);
 
             httppost.setEntity(new StringEntity(seriesInfo));
+            
+            if (!Strings.isNullOrEmpty(authorization)) {
+                httppost.setHeader("Authorization", String.format("Basic %s", authorization));
+            }
 
             try (CloseableHttpResponse response = httpclient.execute(httppost)) {
                 int statusCode = response.getStatusLine().getStatusCode();
