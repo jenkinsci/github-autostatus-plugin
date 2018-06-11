@@ -68,10 +68,15 @@ public class InfluxDbNotifier implements BuildNotifier {
                 String influxDbUser = credentials.getUsername();
                 String influxDbPassword = credentials.getPassword().getPlainText();
                 
-                authorization = Base64.getEncoder().encodeToString(String.format("%s:%s", influxDbUser, influxDbPassword).getBytes());
+                authorization = Base64.getEncoder().encodeToString(
+                        String.format("%s:%s", 
+                                influxDbUser, 
+                                influxDbPassword).getBytes("UTF-8"));
             }
             if (!Strings.isNullOrEmpty(config.getInfluxDbRetentionPolicy())) {
-                urlString = urlString.concat(String.format("&rp=%s", URLEncoder.encode(config.getInfluxDbRetentionPolicy(), "UTF-8")));
+                urlString = urlString.concat(
+                        String.format("&rp=%s", 
+                                URLEncoder.encode(config.getInfluxDbRetentionPolicy(), "UTF-8")));
             }
         } catch (UnsupportedEncodingException ex) {
             Logger.getLogger(InfluxDbNotifier.class.getName()).log(Level.SEVERE, null, ex);

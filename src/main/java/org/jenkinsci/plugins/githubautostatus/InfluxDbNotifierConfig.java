@@ -30,6 +30,7 @@ import java.net.URL;
 import java.net.URLConnection;
 import java.util.logging.Level;
 import java.util.logging.Logger;
+import javax.annotation.CheckForNull;
 import org.apache.http.impl.client.CloseableHttpClient;
 import org.apache.http.impl.client.HttpClients;
 import org.jenkinsci.plugins.pipeline.modeldefinition.shaded.com.google.common.base.Strings;
@@ -132,6 +133,7 @@ public class InfluxDbNotifierConfig {
      * Returns credentials for calling influxdb if they are configured
      * @return credentials; null if not provided
      */
+    @CheckForNull
     public UsernamePasswordCredentials getCredentials() {
         return !Strings.isNullOrEmpty(influxDbCredentialsId) ?
             BuildStatusConfig.getCredentials(UsernamePasswordCredentials.class, 
