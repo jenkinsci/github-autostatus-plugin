@@ -1,7 +1,7 @@
 # Github Autostatus Plugin
 
-This plugin watches for builds from a multibranch project and uses the github createStatus
-API to create one build status per state, so you can see the status of your build from
-Github.
+This plugin watches for builds from a multibranch project and send job and stage level stats to various endpoints, including
+- Github (to see pending/success/error status from your PR)
+- InfluxDB (for building monitoring dashboards).
 
-It currently only works with declarative pipeline jobs.
+https://plugins.jenkins.io/github-autostatus
