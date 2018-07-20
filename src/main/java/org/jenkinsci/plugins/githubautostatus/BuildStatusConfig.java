@@ -267,7 +267,6 @@ public class BuildStatusConfig extends GlobalConfiguration {
      * @param value to validate
      * @return FormValidation
      */
-    @RequirePOST
     public FormValidation doCheckCredentialsId(
             @AncestorInPath Item item,
             @QueryParameter String value) {
