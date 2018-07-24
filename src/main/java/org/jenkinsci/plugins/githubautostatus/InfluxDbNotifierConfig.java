@@ -23,14 +23,17 @@
  */
 package org.jenkinsci.plugins.githubautostatus;
 
+import com.cloudbees.plugins.credentials.common.UsernamePasswordCredentials;
 import java.io.IOException;
 import java.net.MalformedURLException;
 import java.net.URL;
 import java.net.URLConnection;
 import java.util.logging.Level;
 import java.util.logging.Logger;
+import javax.annotation.CheckForNull;
 import org.apache.http.impl.client.CloseableHttpClient;
 import org.apache.http.impl.client.HttpClients;
+import org.jenkinsci.plugins.pipeline.modeldefinition.shaded.com.google.common.base.Strings;
 
 /**
  *
@@ -43,6 +46,7 @@ public class InfluxDbNotifierConfig {
     private String branchName;
     private String influxDbUrlString;
     private String influxDbDatabase;
+    private String influxDbCredentialsId;
     private String influxDbUser;
     private String influxDbPassword;
     private String influxDbRetentionPolicy;
@@ -126,23 +130,17 @@ public class InfluxDbNotifierConfig {
     }
 
     /**
-     * Gets the optional influxdb user
-     *
-     * @return influxdb user
+     * Returns credentials for calling influxdb if they are configured
+     * @return credentials; null if not provided
      */
-    public String getInfluxDbUser() {
-        return influxDbUser;
+    @CheckForNull
+    public UsernamePasswordCredentials getCredentials() {
+        return !Strings.isNullOrEmpty(influxDbCredentialsId) ?
+            BuildStatusConfig.getCredentials(UsernamePasswordCredentials.class, 
+                    influxDbCredentialsId) :
+            null;
     }
-
-    /**
-     * Gets the optional influxdb password
-     *
-     * @return influxdb password
-     */
-    public String getInfluxDbPassword() {
-        return influxDbPassword;
-    }
-
+    
     /**
      * Gets the optional retention policy
      *
@@ -172,8 +170,7 @@ public class InfluxDbNotifierConfig {
 
             influxDbNotifierConfig.influxDbUrlString = config.getInfluxDbUrl();
             influxDbNotifierConfig.influxDbDatabase = config.getInfluxDbDatabase();
-            influxDbNotifierConfig.influxDbUser = config.getInfluxDbUser();
-            influxDbNotifierConfig.influxDbPassword = config.getInfluxDbPassword();
+            influxDbNotifierConfig.influxDbCredentialsId = config.getCredentialsId();
             influxDbNotifierConfig.influxDbRetentionPolicy = config.getInfluxDbRetentionPolicy();
         }
 

@@ -23,9 +23,11 @@
  */
 package org.jenkinsci.plugins.githubautostatus.notifiers;
 
+import com.cloudbees.plugins.credentials.common.UsernamePasswordCredentials;
 import java.io.IOException;
 import java.io.UnsupportedEncodingException;
 import java.net.URLEncoder;
+import java.util.Base64;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import org.apache.http.client.methods.CloseableHttpResponse;
@@ -47,6 +49,7 @@ public class InfluxDbNotifier implements BuildNotifier {
     protected String branchName;
     protected String influxDbUrlString;
     protected InfluxDbNotifierConfig config;
+    protected transient String authorization;
 
     /**
      * Constructor
@@ -60,14 +63,20 @@ public class InfluxDbNotifier implements BuildNotifier {
         }
         String urlString = String.format("%s/write?db=%s", config.getInfluxDbUrlString(), config.getInfluxDbDatabase());
         try {
-            if (!Strings.isNullOrEmpty(config.getInfluxDbUser())) {
-                urlString = urlString.concat(String.format("&u=%s", URLEncoder.encode(config.getInfluxDbUser(), "UTF-8")));
-            }
-            if (!Strings.isNullOrEmpty(config.getInfluxDbPassword())) {
-                urlString = urlString.concat(String.format("&p=%s", URLEncoder.encode(config.getInfluxDbPassword(), "UTF-8")));
+            UsernamePasswordCredentials credentials = config.getCredentials();
+            if (credentials != null) {
+                String influxDbUser = credentials.getUsername();
+                String influxDbPassword = credentials.getPassword().getPlainText();
+                
+                authorization = Base64.getEncoder().encodeToString(
+                        String.format("%s:%s", 
+                                influxDbUser, 
+                                influxDbPassword).getBytes("UTF-8"));
             }
             if (!Strings.isNullOrEmpty(config.getInfluxDbRetentionPolicy())) {
-                urlString = urlString.concat(String.format("&rp=%s", URLEncoder.encode(config.getInfluxDbRetentionPolicy(), "UTF-8")));
+                urlString = urlString.concat(
+                        String.format("&rp=%s", 
+                                URLEncoder.encode(config.getInfluxDbRetentionPolicy(), "UTF-8")));
             }
         } catch (UnsupportedEncodingException ex) {
             Logger.getLogger(InfluxDbNotifier.class.getName()).log(Level.SEVERE, null, ex);
@@ -181,6 +190,10 @@ public class InfluxDbNotifier implements BuildNotifier {
             HttpPost httppost = new HttpPost(influxDbUrlString);
 
             httppost.setEntity(new StringEntity(seriesInfo));
+            
+            if (!Strings.isNullOrEmpty(authorization)) {
+                httppost.setHeader("Authorization", String.format("Basic %s", authorization));
+            }
 
             try (CloseableHttpResponse response = httpclient.execute(httppost)) {
                 int statusCode = response.getStatusLine().getStatusCode();

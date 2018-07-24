@@ -23,8 +23,12 @@
  */
 package org.jenkinsci.plugins.githubautostatus.notifiers;
 
+import com.cloudbees.plugins.credentials.CredentialsScope;
+import com.cloudbees.plugins.credentials.common.UsernamePasswordCredentials;
+import com.cloudbees.plugins.credentials.impl.UsernamePasswordCredentialsImpl;
 import java.io.IOException;
 import java.net.MalformedURLException;
+import java.util.Base64;
 import org.apache.http.HttpEntity;
 import org.apache.http.StatusLine;
 import org.apache.http.client.methods.CloseableHttpResponse;
@@ -52,6 +56,9 @@ import org.mockito.invocation.InvocationOnMock;
 public class InfluxDbNotifierTest {
 
     private InfluxDbNotifierConfig config;
+    private final String influxDbCredentialsId = "mock-credentials";
+    private final String influxDbUser = "mock-user";
+    private final String influxDbPassword = "mock-password";
     private String statusLine;
     private CloseableHttpClient mockHttpClient;
     private StatusLine mockStatusLine;
@@ -130,11 +137,21 @@ public class InfluxDbNotifierTest {
     }
 
     @Test
-    public void testUrlUser() {
-        when(config.getInfluxDbUser()).thenReturn("mockuser");
-        when(config.getInfluxDbPassword()).thenReturn("mockpassword");
+    public void testBasicAuth() {
+        UsernamePasswordCredentials credentials = 
+                new UsernamePasswordCredentialsImpl(CredentialsScope.GLOBAL, 
+                        influxDbCredentialsId, 
+                        "Description", 
+                        influxDbUser, 
+                        influxDbPassword);
+        when(config.getCredentials())
+                .thenReturn(credentials);
+
         InfluxDbNotifier instance = new InfluxDbNotifier(config);
-        assertEquals("http://fake/write?db=mockdb&u=mockuser&p=mockpassword", instance.influxDbUrlString);
+        assertEquals("http://fake/write?db=mockdb",
+                instance.influxDbUrlString);
+        assertEquals(new String(Base64.getDecoder().decode(instance.authorization)), 
+                "mock-user:mock-password");
     }
 
     @Test

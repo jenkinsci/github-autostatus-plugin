@@ -69,7 +69,7 @@ import org.powermock.modules.junit4.PowerMockRunner;
 public class GithubNotificationConfigTest {
 
     @Mock
-    private BuildStatusConfig config;// = mock(BuildStatusConfig.class);
+    private BuildStatusConfig config;
 
     public GithubNotificationConfigTest() {
     }
@@ -85,7 +85,6 @@ public class GithubNotificationConfigTest {
     @Before
     public void setUp() {
         PowerMockito.mockStatic(BuildStatusConfig.class);
-//        config = mock(BuildStatusConfig.class);
         when(config.getEnableGithub()).thenReturn(true);
         when(BuildStatusConfig.get()).thenReturn(config);
     }

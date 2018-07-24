@@ -1,22 +1,19 @@
 <?jelly escape-by-default='true'?>
-<j:jelly xmlns:j="jelly:core" xmlns:st="jelly:stapler" xmlns:d="jelly:define" xmlns:l="/lib/layout" xmlns:t="/lib/hudson" xmlns:f="/lib/form">
+<j:jelly xmlns:j="jelly:core" xmlns:st="jelly:stapler" xmlns:d="jelly:define" xmlns:l="/lib/layout" xmlns:t="/lib/hudson" xmlns:f="/lib/form" xmlns:c="/lib/credentials">
 
     <f:section title="Autostatus Config">
-        <f:optionalBlock inline="true" name="${instance.enableGithub}" title="Send to github" checked="${instance.enableGithub}"/>
+        <f:optionalBlock inline="true" name="enableGithub" title="Send to github" checked="${instance.enableGithub}"/>
         <f:optionalBlock inline="true" name="enableInfluxDb" title="Send to influxdb" checked="${instance.enableInfluxDb}">
-            <f:entry title="Optional influxdb url" field="influxDbUrl" name="influxDbUrl">
+            <f:entry title="Influxdb url" field="influxDbUrl" name="influxDbUrl">
                 <f:textbox />
             </f:entry>
-            <f:entry title="influxdb database" field="influxDbDatabase" name="influxDbDatabase">
+            <f:entry title="Influxdb database" field="influxDbDatabase" name="influxDbDatabase">
                 <f:textbox />
             </f:entry>
-            <f:entry title="influxdb user" field="influxDbUser" name="influxDbUser">
-                <f:textbox />
-            </f:entry>
-            <f:entry title="influxdb password" field="influxDbPassword" name="influxDbPassword">
-                <f:textbox />
-            </f:entry>
-            <f:entry title="retention policy" field="influxDbRetentionPolicy" name="influxDbRetentionPolicy">
+            <f:entry field="credentialsId" title="Influxdb credentials">
+                <c:select/>
+            </f:entry>    
+            <f:entry title="Retention policy" field="influxDbRetentionPolicy" name="influxDbRetentionPolicy">
                 <f:textbox />
             </f:entry>
         </f:optionalBlock> 
