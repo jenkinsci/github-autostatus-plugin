@@ -24,6 +24,7 @@
 package org.jenkinsci.plugins.githubautostatus;
 
 import com.cloudbees.plugins.credentials.Credentials;
+import com.cloudbees.plugins.credentials.CredentialsMatcher;
 import com.cloudbees.plugins.credentials.CredentialsMatchers;
 import static com.cloudbees.plugins.credentials.CredentialsProvider.lookupCredentials;
 import com.cloudbees.plugins.credentials.common.UsernamePasswordCredentials;
@@ -35,16 +36,19 @@ import hudson.model.TaskListener;
 import hudson.security.ACL;
 import java.io.IOException;
 import java.util.Collections;
+import java.util.List;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
+import jenkins.model.Jenkins;
 import jenkins.plugins.git.AbstractGitSCMSource;
 import jenkins.scm.api.SCMRevisionAction;
 import jenkins.scm.api.SCMSource;
 import org.jenkinsci.plugins.github_branch_source.GitHubSCMSource;
 import org.jenkinsci.plugins.github_branch_source.PullRequestSCMHead;
 import org.jenkinsci.plugins.github_branch_source.PullRequestSCMRevision;
+import org.jenkinsci.plugins.plaincredentials.StringCredentials;
 import org.jenkinsci.plugins.workflow.multibranch.WorkflowMultiBranchProject;
 import org.kohsuke.github.GHRepository;
 import org.kohsuke.github.GitHub;
@@ -184,12 +188,28 @@ public class GithubNotificationConfig {
         if (null == url) {
             url = GitHubSCMSource.GITHUB_URL;
         }
+        
+        String userName = null;
+        String password = "";
 
         UsernamePasswordCredentials credentials = getCredentials(UsernamePasswordCredentials.class, credentialsId, run.getParent());
+        if (credentials != null) {
+            userName = credentials.getUsername();
+            password = credentials.getPassword().getPlainText();
+        } else {
+            StringCredentials stringCredentials = getCredentials(StringCredentials.class, credentialsId, run.getParent());
+            if (stringCredentials != null) {
+                userName = stringCredentials.getId();
+                password = stringCredentials.getSecret().getPlainText();
+            } 
+        }
+        if (userName == null) {
+            log(Level.INFO, "Could not resolve credentials - status will not be provided for this build");
+            return false;        
+        }
 
         githubBuilder = githubBuilder.withEndpoint(url);
-        githubBuilder.withPassword(credentials.getUsername(), credentials.getPassword().getPlainText());
-
+        githubBuilder.withPassword(userName, password);
         GitHub github = githubBuilder.build();
         repo = github.getUser(repoOwner).getRepository(repoName);
 
