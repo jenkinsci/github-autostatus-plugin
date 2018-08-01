@@ -1,5 +1,6 @@
 <?jelly escape-by-default='true'?>
 <div>
-    Automatically provides status to github for each stage of a multibranch pipeline job.
-    Can also be configured to send job and stage status information to an influxdb instance for build health monitoring. 
+    Watches multibranch pipeline jobs and provides job and stage stats such as time and pass/fail.
+    Can be configured to update github commit status (one status per stage) and send stats
+    to an influxDB instance for build health monitoring of job/stage timing and success rate.
 </div>

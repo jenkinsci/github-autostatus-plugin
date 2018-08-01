@@ -15,8 +15,8 @@
         <java.level>8</java.level>
         <powermock.version>1.7.4</powermock.version>
     </properties>
-    <name>Github Autostatus Plugin</name>
-    <description>Automatically generates github status for each stage in a pipeline.</description>
+    <name>Job and Stage monitoring Plugin</name>
+    <description>Automatically provides job and stage timing and pass/fail stats to github and/or influxDB/Grafana.</description>
     <url>https://wiki.jenkins.io/display/JENKINS/Github+Autostatus+Plugin</url>
     <licenses>
         <license>
