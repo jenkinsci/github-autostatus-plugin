@@ -30,12 +30,12 @@ import java.net.URLEncoder;
 import java.util.Base64;
 import java.util.logging.Level;
 import java.util.logging.Logger;
+import org.apache.commons.lang.StringUtils;
 import org.apache.http.client.methods.CloseableHttpResponse;
 import org.apache.http.client.methods.HttpPost;
 import org.apache.http.entity.StringEntity;
 import org.apache.http.impl.client.CloseableHttpClient;
 import org.jenkinsci.plugins.githubautostatus.InfluxDbNotifierConfig;
-import org.jenkinsci.plugins.pipeline.modeldefinition.shaded.com.google.common.base.Strings;
 
 /**
  *
@@ -58,7 +58,7 @@ public class InfluxDbNotifier implements BuildNotifier {
      */
     public InfluxDbNotifier(
             InfluxDbNotifierConfig config) {
-        if (Strings.isNullOrEmpty(config.getInfluxDbUrlString()) || Strings.isNullOrEmpty(config.getInfluxDbDatabase())) {
+        if (StringUtils.isEmpty(config.getInfluxDbUrlString()) || StringUtils.isEmpty(config.getInfluxDbDatabase())) {
             return;
         }
         String urlString = String.format("%s/write?db=%s", config.getInfluxDbUrlString(), config.getInfluxDbDatabase());
@@ -73,7 +73,7 @@ public class InfluxDbNotifier implements BuildNotifier {
                                 influxDbUser, 
                                 influxDbPassword).getBytes("UTF-8"));
             }
-            if (!Strings.isNullOrEmpty(config.getInfluxDbRetentionPolicy())) {
+            if (!StringUtils.isEmpty(config.getInfluxDbRetentionPolicy())) {
                 urlString = urlString.concat(
                         String.format("&rp=%s", 
                                 URLEncoder.encode(config.getInfluxDbRetentionPolicy(), "UTF-8")));
@@ -86,13 +86,13 @@ public class InfluxDbNotifier implements BuildNotifier {
             this.repoOwner = config.getRepoOwner().replace(" ", "\\ ");
             this.repoName = config.getRepoName().replace(" ", "\\ ");
             this.branchName = config.getBranchName().replace(" ", "\\ ");
-            if (Strings.isNullOrEmpty(this.repoOwner)) {
+            if (StringUtils.isEmpty(this.repoOwner)) {
                 this.repoOwner = DEFAULT_STRING;
             }
-            if (Strings.isNullOrEmpty(this.repoName)) {
+            if (StringUtils.isEmpty(this.repoName)) {
                 this.repoName = DEFAULT_STRING;
             }
-            if (Strings.isNullOrEmpty(this.branchName)) {
+            if (StringUtils.isEmpty(this.branchName)) {
                 this.branchName = DEFAULT_STRING;
             }
             this.influxDbUrlString = urlString;
@@ -191,7 +191,7 @@ public class InfluxDbNotifier implements BuildNotifier {
 
             httppost.setEntity(new StringEntity(seriesInfo));
             
-            if (!Strings.isNullOrEmpty(authorization)) {
+            if (!StringUtils.isEmpty(authorization)) {
                 httppost.setHeader("Authorization", String.format("Basic %s", authorization));
             }
 
