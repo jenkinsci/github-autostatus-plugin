@@ -39,18 +39,16 @@ import hudson.util.FormValidation;
 import hudson.util.ListBoxModel;
 import java.io.IOException;
 import java.io.ObjectInputStream;
-import java.io.ObjectStreamClass;
 import java.util.Collections;
 import javax.annotation.Nonnull;
 import jenkins.model.GlobalConfiguration;
 import jenkins.model.Jenkins;
 import net.sf.json.JSONObject;
-import org.jenkinsci.plugins.pipeline.modeldefinition.shaded.com.google.common.base.Strings;
+import org.apache.commons.lang.StringUtils;
 import org.kohsuke.stapler.AncestorInPath;
 import org.kohsuke.stapler.DataBoundSetter;
 import org.kohsuke.stapler.QueryParameter;
 import org.kohsuke.stapler.StaplerRequest;
-import org.kohsuke.stapler.interceptor.RequirePOST;
 
 /**
  *
@@ -280,7 +278,7 @@ public class BuildStatusConfig extends GlobalConfiguration {
                 return FormValidation.ok();
             }
         }
-        if (Strings.isNullOrEmpty(value)) {
+        if (StringUtils.isEmpty(value)) {
             return FormValidation.ok();
         }
         if (null == getCredentials(UsernamePasswordCredentials.class, value)) {
