@@ -83,9 +83,9 @@ public class InfluxDbNotifier implements BuildNotifier {
         }
 
         if (config.influxDbIsReachable()) {
-            this.repoOwner = config.getRepoOwner().replace(" ", "\\ ");
-            this.repoName = config.getRepoName().replace(" ", "\\ ");
-            this.branchName = config.getBranchName().replace(" ", "\\ ");
+            this.repoOwner = escapeTagValue(config.getRepoOwner());
+            this.repoName = escapeTagValue(config.getRepoName());
+            this.branchName = escapeTagValue(config.getBranchName());
             if (StringUtils.isEmpty(this.repoOwner)) {
                 this.repoOwner = DEFAULT_STRING;
             }
@@ -138,15 +138,14 @@ public class InfluxDbNotifier implements BuildNotifier {
 
         // Success and all Skipped stages are marked as successful
         int passed = buildState == BuildState.CompletedError ? 0 : 1;
-        String transFormedNodeName = nodeName.replace(" ", "\\ ");
         String result = buildState.toString();
 
         String data = String.format("stage,jobname=%s,owner=%s,repo=%s,branch=%s,stagename=%s,result=%s stagetime=%d,passed=%d",
-                jobName.replace(" ", "\\ "),
+                escapeTagValue(jobName),
                 repoOwner,
                 repoName,
                 branchName,
-                transFormedNodeName,
+                escapeTagValue(nodeName),
                 result,
                 timingInfo,
                 passed);
@@ -165,7 +164,7 @@ public class InfluxDbNotifier implements BuildNotifier {
         int passed = buildState == BuildState.CompletedSuccess ? 1 : 0;
 
         String dataPoint = String.format("job,jobname=%s,owner=%s,repo=%s,branch=%s,result=%s jobtime=%d,passed=%d",
-                jobName.replace(" ", "\\ "),
+                escapeTagValue(jobName),
                 repoOwner,
                 repoName,
                 branchName,
@@ -178,6 +177,12 @@ public class InfluxDbNotifier implements BuildNotifier {
     @Override
     public void sendNonStageError(String jobName, String nodeName) {
         notifyBuildState(jobName, nodeName, BuildState.CompletedError);
+    }
+    
+    protected String escapeTagValue(String tagValue) {
+        return tagValue.replace(" ", "\\ ")
+                .replace(",", "\\,")
+                .replace("=", "\\=");
     }
 
     /**
