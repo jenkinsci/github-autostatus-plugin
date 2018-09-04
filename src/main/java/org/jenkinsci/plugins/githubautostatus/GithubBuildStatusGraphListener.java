@@ -51,6 +51,7 @@ import org.jenkinsci.plugins.workflow.cps.nodes.StepAtomNode;
 import org.jenkinsci.plugins.workflow.cps.nodes.StepEndNode;
 import org.jenkinsci.plugins.workflow.cps.nodes.StepStartNode;
 import org.jenkinsci.plugins.workflow.flow.FlowExecution;
+import org.jenkinsci.plugins.workflow.job.WorkflowRun;
 
 /**
  *
@@ -247,6 +248,11 @@ public class GithubBuildStatusGraphListener implements GraphListener {
                     repoOwner = githubConfig.getRepoOwner();
                     repoName = githubConfig.getRepoName();
                     branchName = githubConfig.getBranchName();
+                } else {
+                    if (run instanceof WorkflowRun) {
+                        repoName = run.getParent().getDisplayName();
+                        repoOwner = run.getParent().getParent().getFullName();
+                    }
                 }
                 buildStatusAction.addInfluxDbNotifier(
                         InfluxDbNotifierConfig.fromGlobalConfig(repoOwner, repoName, branchName));
