@@ -1,11 +1,12 @@
-# Autostatus Plugin
+# Job And Stage Monitoring Plugin
 
-This is a job monitoring plugin, which watches for builds from multibranch projects and send job and stage level stats to various endpoints, including
+This is a job monitoring plugin, which watches for pipeline builds and sends job and stage level stats to various endpoints, including
 
 - Github (to see pending/success/error status from your PR)
 - InfluxDB (for building monitoring dashboards).
 
-It doesn't require modifying your Jenkinsfiles - once installed, it automatically provides stats for all multibranch jobs ran on the Jenkins master.
+Since it watches for changes from all pipeline jobs, it doesn't require modifying your Jenkinsfiles - once installed, 
+it automatically provides stats for all pipeline jobs ran on the Jenkins master.
 
 ## Github status
 
@@ -15,7 +16,7 @@ The plugin can be configured to send commit status for each stage for jobs build
 
 ## Grafana dashboards
 
-The plugin can also be configured to send job and stage stats to in InfluxDB instance, which can be used to build dashboards in Grafana to monitor build time and success rate. For example:
+The plugin can also be configured to send job and stage stats to an InfluxDB instance, which can be used to build dashboards in Grafana to monitor build time and success rate. For example:
 
 ![](images/grafana-dashboard.png)
 

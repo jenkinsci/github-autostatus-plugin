@@ -1,6 +1,6 @@
 <?jelly escape-by-default='true'?>
 <div>
-    Watches multibranch pipeline jobs and provides job and stage stats such as time and pass/fail.
+    Watches pipeline jobs and provides job and stage stats such as time and pass/fail.
     Can be configured to update github commit status (one status per stage) and send stats
     to an influxDB instance for build health monitoring of job/stage timing and success rate.
 </div>
