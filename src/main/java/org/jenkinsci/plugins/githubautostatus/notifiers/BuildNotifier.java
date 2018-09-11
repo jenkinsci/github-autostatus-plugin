@@ -61,8 +61,9 @@ public interface BuildNotifier {
      * @param jobName the name of the job
      * @param buildState state indicating success or failure
      * @param buildDuration the build duration
+     * @param blockedDuration time build was blocked before running
      */
-    void notifyFinalBuildStatus(String jobName, BuildState buildState, long buildDuration);
+    void notifyFinalBuildStatus(String jobName, BuildState buildState, long buildDuration, long blockedDuration);
 
     /**
      * Sends a notification for an error regardless of whether initial pending

@@ -159,10 +159,11 @@ public class BuildStatusAction extends InvisibleAction {
      *
      * @param buildState final build state
      * @param buildDuration build duration
+     * @param blockedDuration time build was blocked before running
      */
-    public void updateBuildStatusForJob(BuildState buildState, long buildDuration) {
+    public void updateBuildStatusForJob(BuildState buildState, long buildDuration, long blockedDuration) {
         close();
-        buildNotifierManager.notifyFinalBuildStatus(buildState, buildDuration);
+        buildNotifierManager.notifyFinalBuildStatus(buildState, buildDuration, blockedDuration);
     }
 
     /**

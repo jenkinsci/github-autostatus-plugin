@@ -1,7 +1,7 @@
 /*
  * The MIT License
  *
- * Copyright 2018 jxpearce.
+ * Copyright 2018 Jeff Pearce (jxpearce@godaddy.com).
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to deal
@@ -23,43 +23,47 @@
  */
 package org.jenkinsci.plugins.githubautostatus;
 
-import hudson.Extension;
-import hudson.model.Result;
-import hudson.model.Run;
-import hudson.model.TaskListener;
-import hudson.model.listeners.RunListener;
-import org.jenkinsci.plugins.githubautostatus.notifiers.BuildState;
+import hudson.model.InvisibleAction;
 
 /**
- *
- * @author jxpearce
+ * Keeps track of time a job was spent in the blocked state.
+ * @author Jeff Pearce (jxpearce@godaddy.com)
  */
-@Extension
-public class BuildStatusJobListener extends RunListener<Run<?, ?>> {
+public class BuildBlockedAction extends InvisibleAction {
+    
+    private long timeStartBlocked;
+    private long timeReleased;
 
-    /**
-     * Sends final build status notification
-     *
-     * @param build the build
-     * @param listener listener
-     */
-    @Override
-    public void onCompleted(Run<?, ?> build, TaskListener listener) {
-
-        BuildStatusAction statusAction = build.getAction(BuildStatusAction.class);
-        if (statusAction != null) {
-            Result result = build.getResult();
-            statusAction.updateBuildStatusForJob(result == Result.SUCCESS
-                    ? BuildState.CompletedSuccess
-                    : BuildState.CompletedError,
-                    build.getDuration(),
-                    getBlockedTime(build));
-        }
+    public BuildBlockedAction() {
+        this.timeStartBlocked = System.currentTimeMillis();
     }
     
-    protected long getBlockedTime(Run<?, ?> build) {
-        BuildBlockedAction action = build.getAction(BuildBlockedAction.class);
-        
-        return action == null ? 0 : action.getTimeBlocked();
+    public BuildBlockedAction(long timeStartBlocked) {
+        this.timeStartBlocked = timeStartBlocked;
     }
+
+    /**
+     * Gets the time the item was released.
+     * @return the time the item was released.
+     */
+    public long getTimeReleased() {
+        return timeReleased;
+    }
+
+    /**
+     * SEts the time the item was released.
+     * @param timeReleased the time the item was released.
+     */
+    public void setTimeReleased(long timeReleased) {
+        this.timeReleased = timeReleased;
+    }
+
+    /**
+     * Gets the amount of time the item spent blocked.
+     * @return the amount of time blocked, in milliseconds.
+     */
+    public long getTimeBlocked() {
+        return timeReleased - timeStartBlocked;
+    }
+
 }

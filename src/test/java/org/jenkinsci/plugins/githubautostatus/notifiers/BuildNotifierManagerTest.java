@@ -120,9 +120,9 @@ public class BuildNotifierManagerTest {
     public void testNotifyFinalBuildStatus() {
         GithubBuildNotifier notifier = mock(GithubBuildNotifier.class);
         instance.notifiers.add(notifier);
-        instance.notifyFinalBuildStatus(BuildState.CompletedSuccess, 0);
+        instance.notifyFinalBuildStatus(BuildState.CompletedSuccess, 0, 1);
 
-        verify(notifier).notifyFinalBuildStatus(mockJobName, BuildState.CompletedSuccess, 0);
+        verify(notifier).notifyFinalBuildStatus(mockJobName, BuildState.CompletedSuccess, 0, 1);
     }
 
     /**
