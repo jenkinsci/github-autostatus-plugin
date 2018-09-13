@@ -38,8 +38,8 @@ import org.apache.http.impl.client.CloseableHttpClient;
 import org.jenkinsci.plugins.githubautostatus.InfluxDbNotifierConfig;
 
 /**
- *
- * @author jxpearce
+ * Writes job and stage measurements to an influxdb REST API.
+ * @author Jeff Pearce (jxpearce@godaddy.com)
  */
 public class InfluxDbNotifier implements BuildNotifier {
 
@@ -51,11 +51,6 @@ public class InfluxDbNotifier implements BuildNotifier {
     protected InfluxDbNotifierConfig config;
     protected transient String authorization;
 
-    /**
-     * Constructor
-     *
-     * @param config influxdb configuration info
-     */
     public InfluxDbNotifier(
             InfluxDbNotifierConfig config) {
         if (StringUtils.isEmpty(config.getInfluxDbUrlString()) || StringUtils.isEmpty(config.getInfluxDbDatabase())) {

@@ -24,24 +24,24 @@
 package org.jenkinsci.plugins.githubautostatus.notifiers;
 
 /**
- *
- * @author jxpearce
+ * A notification subscriber which can send build stats to a particular sink.
+ * @author Jeff Pearce (jxpearce@godaddy.com)
  */
 public interface BuildNotifier {
 
     /**
-     * Determine whether notifier is enabled
+     * Determine whether notifier is enabled.
      *
-     * @return true if enabled; false otherwise
+     * @return true if enabled; false otherwise.
      */
     boolean isEnabled();
 
     /**
-     * Send a state change
+     * Send a state change, such as from Pending to Success or Pending to Error.
      *
-     * @param jobName the name of the job
-     * @param nodeName the node that has changed
-     * @param buildState the new state
+     * @param jobName the name of the job.
+     * @param nodeName the node that has changed.
+     * @param buildState the new state.
      */
     void notifyBuildState(String jobName, String nodeName, BuildState buildState);
 

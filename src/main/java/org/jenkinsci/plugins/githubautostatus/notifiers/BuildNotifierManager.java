@@ -31,7 +31,7 @@ import org.jenkinsci.plugins.githubautostatus.InfluxDbNotifierConfig;
 /**
  * Manages send build notifications to one or more notifiers
  *
- * @author jxpearce
+ * @author Jeff Pearce (jxpearce@godaddy.com)
  */
 public class BuildNotifierManager {
 

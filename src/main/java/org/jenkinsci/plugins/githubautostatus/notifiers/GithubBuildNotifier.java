@@ -30,8 +30,8 @@ import org.kohsuke.github.GHCommitState;
 import org.kohsuke.github.GHRepository;
 
 /**
- *
- * @author jxpearce
+ * Sets the Github commit status for stages based on build notifications.
+ * @author Jeff Pearce (jxpearce@godaddy.com)
  */
 public class GithubBuildNotifier implements BuildNotifier {
 

@@ -51,13 +51,11 @@ import org.jenkinsci.plugins.workflow.cps.nodes.StepAtomNode;
 import org.jenkinsci.plugins.workflow.cps.nodes.StepEndNode;
 import org.jenkinsci.plugins.workflow.cps.nodes.StepStartNode;
 import org.jenkinsci.plugins.workflow.flow.FlowExecution;
-import org.jenkinsci.plugins.workflow.graph.BlockStartNode;
 import org.jenkinsci.plugins.workflow.job.WorkflowRun;
 
 /**
- * GithubBuildStatusGraphListener watches builds, and provides status (pending,
- * error or success) to the github page for multibranch jobs
- *
+ * GraphListener implementation which provides status (pending, error or success) 
+ * and timing information for each stage in a build.
  * @author Jeff Pearce (jxpearce@godaddy.com)
  */
 @Extension

@@ -32,9 +32,10 @@ import org.jenkinsci.plugins.githubautostatus.notifiers.BuildNotifierManager;
 import org.jenkinsci.plugins.githubautostatus.notifiers.BuildState;
 
 /**
- * Provides stage and job status updates for a build
+ * Keeps track of build status for each stage in a build, and provides mechanisms
+ * for notifying various subscribers as stages and jobs are completed.
  *
- * @author jxpearce
+ * @author Jeff Pearce (jxpearce@godaddy.com)
  */
 public class BuildStatusAction extends InvisibleAction {
 
