@@ -31,8 +31,9 @@ import hudson.model.listeners.RunListener;
 import org.jenkinsci.plugins.githubautostatus.notifiers.BuildState;
 
 /**
- *
- * @author jxpearce
+ * Implements {@link hudson.model.listeners.RunListener} extension point to
+ * provide job status information to subscribers as jobs complete.
+ * @author Jeff Pearce (jxpearce@godaddy.com)
  */
 @Extension
 public class BuildStatusJobListener extends RunListener<Run<?, ?>> {
@@ -52,7 +53,19 @@ public class BuildStatusJobListener extends RunListener<Run<?, ?>> {
             statusAction.updateBuildStatusForJob(result == Result.SUCCESS
                     ? BuildState.CompletedSuccess
                     : BuildState.CompletedError,
-                    build.getDuration());
+                    build.getDuration(),
+                    getBlockedTime(build));
         }
+    }
+    
+    /**
+     * Determines the amount of time a build spent in the blocked state.
+     * @param build The build to check.
+     * @return Time spent in the blocked state, in milliseconds.
+     */
+    protected long getBlockedTime(Run<?, ?> build) {
+        BuildBlockedAction action = build.getAction(BuildBlockedAction.class);
+        
+        return action == null ? 0 : action.getTimeBlocked();
     }
 }

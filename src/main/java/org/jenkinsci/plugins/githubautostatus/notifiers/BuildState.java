@@ -26,7 +26,7 @@ package org.jenkinsci.plugins.githubautostatus.notifiers;
 /**
  * Possible build states for notification
  *
- * @author jxpearce
+ * @author Jeff Pearce (jxpearce@godaddy.com)
  */
 public enum BuildState {
 

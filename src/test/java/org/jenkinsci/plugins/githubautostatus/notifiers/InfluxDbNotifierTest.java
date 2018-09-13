@@ -212,11 +212,11 @@ public class InfluxDbNotifierTest {
     public void testNotifyFinalBuildStateSuccess() throws IOException {
         InfluxDbNotifier instance = new InfluxDbNotifier(config);
 
-        instance.notifyFinalBuildStatus("mockjobname", BuildState.CompletedSuccess, 100);
+        instance.notifyFinalBuildStatus("mockjobname", BuildState.CompletedSuccess, 100, 12);
 
         verify(mockHttpClient).execute(any());
         assertEquals(statusLine,
-                "job,jobname=mockjobname,owner=mockowner,repo=mockrepo,branch=mockbranch,result=CompletedSuccess jobtime=100,passed=1");
+                "job,jobname=mockjobname,owner=mockowner,repo=mockrepo,branch=mockbranch,result=CompletedSuccess,blocked=1 jobtime=88,blockedtime=12,passed=1");
     }
 
     @Test
@@ -224,11 +224,11 @@ public class InfluxDbNotifierTest {
 
         InfluxDbNotifier instance = new InfluxDbNotifier(config);
 
-        instance.notifyFinalBuildStatus("mockjobname", BuildState.CompletedError, 1010);
+        instance.notifyFinalBuildStatus("mockjobname", BuildState.CompletedError, 1010, 0);
 
         verify(mockHttpClient).execute(any());
         assertEquals(statusLine,
-                "job,jobname=mockjobname,owner=mockowner,repo=mockrepo,branch=mockbranch,result=CompletedError jobtime=1010,passed=0");
+                "job,jobname=mockjobname,owner=mockowner,repo=mockrepo,branch=mockbranch,result=CompletedError,blocked=0 jobtime=1010,blockedtime=0,passed=0");
     }
 
     @Test

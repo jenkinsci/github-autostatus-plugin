@@ -29,6 +29,8 @@ import java.util.Arrays;
 import org.jenkinsci.plugins.githubautostatus.notifiers.BuildState;
 import org.junit.After;
 import org.junit.AfterClass;
+import static org.junit.Assume.assumeFalse;
+import static org.junit.Assume.assumeTrue;
 import org.junit.Before;
 import org.junit.BeforeClass;
 import org.junit.Test;
@@ -201,10 +203,25 @@ public class BuildStatusActionTest {
         instance.addGithubNofifier(githubConfig);
 
         verify(repository, never()).createCommitStatus(sha, GHCommitState.SUCCESS, targetUrl, "Stage built successfully", stageName);
-        
+
         instance.close();
 
         verify(repository).createCommitStatus(sha, GHCommitState.SUCCESS, targetUrl, "Stage built successfully", stageName);
     }
 
+    @Test
+    public void testIsDeclarativePipelineFalse() throws IOException {
+        BuildStatusAction instance = new BuildStatusAction(jobName, targetUrl, new ArrayList<>());
+        instance.setIsDeclarativePipeline(false);
+        
+        assumeFalse(instance.isIsDeclarativePipeline());
+    }
+
+    @Test
+    public void testIsDeclarativePipelineTrue() throws IOException {
+        BuildStatusAction instance = new BuildStatusAction(jobName, targetUrl, new ArrayList<>());
+        instance.setIsDeclarativePipeline(true);
+        
+        assumeTrue(instance.isIsDeclarativePipeline());
+    }
 }

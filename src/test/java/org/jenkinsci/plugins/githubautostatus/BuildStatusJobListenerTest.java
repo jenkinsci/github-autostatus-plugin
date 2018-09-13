@@ -85,7 +85,7 @@ public class BuildStatusJobListenerTest {
         BuildStatusJobListener instance = new BuildStatusJobListener();
 
         instance.onCompleted(build, listener);
-        verify(action).updateBuildStatusForJob(BuildState.CompletedSuccess, 0);
+        verify(action).updateBuildStatusForJob(BuildState.CompletedSuccess, 0, 0);
     }
 
     @Test
@@ -99,6 +99,6 @@ public class BuildStatusJobListenerTest {
         BuildStatusJobListener instance = new BuildStatusJobListener();
 
         instance.onCompleted(build, listener);
-        verify(action).updateBuildStatusForJob(BuildState.CompletedError, 0);
+        verify(action).updateBuildStatusForJob(BuildState.CompletedError, 0, 0);
     }
 }

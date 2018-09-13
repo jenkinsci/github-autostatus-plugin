@@ -36,8 +36,8 @@ import org.apache.http.impl.client.CloseableHttpClient;
 import org.apache.http.impl.client.HttpClients;
 
 /**
- *
- * @author jxpearce
+ * Encapsulates the logic of determining influxdb configuration for a build.
+ * @author Jeff Pearce (jxpearce@godaddy.com)
  */
 public class InfluxDbNotifierConfig {
 
@@ -52,45 +52,45 @@ public class InfluxDbNotifierConfig {
     private String influxDbRetentionPolicy;
 
     /**
-     * Gets the repo owner
+     * Gets the repo owner.
      *
-     * @return repo owner
+     * @return repo owner.
      */
     public String getRepoOwner() {
         return repoOwner;
     }
 
     /**
-     * Gets the repo name
+     * Gets the repo name.
      *
-     * @return repo name
+     * @return repo name.
      */
     public String getRepoName() {
         return repoName;
     }
 
     /**
-     * Gets the branch name
+     * Gets the branch name.
      *
-     * @return branch name
+     * @return branch name.
      */
     public String getBranchName() {
         return branchName;
     }
 
     /**
-     * Gets influx db url
+     * Gets influx db url.
      *
-     * @return influx db url
+     * @return influx db url.
      */
     public String getInfluxDbUrlString() {
         return influxDbUrlString;
     }
 
     /**
-     * Determines if influx db url is reachable
+     * Determines if influx db url is reachable.
      *
-     * @return true if url is reachable; false otherwise
+     * @return true if url is reachable; false otherwise.
      */
     public Boolean influxDbIsReachable() {
         try {
@@ -112,26 +112,26 @@ public class InfluxDbNotifierConfig {
     }
 
     /**
-     * Gets an http client that can be used to make requests
+     * Gets an http client that can be used to make requests.
      *
-     * @return http client
+     * @return http client.
      */
     public CloseableHttpClient getHttpClient() {
         return HttpClients.createDefault();
     }
 
     /**
-     * Gets the influx db to write to
+     * Gets the influx db to write to.
      *
-     * @return influx db
+     * @return influx db.
      */
     public String getInfluxDbDatabase() {
         return influxDbDatabase;
     }
 
     /**
-     * Returns credentials for calling influxdb if they are configured
-     * @return credentials; null if not provided
+     * Returns credentials for calling influxdb if they are configured.
+     * @return credentials; null if not provided.
      */
     @CheckForNull
     public UsernamePasswordCredentials getCredentials() {
@@ -142,21 +142,21 @@ public class InfluxDbNotifierConfig {
     }
     
     /**
-     * Gets the optional retention policy
+     * Gets the optional retention policy.
      *
-     * @return retention policy
+     * @return retention policy.
      */
     public String getInfluxDbRetentionPolicy() {
         return influxDbRetentionPolicy;
     }
 
     /**
-     * Creates an influxdb notification config based on the global settings
+     * Creates an influxdb notification config based on the global settings.
      *
-     * @param repoOwner repo owner
-     * @param repoName repo name
-     * @param branchName branch name
-     * @return config
+     * @param repoOwner repo owner.
+     * @param repoName repo name.
+     * @param branchName branch name.
+     * @return config.
      */
     public static InfluxDbNotifierConfig fromGlobalConfig(String repoOwner, String repoName, String branchName) {
         BuildStatusConfig config = BuildStatusConfig.get();

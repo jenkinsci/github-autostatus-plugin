@@ -32,9 +32,10 @@ import org.jenkinsci.plugins.githubautostatus.notifiers.BuildNotifierManager;
 import org.jenkinsci.plugins.githubautostatus.notifiers.BuildState;
 
 /**
- * Provides stage and job status updates for a build
+ * Keeps track of build status for each stage in a build, and provides mechanisms
+ * for notifying various subscribers as stages and jobs are completed.
  *
- * @author jxpearce
+ * @author Jeff Pearce (jxpearce@godaddy.com)
  */
 public class BuildStatusAction extends InvisibleAction {
 
@@ -159,10 +160,11 @@ public class BuildStatusAction extends InvisibleAction {
      *
      * @param buildState final build state
      * @param buildDuration build duration
+     * @param blockedDuration time build was blocked before running
      */
-    public void updateBuildStatusForJob(BuildState buildState, long buildDuration) {
+    public void updateBuildStatusForJob(BuildState buildState, long buildDuration, long blockedDuration) {
         close();
-        buildNotifierManager.notifyFinalBuildStatus(buildState, buildDuration);
+        buildNotifierManager.notifyFinalBuildStatus(buildState, buildDuration, blockedDuration);
     }
 
     /**

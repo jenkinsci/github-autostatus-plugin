@@ -38,8 +38,8 @@ import org.apache.http.impl.client.CloseableHttpClient;
 import org.jenkinsci.plugins.githubautostatus.InfluxDbNotifierConfig;
 
 /**
- *
- * @author jxpearce
+ * Writes job and stage measurements to an influxdb REST API.
+ * @author Jeff Pearce (jxpearce@godaddy.com)
  */
 public class InfluxDbNotifier implements BuildNotifier {
 
@@ -51,11 +51,6 @@ public class InfluxDbNotifier implements BuildNotifier {
     protected InfluxDbNotifierConfig config;
     protected transient String authorization;
 
-    /**
-     * Constructor
-     *
-     * @param config influxdb configuration info
-     */
     public InfluxDbNotifier(
             InfluxDbNotifierConfig config) {
         if (StringUtils.isEmpty(config.getInfluxDbUrlString()) || StringUtils.isEmpty(config.getInfluxDbDatabase())) {
@@ -158,18 +153,22 @@ public class InfluxDbNotifier implements BuildNotifier {
      * @param jobName the name of the job
      * @param buildState the new state
      * @param buildDuration overall build time
+     * @param blockedDuration time build was blocked before running
      */
     @Override
-    public void notifyFinalBuildStatus(String jobName, BuildState buildState, long buildDuration) {
+    public void notifyFinalBuildStatus(String jobName, BuildState buildState, long buildDuration, long blockedDuration) {
         int passed = buildState == BuildState.CompletedSuccess ? 1 : 0;
+        int blocked = blockedDuration > 0 ? 1 : 0;
 
-        String dataPoint = String.format("job,jobname=%s,owner=%s,repo=%s,branch=%s,result=%s jobtime=%d,passed=%d",
+        String dataPoint = String.format("job,jobname=%s,owner=%s,repo=%s,branch=%s,result=%s,blocked=%d jobtime=%d,blockedtime=%d,passed=%d",
                 escapeTagValue(jobName),
                 repoOwner,
                 repoName,
                 branchName,
                 buildState.toString(),
-                buildDuration,
+                blocked,
+                buildDuration - blockedDuration,
+                blockedDuration,
                 passed);
         postData(dataPoint);
     }

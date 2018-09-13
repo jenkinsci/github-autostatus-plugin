@@ -30,8 +30,8 @@ import org.kohsuke.github.GHCommitState;
 import org.kohsuke.github.GHRepository;
 
 /**
- *
- * @author jxpearce
+ * Sets the Github commit status for stages based on build notifications.
+ * @author Jeff Pearce (jxpearce@godaddy.com)
  */
 public class GithubBuildNotifier implements BuildNotifier {
 
@@ -119,9 +119,10 @@ public class GithubBuildNotifier implements BuildNotifier {
      * @param jobName the name of the job
      * @param buildState state indicating success or failure
      * @param buildDuration the build duration
+     * @param blockedDuration time build was blocked before running
      */
     @Override
-    public void notifyFinalBuildStatus(String jobName, BuildState buildState, long buildDuration) {
+    public void notifyFinalBuildStatus(String jobName, BuildState buildState, long buildDuration, long blockedDuration) {
 
     }
 

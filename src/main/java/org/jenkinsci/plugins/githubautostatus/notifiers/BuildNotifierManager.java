@@ -31,7 +31,7 @@ import org.jenkinsci.plugins.githubautostatus.InfluxDbNotifierConfig;
 /**
  * Manages send build notifications to one or more notifiers
  *
- * @author jxpearce
+ * @author Jeff Pearce (jxpearce@godaddy.com)
  */
 public class BuildNotifierManager {
 
@@ -105,11 +105,11 @@ public class BuildNotifierManager {
      * Send overall build status notification
      *
      * @param buildState the build status
-     * @param buildDuration elapsed time for this build
+     * @param blockedDuration time build was blocked before running
      */
-    public void notifyFinalBuildStatus(BuildState buildState, long buildDuration) {
+    public void notifyFinalBuildStatus(BuildState buildState, long buildDuration, long blockedDuration) {
         notifiers.forEach((notifier) -> {
-            notifier.notifyFinalBuildStatus(jobName, buildState, buildDuration);
+            notifier.notifyFinalBuildStatus(jobName, buildState, buildDuration, blockedDuration);
         });
     }
 

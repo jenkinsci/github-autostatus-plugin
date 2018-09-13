@@ -57,7 +57,7 @@ import org.kohsuke.stapler.StaplerRequest;
 /**
  * Provides configuration options for this plugin.
  *
- * @author jxpearce@godaddy.com
+ * @author Jeff Pearce (jxpearce@godaddy.com)
  */
 @Extension
 public class BuildStatusConfig extends GlobalConfiguration {
