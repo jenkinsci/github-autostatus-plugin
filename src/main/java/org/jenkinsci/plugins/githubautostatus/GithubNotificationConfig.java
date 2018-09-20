@@ -109,6 +109,7 @@ public class GithubNotificationConfig {
      * Constructs a config object from a Run object.
      * @param run The build.
      * @param listener Task listener (for logging to the build).
+     * @return The constructed config object.
      */
     public static @Nullable
     GithubNotificationConfig fromRun(Run<?, ?> run, TaskListener listener) {
@@ -120,6 +121,7 @@ public class GithubNotificationConfig {
      * @param run The build.
      * @param listener Task listener (for logging to the build).
      * @param githubBuilder Github builder.
+     * @return The constructed config object.
      */
     public static @Nullable
     GithubNotificationConfig fromRun(Run<?, ?> run, TaskListener listener, GitHubBuilder githubBuilder) {

@@ -23,6 +23,8 @@
  */
 package org.jenkinsci.plugins.githubautostatus.notifiers;
 
+import java.util.Collections;
+import org.jenkinsci.plugins.githubautostatus.BuildStageModel;
 import org.jenkinsci.plugins.githubautostatus.GithubNotificationConfig;
 import org.jenkinsci.plugins.githubautostatus.InfluxDbNotifierConfig;
 import org.junit.After;
@@ -108,9 +110,13 @@ public class BuildNotifierManagerTest {
     public void testNotifyBuildStageStatus() {
         GithubBuildNotifier notifier = mock(GithubBuildNotifier.class);
         instance.notifiers.add(notifier);
-        instance.notifyBuildStageStatus(stageName, BuildState.CompletedSuccess, 0);
+        
+        BuildStageModel stageItem = new BuildStageModel(stageName);
+        stageItem.setBuildState(BuildState.CompletedSuccess);
+        
+        instance.notifyBuildStageStatus(stageItem);
 
-        verify(notifier).notifyBuildStageStatus(mockJobName, stageName, BuildState.CompletedSuccess, 0);
+        verify(notifier).notifyBuildStageStatus(mockJobName, stageItem);
     }
 
     /**
@@ -120,9 +126,10 @@ public class BuildNotifierManagerTest {
     public void testNotifyFinalBuildStatus() {
         GithubBuildNotifier notifier = mock(GithubBuildNotifier.class);
         instance.notifiers.add(notifier);
-        instance.notifyFinalBuildStatus(BuildState.CompletedSuccess, 0, 1);
 
-        verify(notifier).notifyFinalBuildStatus(mockJobName, BuildState.CompletedSuccess, 0, 1);
+        instance.notifyFinalBuildStatus(BuildState.CompletedSuccess, Collections.EMPTY_MAP);
+
+        verify(notifier).notifyFinalBuildStatus(BuildState.CompletedSuccess, Collections.EMPTY_MAP);
     }
 
     /**
@@ -134,7 +141,7 @@ public class BuildNotifierManagerTest {
         instance.notifiers.add(notifier);
         instance.sendNonStageError(stageName);
 
-        verify(notifier).sendNonStageError(mockJobName, stageName);
+        verify(notifier).notifyBuildStageStatus(eq(mockJobName), any(BuildStageModel.class));
     }
 
     /**

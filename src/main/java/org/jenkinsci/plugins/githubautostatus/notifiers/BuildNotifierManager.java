@@ -25,6 +25,8 @@ package org.jenkinsci.plugins.githubautostatus.notifiers;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
+import org.jenkinsci.plugins.githubautostatus.BuildStageModel;
 import org.jenkinsci.plugins.githubautostatus.GithubNotificationConfig;
 import org.jenkinsci.plugins.githubautostatus.InfluxDbNotifierConfig;
 
@@ -55,8 +57,7 @@ public class BuildNotifierManager {
      * Adds a Github repository for notifications
      *
      * @param config Github notification configuration
-     *
-     * @return The notifier object
+     * @return the notifier which was added
      */
     public BuildNotifier addGithubNotifier(GithubNotificationConfig config) {
         GithubBuildNotifier buildNotifier = new GithubBuildNotifier(config.getRepo(), config.getShaString(), this.targetUrl);
@@ -67,10 +68,13 @@ public class BuildNotifierManager {
      * Adds an influx DB notifier
      *
      * @param influxDbNotifierConfig influx db notification configuration
-     * @return
+     * @return the notifier which was added
      */
     public BuildNotifier addInfluxDbNotifier(InfluxDbNotifierConfig influxDbNotifierConfig) {
         InfluxDbNotifier buildNotifier = new InfluxDbNotifier(influxDbNotifierConfig);
+        return addBuildNotifier(buildNotifier);
+    }
+    public BuildNotifier addGenericNofifier(BuildNotifier buildNotifier) {
         return addBuildNotifier(buildNotifier);
     }
 
@@ -91,13 +95,11 @@ public class BuildNotifierManager {
     /**
      * Send stage status notification
      *
-     * @param stageName the stage name
-     * @param buildState the build status
-     * @param nodeDuration elapsed time for this node
+     * @param stageItem stage item
      */
-    public void notifyBuildStageStatus(String stageName, BuildState buildState, long nodeDuration) {
+    public void notifyBuildStageStatus(BuildStageModel stageItem) {
         notifiers.forEach((notifier) -> {
-            notifier.notifyBuildStageStatus(jobName, stageName, buildState, nodeDuration);
+            notifier.notifyBuildStageStatus(jobName, stageItem);
         });
     }
 
@@ -105,11 +107,11 @@ public class BuildNotifierManager {
      * Send overall build status notification
      *
      * @param buildState the build status
-     * @param blockedDuration time build was blocked before running
+     * @param parameters build parameters
      */
-    public void notifyFinalBuildStatus(BuildState buildState, long buildDuration, long blockedDuration) {
+    public void notifyFinalBuildStatus(BuildState buildState, Map<String, Object> parameters) {
         notifiers.forEach((notifier) -> {
-            notifier.notifyFinalBuildStatus(jobName, buildState, buildDuration, blockedDuration);
+            notifier.notifyFinalBuildStatus(buildState, parameters);
         });
     }
 
@@ -121,8 +123,10 @@ public class BuildNotifierManager {
      * @param nodeName the name of the node that failed
      */
     public void sendNonStageError(String nodeName) {
+        BuildStageModel stageItem = new BuildStageModel(nodeName);
+        stageItem.setBuildState(BuildState.CompletedError);
         notifiers.forEach((notifier) -> {
-            notifier.sendNonStageError(jobName, nodeName);
+            notifier.notifyBuildStageStatus(jobName, stageItem);
         });
     }
 }

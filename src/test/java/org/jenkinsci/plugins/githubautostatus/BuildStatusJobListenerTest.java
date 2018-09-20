@@ -24,8 +24,11 @@
 package org.jenkinsci.plugins.githubautostatus;
 
 import hudson.model.AbstractBuild;
+import hudson.model.Job;
 import hudson.model.Result;
 import hudson.model.TaskListener;
+import java.util.HashMap;
+import java.util.Map;
 import org.jenkinsci.plugins.githubautostatus.notifiers.BuildState;
 import org.junit.After;
 import org.junit.AfterClass;
@@ -67,6 +70,8 @@ public class BuildStatusJobListenerTest {
     public void testOnCompletedNoBuildAction() {
         AbstractBuild build = mock(AbstractBuild.class);
         when(build.getAction(BuildStatusAction.class)).thenReturn(null);
+        Job job = mock(Job.class);
+        when(build.getParent()).thenReturn(job);
         TaskListener listener = null;
 
         BuildStatusJobListener instance = new BuildStatusJobListener();
@@ -80,12 +85,15 @@ public class BuildStatusJobListenerTest {
         BuildStatusAction action = mock(BuildStatusAction.class);
         when(build.getResult()).thenReturn(Result.SUCCESS);
         when(build.getAction(BuildStatusAction.class)).thenReturn(action);
+        Job job = mock(Job.class);
+        when(build.getParent()).thenReturn(job);
         TaskListener listener = null;
 
         BuildStatusJobListener instance = new BuildStatusJobListener();
+        HashMap<String, Object> jobParams = new HashMap<String, Object>();
 
         instance.onCompleted(build, listener);
-        verify(action).updateBuildStatusForJob(BuildState.CompletedSuccess, 0, 0);
+        verify(action).updateBuildStatusForJob(eq(BuildState.CompletedSuccess), any(Map.class));
     }
 
     @Test
@@ -94,11 +102,13 @@ public class BuildStatusJobListenerTest {
         BuildStatusAction action = mock(BuildStatusAction.class);
         when(build.getResult()).thenReturn(Result.FAILURE);
         when(build.getAction(BuildStatusAction.class)).thenReturn(action);
+        Job job = mock(Job.class);
+        when(build.getParent()).thenReturn(job);
         TaskListener listener = null;
 
         BuildStatusJobListener instance = new BuildStatusJobListener();
 
         instance.onCompleted(build, listener);
-        verify(action).updateBuildStatusForJob(BuildState.CompletedError, 0, 0);
+        verify(action).updateBuildStatusForJob(eq(BuildState.CompletedError), any(Map.class));
     }
 }

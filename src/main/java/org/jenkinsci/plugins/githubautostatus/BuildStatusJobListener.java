@@ -24,15 +24,25 @@
 package org.jenkinsci.plugins.githubautostatus;
 
 import hudson.Extension;
+import hudson.model.JobProperty;
+import hudson.model.JobPropertyDescriptor;
 import hudson.model.Result;
 import hudson.model.Run;
 import hudson.model.TaskListener;
 import hudson.model.listeners.RunListener;
+import hudson.plugins.cobertura.CoberturaBuildAction;
+import hudson.tasks.junit.TestResultAction;
+import java.util.HashMap;
+import java.util.Map;
+import org.jenkinsci.plugins.githubautostatus.model.CodeCoverage;
+import org.jenkinsci.plugins.githubautostatus.model.TestResults;
+import org.jenkinsci.plugins.githubautostatus.notifiers.BuildNotifierConstants;
 import org.jenkinsci.plugins.githubautostatus.notifiers.BuildState;
 
 /**
  * Implements {@link hudson.model.listeners.RunListener} extension point to
  * provide job status information to subscribers as jobs complete.
+ *
  * @author Jeff Pearce (jxpearce@godaddy.com)
  */
 @Extension
@@ -49,23 +59,85 @@ public class BuildStatusJobListener extends RunListener<Run<?, ?>> {
 
         BuildStatusAction statusAction = build.getAction(BuildStatusAction.class);
         if (statusAction != null) {
+            Map<String, Object> parameters = getParameters(build);
+            parameters.put(BuildNotifierConstants.BUILD_OBJECT, build);
+            parameters.put(BuildNotifierConstants.COVERAGE_INFO, getCoverageData(build));
+            parameters.put(BuildNotifierConstants.JOB_DURATION, build.getDuration());
+            parameters.put(BuildNotifierConstants.TEST_CASE_INFO, getTestData(build));
+            parameters.put(BuildNotifierConstants.BLOCKED_DURATION, getBlockedTime(build));
+            parameters.put(BuildNotifierConstants.JOB_NAME, statusAction.getJobName());
+            parameters.put(BuildNotifierConstants.REPO_NAME, statusAction.getRepoName());
+            parameters.put(BuildNotifierConstants.BRANCH_NAME, statusAction.getBranchName());
+
             Result result = build.getResult();
             statusAction.updateBuildStatusForJob(result == Result.SUCCESS
                     ? BuildState.CompletedSuccess
                     : BuildState.CompletedError,
-                    build.getDuration(),
-                    getBlockedTime(build));
+                    parameters);
         }
     }
-    
+
+    /**
+     * Gets Creates a map containing all job parameters.
+     *
+     * @param build the build.
+     * @return map containing parameters.
+     */
+    private Map<String, Object> getParameters(Run<?, ?> build) {
+        HashMap<String, Object> result = new HashMap<String, Object>();
+        
+        Map<JobPropertyDescriptor, ? extends JobProperty<?>> jobProperties = build.getParent().getProperties();
+        if (jobProperties != null) {
+            for (JobProperty property : jobProperties.values()) {
+
+                result.put(property.getDescriptor().getDisplayName(), property);
+
+//            List<ParameterValue> list = parameters.getAllParameters();
+//            for (JobPropertyDescriptor paramaterValue : jobProperties.entrySet()) {
+//                result.put(paramaterValue.getName(), paramaterValue.getValue());
+            }
+        }
+
+        return result;
+    }
+
+    /**
+     * Gets code coverage from the build, if present.
+     *
+     * @param build the build.
+     * @return code coverage information.
+     */
+    private CodeCoverage getCoverageData(Run<?, ?> build) {
+
+        CoberturaBuildAction coberturaAction = build.getAction(CoberturaBuildAction.class);
+
+        if (coberturaAction != null) {
+            return CodeCoverage.fromCobertura(coberturaAction);
+        }
+        return null;
+    }
+
+    /**
+     * Gets test results from the build, if present.
+     *
+     * @param build the build.
+     * @return test results.
+     */
+    private TestResults getTestData(Run<?, ?> build) {
+        TestResultAction testResultAction = build.getAction(TestResultAction.class);
+
+        return TestResults.fromJUnitTestResults(testResultAction);
+    }
+
     /**
      * Determines the amount of time a build spent in the blocked state.
+     *
      * @param build The build to check.
      * @return Time spent in the blocked state, in milliseconds.
      */
-    protected long getBlockedTime(Run<?, ?> build) {
+    private long getBlockedTime(Run<?, ?> build) {
         BuildBlockedAction action = build.getAction(BuildBlockedAction.class);
-        
+
         return action == null ? 0 : action.getTimeBlocked();
     }
 }

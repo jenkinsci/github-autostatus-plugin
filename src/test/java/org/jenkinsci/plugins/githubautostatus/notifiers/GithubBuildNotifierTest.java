@@ -24,6 +24,8 @@
 package org.jenkinsci.plugins.githubautostatus.notifiers;
 
 import java.io.IOException;
+import java.util.Collections;
+import org.jenkinsci.plugins.githubautostatus.BuildStageModel;
 import org.junit.After;
 import org.junit.AfterClass;
 import org.junit.Before;
@@ -98,7 +100,9 @@ public class GithubBuildNotifierTest {
     public void testSendPending() throws IOException {
         GithubBuildNotifier notifier = new GithubBuildNotifier(repository, sha, targetUrl);
 
-        notifier.notifyBuildState(jobName, stageName, BuildState.Pending);
+        BuildStageModel stageItem = new BuildStageModel(stageName);
+
+        notifier.notifyBuildStageStatus(jobName, stageItem);
         verify(repository).createCommitStatus(sha, GHCommitState.PENDING, targetUrl, "Building stage", stageName);
     }
 
@@ -111,7 +115,10 @@ public class GithubBuildNotifierTest {
     public void testSendSuccess() throws IOException {
         GithubBuildNotifier notifier = new GithubBuildNotifier(repository, sha, targetUrl);
 
-        notifier.notifyBuildState(jobName, stageName, BuildState.CompletedSuccess);
+        BuildStageModel stageItem = new BuildStageModel(stageName);
+        stageItem.setBuildState(BuildState.CompletedSuccess);
+
+        notifier.notifyBuildStageStatus(jobName, stageItem);
         verify(repository).createCommitStatus(sha, GHCommitState.SUCCESS, targetUrl, "Stage built successfully", stageName);
     }
 
@@ -124,7 +131,10 @@ public class GithubBuildNotifierTest {
     public void testSendError() throws IOException {
         GithubBuildNotifier notifier = new GithubBuildNotifier(repository, sha, targetUrl);
 
-        notifier.notifyBuildState(jobName, stageName, BuildState.CompletedError);
+        BuildStageModel stageItem = new BuildStageModel(stageName);
+        stageItem.setBuildState(BuildState.CompletedError);
+
+        notifier.notifyBuildStageStatus(jobName, stageItem);
         verify(repository).createCommitStatus(sha, GHCommitState.ERROR, targetUrl, "Failed to build stage", stageName);
     }
 
@@ -135,18 +145,7 @@ public class GithubBuildNotifierTest {
     @Test
     public void testNotifyFinalBuildStatus() throws IOException {
         GithubBuildNotifier notifier = new GithubBuildNotifier(repository, sha, targetUrl);
-        notifier.notifyFinalBuildStatus(jobName, BuildState.CompletedSuccess, 0, 0);
+        notifier.notifyFinalBuildStatus(BuildState.CompletedSuccess, Collections.EMPTY_MAP);
         verify(repository, never()).createCommitStatus(any(), any(), any(), any());
-    }
-
-    /**
-     * Verifies sendNonStageError sends a commit status for the error
-     * @throws IOException 
-     */
-    @Test
-    public void testSendNonStageError() throws IOException {
-        GithubBuildNotifier notifier = new GithubBuildNotifier(repository, sha, targetUrl);
-        notifier.sendNonStageError(jobName, stageName);
-        verify(repository).createCommitStatus(sha, GHCommitState.ERROR, targetUrl, "Failed to build stage", stageName);
     }
 }

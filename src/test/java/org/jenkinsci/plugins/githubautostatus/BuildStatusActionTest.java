@@ -25,7 +25,7 @@ package org.jenkinsci.plugins.githubautostatus;
 
 import java.io.IOException;
 import java.util.ArrayList;
-import java.util.Arrays;
+import java.util.List;
 import org.jenkinsci.plugins.githubautostatus.notifiers.BuildState;
 import org.junit.After;
 import org.junit.AfterClass;
@@ -86,7 +86,9 @@ public class BuildStatusActionTest {
      */
     @Test
     public void testInitialStage() throws IOException {
-        BuildStatusAction instance = new BuildStatusAction(jobName, targetUrl, new ArrayList<>(Arrays.asList(stageName)));
+        List<BuildStageModel> model = new ArrayList<BuildStageModel>();
+        model.add(new BuildStageModel(stageName));
+        BuildStatusAction instance = new BuildStatusAction(jobName, targetUrl, model);
         instance.addGithubNofifier(githubConfig);
 
         verify(repository).createCommitStatus(sha, GHCommitState.PENDING, targetUrl, "Building stage", stageName);

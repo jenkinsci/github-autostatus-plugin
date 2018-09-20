@@ -23,42 +23,20 @@
  */
 package org.jenkinsci.plugins.githubautostatus.notifiers;
 
-import hudson.ExtensionList;
-import hudson.ExtensionPoint;
-import java.util.Map;
-import org.jenkinsci.plugins.githubautostatus.BuildStageModel;
-
 /**
- * A notification subscriber which can send build stats to a particular sink.
- * @author Jeff Pearce (jxpearce@godaddy.com)
+ *
+ * @author jxpearce
  */
-public abstract class BuildNotifier implements ExtensionPoint {
+public class BuildNotifierConstants {
     
-    /**
-     * Determine whether notifier is enabled.
-     *
-     * @return true if enabled; false otherwise.
-     */
-    abstract public boolean isEnabled();
-
-    /**
-     * Send a state change, such as from Pending to Success or Pending to Error.
-     *
-
-     * @param jobName the name of the job
-     * @param stageItem stage item
-     */
-    abstract public void notifyBuildStageStatus(String jobName, BuildStageModel stageItem);
-
-    /**
-     * Send a notification when the job is complete
-     *
-     * @param buildState state indicating success or failure
-     * @param parameters build parameters
-     */
-    abstract public void notifyFinalBuildStatus(BuildState buildState, Map<String, Object> parameters);
-
-    public static ExtensionList<BuildNotifier> all() {
-        return ExtensionList.lookup(BuildNotifier.class);
-    }
+    public static final String BLOCKED_DURATION = "BLOCKED_DURATION";
+    public static final String BRANCH_NAME = "BRANCH_NAME";
+    public static final String BUILD_OBJECT = "BUILD_OBJECT";
+    public static final String COVERAGE_INFO = "COVERAGE_INFO";
+    public static final String JOB_DURATION = "JOB_DURATION";
+    public static final String JOB_NAME = "JOB_NAME";
+    public static final String REPO_NAME = "REPO_NAME";
+    public static final String REPO_OWNER = "REPO_OWNER";
+    public static final String STAGE_DURATION = "STAGE_DURATION";
+    public static final String TEST_CASE_INFO = "TEST_CASE_INFO";
 }
