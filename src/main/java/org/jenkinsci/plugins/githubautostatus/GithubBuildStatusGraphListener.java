@@ -34,14 +34,20 @@ import java.util.List;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import javax.annotation.CheckForNull;
+import net.sf.json.JSONObject;
 import org.jenkinsci.plugins.displayurlapi.DisplayURLProvider;
 import org.jenkinsci.plugins.githubautostatus.notifiers.BuildNotifier;
 import org.jenkinsci.plugins.githubautostatus.notifiers.BuildState;
 import org.jenkinsci.plugins.pipeline.StageStatus;
 import org.jenkinsci.plugins.pipeline.modeldefinition.actions.ExecutionModelAction;
 import org.jenkinsci.plugins.pipeline.modeldefinition.ast.ModelASTEnvironment;
+import org.jenkinsci.plugins.pipeline.modeldefinition.ast.ModelASTKeyValueOrMethodCallPair;
+import org.jenkinsci.plugins.pipeline.modeldefinition.ast.ModelASTMethodArg;
+import org.jenkinsci.plugins.pipeline.modeldefinition.ast.ModelASTOption;
+import org.jenkinsci.plugins.pipeline.modeldefinition.ast.ModelASTOptions;
 import org.jenkinsci.plugins.pipeline.modeldefinition.ast.ModelASTStage;
 import org.jenkinsci.plugins.pipeline.modeldefinition.ast.ModelASTStages;
+import org.jenkinsci.plugins.pipeline.modeldefinition.ast.ModelASTValue;
 import org.jenkinsci.plugins.workflow.actions.ErrorAction;
 import org.jenkinsci.plugins.workflow.flow.GraphListener;
 import org.jenkinsci.plugins.workflow.graph.FlowNode;
@@ -54,6 +60,7 @@ import org.jenkinsci.plugins.workflow.cps.nodes.StepAtomNode;
 import org.jenkinsci.plugins.workflow.cps.nodes.StepEndNode;
 import org.jenkinsci.plugins.workflow.cps.nodes.StepStartNode;
 import org.jenkinsci.plugins.workflow.flow.FlowExecution;
+import org.jenkinsci.plugins.workflow.graph.FlowStartNode;
 import org.jenkinsci.plugins.workflow.job.WorkflowRun;
 
 /**
@@ -85,7 +92,7 @@ public class GithubBuildStatusGraphListener implements GraphListener {
                     return;
                 }
 
-                List<FlowNode> enclosingBlocks = fn.getEnclosingBlocks();
+                List<? extends FlowStartNode> enclosingBlocks = (List<? extends FlowStartNode>) fn.getEnclosingBlocks();
                 boolean isInStage = false;
 
                 for (FlowNode encosingNode : enclosingBlocks) {
@@ -327,6 +334,21 @@ public class GithubBuildStatusGraphListener implements GraphListener {
                     }
                     environmentVariables.put(key.getKey(), groovyValue);
                 });
+            }
+            ModelASTOptions options = stage.getOptions();
+            for (ModelASTOption option : options.getOptions()) {
+                for (ModelASTMethodArg arg : option.getArgs()) {
+                    
+                    if (arg instanceof ModelASTKeyValueOrMethodCallPair) {
+                        ModelASTKeyValueOrMethodCallPair arg2 = (ModelASTKeyValueOrMethodCallPair)arg;
+                        JSONObject value = (JSONObject) arg2.getValue().toJSON();
+                        
+                        environmentVariables.put(String.format("%s.%s", option.getName(), arg2.getKey().getKey()),
+                                value.get("value"));
+                    }
+                    
+                }
+                
             }
 
             result.add(new BuildStageModel(stage.getName(), environmentVariables));
