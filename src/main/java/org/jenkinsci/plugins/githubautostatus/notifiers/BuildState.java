@@ -23,6 +23,8 @@
  */
 package org.jenkinsci.plugins.githubautostatus.notifiers;
 
+import hudson.model.Result;
+
 /**
  * Possible build states for notification
  *
@@ -35,6 +37,25 @@ public enum BuildState {
     CompletedError,
     SkippedFailure,
     SkippedUnstable,
-    SkippedConditional
+    SkippedConditional;
 
+    /**
+     * Converts value to Jenkins; result
+     * @return
+     */
+    public Result toResult() {
+        switch(this) {
+            case Pending:
+            case CompletedSuccess:
+                return Result.SUCCESS;
+            case CompletedError:
+                return Result.FAILURE;
+            case SkippedFailure:
+            case SkippedUnstable:
+            case SkippedConditional:
+                return Result.NOT_BUILT;
+        }
+        return Result.NOT_BUILT;
+    }
 }
+

@@ -23,6 +23,7 @@
  */
 package org.jenkinsci.plugins.githubautostatus;
 
+import hudson.model.Run;
 import java.util.HashMap;
 import java.util.Map;
 import org.jenkinsci.plugins.githubautostatus.notifiers.BuildState;
@@ -36,6 +37,7 @@ public class BuildStageModel {
     private String stageName;
     private Map<String, Object> environment;
     private BuildState buildState;
+    private transient Run<?, ?> run;
     
     public BuildStageModel(String stageName) {
         this(stageName, new HashMap<String, Object>());
@@ -76,6 +78,14 @@ public class BuildStageModel {
 
     public void setBuildState(BuildState buildState) {
         this.buildState = buildState;
+    }
+
+    public Run<?, ?> getRun() {
+        return run;
+    }
+
+    public void setRun(Run<?, ?> run) {
+        this.run = run;
     }
     
 }
