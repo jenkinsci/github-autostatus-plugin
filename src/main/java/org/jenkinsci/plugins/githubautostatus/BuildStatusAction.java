@@ -24,6 +24,7 @@
 package org.jenkinsci.plugins.githubautostatus;
 
 import hudson.model.InvisibleAction;
+import hudson.model.JobProperty;
 import hudson.model.Run;
 import java.util.HashMap;
 import java.util.List;
@@ -32,6 +33,8 @@ import org.jenkinsci.plugins.githubautostatus.notifiers.BuildNotifier;
 import org.jenkinsci.plugins.githubautostatus.notifiers.BuildNotifierConstants;
 import org.jenkinsci.plugins.githubautostatus.notifiers.BuildNotifierManager;
 import org.jenkinsci.plugins.githubautostatus.notifiers.BuildState;
+import org.jenkinsci.plugins.workflow.job.WorkflowJob;
+import org.jenkinsci.plugins.workflow.job.WorkflowRun;
 
 /**
  * Keeps track of build status for each stage in a build, and provides
@@ -48,6 +51,7 @@ public class BuildStatusAction extends InvisibleAction {
     private String repoName;
     private String branchName;
     private Run<?, ?> run;
+    private HashMap<String, Object> jobParameters;
     
     private final HashMap<String, BuildStageModel> buildStatuses;
     
@@ -92,11 +96,25 @@ public class BuildStatusAction extends InvisibleAction {
         this.run = run;
         this.jobName = run.getExternalizableId();
         this.buildStatuses = new HashMap<>();
+        this.jobParameters = new HashMap<>();
+        addGlobalProperties();
         buildNotifierManager = new BuildNotifierManager(jobName, targetUrl);
         stageList.forEach((stageItem) -> {
             stageItem.setRun(run);
+            stageItem.setEnvironment(jobParameters);
             buildStatuses.put(stageItem.getStageName(), stageItem);
         });
+    }
+    
+    private void addGlobalProperties() {
+        if (run instanceof WorkflowRun) {
+            WorkflowRun workflowRun = (WorkflowRun)run;
+            List<JobProperty<? super WorkflowJob>> properties = 
+                    workflowRun.getParent().getAllProperties();
+            for (JobProperty property : properties) {
+                jobParameters.put(property.getClass().getSimpleName(), property);                
+            }
+        }
     }
 
     /**
@@ -219,6 +237,7 @@ public class BuildStatusAction extends InvisibleAction {
                 new HashMap<>(),
                 BuildState.CompletedError);
         stageItem.setRun(run);
+        stageItem.setEnvironment(jobParameters);
         buildStatuses.put(nodeName, stageItem);
         buildNotifierManager.sendNonStageError(nodeName);
     }
