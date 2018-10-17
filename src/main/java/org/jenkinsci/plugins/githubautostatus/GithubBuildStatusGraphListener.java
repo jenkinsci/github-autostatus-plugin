@@ -335,14 +335,16 @@ public class GithubBuildStatusGraphListener implements GraphListener {
                 });
             }
             ModelASTOptions options = stage.getOptions();
-            for (ModelASTOption option : options.getOptions()) {
-                for (ModelASTMethodArg arg : option.getArgs()) {
-                    if (arg instanceof ModelASTKeyValueOrMethodCallPair) {
-                        ModelASTKeyValueOrMethodCallPair arg2 = (ModelASTKeyValueOrMethodCallPair) arg;
-                        JSONObject value = (JSONObject) arg2.getValue().toJSON();
+            if (options != null) {
+                for (ModelASTOption option : options.getOptions()) {
+                    for (ModelASTMethodArg arg : option.getArgs()) {
+                        if (arg instanceof ModelASTKeyValueOrMethodCallPair) {
+                            ModelASTKeyValueOrMethodCallPair arg2 = (ModelASTKeyValueOrMethodCallPair) arg;
+                            JSONObject value = (JSONObject) arg2.getValue().toJSON();
 
-                        environmentVariables.put(String.format("%s.%s", option.getName(), arg2.getKey().getKey()),
-                                value.get("value"));
+                            environmentVariables.put(String.format("%s.%s", option.getName(), arg2.getKey().getKey()),
+                                    value.get("value"));
+                        }
                     }
                 }
             }
