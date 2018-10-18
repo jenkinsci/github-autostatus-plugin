@@ -35,7 +35,7 @@ import org.jenkinsci.plugins.githubautostatus.notifiers.BuildState;
 public class BuildStageModel {
     
     private String stageName;
-    private Map<String, Object> environment;
+    private HashMap<String, Object> environment;
     private BuildState buildState;
     private transient Run<?, ?> run;
     
@@ -51,7 +51,7 @@ public class BuildStageModel {
             Map<String, Object> environment,
             BuildState buildState) {
         this.stageName = stageName;
-        this.environment = environment;
+        this.environment = new HashMap(environment);
         this.buildState = buildState;
     
     }
@@ -69,7 +69,11 @@ public class BuildStageModel {
     }
 
     public void setEnvironment(Map<String, Object> environment) {
-        this.environment = environment;
+        this.environment = new HashMap(environment);
+    }
+    
+    public void addToEnvironment(Map<String, Object> environment) {
+        this.environment.putAll(environment);        
     }
 
     public BuildState getBuildState() {

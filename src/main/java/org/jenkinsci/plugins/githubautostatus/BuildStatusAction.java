@@ -101,7 +101,7 @@ public class BuildStatusAction extends InvisibleAction {
         buildNotifierManager = new BuildNotifierManager(jobName, targetUrl);
         stageList.forEach((stageItem) -> {
             stageItem.setRun(run);
-            stageItem.setEnvironment(jobParameters);
+            stageItem.addToEnvironment(jobParameters);
             buildStatuses.put(stageItem.getStageName(), stageItem);
         });
     }
@@ -237,7 +237,7 @@ public class BuildStatusAction extends InvisibleAction {
                 new HashMap<>(),
                 BuildState.CompletedError);
         stageItem.setRun(run);
-        stageItem.setEnvironment(jobParameters);
+        stageItem.addToEnvironment(jobParameters);
         buildStatuses.put(nodeName, stageItem);
         buildNotifierManager.sendNonStageError(nodeName);
     }
