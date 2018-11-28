@@ -16,7 +16,7 @@
         <powermock.version>1.7.4</powermock.version>
     </properties>
     <name>Job and Stage monitoring Plugin</name>
-    <description>Automatically provides job and stage timing and pass/fail stats to github and/or influxDB/Grafana.</description>
+    <description>Automatically provides job and stage timing and pass/fail stats to GitHub and/or influxDB/Grafana.</description>
     <url>https://wiki.jenkins.io/display/JENKINS/Job+and+Stage+Monitoring+Plugin</url>
     <licenses>
         <license>

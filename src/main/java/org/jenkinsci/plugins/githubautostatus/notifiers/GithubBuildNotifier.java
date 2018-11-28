@@ -32,7 +32,7 @@ import org.kohsuke.github.GHCommitState;
 import org.kohsuke.github.GHRepository;
 
 /**
- * Sets the Github commit status for stages based on build notifications.
+ * Sets the GitHub commit status for stages based on build notifications.
  * @author Jeff Pearce (jxpearce@godaddy.com)
  */
 public class GithubBuildNotifier extends BuildNotifier {
@@ -62,7 +62,7 @@ public class GithubBuildNotifier extends BuildNotifier {
     /**
      * Constructor
      *
-     * @param repository the github repository
+     * @param repository the GitHub repository
      * @param shaString the commit notifications are being provided for
      * @param targetUrl target Url (link back to Jenkins)
      */

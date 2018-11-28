@@ -2,13 +2,13 @@
 
 This is a job monitoring plugin, which watches for pipeline builds and sends job and stage level stats to various endpoints, including
 
-- Github (to see pending/success/error status from your PR)
+- GitHub (to see pending/success/error status from your PR)
 - InfluxDB (for building monitoring dashboards).
 
 Since it watches for changes from all pipeline jobs, it doesn't require modifying your Jenkinsfiles - once installed, 
 it automatically provides stats for all pipeline jobs ran on the Jenkins master.
 
-## Github status
+## GitHub status
 
 The plugin can be configured to send commit status for each stage for jobs build from a multibranch project. For example:
 
