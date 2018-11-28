@@ -82,7 +82,7 @@ public class BuildNotifierManagerTest {
     }
 
     /**
-     * Verifies github notifier is added correctly.
+     * Verifies GitHub notifier is added correctly.
      */
     @Test
     public void testAddGithubNotifier() {

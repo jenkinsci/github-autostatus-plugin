@@ -52,7 +52,7 @@ import org.kohsuke.github.GitHub;
 import org.kohsuke.github.GitHubBuilder;
 
 /**
- * Encapsulates the logic of determining Github configuration for a build.
+ * Encapsulates the logic of determining GitHub configuration for a build.
  * @author Jeff Pearce (jxpearce@godaddy.com)
  */
 public class GithubNotificationConfig {
@@ -90,8 +90,8 @@ public class GithubNotificationConfig {
     }
 
     /**
-     * Gets the github repo for the build.
-     * @return Github repo for the build.
+     * Gets the GitHub repo for the build.
+     * @return GitHub repo for the build.
      */
     public GHRepository getRepo() {
         return repo;
@@ -117,10 +117,10 @@ public class GithubNotificationConfig {
     }
 
     /**
-     * Constructs a config object from a Run object and github builder.
+     * Constructs a config object from a Run object and GitHub builder.
      * @param run The build.
      * @param listener Task listener (for logging to the build).
-     * @param githubBuilder Github builder.
+     * @param githubBuilder GitHub builder.
      * @return The constructed config object.
      */
     public static @Nullable

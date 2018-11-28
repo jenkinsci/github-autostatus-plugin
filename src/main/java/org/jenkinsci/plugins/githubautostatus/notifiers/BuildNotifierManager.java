@@ -54,9 +54,9 @@ public class BuildNotifierManager {
     }
 
     /**
-     * Adds a Github repository for notifications
+     * Adds a GitHub repository for notifications
      *
-     * @param config Github notification configuration
+     * @param config GitHub notification configuration
      * @return the notifier which was added
      */
     public BuildNotifier addGithubNotifier(GithubNotificationConfig config) {

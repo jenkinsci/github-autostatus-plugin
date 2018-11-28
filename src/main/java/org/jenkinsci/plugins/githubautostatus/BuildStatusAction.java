@@ -138,9 +138,9 @@ public class BuildStatusAction extends InvisibleAction {
     }
 
     /**
-     * Attempts to add a github notifier
+     * Attempts to add a GitHub notifier
      *
-     * @param config github notifier config
+     * @param config GitHub notifier config
      */
     public void addGithubNofifier(GithubNotificationConfig config) {
         if (config != null) {
