@@ -26,6 +26,10 @@ package org.jenkinsci.plugins.githubautostatus.model;
 import hudson.plugins.cobertura.CoberturaBuildAction;
 import hudson.plugins.cobertura.Ratio;
 import hudson.plugins.cobertura.targets.CoverageMetric;
+import hudson.plugins.jacoco.JacocoBuildAction;
+import hudson.plugins.jacoco.model.Coverage;
+import hudson.plugins.jacoco.model.CoverageElement;
+
 import java.util.Map;
 import javax.annotation.Nullable;
 
@@ -56,6 +60,44 @@ public class CodeCoverage {
             codeCoverage.setLines(results.get(CoverageMetric.LINE));
             codeCoverage.setMethods(results.get(CoverageMetric.METHOD));
             codeCoverage.setPackages(results.get(CoverageMetric.PACKAGES));
+        }
+
+        return codeCoverage;
+    }
+
+    /**
+     * Loads code coverage from Jacoco.
+     *
+     * NOTE: Currently doesn't look like Jacoco is returning package and file specific numbers
+     *
+     * @param jacocoAction Jacoco plugin action
+     * @return CodeCoverage instance with values populated from the action
+     */
+    public static CodeCoverage fromJacoco(@Nullable JacocoBuildAction jacocoAction) {
+        if (jacocoAction == null) {
+            return null;
+        }
+        CodeCoverage codeCoverage = new CodeCoverage();
+        Map<Coverage, Boolean> results = jacocoAction.getCoverageRatios();
+
+
+        for(Coverage c : results.keySet()){
+            switch(c.getType()){
+                case BRANCH:
+                    codeCoverage.setConditionals(c.getPercentageFloat());
+                    break;
+                case LINE:
+                    codeCoverage.setLines(c.getPercentageFloat());
+                    break;
+                case METHOD:
+                    codeCoverage.setMethods(c.getPercentageFloat());
+                    break;
+                case CLASS:
+                    codeCoverage.setClasses(c.getPercentageFloat());
+                    break;
+
+            }
+
         }
 
         return codeCoverage;

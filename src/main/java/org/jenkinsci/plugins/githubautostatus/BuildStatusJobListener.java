@@ -31,6 +31,7 @@ import hudson.model.Run;
 import hudson.model.TaskListener;
 import hudson.model.listeners.RunListener;
 import hudson.plugins.cobertura.CoberturaBuildAction;
+import hudson.plugins.jacoco.JacocoBuildAction;
 import hudson.tasks.junit.TestResultAction;
 import java.util.HashMap;
 import java.util.Map;
@@ -110,10 +111,14 @@ public class BuildStatusJobListener extends RunListener<Run<?, ?>> {
     private CodeCoverage getCoverageData(Run<?, ?> build) {
 
         CoberturaBuildAction coberturaAction = build.getAction(CoberturaBuildAction.class);
+        JacocoBuildAction jacocoBuildAction = build.getAction(JacocoBuildAction.class);
 
         if (coberturaAction != null) {
             return CodeCoverage.fromCobertura(coberturaAction);
+        }else if(jacocoBuildAction != null){
+            return CodeCoverage.fromJacoco(jacocoBuildAction);
         }
+
         return null;
     }
 

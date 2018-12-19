@@ -41,7 +41,7 @@ public enum BuildState {
 
     /**
      * Converts value to Jenkins; result
-     * @return
+     * @return BuildState enum type
      */
     public Result toResult() {
         switch(this) {
