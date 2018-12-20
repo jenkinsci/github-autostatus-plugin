@@ -28,8 +28,6 @@ import hudson.plugins.cobertura.Ratio;
 import hudson.plugins.cobertura.targets.CoverageMetric;
 import hudson.plugins.jacoco.JacocoBuildAction;
 import hudson.plugins.jacoco.model.Coverage;
-import hudson.plugins.jacoco.model.CoverageElement;
-
 import java.util.Map;
 import javax.annotation.Nullable;
 
@@ -74,14 +72,16 @@ public class CodeCoverage {
      * @return CodeCoverage instance with values populated from the action
      */
     public static CodeCoverage fromJacoco(@Nullable JacocoBuildAction jacocoAction) {
+
         if (jacocoAction == null) {
             return null;
         }
+
         CodeCoverage codeCoverage = new CodeCoverage();
-        Map<Coverage, Boolean> results = jacocoAction.getCoverageRatios();
+        codeCoverage.setFiles(0.0f);
+        codeCoverage.setPackages(0.0f);
 
-
-        for(Coverage c : results.keySet()){
+        for(Coverage c : jacocoAction.getCoverageRatios().keySet()){
             switch(c.getType()){
                 case BRANCH:
                     codeCoverage.setConditionals(c.getPercentageFloat());
@@ -97,7 +97,6 @@ public class CodeCoverage {
                     break;
 
             }
-
         }
 
         return codeCoverage;
