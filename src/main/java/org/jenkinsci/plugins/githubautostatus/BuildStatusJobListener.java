@@ -31,6 +31,7 @@ import hudson.model.Run;
 import hudson.model.TaskListener;
 import hudson.model.listeners.RunListener;
 import hudson.plugins.cobertura.CoberturaBuildAction;
+import hudson.plugins.jacoco.JacocoBuildAction;
 import hudson.tasks.junit.TestResultAction;
 import java.util.HashMap;
 import java.util.Map;
@@ -85,7 +86,7 @@ public class BuildStatusJobListener extends RunListener<Run<?, ?>> {
      */
     private Map<String, Object> getParameters(Run<?, ?> build) {
         HashMap<String, Object> result = new HashMap<String, Object>();
-        
+
         Map<JobPropertyDescriptor, ? extends JobProperty<?>> jobProperties = build.getParent().getProperties();
         if (jobProperties != null) {
             for (JobProperty property : jobProperties.values()) {
@@ -104,17 +105,24 @@ public class BuildStatusJobListener extends RunListener<Run<?, ?>> {
     /**
      * Gets code coverage from the build, if present.
      *
+     * If both cobertura and jacoco results are available, jacoco will take precedence
+     *
      * @param build the build.
      * @return code coverage information.
      */
     private CodeCoverage getCoverageData(Run<?, ?> build) {
 
+        CodeCoverage results = null;
         CoberturaBuildAction coberturaAction = build.getAction(CoberturaBuildAction.class);
+        JacocoBuildAction jacocoBuildAction = build.getAction(JacocoBuildAction.class);
 
         if (coberturaAction != null) {
-            return CodeCoverage.fromCobertura(coberturaAction);
+            results = CodeCoverage.fromCobertura(coberturaAction);
+        } else if(jacocoBuildAction != null){
+            results = CodeCoverage.fromJacoco(jacocoBuildAction);
         }
-        return null;
+
+        return results;
     }
 
     /**
