@@ -95,7 +95,8 @@ public class CodeCoverage {
                 case CLASS:
                     codeCoverage.setClasses(c.getPercentageFloat());
                     break;
-
+                default:
+                    break;
             }
         }
 
