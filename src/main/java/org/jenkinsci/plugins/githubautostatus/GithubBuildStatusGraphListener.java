@@ -65,6 +65,7 @@ public class GithubBuildStatusGraphListener implements GraphListener {
     public void onNewHead(FlowNode fn) {
         try {
             if (isStage(fn)) {
+                log(Level.INFO, "SINIDE STAGE");
                 checkEnableBuildStatus(fn);
             } else if (fn instanceof StepAtomNode) {
 

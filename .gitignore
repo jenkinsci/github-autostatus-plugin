@@ -7,3 +7,5 @@ work/
 .idea
 *.iml
 /nbproject/
+.vscode
+.factorypath

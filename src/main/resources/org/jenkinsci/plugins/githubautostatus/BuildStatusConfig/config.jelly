@@ -12,11 +12,25 @@
             </f:entry>
             <f:entry field="credentialsId" title="Influxdb credentials">
                 <c:select/>
-            </f:entry>    
+            </f:entry>
             <f:entry title="Retention policy" field="influxDbRetentionPolicy" name="influxDbRetentionPolicy">
                 <f:textbox />
             </f:entry>
-        </f:optionalBlock> 
+        </f:optionalBlock>
+        <f:optionalBlock inline="true" name="enableStatsd" title="Send to statsd" checked="${instance.enableStatsd}">
+            <f:entry title="statsd url" field="statsdUrl" name="statsdUrl">
+                <f:textbox />
+            </f:entry>
+            <f:entry title="statsd port" field="statsdPort" name="statsdPort">
+                <f:textbox default="8125" />
+            </f:entry>
+            <f:entry title="statsd bucket" field="statsdBucket" name="statsdBucket">
+                <f:textbox />
+            </f:entry>
+            <f:entry title="Maximum packet size" field="statsdMaxSize" name="statsdMaxSize">
+                <f:textbox default="1400" />
+            </f:entry>
+        </f:optionalBlock>
     </f:section>
 </j:jelly>
 

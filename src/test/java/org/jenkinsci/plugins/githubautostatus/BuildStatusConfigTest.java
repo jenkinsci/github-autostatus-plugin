@@ -263,4 +263,38 @@ public class BuildStatusConfigTest {
         ListBoxModel.Option item2 = model.get(1);
         assertEquals(testCredentials, item2.value);
     }
+
+    @Test
+    public void testGetEnableStatsd() throws IOException {
+        BuildStatusConfig instance = new BuildStatusConfig();
+        instance.setEnableStatsd(false);
+        assertFalse(instance.getEnableStatsd());
+    }
+
+    @Test
+    public void testStatsdUrl() {
+        BuildStatusConfig instance = new BuildStatusConfig();
+        String expResult = "mock-value";
+        instance.setStatsdURL(expResult);
+        String result = instance.statsdURL();
+        assertEquals(expResult, result);
+    }
+
+    @Test
+    public void testStatsdPort() {
+        BuildStatusConfig instance = new BuildStatusConfig();
+        String expResult = "mock-value";
+        instance.setStatsdPort(expResult);
+        String result = instance.statsdPort();
+        assertEquals(expResult, result);
+    }
+
+    @Test
+    public void testStatsdBucket() {
+        BuildStatusConfig instance = new BuildStatusConfig();
+        String expResult = "mock-value";
+        instance.setStatsdBucket(expResult);
+        String result = instance.statsdBucket();
+        assertEquals(expResult, result);
+    }
 }
