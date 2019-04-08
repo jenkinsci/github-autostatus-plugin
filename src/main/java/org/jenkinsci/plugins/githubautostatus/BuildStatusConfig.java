@@ -76,6 +76,7 @@ public class BuildStatusConfig extends GlobalConfiguration {
     private String statsdURL;
     private String statsdPort;
     private String statsdBucket;
+    private String statsdMaxSize;
 
     /**
      * Convenience method to get the configuration object
@@ -109,7 +110,7 @@ public class BuildStatusConfig extends GlobalConfiguration {
      * @param req Request that represents the form submission
      * @param json The JSON object that captures the configuration data
      * @return always returns true (allow config page to be closed)
-     * @throws hudson.model.Descriptor.FormException
+     * @throws hudson.model.Descriptor.FormException exception if a form field is invalid
      */
     @Override
     public boolean configure(StaplerRequest req, JSONObject json) throws FormException {
@@ -265,7 +266,7 @@ public class BuildStatusConfig extends GlobalConfiguration {
      *
      * @return the value of statsdURL
      */
-    public String statsdURL() {
+    public String getStatsdURL() {
         return statsdURL;
     }
 
@@ -285,7 +286,7 @@ public class BuildStatusConfig extends GlobalConfiguration {
      *
      * @return the value of statsdPort
      */
-    public String statsdPort() {
+    public String getStatsdPort() {
         return statsdPort;
     }
 
@@ -305,7 +306,7 @@ public class BuildStatusConfig extends GlobalConfiguration {
      *
      * @return the value of statsdBucket
      */
-    public String statsdBucket() {
+    public String getStatsdBucket() {
         return statsdBucket;
     }
 
@@ -316,7 +317,27 @@ public class BuildStatusConfig extends GlobalConfiguration {
      */
     @DataBoundSetter
     public void setStatsdBucket(String statsdBucket) {
-        this.statsdURL = statsdBucket;
+        this.statsdBucket = statsdBucket;
+        save();
+    }
+
+    /**
+     * Get the value of statsdMaxSize
+     *
+     * @return the value of statsdMaxSize
+     */
+    public String getStatsdMaxSize() {
+        return statsdMaxSize;
+    }
+
+    /**
+     * Set the value of statsdMaxSize
+     *
+     * @param statsdMaxSize new value of statsdMaxSize
+     */
+    @DataBoundSetter
+    public void setStatsdMaxSize(String statsdMaxSize) {
+        this.statsdMaxSize = statsdMaxSize;
         save();
     }
 

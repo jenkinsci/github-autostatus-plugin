@@ -276,7 +276,7 @@ public class BuildStatusConfigTest {
         BuildStatusConfig instance = new BuildStatusConfig();
         String expResult = "mock-value";
         instance.setStatsdURL(expResult);
-        String result = instance.statsdURL();
+        String result = instance.getStatsdURL();
         assertEquals(expResult, result);
     }
 
@@ -285,7 +285,7 @@ public class BuildStatusConfigTest {
         BuildStatusConfig instance = new BuildStatusConfig();
         String expResult = "mock-value";
         instance.setStatsdPort(expResult);
-        String result = instance.statsdPort();
+        String result = instance.getStatsdPort();
         assertEquals(expResult, result);
     }
 
@@ -294,7 +294,16 @@ public class BuildStatusConfigTest {
         BuildStatusConfig instance = new BuildStatusConfig();
         String expResult = "mock-value";
         instance.setStatsdBucket(expResult);
-        String result = instance.statsdBucket();
+        String result = instance.getStatsdBucket();
+        assertEquals(expResult, result);
+    }
+
+    @Test
+    public void testStatsdMaxSize() {
+        BuildStatusConfig instance = new BuildStatusConfig();
+        String expResult = "mock-value";
+        instance.setStatsdMaxSize(expResult);
+        String result = instance.getStatsdMaxSize();
         assertEquals(expResult, result);
     }
 }

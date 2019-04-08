@@ -72,10 +72,6 @@ public class BuildStatusJobListener extends RunListener<Run<?, ?>> {
         return action == null ? 0 : action.getTimeBlocked();
     }
 
-    // private static void log(Level level, Throwable exception) {
-    //     getLogger().log(level, null, exception);
-    // }
-
     private static void log(Level level, String format, Object... args) {
         getLogger().log(level, String.format(format, args));
     }
