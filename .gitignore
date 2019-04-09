@@ -7,3 +7,6 @@ work/
 .idea
 *.iml
 /nbproject/
+
+# Statsd fork dev
+.factorypath
