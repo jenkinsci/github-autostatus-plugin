@@ -109,9 +109,9 @@ public class BuildStatusAction extends InvisibleAction {
     }
 
     /**
-     * Attempts to add an influx db notifier
+     * Attempts to add an Statsd notifier
      *
-     * @param influxDbNotifierConfig influx db notifier config
+     * @param statsdNotifierConfig Statsd notifier config
      */
     public void addStatsdNotifier(StatsdNotifierConfig statsdNotifierConfig) {
         sendNotications(buildNotifierManager.addStatsdNotifier(statsdNotifierConfig));
