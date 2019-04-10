@@ -52,7 +52,7 @@ public class BuildStatusAction extends InvisibleAction {
      * @param jobName the name of the job status is for
      * @param targetUrl link back to Jenkins
      * @param stageList list of stages if known
-     * @throws IOException
+     * @throws IOException general exception
      */
     public BuildStatusAction(String jobName, String targetUrl, List<String> stageList) throws IOException {
         this.jobName = jobName;
@@ -78,7 +78,7 @@ public class BuildStatusAction extends InvisibleAction {
     /**
      * Sets flag indicating whether notifications are for a declarative pipeline
      *
-     * @return
+     * @return if pipeline is declaritive or not
      */
     public boolean isIsDeclarativePipeline() {
         return isDeclarativePipeline;

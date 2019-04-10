@@ -72,6 +72,11 @@ public class BuildStatusConfig extends GlobalConfiguration {
     private String influxDbRetentionPolicy;
     private boolean enableInfluxDb;
     private boolean disableGithub;
+    private boolean enableStatsd;
+    private String statsdURL;
+    private String statsdPort;
+    private String statsdBucket;
+    private String statsdMaxSize;
 
     /**
      * Convenience method to get the configuration object
@@ -105,7 +110,7 @@ public class BuildStatusConfig extends GlobalConfiguration {
      * @param req Request that represents the form submission
      * @param json The JSON object that captures the configuration data
      * @return always returns true (allow config page to be closed)
-     * @throws hudson.model.Descriptor.FormException
+     * @throws hudson.model.Descriptor.FormException exception if a form field is invalid
      */
     @Override
     public boolean configure(StaplerRequest req, JSONObject json) throws FormException {
@@ -233,6 +238,106 @@ public class BuildStatusConfig extends GlobalConfiguration {
     @DataBoundSetter
     public void setInfluxDbRetentionPolicy(String influxDbRetentionPolicy) {
         this.influxDbRetentionPolicy = influxDbRetentionPolicy;
+        save();
+    }
+
+    /**
+     * Get flag determining whether writing to statsd is enabled
+     *
+     * @return true if writing to statsd is enabled
+     */
+    public boolean getEnableStatsd() {
+        return enableStatsd;
+    }
+
+    /**
+     * Set whether writing to statsd is enabled
+     *
+     * @param enableStatsd true to enable writing to statsd
+     */
+    @DataBoundSetter
+    public void setEnableStatsd(boolean enableStatsd) {
+        this.enableStatsd = enableStatsd;
+        save();
+    }
+
+    /**
+     * Get the value of statsdURL
+     *
+     * @return the value of statsdURL
+     */
+    public String getStatsdURL() {
+        return statsdURL;
+    }
+
+    /**
+     * Set the value of statsdURL
+     *
+     * @param statsdURL new value of statsdURL
+     */
+    @DataBoundSetter
+    public void setStatsdURL(String statsdURL) {
+        this.statsdURL = statsdURL;
+        save();
+    }
+
+    /**
+     * Get the value of statsdPort
+     *
+     * @return the value of statsdPort
+     */
+    public String getStatsdPort() {
+        return statsdPort;
+    }
+
+    /**
+     * Set the value of statsdPort
+     *
+     * @param statsdPort new value of statsdPort
+     */
+    @DataBoundSetter
+    public void setStatsdPort(String statsdPort) {
+        this.statsdPort = statsdPort;
+        save();
+    }
+
+    /**
+     * Get the value of statsdBucket
+     *
+     * @return the value of statsdBucket
+     */
+    public String getStatsdBucket() {
+        return statsdBucket;
+    }
+
+    /**
+     * Set the value of statsdBucket
+     *
+     * @param statsdBucket new value of statsdBucket
+     */
+    @DataBoundSetter
+    public void setStatsdBucket(String statsdBucket) {
+        this.statsdBucket = statsdBucket;
+        save();
+    }
+
+    /**
+     * Get the value of statsdMaxSize
+     *
+     * @return the value of statsdMaxSize
+     */
+    public String getStatsdMaxSize() {
+        return statsdMaxSize;
+    }
+
+    /**
+     * Set the value of statsdMaxSize
+     *
+     * @param statsdMaxSize new value of statsdMaxSize
+     */
+    @DataBoundSetter
+    public void setStatsdMaxSize(String statsdMaxSize) {
+        this.statsdMaxSize = statsdMaxSize;
         save();
     }
 
