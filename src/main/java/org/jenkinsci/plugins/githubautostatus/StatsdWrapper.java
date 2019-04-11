@@ -47,7 +47,7 @@ class StatsdWrapper {
                 client.stop();
             }
             client = newClient;
-        } catch (StatsDClientException e) {
+        } catch (Exception e) {
             LOGGER.warning("Could not refresh client, will continue to use old instance");
             if (client == null) {
                 throw e;
