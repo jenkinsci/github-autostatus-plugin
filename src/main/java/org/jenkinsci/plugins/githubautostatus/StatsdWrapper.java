@@ -12,7 +12,7 @@ import java.util.logging.Logger;
 
 class StatsdWrapper {
     private static com.timgroup.statsd.StatsDClient client;
-    private static final Logger LOGGER = Logger.getLogger(Wrapper.class.getName());
+    private static final Logger LOGGER = Logger.getLogger(StatsdWrapper.class.getName());
     private String hostname = "";
     private String prefix = "";
     private int port = 8125;
@@ -20,32 +20,40 @@ class StatsdWrapper {
     private final int CLIENT_TTL = 300;
 
     /**
+     * newClient attempts to create a new statsd client instance, if succesful then
+     * the active client is safely swapped out.
      * 
      * @throws StatsDClientException
      */
     private void newClient() throws StatsDClientException {
         Lock wl = lock.writeLock();
+        StatsDClient newClient = null;
         try {
-            StatsDClient newClient = new NonBlockingStatsDClient(prefix, hostname, port);
-            // only aquire write lock if hostname resolution succeeded. Otherwise the
-            // method will throw an exception and immediately release the lock. This is
-            wl.lock();
-            if (client instanceof StatsDClient) {
-                // this will flush remaining messages out of queue.
-                client.stop();
-            }
-            System.out.println("Created new client!!!");
-            client = newClient;
+            newClient = new NonBlockingStatsDClient(prefix, hostname, port);
         } catch (StatsDClientException e) {
             LOGGER.warning("Could not refresh client, will continue to use old instance");
 
-            if (!(client instanceof StatsDClient)) {
+            if (client == null) {
+                throw e;
+            }
+            return;
+        }
+
+        // only aquire write lock if hostname resolution succeeded.
+        wl.lock();
+        try {
+            if (client != null) {
+                // this will flush remaining messages out of queue.
+                client.stop();
+            }
+            client = newClient;
+        } catch (StatsDClientException e) {
+            LOGGER.warning("Could not refresh client, will continue to use old instance");
+            if (client == null) {
                 throw e;
             }
         } finally {
-            if (lock.isWriteLocked()) {
-                wl.unlock();
-            }
+            wl.unlock();
         }
     }
 
@@ -63,10 +71,6 @@ class StatsdWrapper {
 
         lock = new ReentrantReadWriteLock();
         ScheduledExecutorService exec = Executors.newSingleThreadScheduledExecutor();
-
-        // TODO: Look into using https://javadoc.jenkins.io/jenkins/util/Timer.html.
-        // Actually the correct one is:
-        // https://javadoc.jenkins.io/hudson/model/PeriodicWork.html
 
         exec.scheduleAtFixedRate(new Runnable() {
             @Override
@@ -96,6 +100,12 @@ class StatsdWrapper {
         }
     }
 
+    /**
+     * Runs a Statsd increment in a safe way.
+     * 
+     * @param key    the bucket key
+     * @param amount amount to increment
+     */
     public void increment(String key, int amount) {
         execLocked(new Runnable() {
             @Override
