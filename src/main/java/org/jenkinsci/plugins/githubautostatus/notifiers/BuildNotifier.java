@@ -25,6 +25,7 @@ package org.jenkinsci.plugins.githubautostatus.notifiers;
 
 /**
  * A notification subscriber which can send build stats to a particular sink.
+ * 
  * @author Jeff Pearce (jxpearce@godaddy.com)
  */
 public interface BuildNotifier {
@@ -39,39 +40,41 @@ public interface BuildNotifier {
     /**
      * Send a state change, such as from Pending to Success or Pending to Error.
      *
-     * @param jobName the name of the job.
-     * @param nodeName the node that has changed.
-     * @param buildState the new state.
+     * @param jobName    the name of the job.
+     * @param nodeName   the node that has changed.
+     * @param buildState the new state. note: this is a stage result, should be
+     *                   metric #3.
      */
     void notifyBuildState(String jobName, String nodeName, BuildState buildState);
 
     /**
      * Send a state change with timing info
      *
-     * @param jobName the name of the job
-     * @param nodeName the node that has changed
-     * @param buildState the new state
-     * @param nodeDuration elapsed time for this node
+     * @param jobName      the name of the job
+     * @param nodeName     the node that has changed
+     * @param buildState   the new state
+     * @param nodeDuration elapsed time for this node This is #4 (Timer)
      */
     void notifyBuildStageStatus(String jobName, String nodeName, BuildState buildState, long nodeDuration);
 
     /**
      * Send a notification when the job is complete
      *
-     * @param jobName the name of the job
-     * @param buildState state indicating success or failure
-     * @param buildDuration the build duration
-     * @param blockedDuration time build was blocked before running
+     * @param jobName         the name of the job
+     * @param buildState      state indicating success or failure
+     * @param buildDuration   the build duration
+     * @param blockedDuration time build was blocked before running This one will
+     *                        send #1 and #2
      */
     void notifyFinalBuildStatus(String jobName, BuildState buildState, long buildDuration, long blockedDuration);
 
     /**
      * Sends a notification for an error regardless of whether initial pending
-     * status was sent. Useful for reporting errors for non-declarative
-     * pipelines since they can happen outside of a stage.
+     * status was sent. Useful for reporting errors for non-declarative pipelines
+     * since they can happen outside of a stage.
      *
-     * @param jobName the name of the job
-     * @param nodeName the name of the node that failed
+     * @param jobName  the name of the job
+     * @param nodeName the name of the node that failed Just send #1 type.
      */
     void sendNonStageError(String jobName, String nodeName);
 }

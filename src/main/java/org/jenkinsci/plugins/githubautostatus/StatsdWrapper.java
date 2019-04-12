@@ -10,7 +10,7 @@ import java.util.concurrent.locks.Lock;
 import java.util.concurrent.locks.ReentrantReadWriteLock;
 import java.util.logging.Logger;
 
-class StatsdWrapper {
+public class StatsdWrapper {
     private static com.timgroup.statsd.StatsDClient client;
     private static final Logger LOGGER = Logger.getLogger(StatsdWrapper.class.getName());
     private String hostname = "";
