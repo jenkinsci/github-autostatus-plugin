@@ -2,30 +2,43 @@
 package org.jenkinsci.plugins.githubautostatus.notifiers;
 
 import org.jenkinsci.plugins.githubautostatus.StatsdWrapper;
+import org.jenkinsci.plugins.githubautostatus.StatsdNotifierConfig;
 
-public class StatsdNotifier implements BuildNotifier {
+public class StatsdNotifier {
     private StatsdWrapper client;
-    private String prefix;
+    protected StatsdNotifierConfig config;
 
-    public StatsdNotifier() {
-        // TODO: Use the config.
-        client = new StatsdWrapper("xyz", "localhost", 8125);
+    public StatsdNotifier(StatsdNotifierConfig cfg) {
+        config = cfg;
+        client = new StatsdWrapper(cfg.getStatsdBucket(), cfg.getStatsdHost(), Integer.parseInt(cfg.getStatsdPort()));
     }
 
     public boolean isEnabled() {
         return client != null;
     }
 
-    // reponame = name of the job.
-    // repo-org = folder path (just prefix).
 
-    // nodeName = stage
-    void notifyBuildState(String jobName, String nodeName, BuildState buildState) {
-        //service.jenkins-kubernetes.pipeline.<folder>.<subfolder>.<job name>.branch.<branch>.stage.<stage name>.status.<stage result> (Counter metric)
-        StringBuilder pathBuilder = new StringBuilder();
-        pathBuilder.append(prefix);
-        pathBuilder.append(".");
-        pathBuilder.append(jobName)
-        client.increment()
+    private String getBranchPath() {
+        return String.format("pipeline.%s.%s.branch.%s", config.getRepoOwner(), config.getRepoName(), config.getBranchName());
+    }
+    //service.jenkins-kubernetes.pipeline.<folder>.<subfolder>.<job name>.branch.<branch>.stage.<stage name>.duration (Timer metric)
+    public void notifyBuildState(String jobName, String nodeName, BuildState buildState) {
+        String fqp = String.format("%s.stage.%s.status.%s", getBranchPath(), nodeName, buildState);  
+        client.increment(fqp, 1);
+    }
+
+    public void notifyBuildStageStatus(String jobName, String nodeName, BuildState buildState, long nodeDuration) {
+        String fqp = String.format("%s.stage.%s.duration", getBranchPath(), nodeName);
+        client.time(fqp, nodeDuration);
+    }
+
+    // 1 & 2.
+    public void notifyFinalBuildStatus(String jobName, BuildState buildState, long buildDuration, long blockedDuration) {
+        String fqp = String.format("%s.job.status.%s", getBranchPath(), buildState);
+        client.increment(fqp, 1);
+        fqp = String.format("%s.job.duration", getBranchPath());
+        client.time(fqp, buildDuration);
+        fqp = String.format("%s.job.blocked_duration", getBranchPath());
+        client.time(fqp, buildDuration);
     }
 }

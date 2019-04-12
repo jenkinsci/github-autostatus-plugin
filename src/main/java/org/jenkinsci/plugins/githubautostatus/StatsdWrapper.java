@@ -115,4 +115,19 @@ public class StatsdWrapper {
             }
         });
     }
+
+    /**
+     * Run a Statsd timer state in a safe way.
+     * 
+     * @param key the bucket key
+     * @param duration the duration
+     */
+    public void time(String key, long duration) {
+        execLocked(new Runnable() {
+            @Override
+            public void run() {
+                client.time(key, duration);
+            }
+        });
+    }
 }
