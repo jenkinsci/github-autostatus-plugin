@@ -39,13 +39,14 @@ import java.util.logging.Logger;
  * @author Tom Hadlaw (thomas.hadlaw@hootsuite.com)
  */
 public class StatsdWrapper {
-    private static com.timgroup.statsd.StatsDClient client;
+    private final int CLIENT_TTL = 300;
     private static final Logger LOGGER = Logger.getLogger(StatsdWrapper.class.getName());
+
+    private static StatsDClient client;
     private String hostname = "";
     private String prefix = "";
     private int port = 8125;
     private ReentrantReadWriteLock lock;
-    private final int CLIENT_TTL = 300;
 
     /**
      * newClient attempts to create a new statsd client instance, if succesful then

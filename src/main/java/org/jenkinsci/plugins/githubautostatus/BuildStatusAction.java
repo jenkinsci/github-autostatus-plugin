@@ -29,7 +29,6 @@ import java.util.HashMap;
 import java.util.List;
 import org.jenkinsci.plugins.githubautostatus.notifiers.BuildNotifier;
 import org.jenkinsci.plugins.githubautostatus.notifiers.BuildNotifierManager;
-import java.util.logging.Logger;
 
 import org.jenkinsci.plugins.githubautostatus.notifiers.BuildState;
 
