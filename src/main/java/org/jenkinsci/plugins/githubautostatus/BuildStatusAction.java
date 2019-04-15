@@ -110,10 +110,12 @@ public class BuildStatusAction extends InvisibleAction {
         sendNotications(buildNotifierManager.addInfluxDbNotifier(influxDbNotifierConfig));
     }
 
+    /**
+     * Attempts to add a statsd notifier
+     * 
+     * @param statsdNotifierConfig statsd notifier config
+     */
     public void addStatsdNotifier(StatsdNotifierConfig statsdNotifierConfig) {
-        Logger LOGGER = Logger.getLogger(StatsdWrapper.class.getName());
-        LOGGER.info("OK - LOADING STATSD NOTIFIER YEP");
-        LOGGER.info("[DEBUG] The hostname is: " + statsdNotifierConfig.getStatsdHost());
         sendNotications(buildNotifierManager.addStatsdBuildNotifier(statsdNotifierConfig));
     }
 
