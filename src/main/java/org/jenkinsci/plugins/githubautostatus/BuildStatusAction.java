@@ -29,6 +29,8 @@ import java.util.HashMap;
 import java.util.List;
 import org.jenkinsci.plugins.githubautostatus.notifiers.BuildNotifier;
 import org.jenkinsci.plugins.githubautostatus.notifiers.BuildNotifierManager;
+import java.util.logging.Logger;
+
 import org.jenkinsci.plugins.githubautostatus.notifiers.BuildState;
 
 /**
@@ -106,6 +108,13 @@ public class BuildStatusAction extends InvisibleAction {
      */
     public void addInfluxDbNotifier(InfluxDbNotifierConfig influxDbNotifierConfig) {
         sendNotications(buildNotifierManager.addInfluxDbNotifier(influxDbNotifierConfig));
+    }
+
+    public void addStatsdNotifier(StatsdNotifierConfig statsdNotifierConfig) {
+        Logger LOGGER = Logger.getLogger(StatsdWrapper.class.getName());
+        LOGGER.info("OK - LOADING STATSD NOTIFIER YEP");
+        LOGGER.info("[DEBUG] The hostname is: " + statsdNotifierConfig.getStatsdHost());
+        sendNotications(buildNotifierManager.addStatsdBuildNotifier(statsdNotifierConfig));
     }
 
     /**

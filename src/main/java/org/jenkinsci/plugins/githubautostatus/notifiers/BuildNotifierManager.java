@@ -27,6 +27,7 @@ import java.util.ArrayList;
 import java.util.List;
 import org.jenkinsci.plugins.githubautostatus.GithubNotificationConfig;
 import org.jenkinsci.plugins.githubautostatus.InfluxDbNotifierConfig;
+import org.jenkinsci.plugins.githubautostatus.StatsdNotifierConfig;
 
 /**
  * Manages send build notifications to one or more notifiers
@@ -71,6 +72,11 @@ public class BuildNotifierManager {
      */
     public BuildNotifier addInfluxDbNotifier(InfluxDbNotifierConfig influxDbNotifierConfig) {
         InfluxDbNotifier buildNotifier = new InfluxDbNotifier(influxDbNotifierConfig);
+        return addBuildNotifier(buildNotifier);
+    }
+
+    public BuildNotifier addStatsdBuildNotifier(StatsdNotifierConfig statsdNotifierConfig) {
+        StatsdNotifier buildNotifier = new StatsdNotifier(statsdNotifierConfig);
         return addBuildNotifier(buildNotifier);
     }
 

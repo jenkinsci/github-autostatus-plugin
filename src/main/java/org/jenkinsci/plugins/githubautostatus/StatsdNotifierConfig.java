@@ -118,7 +118,7 @@ public class StatsdNotifierConfig {
             statsdNotifierConfig.repoName = repoName;
             statsdNotifierConfig.branchName = branchName;
 
-            statsdNotifierConfig.statsdHost = config.getStatsdURL();
+            statsdNotifierConfig.statsdHost = config.getStatsdHost();
             statsdNotifierConfig.statsdPort = config.getStatsdPort();
             statsdNotifierConfig.statsdBucket = config.getStatsdBucket();
             statsdNotifierConfig.statsdMaxSize = config.getStatsdMaxSize();
