@@ -53,7 +53,8 @@ public interface BuildNotifier {
      * @param jobName      the name of the job
      * @param nodeName     the node that has changed
      * @param buildState   the new state
-     * @param nodeDuration elapsed time for this node This is #4 (Timer)
+     * @param nodeDuration elapsed time for this node
+     * This is #4 (Timer)
      */
     void notifyBuildStageStatus(String jobName, String nodeName, BuildState buildState, long nodeDuration);
 
@@ -63,8 +64,8 @@ public interface BuildNotifier {
      * @param jobName         the name of the job
      * @param buildState      state indicating success or failure
      * @param buildDuration   the build duration
-     * @param blockedDuration time build was blocked before running This one will
-     *                        send #1 and #2
+     * @param blockedDuration time build was blocked before running
+     * This one will send #1 and #2
      */
     void notifyFinalBuildStatus(String jobName, BuildState buildState, long buildDuration, long blockedDuration);
 
@@ -74,7 +75,8 @@ public interface BuildNotifier {
      * since they can happen outside of a stage.
      *
      * @param jobName  the name of the job
-     * @param nodeName the name of the node that failed Just send #1 type.
+     * @param nodeName the name of the node that failed
+     * Just send #1 type. i.e. notifyBuildState(jobName, nodeName, "failure");
      */
     void sendNonStageError(String jobName, String nodeName);
 }
