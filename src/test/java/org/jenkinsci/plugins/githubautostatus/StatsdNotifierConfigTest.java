@@ -79,7 +79,7 @@ public class StatsdNotifierConfigTest {
         when(BuildStatusConfig.get()).thenReturn(config);
 
         when(config.getEnableStatsd()).thenReturn(true);
-        when(config.getStatsdURL()).thenReturn(statsdURL);
+        when(config.getStatsdHost()).thenReturn(statsdURL);
         when(config.getStatsdPort()).thenReturn(statsdPort);
         when(config.getStatsdBucket()).thenReturn(statsdBucket);
         when(config.getStatsdMaxSize()).thenReturn(statsdMaxSize);
@@ -117,7 +117,7 @@ public class StatsdNotifierConfigTest {
     public void testGetStatsdURL() {
         StatsdNotifierConfig instance
                 = StatsdNotifierConfig.fromGlobalConfig("", "", branch);
-        assertEquals(statsdURL, instance.getStatsdURL());
+        assertEquals(statsdURL, instance.getStatsdHost());
     }
 
     @Test

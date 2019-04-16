@@ -29,6 +29,7 @@ import java.util.HashMap;
 import java.util.List;
 import org.jenkinsci.plugins.githubautostatus.notifiers.BuildNotifier;
 import org.jenkinsci.plugins.githubautostatus.notifiers.BuildNotifierManager;
+
 import org.jenkinsci.plugins.githubautostatus.notifiers.BuildState;
 
 /**
@@ -106,6 +107,15 @@ public class BuildStatusAction extends InvisibleAction {
      */
     public void addInfluxDbNotifier(InfluxDbNotifierConfig influxDbNotifierConfig) {
         sendNotications(buildNotifierManager.addInfluxDbNotifier(influxDbNotifierConfig));
+    }
+
+    /**
+     * Attempts to add a statsd notifier
+     * 
+     * @param statsdNotifierConfig statsd notifier config
+     */
+    public void addStatsdNotifier(StatsdNotifierConfig statsdNotifierConfig) {
+        sendNotications(buildNotifierManager.addStatsdBuildNotifier(statsdNotifierConfig));
     }
 
     /**

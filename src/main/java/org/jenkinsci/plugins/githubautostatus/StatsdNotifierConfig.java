@@ -32,7 +32,7 @@ public class StatsdNotifierConfig {
     private String repoOwner;
     private String repoName;
     private String branchName;
-    private String statsdURL;
+    private String statsdHost;
     private String statsdPort;
     private String statsdBucket;
     private String statsdMaxSize;
@@ -69,8 +69,8 @@ public class StatsdNotifierConfig {
      *
      * @return statsd url.
      */
-    public String getStatsdURL() {
-        return statsdURL;
+    public String getStatsdHost() {
+        return statsdHost;
     }
 
     /**
@@ -118,7 +118,7 @@ public class StatsdNotifierConfig {
             statsdNotifierConfig.repoName = repoName;
             statsdNotifierConfig.branchName = branchName;
 
-            statsdNotifierConfig.statsdURL = config.getStatsdURL();
+            statsdNotifierConfig.statsdHost = config.getStatsdHost();
             statsdNotifierConfig.statsdPort = config.getStatsdPort();
             statsdNotifierConfig.statsdBucket = config.getStatsdBucket();
             statsdNotifierConfig.statsdMaxSize = config.getStatsdMaxSize();

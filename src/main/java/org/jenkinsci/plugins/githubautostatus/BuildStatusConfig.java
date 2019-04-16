@@ -73,7 +73,7 @@ public class BuildStatusConfig extends GlobalConfiguration {
     private boolean enableInfluxDb;
     private boolean disableGithub;
     private boolean enableStatsd;
-    private String statsdURL;
+    private String statsdHost;
     private String statsdPort;
     private String statsdBucket;
     private String statsdMaxSize;
@@ -262,22 +262,22 @@ public class BuildStatusConfig extends GlobalConfiguration {
     }
 
     /**
-     * Get the value of statsdURL
+     * Get the value of statsdHost
      *
-     * @return the value of statsdURL
+     * @return the value of statsdHost
      */
-    public String getStatsdURL() {
-        return statsdURL;
+    public String getStatsdHost() {
+        return statsdHost;
     }
 
     /**
-     * Set the value of statsdURL
+     * Set the value of statsdHost
      *
-     * @param statsdURL new value of statsdURL
+     * @param statsdURL new value of statsdHost
      */
     @DataBoundSetter
-    public void setStatsdURL(String statsdURL) {
-        this.statsdURL = statsdURL;
+    public void setStatsdHost(String statsdURL) {
+        this.statsdHost = statsdURL;
         save();
     }
 

@@ -27,6 +27,7 @@ import java.util.ArrayList;
 import java.util.List;
 import org.jenkinsci.plugins.githubautostatus.GithubNotificationConfig;
 import org.jenkinsci.plugins.githubautostatus.InfluxDbNotifierConfig;
+import org.jenkinsci.plugins.githubautostatus.StatsdNotifierConfig;
 
 /**
  * Manages send build notifications to one or more notifiers
@@ -74,6 +75,11 @@ public class BuildNotifierManager {
         return addBuildNotifier(buildNotifier);
     }
 
+    public BuildNotifier addStatsdBuildNotifier(StatsdNotifierConfig statsdNotifierConfig) {
+        StatsdNotifier buildNotifier = new StatsdNotifier(statsdNotifierConfig);
+        return addBuildNotifier(buildNotifier);
+    }
+
     /**
      * Adds a notifier if it's enabled
      *
@@ -105,6 +111,7 @@ public class BuildNotifierManager {
      * Send overall build status notification
      *
      * @param buildState the build status
+     * @param buildDuration time build ran for
      * @param blockedDuration time build was blocked before running
      */
     public void notifyFinalBuildStatus(BuildState buildState, long buildDuration, long blockedDuration) {

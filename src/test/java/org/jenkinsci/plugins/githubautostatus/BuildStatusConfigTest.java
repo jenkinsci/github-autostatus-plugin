@@ -275,8 +275,8 @@ public class BuildStatusConfigTest {
     public void testStatsdUrl() {
         BuildStatusConfig instance = new BuildStatusConfig();
         String expResult = "mock-value";
-        instance.setStatsdURL(expResult);
-        String result = instance.getStatsdURL();
+        instance.setStatsdHost(expResult);
+        String result = instance.getStatsdHost();
         assertEquals(expResult, result);
     }
 
