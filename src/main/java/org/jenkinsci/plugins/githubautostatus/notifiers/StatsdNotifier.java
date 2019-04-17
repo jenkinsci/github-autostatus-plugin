@@ -130,7 +130,7 @@ public class StatsdNotifier implements BuildNotifier {
      * @return santized key
      */
     private String statsdSanitizeKey(String key) {
-        return key.replaceAll("\\s+", "_").replaceAll("/", "-").replaceAll("[^a-zA-Z_\\-0-9\\.]", "");
+        return key.replaceAll("\\s+", "_").replaceAll("/", ".").replaceAll("[^a-zA-Z_\\-0-9\\.]", "");
     }
 
     /**
@@ -144,12 +144,12 @@ public class StatsdNotifier implements BuildNotifier {
     }
 
     /**
-     * Applies all sanitizations to a key
+     * Applies all sanitizations to a key, folders are expanded into seperate statsd buckets
      * 
      * @param key key to sanitize
      * @return sanitized key
      */
     private String sanitizeAll(String key) {
-        return sanitizeKey(statsdSanitizeKey(key));
+        return statsdSanitizeKey(sanitizeKey(key));
     }
 }
