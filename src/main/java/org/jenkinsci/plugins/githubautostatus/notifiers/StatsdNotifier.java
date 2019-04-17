@@ -24,6 +24,7 @@
 package org.jenkinsci.plugins.githubautostatus.notifiers;
 
 import org.jenkinsci.plugins.githubautostatus.StatsdWrapper;
+import org.jenkinsci.plugins.githubautostatus.StatsdClient;
 import org.jenkinsci.plugins.githubautostatus.StatsdNotifierConfig;
 
 import java.util.logging.Logger;
@@ -36,6 +37,9 @@ public class StatsdNotifier implements BuildNotifier {
     private StatsdWrapper client;
     protected StatsdNotifierConfig config;
     private static final Logger LOGGER = Logger.getLogger(StatsdWrapper.class.getName());
+    public StatsdNotifier(StatsdWrapper client) {
+        this.client = client;
+    }
 
     public StatsdNotifier(StatsdNotifierConfig config) {
         this.config = config;
@@ -47,7 +51,7 @@ public class StatsdNotifier implements BuildNotifier {
                 LOGGER.warning("Could not parse port '" + config.getStatsdPort() + "', using 8125 (default)");
             }
         }
-        client = new StatsdWrapper(config.getStatsdBucket(), config.getStatsdHost(), port);
+        client = new StatsdClient(config.getStatsdBucket(), config.getStatsdHost(), port);
     }
 
     /**
@@ -64,7 +68,7 @@ public class StatsdNotifier implements BuildNotifier {
      * 
      * @return string of path up to branch bucket
      */
-    private String getBranchPath() {
+    public String getBranchPath() {
         String sanitizedFolderPath = sanitizeAll(config.getRepoOwner());
         String sanitizedJobName = sanitizeAll(config.getRepoName());
         String sanitizedBranchName = sanitizeAll(config.getBranchName());
@@ -149,7 +153,7 @@ public class StatsdNotifier implements BuildNotifier {
      * @param key key to sanitize
      * @return sanitized key
      */
-    private String sanitizeAll(String key) {
+    public String sanitizeAll(String key) {
         return statsdSanitizeKey(sanitizeKey(key));
     }
 }
