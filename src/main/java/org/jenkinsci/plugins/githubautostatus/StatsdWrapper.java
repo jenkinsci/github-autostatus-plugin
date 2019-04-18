@@ -38,112 +38,14 @@ import java.util.logging.Logger;
  * 
  * @author Tom Hadlaw (thomas.hadlaw@hootsuite.com)
  */
-public class StatsdWrapper {
-    private final int CLIENT_TTL = 300;
-    private static final Logger LOGGER = Logger.getLogger(StatsdWrapper.class.getName());
-
-    private static StatsDClient client;
-    private String hostname = "";
-    private String prefix = "";
-    private int port = 8125;
-    private ReentrantReadWriteLock lock;
-
-    /**
-     * newClient attempts to create a new statsd client instance, if succesful then
-     * the active client is safely swapped out.
-     * 
-     * @throws StatsDClientException
-     */
-    private void newClient() throws StatsDClientException {
-        Lock wl = lock.writeLock();
-        StatsDClient newClient = null;
-        try {
-            newClient = new NonBlockingStatsDClient(prefix, hostname, port);
-        } catch (StatsDClientException e) {
-            LOGGER.warning("Could not refresh client, will continue to use old instance");
-
-            if (client == null) {
-                throw e;
-            }
-            return;
-        }
-
-        // only aquire write lock if hostname resolution succeeded.
-        wl.lock();
-        try {
-            if (client != null) {
-                // this will flush remaining messages out of queue.
-                client.stop();
-            }
-            client = newClient;
-        } catch (Exception e) {
-            LOGGER.warning("Could not refresh client, will continue to use old instance");
-            if (client == null) {
-                throw e;
-            }
-        } finally {
-            wl.unlock();
-        }
-    }
-
-    /**
-     * Constructs a new StatsdWrapper.
-     * 
-     * @param prefix   Statsd prefix
-     * @param hostname Statsd collector hostname (default localhost)
-     * @param port     Statsd collector listener port (default 8125)
-     */
-    public StatsdWrapper(String prefix, String hostname, int port) throws StatsDClientException {
-        this.hostname = hostname;
-        this.prefix = prefix;
-        this.port = port;
-
-        this.lock = new ReentrantReadWriteLock();
-        ScheduledExecutorService exec = Executors.newSingleThreadScheduledExecutor();
-
-        exec.scheduleAtFixedRate(new Runnable() {
-            @Override
-            public void run() {
-                System.out.println("Refreshing Client");
-                newClient();
-            }
-        }, CLIENT_TTL, CLIENT_TTL, TimeUnit.SECONDS);
-
-        this.newClient();
-    }
-
-    /**
-     * Execute Invokes runnable surrounded in the objects readlock.
-     * 
-     * @param l Runnable to be invoked.
-     */
-    private void execLocked(Runnable l) {
-        Lock rl = lock.readLock();
-        rl.lock();
-        try {
-            l.run();
-        } catch (Exception e) {
-            throw e;
-        } finally {
-            rl.unlock();
-        }
-    }
-
+public interface StatsdWrapper {
     /**
      * Runs a Statsd increment in a safe way.
      * 
      * @param key    the bucket key
      * @param amount amount to increment
      */
-    public void increment(String key, int amount) {
-        execLocked(new Runnable() {
-            @Override
-            public void run() {
-                System.out.println("ok ... doing increment");
-                client.increment(key, amount);
-            }
-        });
-    }
+    void increment(String key, int amount);
 
     /**
      * Run a Statsd timer state in a safe way.
@@ -151,12 +53,5 @@ public class StatsdWrapper {
      * @param key the bucket key
      * @param duration the duration
      */
-    public void time(String key, long duration) {
-        execLocked(new Runnable() {
-            @Override
-            public void run() {
-                client.time(key, duration);
-            }
-        });
-    }
+    void time(String key, long duration);
 }

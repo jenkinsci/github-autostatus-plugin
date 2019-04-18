@@ -24,6 +24,7 @@
 package org.jenkinsci.plugins.githubautostatus.notifiers;
 
 import org.jenkinsci.plugins.githubautostatus.StatsdWrapper;
+import org.jenkinsci.plugins.githubautostatus.StatsdClient;
 import org.apache.commons.lang.StringUtils;
 import org.jenkinsci.plugins.githubautostatus.StatsdNotifierConfig;
 import java.util.logging.Logger;
@@ -36,6 +37,9 @@ public class StatsdNotifier implements BuildNotifier {
     private StatsdWrapper client;
     protected StatsdNotifierConfig config;
     private static final Logger LOGGER = Logger.getLogger(StatsdWrapper.class.getName());
+    public StatsdNotifier(StatsdWrapper client) {
+        this.client = client;
+    }
 
     public StatsdNotifier(StatsdNotifierConfig config) {
         if (StringUtils.isEmpty(config.getStatsdHost())) {
@@ -51,7 +55,7 @@ public class StatsdNotifier implements BuildNotifier {
                 LOGGER.warning("Could not parse port '" + config.getStatsdPort() + "', using 8125 (default)");
             }
         }
-        client = new StatsdWrapper(config.getStatsdBucket(), config.getStatsdHost(), port);
+        client = new StatsdClient(config.getStatsdBucket(), config.getStatsdHost(), port);
     }
 
     /**
@@ -68,8 +72,11 @@ public class StatsdNotifier implements BuildNotifier {
      * 
      * @return string of path up to branch bucket
      */
-    private String getBranchPath() {
-        return String.format("pipeline.%s.%s.branch.%s", config.getRepoOwner(), config.getRepoName(), config.getBranchName());
+    public String getBranchPath() {
+        String sanitizedFolderPath = sanitizeAll(config.getRepoOwner());
+        String sanitizedJobName = sanitizeAll(config.getRepoName());
+        String sanitizedBranchName = sanitizeAll(config.getBranchName());
+        return String.format("pipeline.%s.%s.branch.%s", sanitizedFolderPath, sanitizedJobName, sanitizedBranchName);
     }
 
     /**
@@ -80,7 +87,7 @@ public class StatsdNotifier implements BuildNotifier {
      * @param buildState the reported state
      */
     public void notifyBuildState(String jobName, String nodeName, BuildState buildState) {
-        String fqp = String.format("%s.stage.%s.status.%s", getBranchPath(), nodeName, buildState);  
+        String fqp = String.format("%s.stage.%s.status.%s", getBranchPath(), sanitizeAll(nodeName), buildState);  
         client.increment(fqp, 1);
     }
 
@@ -91,7 +98,7 @@ public class StatsdNotifier implements BuildNotifier {
      * @param nodeName the stage of the status on which to report on
      */
     public void notifyBuildStageStatus(String jobName, String nodeName, BuildState buildState, long nodeDuration) {
-        String fqp = String.format("%s.stage.%s.duration", getBranchPath(), nodeName);
+        String fqp = String.format("%s.stage.%s.duration", getBranchPath(), sanitizeAll(nodeName));
         client.time(fqp, nodeDuration);
     }
 
@@ -119,7 +126,50 @@ public class StatsdNotifier implements BuildNotifier {
      * @param nodeName the stage of the status on which to report on
      */
     public void sendNonStageError(String jobName, String nodeName) {
-        String fqp = String.format("%s.stage.%s.none_stage_error", getBranchPath(), nodeName);  
+        String fqp = String.format("%s.stage.%s.none_stage_error", getBranchPath(), sanitizeAll(nodeName));  
         client.increment(fqp, 1);
+    }
+
+    /**
+     * Does the same sanitization as Statsd would do if sanitization is on.
+     * See: https://github.com/statsd/statsd/blob/master/stats.js#L168
+     * 
+     * @param key key to sanitize
+     * @return santized key
+     */
+    private String statsdSanitizeKey(String key) {
+        return key.replaceAll("\\s+", "_").replaceAll("/", ".").replaceAll("[^a-zA-Z_\\-0-9\\.]", "");
+    }
+
+    /**
+     * Collapses empty buckets into a single period.
+     * 
+     * @param key key to sanitize
+     * @return sanitized key
+     */
+    private String collapseEmptyBuckets(String key) {
+        return key.replaceAll("\\.{2,}", ".");
+    }
+
+    /**
+     * Does Jenkins specific key sanitization.
+     * 
+     * @param key key to sanitize
+     * @return sanitized key
+     */
+    private String sanitizeKey(String key) {
+        return key.replaceAll("\\.", "");
+    }
+
+    /**
+     * Applies all sanitizations to a key, folders are expanded into seperate statsd buckets.
+     * It firest applies bucket sanitization (removing periods to prevent them being interprested as 
+     * seperate buckets). It the applies the statsd bucket key sanitization.
+     * 
+     * @param key key to sanitize
+     * @return sanitized key
+     */
+    public String sanitizeAll(String key) {
+        return collapseEmptyBuckets(statsdSanitizeKey(sanitizeKey(key)));
     }
 }
