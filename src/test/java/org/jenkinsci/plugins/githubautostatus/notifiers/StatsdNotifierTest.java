@@ -61,7 +61,7 @@ public class StatsdNotifierTest {
     public void setUp() throws MalformedURLException, IOException {
         config = mock(StatsdNotifierConfig.class);
         when(config.getBranchName()).thenReturn("master");
-        when(config.getRepoOwner()).thenReturn("folder0 / folder1 / folder.2/ folder  3");
+        when(config.getRepoOwner()).thenReturn("folder0 / folder1 /     folder.2/ folder  3");
         when(config.getRepoName()).thenReturn("this .   is ... the ... reponame");
 
         mockClient = mock(StatsdWrapper.class);
@@ -79,6 +79,8 @@ public class StatsdNotifierTest {
         out = notifier.sanitizeAll(config.getRepoName());
         assertEquals(out, "this_is_the_reponame");
         out = notifier.sanitizeAll(config.getRepoOwner());
+        // path sanitization should come first, leading and following whitespaces should
+        // be turned into a single underscore.
         assertEquals("folder0_._folder1_._folder2._folder_3", out);
     }
 }

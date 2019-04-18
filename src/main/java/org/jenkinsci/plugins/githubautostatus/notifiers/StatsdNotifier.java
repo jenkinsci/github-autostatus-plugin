@@ -148,7 +148,9 @@ public class StatsdNotifier implements BuildNotifier {
     }
 
     /**
-     * Applies all sanitizations to a key, folders are expanded into seperate statsd buckets
+     * Applies all sanitizations to a key, folders are expanded into seperate statsd buckets.
+     * It firest applies bucket sanitization (removing periods to prevent them being interprested as 
+     * seperate buckets). It the applies the statsd bucket key sanitization.
      * 
      * @param key key to sanitize
      * @return sanitized key
