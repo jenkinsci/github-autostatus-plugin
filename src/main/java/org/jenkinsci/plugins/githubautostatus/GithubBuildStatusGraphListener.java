@@ -61,6 +61,11 @@ import org.jenkinsci.plugins.workflow.job.WorkflowRun;
 @Extension
 public class GithubBuildStatusGraphListener implements GraphListener {
 
+    /**
+     * Evaluate if we can provide stats on a node.
+     * 
+     * @param fn a node in workflow
+     */
     @Override
     public void onNewHead(FlowNode fn) {
         try {
@@ -145,10 +150,10 @@ public class GithubBuildStatusGraphListener implements GraphListener {
      *
      * @param flowNode The stage start node
      * @param errorAction The error action from the stage end node
-     * @return Build state
+     * @return Stage state
      */
     BuildState buildStateForStage(FlowNode flowNode, ErrorAction errorAction) {
-        BuildState buildState = errorAction == null ? BuildState.CompletedSuccess : BuildState.CompletedError;;
+        BuildState buildState = errorAction == null ? BuildState.CompletedSuccess : BuildState.CompletedError;
         TagsAction tags = flowNode.getAction(TagsAction.class);
         if (tags != null) {
             String status = tags.getTagValue(StageStatus.TAG_NAME);
@@ -168,6 +173,13 @@ public class GithubBuildStatusGraphListener implements GraphListener {
         return buildState;
     }
 
+    /**
+     * Get the execution time of a block defined by startNode and endNode
+     * 
+     * @param startNode startNode of a block
+     * @param endNode endNode of a block
+     * @return Execution time of the block
+     */
     static long getTime(FlowNode startNode, FlowNode endNode) {
         TimingAction startTime = startNode.getAction(TimingAction.class);
         TimingAction endTime = endNode.getAction(TimingAction.class);
@@ -183,7 +195,7 @@ public class GithubBuildStatusGraphListener implements GraphListener {
      *
      * Note: this check is copied from PipelineNodeUtil.java in blueocean-plugin
      *
-     * @param node
+     * @param node node of a workflow
      * @return true if it's a stage node; false otherwise
      */
     private static boolean isStage(FlowNode node) {
@@ -195,7 +207,7 @@ public class GithubBuildStatusGraphListener implements GraphListener {
      * Checks whether the current build meets our requirements for providing
      * status, and adds a BuildStatusAction to the build if so.
      *
-     * @param exec
+     * @param flowNode node of a workflow
      */
     private static void checkEnableBuildStatus(FlowNode flowNode) {
         FlowExecution exec = flowNode.getExecution();
@@ -239,7 +251,7 @@ public class GithubBuildStatusGraphListener implements GraphListener {
                 String branchName = "";
                 GithubNotificationConfig githubConfig = GithubNotificationConfig.fromRun(run, exec.getOwner().getListener());
                 if (githubConfig != null) {
-                    buildStatusAction.addGithubNofifier(githubConfig);
+                    buildStatusAction.addGitHubNotifier(githubConfig);
                     repoOwner = githubConfig.getRepoOwner();
                     repoName = githubConfig.getRepoName();
                     branchName = githubConfig.getBranchName();
@@ -249,10 +261,10 @@ public class GithubBuildStatusGraphListener implements GraphListener {
                         repoOwner = run.getParent().getParent().getFullName();
                     }
                 }
-                buildStatusAction.addInfluxDbNotifier(
-                        InfluxDbNotifierConfig.fromGlobalConfig(repoOwner, repoName, branchName));
-                buildStatusAction.addStatsdNotifier(
-                    StatsdNotifierConfig.fromGlobalConfig(repoOwner, repoName, branchName));
+                InfluxDbNotifierConfig influxdb = InfluxDbNotifierConfig.fromGlobalConfig(repoOwner, repoName, branchName);
+                buildStatusAction.addInfluxDbNotifier(influxdb);
+                StatsdNotifierConfig statsd = StatsdNotifierConfig.fromGlobalConfig(repoOwner, repoName, branchName);
+                buildStatusAction.addStatsdNotifier(statsd);
                 run.addAction(buildStatusAction);
             } else {
                 buildStatusAction.addBuildStatus(flowNode.getDisplayName());
@@ -267,6 +279,12 @@ public class GithubBuildStatusGraphListener implements GraphListener {
         }
     }
 
+    /**
+     * Determines if the node belongs to a declarative pipeline
+     * 
+     * @param fn node of a workflow
+     * @return true/false
+     */
     private static boolean isDeclarativePipelineJob(FlowNode fn) {
         Run<?, ?> run = runFor(fn.getExecution());
         if (run == null) {
@@ -276,6 +294,12 @@ public class GithubBuildStatusGraphListener implements GraphListener {
 
     }
 
+    /**
+     * Get a list of stages in a declarative pipeline
+     * 
+     * @param run a particular run of a job
+     * @return a list of stage names
+     */
     private static List<String> getDeclarativeStages(Run<?, ?> run) {
         ExecutionModelAction executionModelAction = run.getAction(ExecutionModelAction.class);
         if (null == executionModelAction) {
@@ -306,6 +330,12 @@ public class GithubBuildStatusGraphListener implements GraphListener {
         return result;
     }
 
+    /**
+     * Get the BuildStatusAction object for the specified executing workflow
+     * 
+     * @param exec execution of a workflow
+     * @return BuildStatusAction
+     */
     private static @CheckForNull
     BuildStatusAction buildStatusActionFor(FlowExecution exec) {
         BuildStatusAction buildStatusAction = null;
@@ -316,6 +346,12 @@ public class GithubBuildStatusGraphListener implements GraphListener {
         return buildStatusAction;
     }
 
+    /**
+     * Get the jenkins run objection of the specified executing workflow
+     * 
+     * @param exec execution of a workflow
+     * @return jenkins run object of a job
+     */
     private static @CheckForNull
     Run<?, ?> runFor(FlowExecution exec) {
         Queue.Executable executable;
@@ -332,10 +368,22 @@ public class GithubBuildStatusGraphListener implements GraphListener {
         }
     }
 
+    /**
+     * Print to stdout or stderr
+     * 
+     * @param level INFO/WARNING/ERROR
+     * @param format String that formats the log
+     * @param args arguments for the formated log string
+     */
     private static void log(Level level, String format, Object... args) {
         getLogger().log(level, String.format(format, args));
     }
 
+    /**
+     * Get the logger for the listener
+     * 
+     * @return logger object
+     */
     private static Logger getLogger() {
         return Logger.getLogger(GithubBuildStatusGraphListener.class.getName());
     }

@@ -25,8 +25,8 @@ package org.jenkinsci.plugins.githubautostatus.notifiers;
 
 import org.jenkinsci.plugins.githubautostatus.StatsdWrapper;
 import org.jenkinsci.plugins.githubautostatus.StatsdClient;
+import org.apache.commons.lang.StringUtils;
 import org.jenkinsci.plugins.githubautostatus.StatsdNotifierConfig;
-
 import java.util.logging.Logger;
 
 /**
@@ -42,9 +42,13 @@ public class StatsdNotifier implements BuildNotifier {
     }
 
     public StatsdNotifier(StatsdNotifierConfig config) {
+        if (StringUtils.isEmpty(config.getStatsdHost())) {
+            return;
+        }
         this.config = config;
         int port = 8125;
-        if (!config.getStatsdPort().equals("")) {
+        String configPort = config.getStatsdPort() == null ? "" : config.getStatsdPort();
+        if (!configPort.equals("")) {
             try {
                 port = Integer.parseInt(config.getStatsdPort());
             } catch (NumberFormatException e) {
