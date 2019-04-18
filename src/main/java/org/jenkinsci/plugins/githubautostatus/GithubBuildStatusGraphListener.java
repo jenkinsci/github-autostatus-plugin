@@ -33,8 +33,6 @@ import java.util.List;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import javax.annotation.CheckForNull;
-import net.sf.json.JSONArray;
-import net.sf.json.JSONObject;
 import org.jenkinsci.plugins.displayurlapi.DisplayURLProvider;
 import org.jenkinsci.plugins.githubautostatus.notifiers.BuildState;
 import org.jenkinsci.plugins.pipeline.StageStatus;
@@ -83,7 +81,7 @@ public class GithubBuildStatusGraphListener implements GraphListener {
                     return;
                 }
 
-                List<FlowNode> enclosingBlocks = fn.getEnclosingBlocks();
+                List<? extends FlowNode> enclosingBlocks = fn.getEnclosingBlocks();
                 boolean isInStage = false;
 
                 for (FlowNode encosingNode : enclosingBlocks) {
@@ -301,33 +299,27 @@ public class GithubBuildStatusGraphListener implements GraphListener {
     private static List<String> convertList(List<ModelASTStage> modelList) {
         ArrayList<String> result = new ArrayList<>();
         for (ModelASTStage stage : modelList) {
-            result.add(stage.getName());
-            result.addAll(getNestedStages(stage.toJSON()));
+            result.addAll(getAllStageNames(stage));
         }
         return result;
     }
 
     /**
-     * Returns a list of the nested stages within a stage's JSON object.
-     * If we were using pipeline-model-api >= 1.2.8 we could use the getStages()
-     * and getParallel() methods of ModelASTStage instead of recursing the JSON
-     * data.
+     * Returns a list containing the stage name and names of all nested stages.
      *
-     * @param stageJSON The stage JSON object
+     * @param stage The ModelASTStage object
      * @return List of stage names
      */
-    private static List<String> getNestedStages(JSONObject stageJSON) {
+    private static List<String> getAllStageNames(ModelASTStage stage) {
         List<String> stageNames = new ArrayList<>();
-        Object stages = stageJSON.get("stages");
+        stageNames.add(stage.getName());
+        ModelASTStages stages = stage.getStages();
         if (stages == null) {
-            stages = stageJSON.get("parallel");
+            stages = stage.getParallel();
         }
         if (stages != null) {
-            JSONArray stagesArray = (JSONArray) stages;
-            for (int i = 0; i < stagesArray.size(); i++) {
-                JSONObject stage = stagesArray.getJSONObject(i);
-                stageNames.add(stage.getString("name"));
-                stageNames.addAll(getNestedStages(stage));
+            for (ModelASTStage innerStage : stages.getStages()) {
+                stageNames.addAll(getAllStageNames(innerStage));
             }
         }
         return stageNames;
