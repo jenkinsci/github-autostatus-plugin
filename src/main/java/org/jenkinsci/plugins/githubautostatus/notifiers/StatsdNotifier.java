@@ -137,6 +137,12 @@ public class StatsdNotifier implements BuildNotifier {
         return key.replaceAll("\\s+", "_").replaceAll("/", ".").replaceAll("[^a-zA-Z_\\-0-9\\.]", "");
     }
 
+    /**
+     * Collapses empty buckets into a single period.
+     * 
+     * @param key key to sanitize
+     * @return sanitized key
+     */
     private String collapseEmptyBuckets(String key) {
         return key.replaceAll("\\.{2,}", ".");
     }
