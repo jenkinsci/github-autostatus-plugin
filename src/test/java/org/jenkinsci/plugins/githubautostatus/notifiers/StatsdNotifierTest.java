@@ -60,7 +60,7 @@ public class StatsdNotifierTest {
     @Before
     public void setUp() throws MalformedURLException, IOException {
         config = mock(StatsdNotifierConfig.class);
-        when(config.getBranchName()).thenReturn("a///////...////....b");
+        when(config.getBranchName()).thenReturn("a////<>\\|;:%/!@#$%^&*()+=//...////....b");
         when(config.getRepoOwner()).thenReturn("folder0 / folder1 /     folder.2/ folder  3");
         when(config.getRepoName()).thenReturn("this .   is ... the ... reponame");
 
