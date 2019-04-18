@@ -25,6 +25,7 @@ package org.jenkinsci.plugins.githubautostatus.notifiers;
 
 import org.jenkinsci.plugins.githubautostatus.GithubNotificationConfig;
 import org.jenkinsci.plugins.githubautostatus.InfluxDbNotifierConfig;
+import org.jenkinsci.plugins.githubautostatus.StatsdNotifierConfig;
 import org.junit.After;
 import org.junit.AfterClass;
 import org.junit.Before;
@@ -45,6 +46,8 @@ public class BuildNotifierManagerTest {
     private GithubNotificationConfig githubNotificationConfig;
     @Mock
     private InfluxDbNotifierConfig influxDbNotificationConfig;
+    @Mock
+    private StatsdNotifierConfig statsdNotificationConfig;
     @Mock
     private GHRepository repo;
     private BuildNotifierManager instance;
@@ -98,6 +101,18 @@ public class BuildNotifierManagerTest {
     public void testAddInfluxDbNofifierDisabled() {
         when(influxDbNotificationConfig.getInfluxDbUrlString()).thenReturn("");
         BuildNotifier result = instance.addInfluxDbNotifier(influxDbNotificationConfig);
+        assertNull(result);
+    }
+
+    /**
+     * Verifies Statsd notifier is not added when disabled.
+     */
+    @Test
+    public void testAddStatsdNofifierDisabled() {
+        statsdNotificationConfig = mock(StatsdNotifierConfig.class);
+        when(statsdNotificationConfig.getStatsdHost()).thenReturn("");
+        
+        BuildNotifier result = instance.addStatsdBuildNotifier(statsdNotificationConfig);
         assertNull(result);
     }
 

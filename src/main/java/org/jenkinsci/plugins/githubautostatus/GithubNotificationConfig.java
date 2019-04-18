@@ -112,8 +112,7 @@ public class GithubNotificationConfig {
      * Constructs a config object from a Run object.
      * @param run The build.
      * @param listener Task listener (for logging to the build).
-     * 
-     * @return the config object
+     * @return The github config object
      */
     public static @Nullable
     GithubNotificationConfig fromRun(Run<?, ?> run, TaskListener listener) {
