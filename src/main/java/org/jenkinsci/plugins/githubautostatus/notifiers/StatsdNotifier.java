@@ -137,6 +137,10 @@ public class StatsdNotifier implements BuildNotifier {
         return key.replaceAll("\\s+", "_").replaceAll("/", ".").replaceAll("[^a-zA-Z_\\-0-9\\.]", "");
     }
 
+    private String collapseEmptyBuckets(String key) {
+        return key.replaceAll("\\.{2,}", ".");
+    }
+
     /**
      * Does Jenkins specific key sanitization.
      * 
@@ -156,6 +160,6 @@ public class StatsdNotifier implements BuildNotifier {
      * @return sanitized key
      */
     public String sanitizeAll(String key) {
-        return statsdSanitizeKey(sanitizeKey(key));
+        return collapseEmptyBuckets(statsdSanitizeKey(sanitizeKey(key)));
     }
 }
