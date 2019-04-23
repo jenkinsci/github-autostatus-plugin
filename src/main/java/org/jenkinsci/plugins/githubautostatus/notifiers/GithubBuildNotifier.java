@@ -55,7 +55,7 @@ public class GithubBuildNotifier extends BuildNotifier {
             .put(BuildState.CompletedError, "Failed to build stage")
             .put(BuildState.CompletedSuccess, "Stage built successfully")
             .put(BuildState.SkippedFailure, "Stage did not run due to earlier failure(s)")
-            .put(BuildState.SkippedUnstable, "Stage did not run due to earlier stage marking build unstable")
+            .put(BuildState.SkippedUnstable, "Stage did not run due to earlier stage(s) marking the build as unstable")
             .put(BuildState.SkippedConditional, "Stage did not run due to when conditional")
             .build();
 

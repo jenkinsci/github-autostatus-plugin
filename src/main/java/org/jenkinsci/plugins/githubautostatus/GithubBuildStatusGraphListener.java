@@ -91,7 +91,9 @@ public class GithubBuildStatusGraphListener implements GraphListener {
                     return;
                 }
 
-                List<? extends FlowStartNode> enclosingBlocks = (List<? extends FlowStartNode>) fn.getEnclosingBlocks();
+                // TODO: remove this comment
+//                List<? extends FlowStartNode> enclosingBlocks = (List<? extends FlowStartNode>) fn.getEnclosingBlocks();
+                List<? extends FlowNode> enclosingBlocks = fn.getEnclosingBlocks();
                 boolean isInStage = false;
 
                 for (FlowNode encosingNode : enclosingBlocks) {
@@ -349,9 +351,32 @@ public class GithubBuildStatusGraphListener implements GraphListener {
                 }
             }
 
-            result.add(new BuildStageModel(stage.getName(), environmentVariables));
+            for (String stageName : getAllStageNames(stage)) {
+                result.add(new BuildStageModel(stageName, environmentVariables));                
+            }
         }
         return result;
+    }
+
+    /**
+     * Returns a list containing the stage name and names of all nested stages.
+     *
+     * @param stage The ModelASTStage object
+     * @return List of stage names
+     */
+    private static List<String> getAllStageNames(ModelASTStage stage) {
+        List<String> stageNames = new ArrayList<>();
+        stageNames.add(stage.getName());
+        ModelASTStages stages = stage.getStages();
+        if (stages == null) {
+            stages = stage.getParallel();
+        }
+        if (stages != null) {
+            for (ModelASTStage innerStage : stages.getStages()) {
+                stageNames.addAll(getAllStageNames(innerStage));
+            }
+        }
+        return stageNames;
     }
 
     private static @CheckForNull

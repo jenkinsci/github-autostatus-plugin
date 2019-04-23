@@ -40,6 +40,7 @@ import java.util.logging.Logger;
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 import jenkins.plugins.git.AbstractGitSCMSource;
+import jenkins.scm.api.SCMRevision;
 import jenkins.scm.api.SCMRevisionAction;
 import jenkins.scm.api.SCMSource;
 import org.jenkinsci.plugins.github_branch_source.GitHubSCMSource;
@@ -158,10 +159,11 @@ public class GithubNotificationConfig {
             log(Level.INFO, "Could not find commit sha - status will not be provided for this build");
             return false;
         }
-        if (scmRevisionAction.getRevision() instanceof AbstractGitSCMSource.SCMRevisionImpl) {
-            this.shaString = ((AbstractGitSCMSource.SCMRevisionImpl) scmRevisionAction.getRevision()).getHash();
-        } else if (scmRevisionAction.getRevision() instanceof PullRequestSCMRevision) {
-            this.shaString = ((PullRequestSCMRevision) scmRevisionAction.getRevision()).getPullHash();
+        SCMRevision revision = scmRevisionAction.getRevision();
+        if (revision instanceof AbstractGitSCMSource.SCMRevisionImpl) {
+            this.shaString = ((AbstractGitSCMSource.SCMRevisionImpl) revision).getHash();
+        } else if (revision instanceof PullRequestSCMRevision) {
+            this.shaString = ((PullRequestSCMRevision) revision).getPullHash();
         }
         return true;
     }
@@ -176,10 +178,11 @@ public class GithubNotificationConfig {
         if (null == scmRevisionAction) {
             return false;
         }
-        if (scmRevisionAction.getRevision() instanceof AbstractGitSCMSource.SCMRevisionImpl) {
-            branchName = ((AbstractGitSCMSource.SCMRevisionImpl) scmRevisionAction.getRevision()).getHead().getName();
-        } else if (scmRevisionAction.getRevision() instanceof PullRequestSCMRevision) {
-            PullRequestSCMHead pullRequestSCMHead = (PullRequestSCMHead) ((PullRequestSCMRevision) scmRevisionAction.getRevision()).getHead();
+        SCMRevision revision = scmRevisionAction.getRevision();
+        if (revision instanceof AbstractGitSCMSource.SCMRevisionImpl) {
+            branchName = ((AbstractGitSCMSource.SCMRevisionImpl) revision).getHead().getName();
+        } else if (revision instanceof PullRequestSCMRevision) {
+            PullRequestSCMHead pullRequestSCMHead = (PullRequestSCMHead) ((PullRequestSCMRevision) revision).getHead();
 
             branchName = pullRequestSCMHead.getSourceBranch();
         }
