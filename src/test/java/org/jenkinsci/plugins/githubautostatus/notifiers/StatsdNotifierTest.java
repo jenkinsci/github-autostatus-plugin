@@ -23,28 +23,40 @@
  */
 package org.jenkinsci.plugins.githubautostatus.notifiers;
 
+import static org.junit.Assert.*;
+
 import java.io.IOException;
-import java.net.MalformedURLException;
-import org.jenkinsci.plugins.githubautostatus.StatsdNotifierConfig;
-import org.jenkinsci.plugins.githubautostatus.StatsdWrapper;
-import org.junit.After;
+
+import com.timgroup.statsd.StatsDClient;
+
 import org.junit.AfterClass;
 import org.junit.Before;
 import org.junit.BeforeClass;
 import org.junit.Test;
+
 import static org.junit.Assert.*;
+import static org.mockito.Matchers.any;
 import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.never;
+import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
+import org.mockito.invocation.InvocationOnMock;
+import org.junit.runner.RunWith;
+import org.powermock.core.classloader.annotations.PrepareForTest;
+
+import org.jenkinsci.plugins.githubautostatus.StatsdNotifierConfig;
+import org.jenkinsci.plugins.githubautostatus.StatsdWrapper;
+import org.jenkinsci.plugins.githubautostatus.notifiers.StatsdNotifier;
 
 /**
  *
- * @author tom hadlaw
+ * @author shane.gearon@hootsuite.com
  */
 public class StatsdNotifierTest {
 
-    private org.jenkinsci.plugins.githubautostatus.StatsdNotifierConfig config;
-    private StatsdWrapper mockClient;
-    private StatsdNotifier notifier;
+    private StatsdNotifierConfig config;
+    private StatsdWrapper wrapper;
+    private StatsDClient client;
 
     public StatsdNotifierTest() {
     }
@@ -58,7 +70,7 @@ public class StatsdNotifierTest {
     }
 
     @Before
-    public void setUp() throws MalformedURLException, IOException {
+    public void setUp() throws Exception {
         config = mock(StatsdNotifierConfig.class);
         when(config.getBranchName()).thenReturn("a////<>\\|;:%/!@#$%^&*()+=//...////....b");
         when(config.getRepoOwner()).thenReturn("folder0 / folder1 /     folder.2/ folder  3");
@@ -83,4 +95,43 @@ public class StatsdNotifierTest {
         // be turned into a single underscore.
         assertEquals("folder0_._folder1_._folder2._folder_3", out);
     }
+    public void setUp() throws IOException {
+        config = mock(StatsdNotifierConfig.class);
+        when(config.getStatsdBucket()).thenReturn("bucket");
+        when(config.getStatsdHost()).thenReturn("hostname.test");
+        mock(StatsdWrapper.class);
+    }
+
+    /**
+     * Test empty endpoint disables config.
+     */
+    @Test
+    public void testDisabledEmptyConfig() {
+        when(config.getStatsdHost()).thenReturn("");
+        StatsdNotifier instance = new StatsdNotifier(config);
+        assertFalse(instance.isEnabled());
+    }
+
+    /**
+     * Test valid endpoint enables config.
+     */
+    @Test
+    public void testIsEnabled() throws Exception {
+        wrapper = mock(StatsdWrapper.class);
+        when(new StatsdWrapper("bucket", "hostname.test", 8125)).thenReturn(wrapper);
+        StatsdNotifier instance = new StatsdNotifier(config);
+        assertTrue(instance.isEnabled());
+    }
+
+    /**
+     * Test empty port is default port 8125
+     */
+    @Test
+    public void testEmptyPort() throws Exception {
+        when(config.getStatsdPort()).thenReturn(null);
+        StatsdNotifier instance = new StatsdNotifier(config);
+        assertArrayEquals(instance.port, 8125);
+    }
+
+
 }
