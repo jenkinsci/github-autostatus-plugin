@@ -25,7 +25,11 @@ package org.jenkinsci.plugins.githubautostatus;
 
 import hudson.model.AbstractBuild;
 import java.io.IOException;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.List;
 import org.jenkinsci.plugins.pipeline.modeldefinition.actions.ExecutionModelAction;
+import org.jenkinsci.plugins.pipeline.modeldefinition.ast.ModelASTStage;
 import org.jenkinsci.plugins.pipeline.modeldefinition.ast.ModelASTStages;
 import org.jenkinsci.plugins.workflow.actions.ErrorAction;
 import org.jenkinsci.plugins.workflow.actions.StageAction;
@@ -41,6 +45,7 @@ import org.junit.Before;
 import org.junit.BeforeClass;
 import org.junit.Test;
 import org.junit.runner.RunWith;
+import static org.junit.Assert.assertTrue;
 import static org.mockito.Matchers.any;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verify;
@@ -111,6 +116,38 @@ public class GithubBuildStatusGraphListenerTest {
     }
 
     @Test
+    public void testComplexPipeline() throws IOException {
+        StepStartNode stageNode = mock(StepStartNode.class);
+        StageAction stageAction = mock(StageAction.class);
+        FlowExecution execution = mock(FlowExecution.class);
+        when(stageNode.getAction(StageAction.class)).thenReturn(stageAction);
+        when(stageNode.getExecution()).thenReturn(execution);
+        FlowExecutionOwner owner = mock(FlowExecutionOwner.class);
+        when(execution.getOwner()).thenReturn(owner);
+        AbstractBuild build = mock(AbstractBuild.class);
+
+        when(owner.getExecutable()).thenReturn(build);
+        ExecutionModelAction executionModel = mock(ExecutionModelAction.class);
+        when(build.getAction(ExecutionModelAction.class)).thenReturn(executionModel);
+
+        ModelASTStages stages = createStages("Outer Stage 1", "Outer Stage 2");
+        ModelASTStages innerStages = createStages("Inner Stage 1", "Inner Stage 2", "Inner Stage 3");
+        ModelASTStages innerInnerStages = createStages("Inner Inner Stage 1");
+        ModelASTStages parallelStages = createStages("Parallel Stage 1", "Parallel Stage 2");
+        List<String> fullStageList = Arrays.asList(new String[] {"Outer Stage 1", "Inner Stage 1", "Inner Stage 2", "Inner Stage 3", "Inner Inner Stage 1", "Outer Stage 2", "Parallel Stage 1", "Parallel Stage 2"});
+        stages.getStages().get(0).setStages(innerStages);
+        innerStages.getStages().get(2).setStages(innerInnerStages);
+        stages.getStages().get(1).setParallelContent(parallelStages.getStages());
+
+        when(executionModel.getStages()).thenReturn(stages);
+
+        GithubBuildStatusGraphListener instance = new GithubBuildStatusGraphListener();
+        instance.onNewHead(stageNode);
+        verify(build).addAction(any(BuildStatusAction.class));
+        assertTrue(GithubBuildStatusGraphListener.getDeclarativeStages(build).equals(fullStageList));
+    }
+
+    @Test
     public void testAtomNode() throws IOException {
 //        StepAtomNode stageNode = mock(StepAtomNode.class);
 //        StageAction stageAction = mock(StageAction.class);
@@ -133,6 +170,31 @@ public class GithubBuildStatusGraphListenerTest {
         GithubBuildStatusGraphListener instance = new GithubBuildStatusGraphListener();
         instance.onNewHead(stageNode);
         verify(build).addAction(any(BuildStatusAction.class));
+    }
+
+    private static ModelASTStages createStages(String... names) {
+        ModelASTStages stages = new ModelASTStages(null);
+        List<ModelASTStage> stageList = new ArrayList<ModelASTStage>();
+        for (int i = 0; i < names.length; i++) {
+            ModelASTStage stage = createStage(names[i]);
+            stageList.add(stage);
+        }
+        stages.setStages(stageList);
+        return stages;
+    }
+
+    private static ModelASTStage createStage(String name) {
+        ModelASTStage stage = new ModelASTStage(null);
+        stage.setName(name);
+        return stage;
+    }
+
+    private static List<String> getStageList(ModelASTStages stages) {
+        List<String> stageList = new ArrayList<String>();
+        for (ModelASTStage stage : stages.getStages()) {
+            stageList.add(stage.getName());
+        }
+        return stageList;
     }
 
 //    /**
