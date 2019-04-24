@@ -140,7 +140,6 @@ public class StatsdClient implements StatsdWrapper {
         execLocked(new Runnable() {
             @Override
             public void run() {
-                System.out.println("ok ... doing increment");
                 client.increment(key, amount);
             }
         });
