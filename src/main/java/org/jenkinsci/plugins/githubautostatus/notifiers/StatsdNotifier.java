@@ -25,9 +25,7 @@ package org.jenkinsci.plugins.githubautostatus.notifiers;
 
 import org.jenkinsci.plugins.githubautostatus.StatsdWrapper;
 import org.jenkinsci.plugins.githubautostatus.StatsdClient;
-import org.apache.commons.lang.StringUtils;
 import org.jenkinsci.plugins.githubautostatus.StatsdNotifierConfig;
-import java.util.logging.Logger;
 
 /**
  * Sends job and stage metrics to a statsd collector server over UDP.
@@ -36,26 +34,17 @@ import java.util.logging.Logger;
 public class StatsdNotifier implements BuildNotifier {
     private StatsdWrapper client;
     protected StatsdNotifierConfig config;
-    private static final Logger LOGGER = Logger.getLogger(StatsdWrapper.class.getName());
-    public StatsdNotifier(StatsdWrapper client) {
+    public StatsdNotifier(StatsdWrapper client, StatsdNotifierConfig config) {
         this.client = client;
+        this.config = config;
     }
 
     public StatsdNotifier(StatsdNotifierConfig config) {
-        if (StringUtils.isEmpty(config.getStatsdHost())) {
-            return;
-        }
         this.config = config;
-        int port = 8125;
-        String configPort = config.getStatsdPort() == null ? "" : config.getStatsdPort();
-        if (!configPort.equals("")) {
-            try {
-                port = Integer.parseInt(config.getStatsdPort());
-            } catch (NumberFormatException e) {
-                LOGGER.warning("Could not parse port '" + config.getStatsdPort() + "', using 8125 (default)");
-            }
-        }
-        client = new StatsdClient(config.getStatsdBucket(), config.getStatsdHost(), port);
+
+        client = new StatsdClient(config.getStatsdBucket(),
+            config.getStatsdHost(),
+            config.getStatsdPort());
     }
 
     /**
@@ -87,8 +76,7 @@ public class StatsdNotifier implements BuildNotifier {
      * @param buildState the reported state
      */
     public void notifyBuildState(String jobName, String nodeName, BuildState buildState) {
-        String fqp = String.format("%s.stage.%s.status.%s", getBranchPath(), sanitizeAll(nodeName), buildState);  
-        client.increment(fqp, 1);
+        notifyBuildStageStatus(getBranchPath(), nodeName, buildState, 0);
     }
 
     /**
@@ -98,8 +86,16 @@ public class StatsdNotifier implements BuildNotifier {
      * @param nodeName the stage of the status on which to report on
      */
     public void notifyBuildStageStatus(String jobName, String nodeName, BuildState buildState, long nodeDuration) {
-        String fqp = String.format("%s.stage.%s.duration", getBranchPath(), sanitizeAll(nodeName));
-        client.time(fqp, nodeDuration);
+        if (buildState == BuildState.Pending) {
+            return;
+        }
+        String result = buildState.toString();
+
+        String stageStatus = String.format("%s.stage.%s.status.%s", getBranchPath(), sanitizeAll(nodeName), result);
+        client.increment(stageStatus, 1);
+
+        String stageDuration = String.format("%s.stage.%s.duration", getBranchPath(), sanitizeAll(nodeName));
+        client.time(stageDuration, nodeDuration);
     }
 
     /**
@@ -126,7 +122,7 @@ public class StatsdNotifier implements BuildNotifier {
      * @param nodeName the stage of the status on which to report on
      */
     public void sendNonStageError(String jobName, String nodeName) {
-        String fqp = String.format("%s.stage.%s.none_stage_error", getBranchPath(), sanitizeAll(nodeName));  
+        String fqp = String.format("%s.stage.%s.non_stage_error", getBranchPath(), sanitizeAll(nodeName));
         client.increment(fqp, 1);
     }
 

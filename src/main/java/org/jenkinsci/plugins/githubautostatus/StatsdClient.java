@@ -54,7 +54,7 @@ public class StatsdClient implements StatsdWrapper {
      * 
      * @throws StatsDClientException
      */
-    private void newClient() throws StatsDClientException {
+    public void newClient() throws StatsDClientException {
         Lock wl = lock.writeLock();
         StatsDClient newClient = null;
         try {
