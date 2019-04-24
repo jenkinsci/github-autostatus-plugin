@@ -105,18 +105,6 @@ public class BuildNotifierManagerTest {
     }
 
     /**
-     * Verifies Statsd notifier is not added when disabled.
-     */
-    @Test
-    public void testAddStatsdNofifierDisabled() {
-        statsdNotificationConfig = mock(StatsdNotifierConfig.class);
-        when(statsdNotificationConfig.getStatsdHost()).thenReturn("");
-        
-        BuildNotifier result = instance.addStatsdBuildNotifier(statsdNotificationConfig);
-        assertNull(result);
-    }
-
-    /**
      * Verifies notifyBuildStageStatus calls notifiers
      */
     @Test

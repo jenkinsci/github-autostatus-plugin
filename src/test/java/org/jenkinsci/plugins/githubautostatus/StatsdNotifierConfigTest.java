@@ -57,7 +57,7 @@ public class StatsdNotifierConfigTest {
     private final String repository = "mock-repo";
     private final String branch = "mock-branch";
     private final String statsdURL = "statsd.url";
-    private final String statsdPort = "18125";
+    private final String statsdPort = "9999";
     private final String statsdBucket = "metrics.jenkins.";
     private final String statsdMaxSize = "1000";
 
@@ -114,18 +114,62 @@ public class StatsdNotifierConfigTest {
     }
 
     @Test
-    public void testGetStatsdURL() {
+    public void testGetStatsdHost() {
         StatsdNotifierConfig instance
                 = StatsdNotifierConfig.fromGlobalConfig("", "", branch);
         assertEquals(statsdURL, instance.getStatsdHost());
     }
 
     @Test
+    public void testGetStatsdDisabled() {
+        when(config.getEnableStatsd()).thenReturn(false);
+        StatsdNotifierConfig instance
+                = StatsdNotifierConfig.fromGlobalConfig("", "", branch);
+        assertEquals(null, instance.getStatsdHost());
+        assertEquals(0, instance.getStatsdPort());
+        assertEquals(null, instance.getStatsdBucket());
+        assertEquals(null, instance.getStatsdMaxSize());
+    }
+
+    @Test
+    public void testGetStatsdHostEmpty() {
+        when(config.getStatsdHost()).thenReturn("");
+        StatsdNotifierConfig instance
+                = StatsdNotifierConfig.fromGlobalConfig("", "", branch);
+        assertEquals(null, instance);
+    }
+
+    @Test
     public void testGetStatsdPort() {
         StatsdNotifierConfig instance
                 = StatsdNotifierConfig.fromGlobalConfig("", "", branch);
-        assertEquals(statsdPort, instance.getStatsdPort());
+        assertEquals(9999, instance.getStatsdPort());
     }
+
+    @Test
+    public void testGetStatsdPortEmpty() {
+        when(config.getStatsdPort()).thenReturn("");
+        StatsdNotifierConfig instance
+                = StatsdNotifierConfig.fromGlobalConfig("", "", branch);
+        assertEquals(8125, instance.getStatsdPort());
+    }
+
+    @Test
+    public void testGetStatsdPortNull() {
+        when(config.getStatsdPort()).thenReturn(null);
+        StatsdNotifierConfig instance
+                = StatsdNotifierConfig.fromGlobalConfig("", "", branch);
+        assertEquals(8125, instance.getStatsdPort());
+    }
+
+    @Test
+    public void testGetStatsdPortNotANumber() {
+        when(config.getStatsdPort()).thenReturn("notANumber");
+        StatsdNotifierConfig instance
+                = StatsdNotifierConfig.fromGlobalConfig("", "", branch);
+        assertEquals(8125, instance.getStatsdPort());
+    }
+
 
     @Test
     public void testGetStatsdBucket() {

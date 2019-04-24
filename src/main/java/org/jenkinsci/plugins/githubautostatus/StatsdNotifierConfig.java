@@ -23,6 +23,9 @@
  */
 package org.jenkinsci.plugins.githubautostatus;
 
+import java.util.logging.Logger;
+import org.apache.commons.lang.StringUtils;
+
 /**
  * Class for StatsD configuration notifier.
  * @author Shane Gearon (shane.gearon@hootsuite.com)
@@ -33,9 +36,10 @@ public class StatsdNotifierConfig {
     private String repoName;
     private String branchName;
     private String statsdHost;
-    private String statsdPort;
+    private int statsdPort;
     private String statsdBucket;
     private String statsdMaxSize;
+    private static final Logger LOGGER = Logger.getLogger(StatsdWrapper.class.getName());
 
     /**
      * Gets the repo owner.
@@ -78,7 +82,7 @@ public class StatsdNotifierConfig {
      *
      * @return statsd port.
      */
-    public String getStatsdPort() {
+    public int getStatsdPort() {
         return statsdPort;
     }
 
@@ -110,8 +114,13 @@ public class StatsdNotifierConfig {
      */
     public static StatsdNotifierConfig fromGlobalConfig(String repoOwner, String repoName, String branchName) {
         BuildStatusConfig config = BuildStatusConfig.get();
-
         StatsdNotifierConfig statsdNotifierConfig = new StatsdNotifierConfig();
+
+        System.out.println(config.getStatsdHost());
+        if (StringUtils.isEmpty(config.getStatsdHost())) {
+            config.setEnableStatsd(false);
+            return null;
+        }
 
         if (config.getEnableStatsd()) {
             statsdNotifierConfig.repoOwner = repoOwner;
@@ -119,7 +128,16 @@ public class StatsdNotifierConfig {
             statsdNotifierConfig.branchName = branchName;
 
             statsdNotifierConfig.statsdHost = config.getStatsdHost();
-            statsdNotifierConfig.statsdPort = config.getStatsdPort();
+            int port = 8125;
+            String configPort = config.getStatsdPort() == null ? "" : config.getStatsdPort();
+            if (!configPort.equals("")) {
+                try {
+                    port = Integer.parseInt(config.getStatsdPort());
+                } catch (NumberFormatException e) {
+                    LOGGER.warning("Could not parse port '" + config.getStatsdPort() + "', using 8125 (default)");
+                }
+            }
+            statsdNotifierConfig.statsdPort = port;
             statsdNotifierConfig.statsdBucket = config.getStatsdBucket();
             statsdNotifierConfig.statsdMaxSize = config.getStatsdMaxSize();
         }
