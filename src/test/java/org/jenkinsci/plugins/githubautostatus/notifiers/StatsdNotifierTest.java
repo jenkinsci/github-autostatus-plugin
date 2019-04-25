@@ -141,7 +141,7 @@ public class StatsdNotifierTest {
         when(config.getRepoOwner()).thenReturn("Main Folder/Sub Folder");
         when(config.getRepoName()).thenReturn("Job Name!");
         StatsdNotifier instance = new StatsdNotifier(config);
-        assertEquals("pipeline.Main_Folder.Sub_Folder.Job_Name.branch.Shanes_Branch", instance.getBranchPath());
+        assertEquals("pipeline.Main_Folder.Sub_Folder.Job_Name.Shanes_Branch", instance.getBranchPath());
     }
 
     /*
@@ -154,8 +154,8 @@ public class StatsdNotifierTest {
         when(config.getRepoName()).thenReturn("Job Name!");
         StatsdNotifier instance = new StatsdNotifier(client, config);
         instance.notifyBuildState("Job Name!", "Stage Name$", BuildState.CompletedSuccess);
-        verify(client).increment("pipeline.Main_Folder.Sub_Folder.Job_Name.branch.Shanes_Branch.stage.Stage_Name.status.CompletedSuccess", 1);
-        verify(client).time("pipeline.Main_Folder.Sub_Folder.Job_Name.branch.Shanes_Branch.stage.Stage_Name.duration", 0);
+        verify(client).increment("pipeline.Main_Folder.Sub_Folder.Job_Name.Shanes_Branch.stage.Stage_Name.status.CompletedSuccess", 1);
+        verify(client).time("pipeline.Main_Folder.Sub_Folder.Job_Name.Shanes_Branch.stage.Stage_Name.duration", 0);
     }
 
     /*
@@ -169,8 +169,8 @@ public class StatsdNotifierTest {
         when(config.getRepoName()).thenReturn("Job Name!");
         StatsdNotifier instance = new StatsdNotifier(client, config);
         instance.notifyBuildStageStatus("Job Name!", "Stage Name$", BuildState.CompletedError, buildDuration);
-        verify(client).increment("pipeline.Main_Folder.Sub_Folder.Job_Name.branch.Shanes_Branch.stage.Stage_Name.status.CompletedError", 1);
-        verify(client).time("pipeline.Main_Folder.Sub_Folder.Job_Name.branch.Shanes_Branch.stage.Stage_Name.duration", buildDuration);
+        verify(client).increment("pipeline.Main_Folder.Sub_Folder.Job_Name.Shanes_Branch.stage.Stage_Name.status.CompletedError", 1);
+        verify(client).time("pipeline.Main_Folder.Sub_Folder.Job_Name.Shanes_Branch.stage.Stage_Name.duration", buildDuration);
     }
 
     /*
@@ -184,8 +184,8 @@ public class StatsdNotifierTest {
         when(config.getRepoName()).thenReturn("Job Name!");
         StatsdNotifier instance = new StatsdNotifier(client, config);
         instance.notifyBuildStageStatus("Job Name!", "Stage Name$", BuildState.Pending, buildDuration);
-        verify(client, times(0)).increment("pipeline.Main_Folder.Sub_Folder.Job_Name.branch.Shanes_Branch.job.status.Pending", 1);
-        verify(client, times(0)).time("pipeline.Main_Folder.Sub_Folder.Job_Name.branch.Shanes_Branch.job.duration", buildDuration);
+        verify(client, times(0)).increment("pipeline.Main_Folder.Sub_Folder.Job_Name.Shanes_Branch.job.status.Pending", 1);
+        verify(client, times(0)).time("pipeline.Main_Folder.Sub_Folder.Job_Name.Shanes_Branch.job.duration", buildDuration);
     }
 
     /*
@@ -200,8 +200,8 @@ public class StatsdNotifierTest {
         when(config.getRepoName()).thenReturn("Job Name!");
         StatsdNotifier instance = new StatsdNotifier(client, config);
         instance.notifyFinalBuildStatus("Job Name!", BuildState.CompletedError, buildDuration, buildBlockedDuration);
-        verify(client).increment("pipeline.Main_Folder.Sub_Folder.Job_Name.branch.Shanes_Branch.job.status.CompletedError", 1);
-        verify(client).time("pipeline.Main_Folder.Sub_Folder.Job_Name.branch.Shanes_Branch.job.duration", buildDuration);
+        verify(client).increment("pipeline.Main_Folder.Sub_Folder.Job_Name.Shanes_Branch.job.status.CompletedError", 1);
+        verify(client).time("pipeline.Main_Folder.Sub_Folder.Job_Name.Shanes_Branch.job.duration", buildDuration);
     }
 
     /*
@@ -214,6 +214,6 @@ public class StatsdNotifierTest {
         when(config.getRepoName()).thenReturn("Job Name!");
         StatsdNotifier instance = new StatsdNotifier(client, config);
         instance.sendNonStageError("Job Name!", "Stage Name$");
-        verify(client).increment("pipeline.Main_Folder.Sub_Folder.Job_Name.branch.Shanes_Branch.stage.Stage_Name.non_stage_error", 1);
+        verify(client).increment("pipeline.Main_Folder.Sub_Folder.Job_Name.Shanes_Branch.stage.Stage_Name.non_stage_error", 1);
     }
 }
