@@ -6,9 +6,10 @@
 
     Final metrics paths will follow the pattern:
     <ul>
-        <li>{bucket}.{folder}.{subfolder}.{job name}.branch.{branch}.job.status</li>
-        <li>{bucket}.{folder}.{subfolder}.{job name}.branch.{branch}.job.duration</li>
-        <li>{bucket}.{folder}.{subfolder}.{job name}.branch.{branch}.stage.{stage name}.status</li>
-        <li>{bucket}.{folder}.{subfolder}.{job name}.branch.{branch}.stage.{stage name}.duration</li>
+        <li>{bucket}.{folder}.{subfolder}.{job name}.{branch}.job.status</li>
+        <li>{bucket}.{folder}.{subfolder}.{job name}.{branch}.job.duration</li>
+        <li>{bucket}.{folder}.{subfolder}.{job name}.{branch}.stage.{stage name}.status</li>
+        <li>{bucket}.{folder}.{subfolder}.{job name}.{branch}.stage.{stage name}.duration</li>
     </ul>
+    <em>Note: For non multibranch pipelines the branch portion of the path is omitted.</em>
 </div>
