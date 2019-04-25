@@ -65,7 +65,7 @@ public class StatsdNotifier implements BuildNotifier {
         String sanitizedFolderPath = sanitizeAll(config.getRepoOwner());
         String sanitizedJobName = sanitizeAll(config.getRepoName());
         String sanitizedBranchName = sanitizeAll(config.getBranchName());
-        return String.format("pipeline.%s.%s.branch.%s", sanitizedFolderPath, sanitizedJobName, sanitizedBranchName);
+        return String.format("pipeline.%s.%s.%s", sanitizedFolderPath, sanitizedJobName, sanitizedBranchName);
     }
 
     /**
@@ -80,7 +80,7 @@ public class StatsdNotifier implements BuildNotifier {
     }
 
     /**
-     * Sends duration metric to statsd by doing a timer metric  
+     * Sends duration metric to statsd by doing a timer metric
      * 
      * @param jobName name of the job
      * @param nodeName the stage of the status on which to report on

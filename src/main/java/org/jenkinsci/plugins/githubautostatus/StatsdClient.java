@@ -42,7 +42,7 @@ public class StatsdClient implements StatsdWrapper {
     private final int CLIENT_TTL = 300;
     private static final Logger LOGGER = Logger.getLogger(StatsdClient.class.getName());
 
-    private static StatsDClient client;
+    private StatsDClient client;
     private String hostname = "";
     private String prefix = "";
     private int port = 8125;
