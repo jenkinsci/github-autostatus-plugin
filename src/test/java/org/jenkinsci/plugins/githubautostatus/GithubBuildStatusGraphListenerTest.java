@@ -130,20 +130,23 @@ public class GithubBuildStatusGraphListenerTest {
         ExecutionModelAction executionModel = mock(ExecutionModelAction.class);
         when(build.getAction(ExecutionModelAction.class)).thenReturn(executionModel);
 
+        // Construct a complex pipeline model
         ModelASTStages stages = createStages("Outer Stage 1", "Outer Stage 2");
         ModelASTStages innerStages = createStages("Inner Stage 1", "Inner Stage 2", "Inner Stage 3");
         ModelASTStages innerInnerStages = createStages("Inner Inner Stage 1");
         ModelASTStages parallelStages = createStages("Parallel Stage 1", "Parallel Stage 2");
-        List<String> fullStageList = Arrays.asList(new String[] {"Outer Stage 1", "Inner Stage 1", "Inner Stage 2", "Inner Stage 3", "Inner Inner Stage 1", "Outer Stage 2", "Parallel Stage 1", "Parallel Stage 2"});
         stages.getStages().get(0).setStages(innerStages);
         innerStages.getStages().get(2).setStages(innerInnerStages);
         stages.getStages().get(1).setParallelContent(parallelStages.getStages());
+        // Create a linear list of the pipeline stages for comparison
+        List<String> fullStageList = Arrays.asList(new String[] {"Outer Stage 1", "Inner Stage 1", "Inner Stage 2", "Inner Stage 3", "Inner Inner Stage 1", "Outer Stage 2", "Parallel Stage 1", "Parallel Stage 2"});
 
         when(executionModel.getStages()).thenReturn(stages);
 
         GithubBuildStatusGraphListener instance = new GithubBuildStatusGraphListener();
         instance.onNewHead(stageNode);
         verify(build).addAction(any(BuildStatusAction.class));
+        // Check that the pipeline stages found match the list of expected stages
         assertTrue(GithubBuildStatusGraphListener.getDeclarativeStages(build).equals(fullStageList));
     }
 
