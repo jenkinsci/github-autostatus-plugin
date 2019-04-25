@@ -25,7 +25,6 @@ package org.jenkinsci.plugins.githubautostatus.notifiers;
 
 /**
  * A notification subscriber which can send build stats to a particular sink.
- * 
  * @author Jeff Pearce (jxpearce@godaddy.com)
  */
 public interface BuildNotifier {
@@ -42,8 +41,7 @@ public interface BuildNotifier {
      *
      * @param jobName    the name of the job.
      * @param nodeName   the node that has changed.
-     * @param buildState the new state. note: this is a stage result, should be
-     *                   metric #3.
+     * @param buildState the new state. 
      */
     void notifyBuildState(String jobName, String nodeName, BuildState buildState);
 
@@ -54,7 +52,6 @@ public interface BuildNotifier {
      * @param nodeName     the node that has changed
      * @param buildState   the new state
      * @param nodeDuration elapsed time for this node
-     * This is #4 (Timer)
      */
     void notifyBuildStageStatus(String jobName, String nodeName, BuildState buildState, long nodeDuration);
 
@@ -65,7 +62,6 @@ public interface BuildNotifier {
      * @param buildState      state indicating success or failure
      * @param buildDuration   the build duration
      * @param blockedDuration time build was blocked before running
-     * This one will send #1 and #2
      */
     void notifyFinalBuildStatus(String jobName, BuildState buildState, long buildDuration, long blockedDuration);
 
@@ -76,7 +72,6 @@ public interface BuildNotifier {
      *
      * @param jobName  the name of the job
      * @param nodeName the name of the node that failed
-     * Just send #1 type. i.e. notifyBuildState(jobName, nodeName, "failure");
      */
     void sendNonStageError(String jobName, String nodeName);
 }
