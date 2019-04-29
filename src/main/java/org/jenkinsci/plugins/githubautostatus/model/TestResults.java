@@ -27,10 +27,7 @@ import hudson.tasks.junit.CaseResult;
 import hudson.tasks.junit.SuiteResult;
 import hudson.tasks.junit.TestResultAction;
 import java.util.ArrayList;
-import static java.util.logging.Level.INFO;
-import java.util.logging.Logger;
 import javax.annotation.Nullable;
-import org.jenkinsci.plugins.githubautostatus.GithubBuildStatusGraphListener;
 
 /**
  *
@@ -48,7 +45,7 @@ public class TestResults {
         this.testSuites = testSuites;
     }
 
-    private TestResults() {
+    public TestResults() {
         testSuites = new ArrayList<>();
     }
 
@@ -62,12 +59,7 @@ public class TestResults {
             TestSuite testSuite = new TestSuite();
             testSuite.setName(suiteResult.getName());
             
-            Logger.getLogger(TestResults.class.getName()).log(INFO, String.format("Suite name  %s", suiteResult.getName()));
-//            getLogger().log(level, String.format(format, args));
-
             for (CaseResult caseResult : suiteResult.getCases()) {
-
-            Logger.getLogger(TestResults.class.getName()).log(INFO, String.format("Case name %s %s", caseResult.getClassName(), caseResult.getName()));
 
                 TestCase testCase = TestCase.fromCaseResult(caseResult);
                 testResults.passedTestCaseCount += testCase.getPassedCount();

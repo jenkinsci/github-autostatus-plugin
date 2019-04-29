@@ -1,7 +1,7 @@
 /*
  * The MIT License
  *
- * Copyright 2018 jxpearce.
+ * Copyright 2019 jxpearce.
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to deal
@@ -23,20 +23,31 @@
  */
 package org.jenkinsci.plugins.githubautostatus.notifiers;
 
+import org.junit.Test;
+import static org.junit.Assert.*;
+
 /**
  *
  * @author jxpearce
  */
-public class BuildNotifierConstants {
-
-    public static final String BLOCKED_DURATION = "BLOCKED_DURATION";
-    public static final String BRANCH_NAME = "BRANCH_NAME";
-    public static final String BUILD_OBJECT = "BUILD_OBJECT";
-    public static final String COVERAGE_INFO = "COVERAGE_INFO";
-    public static final String JOB_DURATION = "JOB_DURATION";
-    public static final String JOB_NAME = "JOB_NAME";
-    public static final String REPO_NAME = "REPO_NAME";
-    public static final String REPO_OWNER = "REPO_OWNER";
-    public static final String STAGE_DURATION = "STAGE_DURATION";
-    public static final String TEST_CASE_INFO = "TEST_CASE_INFO";
+public class BuildNotifierConstantsTest {
+    
+    public BuildNotifierConstantsTest() {
+    }
+    
+    @Test
+    public void testConstants() {
+        new BuildNotifierConstants();
+        assertNotNull(BuildNotifierConstants.BLOCKED_DURATION);
+        assertNotNull(BuildNotifierConstants.BRANCH_NAME);
+        assertNotNull(BuildNotifierConstants.BUILD_OBJECT);
+        assertNotNull(BuildNotifierConstants.COVERAGE_INFO);
+        assertNotNull(BuildNotifierConstants.JOB_DURATION);
+        assertNotNull(BuildNotifierConstants.JOB_NAME);
+        assertNotNull(BuildNotifierConstants.REPO_NAME);
+        assertNotNull(BuildNotifierConstants.REPO_OWNER);
+        assertNotNull(BuildNotifierConstants.STAGE_DURATION);
+        assertNotNull(BuildNotifierConstants.TEST_CASE_INFO);
+    }
+    
 }

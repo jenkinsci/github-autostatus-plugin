@@ -26,10 +26,7 @@ package org.jenkinsci.plugins.githubautostatus;
 import com.cloudbees.plugins.credentials.CredentialsScope;
 import com.cloudbees.plugins.credentials.common.StandardUsernameCredentials;
 import com.cloudbees.plugins.credentials.impl.UsernamePasswordCredentialsImpl;
-import org.junit.After;
-import org.junit.AfterClass;
 import org.junit.Before;
-import org.junit.BeforeClass;
 import org.junit.Test;
 import static org.junit.Assert.*;
 import org.junit.runner.RunWith;
@@ -55,7 +52,7 @@ public class InfluxDbNotifierConfigTest {
     private final String repositoryOwner = "mock-pwner";
     private final String repository = "mock-repo";
     private final String branch = "mock-branch";
-    private final String influxUrl = "http://mock-url";
+    private final String influxUrl = "http://qwerqwerqwerqwrqwerqwrwqrqwqwer";
     private final String influxDatabase = "mock-usdatabase";
     private final String influxDbCredentialsId = "mock-credentials";
     private final String influxDbUser = "mock-user";
@@ -63,14 +60,6 @@ public class InfluxDbNotifierConfigTest {
     private final String influxDbRetention = "mock-retention-policy";
 
     public InfluxDbNotifierConfigTest() {
-    }
-
-    @BeforeClass
-    public static void setUpClass() {
-    }
-
-    @AfterClass
-    public static void tearDownClass() {
     }
 
     @Before
@@ -84,10 +73,6 @@ public class InfluxDbNotifierConfigTest {
         when(config.getInfluxDbDatabase()).thenReturn(influxDatabase);
         when(config.getCredentialsId()).thenReturn(influxDbCredentialsId);
         when(config.getInfluxDbRetentionPolicy()).thenReturn(influxDbRetention);
-    }
-
-    @After
-    public void tearDown() {
     }
 
     @Test

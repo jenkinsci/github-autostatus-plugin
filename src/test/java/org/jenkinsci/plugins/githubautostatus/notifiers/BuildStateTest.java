@@ -23,20 +23,28 @@
  */
 package org.jenkinsci.plugins.githubautostatus.notifiers;
 
+import org.junit.Test;
+import static org.junit.Assert.*;
+
 /**
  *
  * @author jxpearce
  */
-public class BuildNotifierConstants {
+public class BuildStateTest {
 
-    public static final String BLOCKED_DURATION = "BLOCKED_DURATION";
-    public static final String BRANCH_NAME = "BRANCH_NAME";
-    public static final String BUILD_OBJECT = "BUILD_OBJECT";
-    public static final String COVERAGE_INFO = "COVERAGE_INFO";
-    public static final String JOB_DURATION = "JOB_DURATION";
-    public static final String JOB_NAME = "JOB_NAME";
-    public static final String REPO_NAME = "REPO_NAME";
-    public static final String REPO_OWNER = "REPO_OWNER";
-    public static final String STAGE_DURATION = "STAGE_DURATION";
-    public static final String TEST_CASE_INFO = "TEST_CASE_INFO";
+    public BuildStateTest() {
+    }
+
+    /**
+     * Test of isEnabled method, of class InfluxDbNotifier.
+     */
+    @Test
+    public void testBuildStates() {
+        assertNotNull(BuildState.Pending.toResult());
+        assertNotNull(BuildState.CompletedSuccess.toResult());
+        assertNotNull(BuildState.CompletedError.toResult());
+        assertNotNull(BuildState.SkippedFailure.toResult());
+        assertNotNull(BuildState.SkippedUnstable.toResult());
+        assertNotNull(BuildState.SkippedConditional.toResult());
+    }
 }

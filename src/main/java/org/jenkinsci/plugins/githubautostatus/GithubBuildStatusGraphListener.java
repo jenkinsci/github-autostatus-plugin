@@ -59,7 +59,6 @@ import org.jenkinsci.plugins.workflow.cps.nodes.StepAtomNode;
 import org.jenkinsci.plugins.workflow.cps.nodes.StepEndNode;
 import org.jenkinsci.plugins.workflow.cps.nodes.StepStartNode;
 import org.jenkinsci.plugins.workflow.flow.FlowExecution;
-import org.jenkinsci.plugins.workflow.graph.FlowStartNode;
 import org.jenkinsci.plugins.workflow.job.WorkflowRun;
 
 /**
@@ -91,8 +90,6 @@ public class GithubBuildStatusGraphListener implements GraphListener {
                     return;
                 }
 
-                // TODO: remove this comment
-//                List<? extends FlowStartNode> enclosingBlocks = (List<? extends FlowStartNode>) fn.getEnclosingBlocks();
                 List<? extends FlowNode> enclosingBlocks = fn.getEnclosingBlocks();
                 boolean isInStage = false;
 

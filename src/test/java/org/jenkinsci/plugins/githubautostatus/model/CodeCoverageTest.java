@@ -1,5 +1,8 @@
 package org.jenkinsci.plugins.githubautostatus.model;
 
+import hudson.plugins.cobertura.CoberturaBuildAction;
+import hudson.plugins.cobertura.Ratio;
+import hudson.plugins.cobertura.targets.CoverageMetric;
 import hudson.plugins.jacoco.JacocoBuildAction;
 import hudson.plugins.jacoco.model.Coverage;
 import hudson.plugins.jacoco.model.CoverageElement;
@@ -12,12 +15,11 @@ import org.powermock.modules.junit4.PowerMockRunner;
 import java.util.HashMap;
 import java.util.Map;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertNull;
+import static org.junit.Assert.*;
 import static org.mockito.Mockito.when;
 
 @RunWith(PowerMockRunner.class)
-@PrepareForTest(JacocoBuildAction.class)
+@PrepareForTest({JacocoBuildAction.class, CoberturaBuildAction.class})
 public class CodeCoverageTest {
   @BeforeClass
   public static void setUpClass() {
@@ -39,6 +41,41 @@ public class CodeCoverageTest {
   public void testFromJacoco_null(){
     assertNull(CodeCoverage.fromJacoco(null));
   }
+
+  @Test
+  public void testFromCoberturaNull(){
+      assertNull(CodeCoverage.fromCobertura(null));
+  }
+  
+  @Test
+  public void testFromCobertura(){
+    CoberturaBuildAction action = PowerMockito.mock(CoberturaBuildAction.class);
+    Map<CoverageMetric, Ratio> results = new HashMap<>();
+    results.put(CoverageMetric.CONDITIONAL, Ratio.create(1, 10));
+    results.put(CoverageMetric.CLASSES, Ratio.create(2, 10));
+    results.put(CoverageMetric.FILES, Ratio.create(3, 10));
+    results.put(CoverageMetric.LINE, Ratio.create(4, 10));
+    results.put(CoverageMetric.METHOD, Ratio.create(5, 10));
+    results.put(CoverageMetric.PACKAGES, Ratio.create(6, 10));
+    
+    when(action.getResults()).thenReturn(results);
+    
+    CodeCoverage coverage = CodeCoverage.fromCobertura(action);
+    assertNotNull(coverage);
+    assertEquals(10, coverage.getConditionals(), 0);
+    assertEquals(20, coverage.getClasses(), 0);
+    assertEquals(30, coverage.getFiles(), 0);
+    assertEquals(40, coverage.getLines(), 0);
+    assertEquals(50, coverage.getMethods(), 0);
+    assertEquals(60, coverage.getPackages(), 0);
+
+  }
+
+  @Test
+  public void testFromJacocoNull(){
+      assertNull(CodeCoverage.fromJacoco(null));
+  }
+
 
   @Test
   public void testFromJacoco(){

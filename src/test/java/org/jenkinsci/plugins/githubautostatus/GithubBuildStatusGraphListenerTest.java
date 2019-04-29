@@ -24,13 +24,18 @@
 package org.jenkinsci.plugins.githubautostatus;
 
 import hudson.model.AbstractBuild;
+import hudson.model.Queue.Executable;
 import java.io.IOException;
 import org.jenkinsci.plugins.pipeline.modeldefinition.actions.ExecutionModelAction;
 import org.jenkinsci.plugins.pipeline.modeldefinition.ast.ModelASTStages;
+import org.jenkinsci.plugins.workflow.actions.ErrorAction;
 import org.jenkinsci.plugins.workflow.actions.StageAction;
+import org.jenkinsci.plugins.workflow.cps.CpsFlowExecution;
+import org.jenkinsci.plugins.workflow.cps.nodes.StepAtomNode;
 import org.jenkinsci.plugins.workflow.cps.nodes.StepStartNode;
 import org.jenkinsci.plugins.workflow.flow.FlowExecution;
 import org.jenkinsci.plugins.workflow.flow.FlowExecutionOwner;
+import org.jenkinsci.plugins.workflow.graph.FlowNode;
 import org.junit.After;
 import org.junit.AfterClass;
 import org.junit.Before;
@@ -93,7 +98,6 @@ public class GithubBuildStatusGraphListenerTest {
         when(execution.getOwner()).thenReturn(owner);
         AbstractBuild build = mock(AbstractBuild.class);
 
-//        WorkflowRun build = jenkins.createProject(WorkflowRun.class);
         when(owner.getExecutable()).thenReturn(build);
         ExecutionModelAction executionModel = mock(ExecutionModelAction.class);
         when(build.getAction(ExecutionModelAction.class)).thenReturn(executionModel);
@@ -106,31 +110,76 @@ public class GithubBuildStatusGraphListenerTest {
         verify(build).addAction(any(BuildStatusAction.class));
     }
 
+    @Test
+    public void testAtomNodeNonStageErrorAction() throws IOException {
+        ErrorAction error = mock(ErrorAction.class);
+        CpsFlowExecution execution = mock(CpsFlowExecution.class);
+
+        StepAtomNode stageNode = new StepAtomNode(execution, null, mock(FlowNode.class));
+        stageNode.addAction(error);
+
+        FlowExecutionOwner owner = mock(FlowExecutionOwner.class);
+        when(execution.getOwner()).thenReturn(owner);
+
+        Executable exec = mock(Executable.class);
+        when(owner.getExecutable()).thenReturn(exec);
+
+        AbstractBuild build = mock(AbstractBuild.class);
+        when(owner.getExecutable()).thenReturn(build);
+        when(build.getAction(ExecutionModelAction.class)).thenReturn(null); // not declarative
+        
+        BuildStatusAction buildStatusAction = mock(BuildStatusAction.class);
+        when(build.getAction(BuildStatusAction.class)).thenReturn(buildStatusAction);
+
+        GithubBuildStatusGraphListener instance = new GithubBuildStatusGraphListener();
+        instance.onNewHead(stageNode);
+        verify(buildStatusAction).sendNonStageError(any());
+    }
+
+    @Test
+    public void testAtomNodeAddsAction() throws IOException {
+        ErrorAction error = mock(ErrorAction.class);
+        CpsFlowExecution execution = mock(CpsFlowExecution.class);
+
+        StepAtomNode stageNode = new StepAtomNode(execution, null, mock(FlowNode.class));
+        stageNode.addAction(error);
+
+        FlowExecutionOwner owner = mock(FlowExecutionOwner.class);
+        when(execution.getOwner()).thenReturn(owner);
+
+        Executable exec = mock(Executable.class);
+        when(owner.getExecutable()).thenReturn(exec);
+
+        AbstractBuild build = mock(AbstractBuild.class);
+        when(owner.getExecutable()).thenReturn(build);
+        when(build.getAction(ExecutionModelAction.class)).thenReturn(null); // not declarative
+        
+        GithubBuildStatusGraphListener instance = new GithubBuildStatusGraphListener();
+        instance.onNewHead(stageNode);
+        verify(build).addAction(any(BuildStatusAction.class));
+    }
+
+
 //    @Test
-//    public void testAtomNode() throws IOException {
-////        StepAtomNode stageNode = mock(StepAtomNode.class);
-////        StageAction stageAction = mock(StageAction.class);
+//    public void testAtomNodeAddsAction() throws IOException {
 //        ErrorAction error = mock(ErrorAction.class);
 //        CpsFlowExecution execution = mock(CpsFlowExecution.class);
 //        StepAtomNode stageNode = new StepAtomNode(execution, null, mock(FlowNode.class));
 //        stageNode.addAction(error);
-////        when(stageNode.getError()).thenReturn(error);
-////        when(stageNode.getAction(StageAction.class)).thenReturn(stageAction);
-////        when(stageNode.getExecution()).thenReturn(execution); 
+//
 //        FlowExecutionOwner owner = mock(FlowExecutionOwner.class);
 //        when(execution.getOwner()).thenReturn(owner);
 //        AbstractBuild build = mock(AbstractBuild.class);
 //        when(owner.getExecutable()).thenReturn(build);
-////        ExecutionModelAction executionModel = mock(ExecutionModelAction.class);
 //        when(build.getAction(ExecutionModelAction.class)).thenReturn(null); // not declarative
 //
-////        ModelASTStages stages = new ModelASTStages(null);
-////        when(executionModel.getStages()).thenReturn(stages);
 //        GithubBuildStatusGraphListener instance = new GithubBuildStatusGraphListener();
 //        instance.onNewHead(stageNode);
 //        verify(build).addAction(any(BuildStatusAction.class));
 //    }
 
+
+//
 //    /**
 //     * Test of getTime method, of class GithubBuildStatusGraphListener.
 //     */
