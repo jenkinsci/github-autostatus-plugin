@@ -156,7 +156,7 @@ public class GithubBuildStatusGraphListener implements GraphListener {
      * @param errorAction The error action from the stage end node
      * @return Build state
      */
-    BuildState buildStateForStage(FlowNode flowNode, ErrorAction errorAction) {
+    static BuildState buildStateForStage(FlowNode flowNode, ErrorAction errorAction) {
         BuildState buildState = errorAction == null ? BuildState.CompletedSuccess : BuildState.CompletedError;;
         TagsAction tags = flowNode.getAction(TagsAction.class);
         if (tags != null) {

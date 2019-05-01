@@ -29,11 +29,15 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
+import org.jenkinsci.plugins.githubautostatus.notifiers.BuildState;
+import org.jenkinsci.plugins.pipeline.StageStatus;
 import org.jenkinsci.plugins.pipeline.modeldefinition.actions.ExecutionModelAction;
 import org.jenkinsci.plugins.pipeline.modeldefinition.ast.ModelASTStage;
 import org.jenkinsci.plugins.pipeline.modeldefinition.ast.ModelASTStages;
 import org.jenkinsci.plugins.workflow.actions.ErrorAction;
 import org.jenkinsci.plugins.workflow.actions.StageAction;
+import org.jenkinsci.plugins.workflow.actions.TagsAction;
+import org.jenkinsci.plugins.workflow.actions.TimingAction;
 import org.jenkinsci.plugins.workflow.cps.CpsFlowExecution;
 import org.jenkinsci.plugins.workflow.cps.nodes.StepAtomNode;
 import org.jenkinsci.plugins.workflow.cps.nodes.StepStartNode;
@@ -42,6 +46,7 @@ import org.jenkinsci.plugins.workflow.flow.FlowExecutionOwner;
 import org.jenkinsci.plugins.workflow.graph.FlowNode;
 import org.junit.After;
 import org.junit.AfterClass;
+import static org.junit.Assert.assertEquals;
 import org.junit.Before;
 import org.junit.BeforeClass;
 import org.junit.Test;
@@ -138,7 +143,7 @@ public class GithubBuildStatusGraphListenerTest {
         innerStages.getStages().get(2).setStages(innerInnerStages);
         stages.getStages().get(1).setParallelContent(parallelStages.getStages());
         // Create a linear list of the pipeline stages for comparison
-        List<String> fullStageList = Arrays.asList(new String[] {"Outer Stage 1", "Inner Stage 1", "Inner Stage 2", "Inner Stage 3", "Inner Inner Stage 1", "Outer Stage 2", "Parallel Stage 1", "Parallel Stage 2"});
+        List<String> fullStageList = Arrays.asList(new String[]{"Outer Stage 1", "Inner Stage 1", "Inner Stage 2", "Inner Stage 3", "Inner Inner Stage 1", "Outer Stage 2", "Parallel Stage 1", "Parallel Stage 2"});
 
         when(executionModel.getStages()).thenReturn(stages);
 
@@ -168,7 +173,7 @@ public class GithubBuildStatusGraphListenerTest {
         AbstractBuild build = mock(AbstractBuild.class);
         when(owner.getExecutable()).thenReturn(build);
         when(build.getAction(ExecutionModelAction.class)).thenReturn(null); // not declarative
-        
+
         BuildStatusAction buildStatusAction = mock(BuildStatusAction.class);
         when(build.getAction(BuildStatusAction.class)).thenReturn(buildStatusAction);
 
@@ -176,7 +181,6 @@ public class GithubBuildStatusGraphListenerTest {
         instance.onNewHead(stageNode);
         verify(buildStatusAction).sendNonStageError(any());
     }
-
 
 //    @Test
 //    public void testAtomNodeAddsAction() throws IOException {
@@ -195,8 +199,6 @@ public class GithubBuildStatusGraphListenerTest {
 //        instance.onNewHead(stageNode);
 //        verify(build).addAction(any(BuildStatusAction.class));
 //    }
-
-
 //
     private static ModelASTStages createStages(String... names) {
         ModelASTStages stages = new ModelASTStages(null);
@@ -223,18 +225,91 @@ public class GithubBuildStatusGraphListenerTest {
         return stageList;
     }
 
-//    /**
-//     * Test of getTime method, of class GithubBuildStatusGraphListener.
-//     */
-//    @Test
-//    public void testGetTime() {
-//        System.out.println("getTime");
-//        FlowNode startNode = null;
-//        FlowNode endNode = null;
-//        long expResult = 0L;
-//        long result = GithubBuildStatusGraphListener.getTime(startNode, endNode);
-//        assertEquals(expResult, result);
-//        // TODO review the generated test code and remove the default call to fail.
-//        fail("The test case is a prototype.");
-//    }
+    @Test
+    public void buildStateForStageSuccess() {
+        FlowNode flowNode = mock(FlowNode.class);
+
+        BuildState result = GithubBuildStatusGraphListener.buildStateForStage(flowNode, null);
+        assertEquals(BuildState.CompletedSuccess, result);
+    }
+
+    @Test
+    public void buildStateForStageError() {
+        FlowNode flowNode = mock(FlowNode.class);
+        ErrorAction errorAction = mock(ErrorAction.class);
+
+        BuildState result = GithubBuildStatusGraphListener.buildStateForStage(flowNode, errorAction);
+        assertEquals(BuildState.CompletedError, result);
+    }
+
+    @Test
+    public void buildStateForStageSkippedUnstable() {
+        FlowNode flowNode = mock(FlowNode.class);
+        TagsAction tagsAction = mock(TagsAction.class);
+        when(flowNode.getAction(TagsAction.class)).thenReturn(tagsAction);
+        when(tagsAction.getTagValue(StageStatus.TAG_NAME)).thenReturn(StageStatus.getSkippedForUnstable());
+
+        BuildState result = GithubBuildStatusGraphListener.buildStateForStage(flowNode, null);
+        assertEquals(BuildState.SkippedUnstable, result);
+    }
+
+    @Test
+    public void buildStateForStageSkippedConditional() {
+        FlowNode flowNode = mock(FlowNode.class);
+        TagsAction tagsAction = mock(TagsAction.class);
+        when(flowNode.getAction(TagsAction.class)).thenReturn(tagsAction);
+        when(tagsAction.getTagValue(StageStatus.TAG_NAME)).thenReturn(StageStatus.getSkippedForConditional());
+
+        BuildState result = GithubBuildStatusGraphListener.buildStateForStage(flowNode, null);
+        assertEquals(BuildState.SkippedConditional, result);
+    }
+
+    @Test
+    public void buildStateForStageFailedAndContinued() {
+        FlowNode flowNode = mock(FlowNode.class);
+        TagsAction tagsAction = mock(TagsAction.class);
+        when(flowNode.getAction(TagsAction.class)).thenReturn(tagsAction);
+        when(tagsAction.getTagValue(StageStatus.TAG_NAME)).thenReturn(StageStatus.getFailedAndContinued());
+
+        BuildState result = GithubBuildStatusGraphListener.buildStateForStage(flowNode, null);
+        assertEquals(BuildState.CompletedError, result);
+    }
+
+    @Test
+    public void testGetTime() {
+        FlowNode startNode = mock(FlowNode.class);
+        FlowNode endNode = mock(FlowNode.class);
+        TimingAction startTime = mock(TimingAction.class);
+        TimingAction endTime = mock(TimingAction.class);
+        when(startNode.getAction(TimingAction.class)).thenReturn(startTime);
+        when(endNode.getAction(TimingAction.class)).thenReturn(endTime);
+        when(startTime.getStartTime()).thenReturn(1l);
+        when(endTime.getStartTime()).thenReturn(3l);
+        long result = GithubBuildStatusGraphListener.getTime(startNode, endNode);
+        assertEquals(2, result);
+    }
+
+    @Test
+    public void testGetTimeNoStartTime() {
+        FlowNode startNode = mock(FlowNode.class);
+        FlowNode endNode = mock(FlowNode.class);
+        TimingAction endTime = mock(TimingAction.class);
+        when(startNode.getAction(TimingAction.class)).thenReturn(null);
+        when(endNode.getAction(TimingAction.class)).thenReturn(endTime);
+        when(endTime.getStartTime()).thenReturn(3l);
+        long result = GithubBuildStatusGraphListener.getTime(startNode, endNode);
+        assertEquals(0, result);
+    }
+
+    @Test
+    public void testGetTimeNoEndTime() {
+        FlowNode startNode = mock(FlowNode.class);
+        FlowNode endNode = mock(FlowNode.class);
+        TimingAction startTime = mock(TimingAction.class);
+        when(startNode.getAction(TimingAction.class)).thenReturn(startTime);
+        when(endNode.getAction(TimingAction.class)).thenReturn(null);
+        when(startTime.getStartTime()).thenReturn(1l);
+        long result = GithubBuildStatusGraphListener.getTime(startNode, endNode);
+        assertEquals(0, result);
+    }
 }
