@@ -138,13 +138,13 @@ public class StatsdNotifier implements BuildNotifier {
     }
 
     /**
-     * Collapses empty buckets into a single period.
+     * Collapses empty buckets into nothing.
      * 
      * @param key key to sanitize
      * @return sanitized key
      */
     private String collapseEmptyBuckets(String key) {
-        return key.replaceAll("\\.{2,}", ".");
+        return key.replaceAll("\\.{2,}", "");
     }
 
     /**
