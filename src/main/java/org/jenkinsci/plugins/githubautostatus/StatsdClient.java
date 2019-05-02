@@ -52,7 +52,7 @@ public class StatsdClient implements StatsdWrapper {
      * newClient attempts to create a new statsd client instance, if succesful then
      * the active client is safely swapped out.
      * 
-     * @throws StatsDClientException
+     * @throws StatsDClientException throws an exceltopn if unable to refresh client
      */
     public void newClient() throws StatsDClientException {
         Lock wl = lock.writeLock();

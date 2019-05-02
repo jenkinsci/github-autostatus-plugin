@@ -87,9 +87,7 @@ public class StatsdNotifierConfig {
     /**
      * Creates an statsd notification config based on the global settings.
      *
-     * @param repoOwner repo owner.
-     * @param repoName repo name.
-     * @param branchName branch name.
+     * @param externalizedID externalized ID.
      * @return config.
      */
     public static StatsdNotifierConfig fromGlobalConfig(String externalizedID) {

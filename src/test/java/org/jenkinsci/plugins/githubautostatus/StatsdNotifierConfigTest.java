@@ -53,9 +53,7 @@ import org.powermock.modules.junit4.PowerMockRunner;
 public class StatsdNotifierConfigTest {
 
     private BuildStatusConfig config;
-    private final String repositoryOwner = "mock-pwner";
-    private final String repository = "mock-repo";
-    private final String branch = "mock-branch";
+    private final String id = "mock-id";
     private final String statsdURL = "statsd.url";
     private final String statsdPort = "9999";
     private final String statsdBucket = "metrics.jenkins.";
@@ -90,33 +88,17 @@ public class StatsdNotifierConfigTest {
     }
 
     @Test
-    public void testGetRepoOwner() {
+    public void testGetExternalizedId() {
         StatsdNotifierConfig instance
-                = StatsdNotifierConfig.fromGlobalConfig(repositoryOwner, "", "");
-        String result = instance.getRepoOwner();
-        assertEquals(repositoryOwner, result);
-    }
-
-    @Test
-    public void testGetRepoName() {
-        StatsdNotifierConfig instance
-                = StatsdNotifierConfig.fromGlobalConfig("", repository, "");
-        String result = instance.getRepoName();
-        assertEquals(repository, result);
-    }
-
-    @Test
-    public void testGetBranchName() {
-        StatsdNotifierConfig instance
-                = StatsdNotifierConfig.fromGlobalConfig("", "", branch);
-        String result = instance.getBranchName();
-        assertEquals(branch, result);
+                = StatsdNotifierConfig.fromGlobalConfig(id);
+        String result = instance.getExternalizedID();
+        assertEquals(id, result);
     }
 
     @Test
     public void testGetStatsdHost() {
         StatsdNotifierConfig instance
-                = StatsdNotifierConfig.fromGlobalConfig("", "", branch);
+                = StatsdNotifierConfig.fromGlobalConfig(id);
         assertEquals(statsdURL, instance.getStatsdHost());
     }
 
@@ -124,7 +106,7 @@ public class StatsdNotifierConfigTest {
     public void testGetStatsdDisabled() {
         when(config.getEnableStatsd()).thenReturn(false);
         StatsdNotifierConfig instance
-                = StatsdNotifierConfig.fromGlobalConfig("", "", branch);
+                = StatsdNotifierConfig.fromGlobalConfig(id);
         assertEquals(null, instance.getStatsdHost());
         assertEquals(0, instance.getStatsdPort());
         assertEquals(null, instance.getStatsdBucket());
@@ -135,14 +117,14 @@ public class StatsdNotifierConfigTest {
     public void testGetStatsdHostEmpty() {
         when(config.getStatsdHost()).thenReturn("");
         StatsdNotifierConfig instance
-                = StatsdNotifierConfig.fromGlobalConfig("", "", branch);
+                = StatsdNotifierConfig.fromGlobalConfig(id);
         assertEquals(null, instance);
     }
 
     @Test
     public void testGetStatsdPort() {
         StatsdNotifierConfig instance
-                = StatsdNotifierConfig.fromGlobalConfig("", "", branch);
+                = StatsdNotifierConfig.fromGlobalConfig(id);
         assertEquals(9999, instance.getStatsdPort());
     }
 
@@ -150,7 +132,7 @@ public class StatsdNotifierConfigTest {
     public void testGetStatsdPortEmpty() {
         when(config.getStatsdPort()).thenReturn("");
         StatsdNotifierConfig instance
-                = StatsdNotifierConfig.fromGlobalConfig("", "", branch);
+                = StatsdNotifierConfig.fromGlobalConfig(id);
         assertEquals(8125, instance.getStatsdPort());
     }
 
@@ -158,7 +140,7 @@ public class StatsdNotifierConfigTest {
     public void testGetStatsdPortNull() {
         when(config.getStatsdPort()).thenReturn(null);
         StatsdNotifierConfig instance
-                = StatsdNotifierConfig.fromGlobalConfig("", "", branch);
+                = StatsdNotifierConfig.fromGlobalConfig(id);
         assertEquals(8125, instance.getStatsdPort());
     }
 
@@ -166,7 +148,7 @@ public class StatsdNotifierConfigTest {
     public void testGetStatsdPortNotANumber() {
         when(config.getStatsdPort()).thenReturn("notANumber");
         StatsdNotifierConfig instance
-                = StatsdNotifierConfig.fromGlobalConfig("", "", branch);
+                = StatsdNotifierConfig.fromGlobalConfig(id);
         assertEquals(8125, instance.getStatsdPort());
     }
 
@@ -174,14 +156,14 @@ public class StatsdNotifierConfigTest {
     @Test
     public void testGetStatsdBucket() {
         StatsdNotifierConfig instance
-                = StatsdNotifierConfig.fromGlobalConfig("", "", branch);
+                = StatsdNotifierConfig.fromGlobalConfig(id);
         assertEquals(statsdBucket, instance.getStatsdBucket());
     }
 
     @Test
     public void testGetStatsdMaxSize() {
         StatsdNotifierConfig instance
-                = StatsdNotifierConfig.fromGlobalConfig("", "", branch);
+                = StatsdNotifierConfig.fromGlobalConfig(id);
         assertEquals(statsdMaxSize, instance.getStatsdMaxSize());
     }
 }
