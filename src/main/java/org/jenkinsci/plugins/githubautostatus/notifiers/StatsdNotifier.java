@@ -62,10 +62,8 @@ public class StatsdNotifier implements BuildNotifier {
      * @return string of path up to branch bucket
      */
     public String getBranchPath() {
-        String sanitizedFolderPath = sanitizeAll(config.getRepoOwner());
-        String sanitizedJobName = sanitizeAll(config.getRepoName());
-        String sanitizedBranchName = sanitizeAll(config.getBranchName());
-        return String.format("pipeline.%s.%s.%s", sanitizedFolderPath, sanitizedJobName, sanitizedBranchName);
+        String sanitizedExternalizedID = sanitizeAll(config.getExternalizedID());
+        return String.format("pipeline.%s", sanitizedExternalizedID);
     }
 
     /**
@@ -138,13 +136,13 @@ public class StatsdNotifier implements BuildNotifier {
     }
 
     /**
-     * Collapses empty buckets into nothing.
+     * Collapses empty buckets into dot.
      * 
      * @param key key to sanitize
      * @return sanitized key
      */
     private String collapseEmptyBuckets(String key) {
-        return key.replaceAll("\\.{2,}", "");
+        return key.replaceAll("\\.{2,}", ".");
     }
 
     /**
@@ -166,6 +164,10 @@ public class StatsdNotifier implements BuildNotifier {
      * @return sanitized key
      */
     public String sanitizeAll(String key) {
-        return collapseEmptyBuckets(statsdSanitizeKey(sanitizeKey(key)));
+        String sanitized = collapseEmptyBuckets(statsdSanitizeKey(sanitizeKey(key)));
+        if (sanitized.endsWith(".")) {
+            sanitized = sanitized.substring(0, sanitized.length()-1);
+        }
+        return sanitized;
     }
 }
