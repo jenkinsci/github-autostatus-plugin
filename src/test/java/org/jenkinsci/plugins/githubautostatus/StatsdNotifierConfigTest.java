@@ -53,7 +53,7 @@ import org.powermock.modules.junit4.PowerMockRunner;
 public class StatsdNotifierConfigTest {
 
     private BuildStatusConfig config;
-    private final String id = "mock-id";
+    private final String externalizedID = "mock-id/mock-path#test";
     private final String statsdURL = "statsd.url";
     private final String statsdPort = "9999";
     private final String statsdBucket = "metrics.jenkins.";
@@ -90,15 +90,15 @@ public class StatsdNotifierConfigTest {
     @Test
     public void testGetExternalizedId() {
         StatsdNotifierConfig instance
-                = StatsdNotifierConfig.fromGlobalConfig(id);
+                = StatsdNotifierConfig.fromGlobalConfig(externalizedID);
         String result = instance.getExternalizedID();
-        assertEquals(id, result);
+        assertEquals(externalizedID, result);
     }
 
     @Test
     public void testGetStatsdHost() {
         StatsdNotifierConfig instance
-                = StatsdNotifierConfig.fromGlobalConfig(id);
+                = StatsdNotifierConfig.fromGlobalConfig(externalizedID);
         assertEquals(statsdURL, instance.getStatsdHost());
     }
 
@@ -106,7 +106,7 @@ public class StatsdNotifierConfigTest {
     public void testGetStatsdDisabled() {
         when(config.getEnableStatsd()).thenReturn(false);
         StatsdNotifierConfig instance
-                = StatsdNotifierConfig.fromGlobalConfig(id);
+                = StatsdNotifierConfig.fromGlobalConfig(externalizedID);
         assertEquals(null, instance.getStatsdHost());
         assertEquals(0, instance.getStatsdPort());
         assertEquals(null, instance.getStatsdBucket());
@@ -117,14 +117,14 @@ public class StatsdNotifierConfigTest {
     public void testGetStatsdHostEmpty() {
         when(config.getStatsdHost()).thenReturn("");
         StatsdNotifierConfig instance
-                = StatsdNotifierConfig.fromGlobalConfig(id);
+                = StatsdNotifierConfig.fromGlobalConfig(externalizedID);
         assertEquals(null, instance);
     }
 
     @Test
     public void testGetStatsdPort() {
         StatsdNotifierConfig instance
-                = StatsdNotifierConfig.fromGlobalConfig(id);
+                = StatsdNotifierConfig.fromGlobalConfig(externalizedID);
         assertEquals(9999, instance.getStatsdPort());
     }
 
@@ -132,7 +132,7 @@ public class StatsdNotifierConfigTest {
     public void testGetStatsdPortEmpty() {
         when(config.getStatsdPort()).thenReturn("");
         StatsdNotifierConfig instance
-                = StatsdNotifierConfig.fromGlobalConfig(id);
+                = StatsdNotifierConfig.fromGlobalConfig(externalizedID);
         assertEquals(8125, instance.getStatsdPort());
     }
 
@@ -140,7 +140,7 @@ public class StatsdNotifierConfigTest {
     public void testGetStatsdPortNull() {
         when(config.getStatsdPort()).thenReturn(null);
         StatsdNotifierConfig instance
-                = StatsdNotifierConfig.fromGlobalConfig(id);
+                = StatsdNotifierConfig.fromGlobalConfig(externalizedID);
         assertEquals(8125, instance.getStatsdPort());
     }
 
@@ -148,7 +148,7 @@ public class StatsdNotifierConfigTest {
     public void testGetStatsdPortNotANumber() {
         when(config.getStatsdPort()).thenReturn("notANumber");
         StatsdNotifierConfig instance
-                = StatsdNotifierConfig.fromGlobalConfig(id);
+                = StatsdNotifierConfig.fromGlobalConfig(externalizedID);
         assertEquals(8125, instance.getStatsdPort());
     }
 
@@ -156,14 +156,14 @@ public class StatsdNotifierConfigTest {
     @Test
     public void testGetStatsdBucket() {
         StatsdNotifierConfig instance
-                = StatsdNotifierConfig.fromGlobalConfig(id);
+                = StatsdNotifierConfig.fromGlobalConfig(externalizedID);
         assertEquals(statsdBucket, instance.getStatsdBucket());
     }
 
     @Test
     public void testGetStatsdMaxSize() {
         StatsdNotifierConfig instance
-                = StatsdNotifierConfig.fromGlobalConfig(id);
+                = StatsdNotifierConfig.fromGlobalConfig(externalizedID);
         assertEquals(statsdMaxSize, instance.getStatsdMaxSize());
     }
 }

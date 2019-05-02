@@ -138,9 +138,9 @@ public class StatsdNotifierTest {
     @Test
     public void testGetBranchPath() throws Exception {
         when(config.getStatsdHost()).thenReturn("");
-        when(config.getExternalizedID()).thenReturn("Main Folder/Sub Folder");
+        when(config.getExternalizedID()).thenReturn("Main Folder/Sub Folder/job name/branch name");
         StatsdNotifier instance = new StatsdNotifier(config);
-        assertEquals("pipeline.Main_Folder.Sub_Folder", instance.getBranchPath());
+        assertEquals("pipeline.Main_Folder.Sub_Folder.job_name.branch_name", instance.getBranchPath());
     }
 
     /*
@@ -148,11 +148,11 @@ public class StatsdNotifierTest {
      */
     @Test
     public void testNotifyBuildState() throws Exception {
-        when(config.getExternalizedID()).thenReturn("Main Folder/Sub Folder");
+        when(config.getExternalizedID()).thenReturn("Main Folder/Sub Folder/job name/branch name");
         StatsdNotifier instance = new StatsdNotifier(client, config);
         instance.notifyBuildState("Job Name!", "Stage Name$", BuildState.CompletedSuccess);
-        verify(client).increment("pipeline.Main_Folder.Sub_Folder.stage.Stage_Name.status.CompletedSuccess", 1);
-        verify(client).time("pipeline.Main_Folder.Sub_Folder.stage.Stage_Name.duration", 0);
+        verify(client).increment("pipeline.Main_Folder.Sub_Folder.job_name.branch_name.stage.Stage_Name.status.CompletedSuccess", 1);
+        verify(client).time("pipeline.Main_Folder.Sub_Folder.job_name.branch_name.stage.Stage_Name.duration", 0);
     }
 
     /*
@@ -161,11 +161,11 @@ public class StatsdNotifierTest {
     @Test
     public void testNotifyBuildStageStatus() throws Exception {
         int buildDuration = 600;
-        when(config.getExternalizedID()).thenReturn("Main Folder/Sub Folder");
+        when(config.getExternalizedID()).thenReturn("Main Folder/Sub Folder/job name/branch name");
         StatsdNotifier instance = new StatsdNotifier(client, config);
         instance.notifyBuildStageStatus("Job Name!", "Stage Name$", BuildState.CompletedError, buildDuration);
-        verify(client).increment("pipeline.Main_Folder.Sub_Folder.stage.Stage_Name.status.CompletedError", 1);
-        verify(client).time("pipeline.Main_Folder.Sub_Folder.stage.Stage_Name.duration", buildDuration);
+        verify(client).increment("pipeline.Main_Folder.Sub_Folder.job_name.branch_name.stage.Stage_Name.status.CompletedError", 1);
+        verify(client).time("pipeline.Main_Folder.Sub_Folder.job_name.branch_name.stage.Stage_Name.duration", buildDuration);
     }
 
     /*
@@ -174,11 +174,11 @@ public class StatsdNotifierTest {
     @Test
     public void testNotifyBuildStageStatusPending() throws Exception {
         int buildDuration = 600;
-        when(config.getExternalizedID()).thenReturn("Main Folder/Sub Folder");
+        when(config.getExternalizedID()).thenReturn("Main Folder/Sub Folder/job name/branch name");
         StatsdNotifier instance = new StatsdNotifier(client, config);
         instance.notifyBuildStageStatus("Job Name!", "Stage Name$", BuildState.Pending, buildDuration);
-        verify(client, times(0)).increment("pipeline.Main_Folder.Sub_Folder.job.status.Pending", 1);
-        verify(client, times(0)).time("pipeline.Main_Folder.Sub_Folder.job.duration", buildDuration);
+        verify(client, times(0)).increment("pipeline.Main_Folder.Sub_Folder.job_name.branch_name.job.status.Pending", 1);
+        verify(client, times(0)).time("pipeline.Main_Folder.Sub_Folder.job_name.branch_name.job.duration", buildDuration);
     }
 
     /*
@@ -188,11 +188,11 @@ public class StatsdNotifierTest {
     public void testNotifyFinalBuildStatus() throws Exception {
         int buildDuration = 600;
         int buildBlockedDuration = 55;
-        when(config.getExternalizedID()).thenReturn("Main Folder/Sub Folder");
+        when(config.getExternalizedID()).thenReturn("Main Folder/Sub Folder/job name/branch name");
         StatsdNotifier instance = new StatsdNotifier(client, config);
         instance.notifyFinalBuildStatus("Job Name!", BuildState.CompletedError, buildDuration, buildBlockedDuration);
-        verify(client).increment("pipeline.Main_Folder.Sub_Folder.job.status.CompletedError", 1);
-        verify(client).time("pipeline.Main_Folder.Sub_Folder.job.duration", buildDuration);
+        verify(client).increment("pipeline.Main_Folder.Sub_Folder.job_name.branch_name.job.status.CompletedError", 1);
+        verify(client).time("pipeline.Main_Folder.Sub_Folder.job_name.branch_name.job.duration", buildDuration);
     }
 
     /*
@@ -200,9 +200,9 @@ public class StatsdNotifierTest {
      */
     @Test
     public void testSendNonStageError() throws Exception {
-        when(config.getExternalizedID()).thenReturn("Main Folder/Sub Folder");
+        when(config.getExternalizedID()).thenReturn("Main Folder/Sub Folder/job name/branch name");
         StatsdNotifier instance = new StatsdNotifier(client, config);
         instance.sendNonStageError("Job Name!", "Stage Name$");
-        verify(client).increment("pipeline.Main_Folder.Sub_Folder.stage.Stage_Name.non_stage_error", 1);
+        verify(client).increment("pipeline.Main_Folder.Sub_Folder.job_name.branch_name.stage.Stage_Name.non_stage_error", 1);
     }
 }
