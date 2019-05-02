@@ -263,7 +263,7 @@ public class GithubBuildStatusGraphListener implements GraphListener {
                 }
                 InfluxDbNotifierConfig influxdb = InfluxDbNotifierConfig.fromGlobalConfig(repoOwner, repoName, branchName);
                 buildStatusAction.addInfluxDbNotifier(influxdb);
-                StatsdNotifierConfig statsd = StatsdNotifierConfig.fromGlobalConfig(repoOwner, repoName, branchName);
+                StatsdNotifierConfig statsd = StatsdNotifierConfig.fromGlobalConfig(run.getExternalizableId());
                 if (statsd != null) {
                     buildStatusAction.addStatsdNotifier(statsd);
                 }

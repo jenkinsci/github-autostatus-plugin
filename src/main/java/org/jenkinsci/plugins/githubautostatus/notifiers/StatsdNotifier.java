@@ -62,10 +62,8 @@ public class StatsdNotifier implements BuildNotifier {
      * @return string of path up to branch bucket
      */
     public String getBranchPath() {
-        String sanitizedFolderPath = sanitizeAll(config.getRepoOwner());
-        String sanitizedJobName = sanitizeAll(config.getRepoName());
-        String sanitizedBranchName = sanitizeAll(config.getBranchName());
-        return String.format("pipeline.%s.%s.%s", sanitizedFolderPath, sanitizedJobName, sanitizedBranchName);
+        String sanitizedExternalizedID = sanitizeAll(config.getExternalizedID());
+        return String.format("pipeline.%s", sanitizedExternalizedID);
     }
 
     /**
@@ -138,7 +136,7 @@ public class StatsdNotifier implements BuildNotifier {
     }
 
     /**
-     * Collapses empty buckets into a single period.
+     * Collapses empty buckets into dot.
      * 
      * @param key key to sanitize
      * @return sanitized key
@@ -157,6 +155,20 @@ public class StatsdNotifier implements BuildNotifier {
         return key.replaceAll("\\.", "");
     }
 
+
+    /**
+     * Gets rid of # and trailing characters at the end of the string
+     * 
+     * @param key key to sanitize
+     * @return sanitized key
+     */
+    private String saninitizeBuildNumber(String key) {
+        if (key.indexOf('#') != -1){
+            return key.split("#")[0];
+        }
+        return key;
+    }
+
     /**
      * Applies all sanitizations to a key, folders are expanded into seperate statsd buckets.
      * It firest applies bucket sanitization (removing periods to prevent them being interprested as 
@@ -166,6 +178,6 @@ public class StatsdNotifier implements BuildNotifier {
      * @return sanitized key
      */
     public String sanitizeAll(String key) {
-        return collapseEmptyBuckets(statsdSanitizeKey(sanitizeKey(key)));
+        return collapseEmptyBuckets(statsdSanitizeKey(sanitizeKey(saninitizeBuildNumber(key))));
     }
 }

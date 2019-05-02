@@ -32,9 +32,7 @@ import org.apache.commons.lang.StringUtils;
  */
 public class StatsdNotifierConfig {
 
-    private String repoOwner;
-    private String repoName;
-    private String branchName;
+    private String externalizedID;
     private String statsdHost;
     private int statsdPort;
     private String statsdBucket;
@@ -42,30 +40,12 @@ public class StatsdNotifierConfig {
     private static final Logger LOGGER = Logger.getLogger(StatsdWrapper.class.getName());
 
     /**
-     * Gets the repo owner.
+     * Gets the externalizedID.
      *
-     * @return repo owner.
+     * @return repo externalizedID.
      */
-    public String getRepoOwner() {
-        return repoOwner;
-    }
-
-    /**
-     * Gets the repo name.
-     *
-     * @return repo name.
-     */
-    public String getRepoName() {
-        return repoName;
-    }
-
-    /**
-     * Gets the branch name.
-     *
-     * @return branch name.
-     */
-    public String getBranchName() {
-        return branchName;
+    public String getExternalizedID() {
+        return externalizedID;
     }
 
     /**
@@ -107,12 +87,10 @@ public class StatsdNotifierConfig {
     /**
      * Creates an statsd notification config based on the global settings.
      *
-     * @param repoOwner repo owner.
-     * @param repoName repo name.
-     * @param branchName branch name.
+     * @param externalizedID externalized ID.
      * @return config.
      */
-    public static StatsdNotifierConfig fromGlobalConfig(String repoOwner, String repoName, String branchName) {
+    public static StatsdNotifierConfig fromGlobalConfig(String externalizedID) {
         BuildStatusConfig config = BuildStatusConfig.get();
         StatsdNotifierConfig statsdNotifierConfig = new StatsdNotifierConfig();
 
@@ -123,9 +101,7 @@ public class StatsdNotifierConfig {
         }
 
         if (config.getEnableStatsd()) {
-            statsdNotifierConfig.repoOwner = repoOwner;
-            statsdNotifierConfig.repoName = repoName;
-            statsdNotifierConfig.branchName = branchName;
+            statsdNotifierConfig.externalizedID = externalizedID;
 
             statsdNotifierConfig.statsdHost = config.getStatsdHost();
             int port = 8125;
