@@ -84,7 +84,7 @@ public class StatsdNotifierTest {
     @Before
     public void setUp() throws Exception {
         config = mock(StatsdNotifierConfig.class);
-        when(config.getExternalizedID()).thenReturn("folder0 / folder1 /     folder.2/ folder  3");
+        when(config.getExternalizedID()).thenReturn("folder0 / folder1 /     folder.2/ folder  3#123");
         when(config.getStatsdHost()).thenReturn("test.valid.hostname");
         when(config.getStatsdPort()).thenReturn(8000);
         when(config.getStatsdBucket()).thenReturn("test.valid.bucket");
@@ -96,6 +96,13 @@ public class StatsdNotifierTest {
     public void tearDown() {
     }
 
+    @Test
+    public void testSanitizeBuildNumber() throws IOException {
+        String out = notifier.sanitizeAll(config.getExternalizedID());
+        // path sanitization should come first, leading and following whitespaces should
+        // be turned into a single underscore.
+        assertEquals("folder0_._folder1_._folder2._folder_3", out);
+    }
 
 
     @Test

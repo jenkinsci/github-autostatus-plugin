@@ -155,6 +155,20 @@ public class StatsdNotifier implements BuildNotifier {
         return key.replaceAll("\\.", "");
     }
 
+
+    /**
+     * Gets rid of # and trailing characters at the end of the string
+     * 
+     * @param key key to sanitize
+     * @return sanitized key
+     */
+    private String saninitizeBuildNumber(String key) {
+        if (key.indexOf('#') != -1){
+            return key.split("#")[0];
+        }
+        return key;
+    }
+
     /**
      * Applies all sanitizations to a key, folders are expanded into seperate statsd buckets.
      * It firest applies bucket sanitization (removing periods to prevent them being interprested as 
@@ -164,10 +178,6 @@ public class StatsdNotifier implements BuildNotifier {
      * @return sanitized key
      */
     public String sanitizeAll(String key) {
-        String sanitized = collapseEmptyBuckets(statsdSanitizeKey(sanitizeKey(key)));
-        if (sanitized.endsWith(".")) {
-            sanitized = sanitized.substring(0, sanitized.length()-1);
-        }
-        return sanitized;
+        return collapseEmptyBuckets(statsdSanitizeKey(sanitizeKey(saninitizeBuildNumber(key))));
     }
 }
