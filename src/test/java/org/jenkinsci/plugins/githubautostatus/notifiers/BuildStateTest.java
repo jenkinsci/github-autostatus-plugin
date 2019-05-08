@@ -23,42 +23,28 @@
  */
 package org.jenkinsci.plugins.githubautostatus.notifiers;
 
-import hudson.ExtensionList;
-import hudson.ExtensionPoint;
-import java.util.Map;
-import org.jenkinsci.plugins.githubautostatus.BuildStageModel;
+import org.junit.Test;
+import static org.junit.Assert.*;
 
 /**
- * A notification subscriber which can send build stats to a particular sink.
- * @author Jeff Pearce (jxpearce@godaddy.com)
+ *
+ * @author jxpearce
  */
-public abstract class BuildNotifier implements ExtensionPoint {
-    
-    /**
-     * Determine whether notifier is enabled.
-     *
-     * @return true if enabled; false otherwise.
-     */
-    abstract public boolean isEnabled();
+public class BuildStateTest {
+
+    public BuildStateTest() {
+    }
 
     /**
-     * Send a state change, such as from Pending to Success or Pending to Error.
-     *
-
-     * @param jobName the name of the job
-     * @param stageItem stage item
+     * Test of isEnabled method, of class InfluxDbNotifier.
      */
-    abstract public void notifyBuildStageStatus(String jobName, BuildStageModel stageItem);
-
-    /**
-     * Send a notification when the job is complete
-     *
-     * @param buildState state indicating success or failure
-     * @param parameters build parameters
-     */
-    abstract public void notifyFinalBuildStatus(BuildState buildState, Map<String, Object> parameters);
-
-    public static ExtensionList<BuildNotifier> all() {
-        return ExtensionList.lookup(BuildNotifier.class);
+    @Test
+    public void testBuildStates() {
+        assertNotNull(BuildState.Pending.toResult());
+        assertNotNull(BuildState.CompletedSuccess.toResult());
+        assertNotNull(BuildState.CompletedError.toResult());
+        assertNotNull(BuildState.SkippedFailure.toResult());
+        assertNotNull(BuildState.SkippedUnstable.toResult());
+        assertNotNull(BuildState.SkippedConditional.toResult());
     }
 }

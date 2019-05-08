@@ -1,7 +1,7 @@
 /*
  * The MIT License
  *
- * Copyright 2018 jxpearce.
+ * Copyright 2017 jxpearce.
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to deal
@@ -21,41 +21,50 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
  * THE SOFTWARE.
  */
-package org.jenkinsci.plugins.githubautostatus.notifiers;
+package org.jenkinsci.plugins.githubautostatus;
 
-import hudson.model.Result;
+import static org.junit.Assert.*;
+import org.junit.Test;
 
 /**
- * Possible build states for notification
  *
- * @author Jeff Pearce (jxpearce@godaddy.com)
+ * @author jxpearce
  */
-public enum BuildState {
+public class BuildBlockedActionTest {
 
-    Pending,
-    CompletedSuccess,
-    CompletedError,
-    SkippedFailure,
-    SkippedUnstable,
-    SkippedConditional;
+    public BuildBlockedActionTest() {
+    }
 
     /**
-     * Converts value to Jenkins; result
-     * @return BuildState enum type
+     * Verifies default constructor sets blocked time
      */
-    public Result toResult() {
-        switch(this) {
-            case Pending:
-            case CompletedSuccess:
-                return Result.SUCCESS;
-            case CompletedError:
-                return Result.FAILURE;
-            case SkippedFailure:
-            case SkippedUnstable:
-            case SkippedConditional:
-                return Result.NOT_BUILT;
-        }
-        return Result.NOT_BUILT;
-    }
-}
+    @Test
+    public void testDefaultConstructorSetsStart() {
+        BuildBlockedAction instance = new BuildBlockedAction();
 
+        assertNotEquals(0, instance.getTimeBlocked());
+    }
+
+    /**
+     * Verifies constructor overrides blocked time
+     */
+    @Test
+    public void testDefaultConstructorOverrideStart() {
+        BuildBlockedAction instance = new BuildBlockedAction(System.currentTimeMillis());
+
+        assertNotEquals(0, instance.getTimeBlocked());
+    }
+
+    /**
+     * Verifies release time can be set
+     */
+    @Test
+    public void testGetSetTimeReleased() {
+        long timeReleased = 123456;
+        BuildBlockedAction instance = new BuildBlockedAction();
+        instance.setTimeReleased(timeReleased);
+
+        assertEquals(timeReleased, instance.getTimeReleased());
+    }
+
+}

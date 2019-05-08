@@ -105,7 +105,7 @@ public class BuildStatusConfig extends GlobalConfiguration {
      * @param req Request that represents the form submission
      * @param json The JSON object that captures the configuration data
      * @return always returns true (allow config page to be closed)
-     * @throws hudson.model.Descriptor.FormException
+     * @throws hudson.model.Descriptor.FormException on form error
      */
     @Override
     public boolean configure(StaplerRequest req, JSONObject json) throws FormException {

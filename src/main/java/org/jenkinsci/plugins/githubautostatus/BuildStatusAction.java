@@ -24,43 +24,97 @@
 package org.jenkinsci.plugins.githubautostatus;
 
 import hudson.model.InvisibleAction;
-import java.io.IOException;
+import hudson.model.JobProperty;
+import hudson.model.Run;
 import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import org.jenkinsci.plugins.githubautostatus.notifiers.BuildNotifier;
+import org.jenkinsci.plugins.githubautostatus.notifiers.BuildNotifierConstants;
 import org.jenkinsci.plugins.githubautostatus.notifiers.BuildNotifierManager;
 import org.jenkinsci.plugins.githubautostatus.notifiers.BuildState;
+import org.jenkinsci.plugins.workflow.job.WorkflowJob;
+import org.jenkinsci.plugins.workflow.job.WorkflowRun;
 
 /**
- * Keeps track of build status for each stage in a build, and provides mechanisms
- * for notifying various subscribers as stages and jobs are completed.
+ * Keeps track of build status for each stage in a build, and provides
+ * mechanisms for notifying various subscribers as stages and jobs are
+ * completed.
  *
  * @author Jeff Pearce (jxpearce@godaddy.com)
  */
 public class BuildStatusAction extends InvisibleAction {
-
+    
     private final String jobName;
     private boolean isDeclarativePipeline;
-
-    private final HashMap<String, BuildState> buildStatuses;
-
+    private String repoOwner;
+    private String repoName;
+    private String branchName;
+    private Run<?, ?> run;
+    private HashMap<String, Object> jobParameters;
+    
+    private final HashMap<String, BuildStageModel> buildStatuses;
+    
     private final transient BuildNotifierManager buildNotifierManager;
+    
+    public String getJobName() {
+        return jobName;
+    }
+    
+    public String getRepoOwner() {
+        return repoOwner;
+    }
+    
+    public void setRepoOwner(String repoOwner) {
+        this.repoOwner = repoOwner;
+    }
+    
+    public String getRepoName() {
+        return repoName;
+    }
+    
+    public void setRepoName(String repoName) {
+        this.repoName = repoName;
+    }
+    
+    public String getBranchName() {
+        return branchName;
+    }
+    
+    public void setBranchName(String branchName) {
+        this.branchName = branchName;
+    }
 
     /**
      * Construct a BuildStatusAction
      *
-     * @param jobName the name of the job status is for
+     * @param run the build
      * @param targetUrl link back to Jenkins
      * @param stageList list of stages if known
-     * @throws IOException
      */
-    public BuildStatusAction(String jobName, String targetUrl, List<String> stageList) throws IOException {
-        this.jobName = jobName;
+    public BuildStatusAction(Run<?, ?> run, String targetUrl, List<BuildStageModel> stageList) {
+        this.run = run;
+        this.jobName = run.getExternalizableId();
         this.buildStatuses = new HashMap<>();
+        this.jobParameters = new HashMap<>();
+        addGlobalProperties();
         buildNotifierManager = new BuildNotifierManager(jobName, targetUrl);
-        stageList.forEach((stageName) -> {
-            buildStatuses.put(stageName, BuildState.Pending);
+        stageList.forEach((stageItem) -> {
+            stageItem.setRun(run);
+            stageItem.addToEnvironment(jobParameters);
+            buildStatuses.put(stageItem.getStageName(), stageItem);
         });
+    }
+    
+    private void addGlobalProperties() {
+        if (run instanceof WorkflowRun) {
+            WorkflowRun workflowRun = (WorkflowRun)run;
+            List<JobProperty<? super WorkflowJob>> properties = 
+                    workflowRun.getParent().getAllProperties();
+            for (JobProperty property : properties) {
+                jobParameters.put(property.getClass().getSimpleName(), property);                
+            }
+        }
     }
 
     /**
@@ -68,30 +122,25 @@ public class BuildStatusAction extends InvisibleAction {
      * pending. Needed because some complex jobs, particularly using down
      */
     public void close() {
-        this.buildStatuses.forEach((nodeName, buildState) -> {
-            if (buildState == BuildState.Pending) {
+        this.buildStatuses.forEach((nodeName, stageItem) -> {
+            if (stageItem.getBuildState() == BuildState.Pending) {
                 this.updateBuildStatusForStage(nodeName, BuildState.CompletedSuccess);
             }
         });
     }
-
-    /**
-     * Sets flag indicating whether notifications are for a declarative pipeline
-     *
-     * @return
-     */
+    
     public boolean isIsDeclarativePipeline() {
         return isDeclarativePipeline;
     }
-
+    
     public void setIsDeclarativePipeline(boolean isDeclarativePipeline) {
         this.isDeclarativePipeline = isDeclarativePipeline;
     }
 
     /**
-     * Attempts to add a github notifier
+     * Attempts to add a GitHub notifier
      *
-     * @param config github notifier config
+     * @param config GitHub notifier config
      */
     public void addGithubNofifier(GithubNotificationConfig config) {
         if (config != null) {
@@ -107,6 +156,10 @@ public class BuildStatusAction extends InvisibleAction {
     public void addInfluxDbNotifier(InfluxDbNotifierConfig influxDbNotifierConfig) {
         sendNotications(buildNotifierManager.addInfluxDbNotifier(influxDbNotifierConfig));
     }
+    
+    public void addGenericNofifier(BuildNotifier notifier) {
+        sendNotications(buildNotifierManager.addGenericNofifier(notifier));
+    }
 
     /**
      * Sends all saved notifications to a notifier
@@ -115,8 +168,10 @@ public class BuildStatusAction extends InvisibleAction {
      */
     public void sendNotications(BuildNotifier notifier) {
         if (notifier != null && notifier.isEnabled()) {
-            this.buildStatuses.forEach((nodeName, buildState)
-                    -> notifier.notifyBuildState(jobName, nodeName, buildState));
+            this.buildStatuses.forEach((nodeName, stageItem) -> {
+                stageItem.setRun(run);
+                notifier.notifyBuildStageStatus(jobName, stageItem);
+            });
         }
     }
 
@@ -126,8 +181,10 @@ public class BuildStatusAction extends InvisibleAction {
      * @param stageName stage name
      */
     public void addBuildStatus(String stageName) {
-        buildStatuses.put(stageName, BuildState.Pending);
-        buildNotifierManager.notifyBuildStageStatus(stageName, BuildState.Pending, 0);
+        BuildStageModel stageItem = new BuildStageModel(stageName);
+        stageItem.setRun(run);
+        buildStatuses.put(stageName, stageItem);
+        buildNotifierManager.notifyBuildStageStatus(stageItem);
     }
 
     /**
@@ -138,10 +195,14 @@ public class BuildStatusAction extends InvisibleAction {
      * @param time stage time
      */
     public void updateBuildStatusForStage(String nodeName, BuildState buildState, long time) {
-        BuildState currentStatus = buildStatuses.get(nodeName);
-        if (currentStatus != null && currentStatus == BuildState.Pending) {
-            buildNotifierManager.notifyBuildStageStatus(nodeName, buildState, time);
-            buildStatuses.put(nodeName, buildState);
+        BuildStageModel stageItem = buildStatuses.get(nodeName);
+        if (stageItem != null) {
+            stageItem.getEnvironment().put(BuildNotifierConstants.STAGE_DURATION, time);
+            BuildState currentStatus = stageItem.getBuildState();
+            if (currentStatus == BuildState.Pending) {
+                stageItem.setBuildState(buildState);
+                buildNotifierManager.notifyBuildStageStatus(stageItem);
+            }
         }
     }
 
@@ -159,12 +220,11 @@ public class BuildStatusAction extends InvisibleAction {
      * Sends notifications for final build status
      *
      * @param buildState final build state
-     * @param buildDuration build duration
-     * @param blockedDuration time build was blocked before running
+     * @param parameters build parameters
      */
-    public void updateBuildStatusForJob(BuildState buildState, long buildDuration, long blockedDuration) {
+    public void updateBuildStatusForJob(BuildState buildState, Map<String, Object> parameters) {
         close();
-        buildNotifierManager.notifyFinalBuildStatus(buildState, buildDuration, blockedDuration);
+        buildNotifierManager.notifyFinalBuildStatus(buildState, parameters);
     }
 
     /**
@@ -173,7 +233,12 @@ public class BuildStatusAction extends InvisibleAction {
      * @param nodeName name of node
      */
     public void sendNonStageError(String nodeName) {
-        buildStatuses.put(nodeName, BuildState.CompletedError);
+        BuildStageModel stageItem = new BuildStageModel(nodeName,
+                new HashMap<>(),
+                BuildState.CompletedError);
+        stageItem.setRun(run);
+        stageItem.addToEnvironment(jobParameters);
+        buildStatuses.put(nodeName, stageItem);
         buildNotifierManager.sendNonStageError(nodeName);
     }
 }

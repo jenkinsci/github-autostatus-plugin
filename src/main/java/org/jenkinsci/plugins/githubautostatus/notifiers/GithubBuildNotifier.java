@@ -24,16 +24,18 @@
 package org.jenkinsci.plugins.githubautostatus.notifiers;
 
 import com.google.common.collect.ImmutableMap;
+import java.util.Map;
 import java.util.logging.Level;
 import java.util.logging.Logger;
+import org.jenkinsci.plugins.githubautostatus.BuildStageModel;
 import org.kohsuke.github.GHCommitState;
 import org.kohsuke.github.GHRepository;
 
 /**
- * Sets the Github commit status for stages based on build notifications.
+ * Sets the GitHub commit status for stages based on build notifications.
  * @author Jeff Pearce (jxpearce@godaddy.com)
  */
-public class GithubBuildNotifier implements BuildNotifier {
+public class GithubBuildNotifier extends BuildNotifier {
 
     private final GHRepository repository;
     private final String shaString;
@@ -60,7 +62,7 @@ public class GithubBuildNotifier implements BuildNotifier {
     /**
      * Constructor
      *
-     * @param repository the github repository
+     * @param repository the GitHub repository
      * @param shaString the commit notifications are being provided for
      * @param targetUrl target Url (link back to Jenkins)
      */
@@ -83,13 +85,14 @@ public class GithubBuildNotifier implements BuildNotifier {
     /**
      * Send stage status notification to github
      *
-     * @param nodeName the node that has changed
-     * @param buildState the new state
+     * @param jobName the job  name
+     * @param stageItem stage item describing the new state
      */
     @Override
-    public void notifyBuildState(String jobName, String nodeName, BuildState buildState) {
+    public void notifyBuildStageStatus(String jobName, BuildStageModel stageItem) {
         try {
-            repository.createCommitStatus(shaString, STATE_MAP.get(buildState), targetUrl, DESCRIPTION_MAP.get(buildState), nodeName);
+            BuildState buildState = stageItem.getBuildState();
+            repository.createCommitStatus(shaString, STATE_MAP.get(buildState), targetUrl, DESCRIPTION_MAP.get(buildState), stageItem.getStageName());
         } catch (org.kohsuke.github.HttpException ex) {
             if (ex.getResponseCode() < 200 || ex.getResponseCode() > 299) {
                 log(Level.SEVERE, "Exception while creating status for job %s", jobName);
@@ -102,41 +105,13 @@ public class GithubBuildNotifier implements BuildNotifier {
     }
 
     /**
-     * Send stage status notification to github
-     *
-     * @param nodeName the stage name
-     * @param buildState the build status
-     * @param nodeDuration elapsed time for this node
-     */
-    @Override
-    public void notifyBuildStageStatus(String jobName, String nodeName, BuildState buildState, long nodeDuration) {
-        notifyBuildState(jobName, nodeName, buildState);
-    }
-
-    /**
      * Send a notification when the job is complete
      *
-     * @param jobName the name of the job
      * @param buildState state indicating success or failure
-     * @param buildDuration the build duration
-     * @param blockedDuration time build was blocked before running
+     * @param parameters build parameters
      */
     @Override
-    public void notifyFinalBuildStatus(String jobName, BuildState buildState, long buildDuration, long blockedDuration) {
-
-    }
-
-    /**
-     * Sends a notification for an error regardless of whether initial pending
-     * status was sent. Useful for reporting errors for non-declarative
-     * pipelines since they can happen outside of a stage.
-     *
-     * @param jobName the name of the job
-     * @param nodeName the name of the node that failed
-     */
-    @Override
-    public void sendNonStageError(String jobName, String nodeName) {
-        notifyBuildState(jobName, nodeName, BuildState.CompletedError);
+    public void notifyFinalBuildStatus(BuildState buildState, Map<String, Object> parameters) {
     }
 
     private static void log(Level level, Throwable exception) {
@@ -150,4 +125,5 @@ public class GithubBuildNotifier implements BuildNotifier {
     private static Logger getLogger() {
         return Logger.getLogger(InfluxDbNotifier.class.getName());
     }
+
 }
