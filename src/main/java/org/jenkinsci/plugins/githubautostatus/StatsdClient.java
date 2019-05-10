@@ -26,8 +26,7 @@ package org.jenkinsci.plugins.githubautostatus;
 import com.timgroup.statsd.NonBlockingStatsDClient;
 import com.timgroup.statsd.StatsDClient;
 import com.timgroup.statsd.StatsDClientException;
-import java.util.concurrent.Executors;
-import java.util.concurrent.ScheduledExecutorService;
+import java.util.concurrent.ScheduledThreadPoolExecutor;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.locks.Lock;
 import java.util.concurrent.locks.ReentrantReadWriteLock;
@@ -48,6 +47,8 @@ public class StatsdClient implements StatsdWrapper {
     private int port = 8125;
     private ReentrantReadWriteLock lock;
 
+    private static volatile StatsdClient statsDClient;
+
     /**
      * newClient attempts to create a new statsd client instance, if succesful then
      * the active client is safely swapped out.
@@ -59,10 +60,11 @@ public class StatsdClient implements StatsdWrapper {
         StatsDClient newClient = null;
         try {
             newClient = new NonBlockingStatsDClient(prefix, hostname, port);
+            LOGGER.info("New StatsD client created. " + newClient.hashCode());
         } catch (StatsDClientException e) {
             LOGGER.warning("Could not refresh client, will continue to use old instance");
 
-            if (client == null) {
+            if (this.client == null) {
                 throw e;
             }
             return;
@@ -71,14 +73,14 @@ public class StatsdClient implements StatsdWrapper {
         // only aquire write lock if hostname resolution succeeded.
         wl.lock();
         try {
-            if (client != null) {
+            if (this.client != null) {
                 // this will flush remaining messages out of queue.
-                client.stop();
+                this.client.stop();
             }
-            client = newClient;
+            this.client = newClient;
         } catch (Exception e) {
             LOGGER.warning("Could not refresh client, will continue to use old instance");
-            if (client == null) {
+            if (this.client == null) {
                 throw e;
             }
         } finally {
@@ -99,17 +101,32 @@ public class StatsdClient implements StatsdWrapper {
         this.port = port;
 
         this.lock = new ReentrantReadWriteLock();
-        ScheduledExecutorService exec = Executors.newSingleThreadScheduledExecutor();
+        ScheduledThreadPoolExecutor exec = new ScheduledThreadPoolExecutor(1);
+        exec.setRemoveOnCancelPolicy(true);
 
-        exec.scheduleAtFixedRate(new Runnable() {
+        Runnable refreshClient = new Runnable() {
             @Override
             public void run() {
-                System.out.println("Refreshing Client");
                 newClient();
             }
-        }, CLIENT_TTL, CLIENT_TTL, TimeUnit.SECONDS);
+        };
+        exec.scheduleAtFixedRate(refreshClient, CLIENT_TTL, CLIENT_TTL, TimeUnit.SECONDS);
 
         this.newClient();
+        LOGGER.info("StatsdClient wrapper created. " + this.hashCode());
+    }
+
+    public static StatsdClient getInstance(String prefix, String hostname, int port) {
+        if (statsDClient == null) {
+            synchronized (StatsdClient.class) {
+                // double check locking method to make singleton thread safe
+                if (statsDClient == null) {
+                    statsDClient = new StatsdClient(prefix, hostname, port);
+                }
+            }
+        }
+
+        return statsDClient;
     }
 
     /**
@@ -140,6 +157,7 @@ public class StatsdClient implements StatsdWrapper {
         execLocked(new Runnable() {
             @Override
             public void run() {
+                LOGGER.info("Logging value " + amount + " for key " + key);
                 client.increment(key, amount);
             }
         });
@@ -156,6 +174,7 @@ public class StatsdClient implements StatsdWrapper {
         execLocked(new Runnable() {
             @Override
             public void run() {
+                LOGGER.info("Logging duration " + duration + " for key " + key);
                 client.time(key, duration);
             }
         });

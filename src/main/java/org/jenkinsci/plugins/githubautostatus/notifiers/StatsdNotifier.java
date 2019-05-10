@@ -42,7 +42,7 @@ public class StatsdNotifier implements BuildNotifier {
     public StatsdNotifier(StatsdNotifierConfig config) {
         this.config = config;
 
-        client = new StatsdClient(config.getStatsdBucket(),
+        client = StatsdClient.getInstance(config.getStatsdBucket(),
             config.getStatsdHost(),
             config.getStatsdPort());
     }
