@@ -183,7 +183,7 @@ public class InfluxDbNotifier extends BuildNotifier {
         Object mapValue = map.get(mapKey);
         
         if (mapValue != null) {
-            return (Integer)mapValue;
+            return (long)mapValue;
         }
         return DEFAULT_LONG;
     }

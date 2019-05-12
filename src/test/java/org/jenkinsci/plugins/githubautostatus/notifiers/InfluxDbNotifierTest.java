@@ -228,8 +228,8 @@ public class InfluxDbNotifierTest {
 
         HashMap<String, Object> jobParams = new HashMap<String, Object>();
         jobParams.put(BuildNotifierConstants.JOB_NAME, "mockjobname");
-        jobParams.put(BuildNotifierConstants.JOB_DURATION, 88);
-        jobParams.put(BuildNotifierConstants.BLOCKED_DURATION, 12);
+        jobParams.put(BuildNotifierConstants.JOB_DURATION, 88L);
+        jobParams.put(BuildNotifierConstants.BLOCKED_DURATION, 12L);
         instance.notifyFinalBuildStatus(BuildState.CompletedSuccess, jobParams);
 
         verify(mockHttpClient).execute(any());
@@ -246,8 +246,8 @@ public class InfluxDbNotifierTest {
         parameters.put(BuildNotifierConstants.REPO_OWNER, "mockowner");
         parameters.put(BuildNotifierConstants.REPO_NAME, "mockrepo");
         parameters.put(BuildNotifierConstants.BRANCH_NAME, "mockbranch");
-        parameters.put(BuildNotifierConstants.JOB_DURATION, 1010);
-        parameters.put(BuildNotifierConstants.BLOCKED_DURATION, 0);
+        parameters.put(BuildNotifierConstants.JOB_DURATION, 1010L);
+        parameters.put(BuildNotifierConstants.BLOCKED_DURATION, 0L);
 
         instance.notifyFinalBuildStatus(BuildState.CompletedError, parameters);
 
