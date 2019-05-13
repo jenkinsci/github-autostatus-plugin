@@ -90,6 +90,9 @@ public class GithubBuildNotifier extends BuildNotifier {
      */
     @Override
     public void notifyBuildStageStatus(String jobName, BuildStageModel stageItem) {
+        if (!stageItem.isStage()) {
+            return;
+        }
         try {
             BuildState buildState = stageItem.getBuildState();
             repository.createCommitStatus(shaString, STATE_MAP.get(buildState), targetUrl, DESCRIPTION_MAP.get(buildState), stageItem.getStageName());

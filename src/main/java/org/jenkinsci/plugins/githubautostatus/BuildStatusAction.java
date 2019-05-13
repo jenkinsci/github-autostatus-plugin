@@ -230,7 +230,7 @@ public class BuildStatusAction extends InvisibleAction {
     /**
      * Sends notifications for an error that happens outside of a stage
      *
-     * @param nodeName name of node
+     * @param nodeName name of node that failed
      */
     public void sendNonStageError(String nodeName) {
         BuildStageModel stageItem = new BuildStageModel(nodeName,
@@ -238,7 +238,8 @@ public class BuildStatusAction extends InvisibleAction {
                 BuildState.CompletedError);
         stageItem.setRun(run);
         stageItem.addToEnvironment(jobParameters);
+        stageItem.setIsStage(false);
         buildStatuses.put(nodeName, stageItem);
-        buildNotifierManager.sendNonStageError(nodeName);
+        buildNotifierManager.sendNonStageError(stageItem);
     }
 }

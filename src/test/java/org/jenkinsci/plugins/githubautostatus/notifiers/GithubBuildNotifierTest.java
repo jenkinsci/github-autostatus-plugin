@@ -148,4 +148,22 @@ public class GithubBuildNotifierTest {
         notifier.notifyFinalBuildStatus(BuildState.CompletedSuccess, Collections.EMPTY_MAP);
         verify(repository, never()).createCommitStatus(any(), any(), any(), any());
     }
+    
+    /**
+     * Verifies notifier doesn't report errors that happen outside a stage.
+     *
+     * @throws java.io.IOException
+     */
+    @Test
+    public void testNonStageError() throws IOException {
+        GithubBuildNotifier notifier = new GithubBuildNotifier(repository, sha, targetUrl);
+
+        BuildStageModel stageItem = new BuildStageModel(stageName);
+        stageItem.setIsStage(false);
+        stageItem.setBuildState(BuildState.CompletedError);
+        
+        notifier.notifyBuildStageStatus(jobName, stageItem);
+
+        verify(repository, never()).createCommitStatus(any(), any(), any(), any());
+    }
 }
