@@ -38,6 +38,7 @@ public class BuildStageModel {
     private HashMap<String, Object> environment;
     private BuildState buildState;
     private transient Run<?, ?> run;
+    private boolean isStage = true;
     
     public BuildStageModel(String stageName) {
         this(stageName, new HashMap<String, Object>());
@@ -90,6 +91,14 @@ public class BuildStageModel {
 
     public void setRun(Run<?, ?> run) {
         this.run = run;
+    }
+    
+    public boolean isStage() {
+        return this.isStage;
+    }
+    
+    public void setIsStage(boolean isStage) {
+        this.isStage = isStage;
     }
     
 }

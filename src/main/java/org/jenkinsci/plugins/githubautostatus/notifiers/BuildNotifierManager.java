@@ -120,11 +120,9 @@ public class BuildNotifierManager {
      * status was sent. Useful for reporting errors for non-declarative
      * pipelines when they happen outside of a stage.
      *
-     * @param nodeName the name of the node that failed
+     * @param stageItem stage item
      */
-    public void sendNonStageError(String nodeName) {
-        BuildStageModel stageItem = new BuildStageModel(nodeName);
-        stageItem.setBuildState(BuildState.CompletedError);
+    public void sendNonStageError(BuildStageModel stageItem) {
         notifiers.forEach((notifier) -> {
             notifier.notifyBuildStageStatus(jobName, stageItem);
         });

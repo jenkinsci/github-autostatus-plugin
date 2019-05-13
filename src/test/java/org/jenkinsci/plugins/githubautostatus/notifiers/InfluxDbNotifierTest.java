@@ -39,6 +39,7 @@ import org.apache.http.impl.client.CloseableHttpClient;
 import org.apache.http.util.EntityUtils;
 import org.jenkinsci.plugins.githubautostatus.BuildStageModel;
 import org.jenkinsci.plugins.githubautostatus.InfluxDbNotifierConfig;
+import static org.jenkinsci.plugins.githubautostatus.notifiers.GithubBuildNotifierTest.repository;
 import org.junit.After;
 import org.junit.AfterClass;
 import org.junit.Before;
@@ -141,11 +142,11 @@ public class InfluxDbNotifierTest {
 
     @Test
     public void testBasicAuth() {
-        UsernamePasswordCredentials credentials = 
-                new UsernamePasswordCredentialsImpl(CredentialsScope.GLOBAL, 
-                        influxDbCredentialsId, 
-                        "Description", 
-                        influxDbUser, 
+        UsernamePasswordCredentials credentials
+                = new UsernamePasswordCredentialsImpl(CredentialsScope.GLOBAL,
+                        influxDbCredentialsId,
+                        "Description",
+                        influxDbUser,
                         influxDbPassword);
         when(config.getCredentials())
                 .thenReturn(credentials);
@@ -153,7 +154,7 @@ public class InfluxDbNotifierTest {
         InfluxDbNotifier instance = new InfluxDbNotifier(config);
         assertEquals("http://fake/write?db=mockdb",
                 instance.influxDbUrlString);
-        assertEquals(new String(Base64.getDecoder().decode(instance.authorization)), 
+        assertEquals(new String(Base64.getDecoder().decode(instance.authorization)),
                 "mock-user:mock-password");
     }
 
@@ -255,4 +256,32 @@ public class InfluxDbNotifierTest {
         assertEquals(statusLine,
                 "job,jobname=mockjobname,owner=mockowner,repo=mockrepo,branch=mockbranch,result=CompletedError,blocked=0 jobtime=1010,blockedtime=0,passed=0");
     }
+
+    /**
+     * Verifies notifier reports errors that happen outside a stage.
+     *
+     * @throws java.io.IOException
+     */
+    @Test
+    public void testNonStageError() throws IOException {
+        InfluxDbNotifier instance = new InfluxDbNotifier(config);
+        Map<String, Object> parameters = new HashMap<String, Object>();
+        parameters.put(BuildNotifierConstants.JOB_NAME, "mockjobname");
+        parameters.put(BuildNotifierConstants.REPO_OWNER, "mockowner");
+        parameters.put(BuildNotifierConstants.REPO_NAME, "mockrepo");
+        parameters.put(BuildNotifierConstants.BRANCH_NAME, "mockbranch");
+        parameters.put(BuildNotifierConstants.STAGE_DURATION, 2020L);
+        parameters.put(BuildNotifierConstants.BLOCKED_DURATION, 0L);
+        
+        BuildStageModel stageItem = new BuildStageModel("mockstagename", parameters);
+        stageItem.setIsStage(false);
+        stageItem.setBuildState(BuildState.CompletedError);
+
+        instance.notifyBuildStageStatus("mockjobname", stageItem);
+
+        verify(mockHttpClient).execute(any());
+        assertEquals(statusLine,
+                "stage,jobname=mockjobname,owner=mockowner,repo=mockrepo,branch=mockbranch,stagename=mockstagename,result=CompletedError stagetime=2020,passed=0");
+    }
+
 }

@@ -24,6 +24,7 @@
 package org.jenkinsci.plugins.githubautostatus.notifiers;
 
 import java.util.Collections;
+import java.util.HashMap;
 import org.jenkinsci.plugins.githubautostatus.BuildStageModel;
 import org.jenkinsci.plugins.githubautostatus.GithubNotificationConfig;
 import org.jenkinsci.plugins.githubautostatus.InfluxDbNotifierConfig;
@@ -139,7 +140,14 @@ public class BuildNotifierManagerTest {
     public void testSendNonStageError() {
         GithubBuildNotifier notifier = mock(GithubBuildNotifier.class);
         instance.notifiers.add(notifier);
-        instance.sendNonStageError(stageName);
+
+        BuildStageModel stageItem = new BuildStageModel(stageName,
+                new HashMap<>(),
+                BuildState.CompletedError);
+        stageItem.setIsStage(false);
+
+
+        instance.sendNonStageError(stageItem);
 
         verify(notifier).notifyBuildStageStatus(eq(mockJobName), any(BuildStageModel.class));
     }
