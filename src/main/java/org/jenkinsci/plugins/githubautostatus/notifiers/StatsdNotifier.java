@@ -252,6 +252,6 @@ public class StatsdNotifier implements BuildNotifier {
      * @return sanitized key
      */
     public String sanitizeAll(String key) {
-        return collapseEmptyBuckets(statsdSanitizeKey(sanitizeKey(saninitizeBuildNumber(key))));
+        return collapseEmptyBuckets(statsdSanitizeKey(sanitizeKey(saninitizeBuildNumber(key.toLowerCase()))));
     }
 }
