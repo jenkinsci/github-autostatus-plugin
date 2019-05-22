@@ -88,6 +88,7 @@ public class StatsdNotifierTest {
         when(config.getStatsdHost()).thenReturn("test.valid.hostname");
         when(config.getStatsdPort()).thenReturn(8000);
         when(config.getStatsdBucket()).thenReturn("test.valid.bucket");
+        when(config.getStatsdMaxSize()).thenReturn("1400");
         client = mock(StatsdClient.class);
         notifier = new StatsdNotifier(client, config);
     }

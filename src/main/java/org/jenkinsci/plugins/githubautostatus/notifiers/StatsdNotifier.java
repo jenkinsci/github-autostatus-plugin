@@ -27,13 +27,19 @@ import org.jenkinsci.plugins.githubautostatus.StatsdWrapper;
 import org.jenkinsci.plugins.githubautostatus.StatsdClient;
 import org.jenkinsci.plugins.githubautostatus.StatsdNotifierConfig;
 
+import java.io.UnsupportedEncodingException;
+import java.util.logging.Logger;
+
 /**
  * Sends job and stage metrics to a statsd collector server over UDP.
+ * 
  * @author Tom Hadlaw (thomas.hadlaw@hootsuite.com)
  */
 public class StatsdNotifier implements BuildNotifier {
     private StatsdWrapper client;
     protected StatsdNotifierConfig config;
+    private static final Logger LOGGER = Logger.getLogger(StatsdWrapper.class.getName());
+
     public StatsdNotifier(StatsdWrapper client, StatsdNotifierConfig config) {
         this.client = client;
         this.config = config;
@@ -42,9 +48,7 @@ public class StatsdNotifier implements BuildNotifier {
     public StatsdNotifier(StatsdNotifierConfig config) {
         this.config = config;
 
-        client = StatsdClient.getInstance(config.getStatsdBucket(),
-            config.getStatsdHost(),
-            config.getStatsdPort());
+        client = StatsdClient.getInstance(config.getStatsdBucket(), config.getStatsdHost(), config.getStatsdPort());
     }
 
     /**
@@ -67,10 +71,11 @@ public class StatsdNotifier implements BuildNotifier {
     }
 
     /**
-     * Sends build status metric to statsd by doing an increment on the buildState categories
+     * Sends build status metric to statsd by doing an increment on the buildState
+     * categories
      * 
-     * @param jobName name of the job
-     * @param nodeName the stage of the status on which to report on
+     * @param jobName    name of the job
+     * @param nodeName   the stage of the status on which to report on
      * @param buildState the reported state
      */
     public void notifyBuildState(String jobName, String nodeName, BuildState buildState) {
@@ -80,19 +85,42 @@ public class StatsdNotifier implements BuildNotifier {
     /**
      * Sends duration metric to statsd by doing a timer metric
      * 
-     * @param jobName name of the job
+     * @param jobName  name of the job
      * @param nodeName the stage of the status on which to report on
+     * @param buildState the current build stage of the running job
+     * @param nodeDuration the duration of the node
      */
     public void notifyBuildStageStatus(String jobName, String nodeName, BuildState buildState, long nodeDuration) {
         if (buildState == BuildState.Pending) {
             return;
         }
         String result = buildState.toString();
+        int statsDMaxSize = Integer.parseInt(config.getStatsdMaxSize().trim());
 
         String stageStatus = String.format("%s.stage.%s.status.%s", getBranchPath(), sanitizeAll(nodeName), result);
+        byte[] stageStatusSize;
+        try {
+            stageStatusSize = stageStatus.getBytes("UTF-16");
+            if (stageStatusSize.length > statsDMaxSize){
+                LOGGER.warning("Statsd notify exceeds maxPaketSize for stageStatus");
+            }
+        } catch (UnsupportedEncodingException e) {
+            LOGGER.warning("Unable to find length of stageStatus");
+            e.printStackTrace();
+        }
         client.increment(stageStatus, 1);
 
         String stageDuration = String.format("%s.stage.%s.duration", getBranchPath(), sanitizeAll(nodeName));
+        byte[] stageDurationSize;
+        try {
+            stageDurationSize = stageDuration.getBytes("UTF-16");
+            if (stageDurationSize.length > statsDMaxSize){
+                LOGGER.warning("Statsd notify exceeds maxPaketSize for stageDuration");
+            }
+        } catch (UnsupportedEncodingException e) {
+            LOGGER.warning("Unable to find length of stageDuration");
+            e.printStackTrace();
+        }
         client.time(stageDuration, nodeDuration);
     }
 
@@ -105,11 +133,45 @@ public class StatsdNotifier implements BuildNotifier {
      * @param blockedDuration the blocked duration of the build
      */
     public void notifyFinalBuildStatus(String jobName, BuildState buildState, long buildDuration, long blockedDuration) {
+        byte[] fqpSize;
+        int statsDMaxSize = Integer.parseInt(config.getStatsdMaxSize().trim());
+
         String fqp = String.format("%s.job.status.%s", getBranchPath(), buildState);
+        try {
+            fqpSize = fqp.getBytes("UTF-16");
+            if (fqpSize.length > statsDMaxSize){
+                LOGGER.warning("Statsd notify exceeds maxPaketSize for jobStatus");
+            }
+        } catch (UnsupportedEncodingException e) {
+            LOGGER.warning("Unable to find length of jobStatus");
+            e.printStackTrace();
+        }
         client.increment(fqp, 1);
+        
+
         fqp = String.format("%s.job.duration", getBranchPath());
+        try {
+            fqpSize = fqp.getBytes("UTF-16");
+            if (fqpSize.length > statsDMaxSize){
+                LOGGER.warning("Statsd notify exceeds maxPaketSize for duration");
+            }
+        } catch (UnsupportedEncodingException e) {
+            LOGGER.warning("Unable to find length of duration");
+            e.printStackTrace();
+        }
         client.time(fqp, buildDuration);
+
+
         fqp = String.format("%s.job.blocked_duration", getBranchPath());
+        try {
+            fqpSize = fqp.getBytes("UTF-16");
+            if (fqpSize.length > statsDMaxSize){
+                LOGGER.warning("Statsd notify exceeds maxPaketSize for blockedDuration");
+            }
+        } catch (UnsupportedEncodingException e) {
+            LOGGER.warning("Unable to find length of blockedDuration");
+            e.printStackTrace();
+        }
         client.time(fqp, buildDuration);
     }
 
@@ -120,7 +182,19 @@ public class StatsdNotifier implements BuildNotifier {
      * @param nodeName the stage of the status on which to report on
      */
     public void sendNonStageError(String jobName, String nodeName) {
+        int statsDMaxSize = Integer.parseInt(config.getStatsdMaxSize().trim());
+
         String fqp = String.format("%s.stage.%s.non_stage_error", getBranchPath(), sanitizeAll(nodeName));
+        byte[] fqpSize;
+        try {
+            fqpSize = fqp.getBytes("UTF-16");
+            if (fqpSize.length > statsDMaxSize){
+                LOGGER.warning("Statsd notify exceeds maxPaketSize for nonStageError");
+            }
+        } catch (UnsupportedEncodingException e) {
+            LOGGER.warning("Unable to find length of nonStageError");
+            e.printStackTrace();
+        }
         client.increment(fqp, 1);
     }
 
