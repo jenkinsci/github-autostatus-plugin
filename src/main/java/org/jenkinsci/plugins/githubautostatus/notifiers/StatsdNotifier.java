@@ -97,7 +97,7 @@ public class StatsdNotifier implements BuildNotifier {
         String result = sanitizeAll(buildState.toString());
         int statsDMaxSize = Integer.parseInt(config.getStatsdMaxSize().trim());
 
-        String stageStatus = String.format("%s.stage.%s.status.%s", getBranchPath(), sanitizeAll(nodeName), result);
+        String stageStatus = String.format("%s.stage.%s.status.%s", sanitizeAll(getBranchPath()), sanitizeAll(nodeName), result);
         byte[] stageStatusSize;
         try {
             stageStatusSize = stageStatus.getBytes("UTF-16");
@@ -110,7 +110,7 @@ public class StatsdNotifier implements BuildNotifier {
         }
         client.increment(stageStatus, 1);
 
-        String stageDuration = String.format("%s.stage.%s.duration", getBranchPath(), sanitizeAll(nodeName));
+        String stageDuration = String.format("%s.stage.%s.duration", sanitizeAll(getBranchPath()), sanitizeAll(nodeName));
         byte[] stageDurationSize;
         try {
             stageDurationSize = stageDuration.getBytes("UTF-16");
@@ -137,7 +137,7 @@ public class StatsdNotifier implements BuildNotifier {
         String result = sanitizeAll(buildState.toString());
         int statsDMaxSize = Integer.parseInt(config.getStatsdMaxSize().trim());
 
-        String fqp = String.format("%s.job.status.%s", getBranchPath(), result);
+        String fqp = String.format("%s.job.status.%s", sanitizeAll(getBranchPath()), result);
         try {
             fqpSize = fqp.getBytes("UTF-16");
             if (fqpSize.length > statsDMaxSize){
@@ -150,7 +150,7 @@ public class StatsdNotifier implements BuildNotifier {
         client.increment(fqp, 1);
         
 
-        fqp = String.format("%s.job.duration", getBranchPath());
+        fqp = String.format("%s.job.duration", sanitizeAll(getBranchPath()));
         try {
             fqpSize = fqp.getBytes("UTF-16");
             if (fqpSize.length > statsDMaxSize){
@@ -163,7 +163,7 @@ public class StatsdNotifier implements BuildNotifier {
         client.time(fqp, buildDuration);
 
 
-        fqp = String.format("%s.job.blocked_duration", getBranchPath());
+        fqp = String.format("%s.job.blocked_duration", sanitizeAll(getBranchPath()));
         try {
             fqpSize = fqp.getBytes("UTF-16");
             if (fqpSize.length > statsDMaxSize){
@@ -185,7 +185,7 @@ public class StatsdNotifier implements BuildNotifier {
     public void sendNonStageError(String jobName, String nodeName) {
         int statsDMaxSize = Integer.parseInt(config.getStatsdMaxSize().trim());
 
-        String fqp = String.format("%s.stage.%s.non_stage_error", getBranchPath(), sanitizeAll(nodeName));
+        String fqp = String.format("%s.stage.%s.non_stage_error", sanitizeAll(getBranchPath()), sanitizeAll(nodeName));
         byte[] fqpSize;
         try {
             fqpSize = fqp.getBytes("UTF-16");
