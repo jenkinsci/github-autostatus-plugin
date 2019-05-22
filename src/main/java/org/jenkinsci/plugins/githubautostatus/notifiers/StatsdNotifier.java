@@ -105,7 +105,7 @@ public class StatsdNotifier implements BuildNotifier {
                 LOGGER.warning("Statsd notify exceeds maxPaketSize for stageStatus");
             }
         } catch (UnsupportedEncodingException e) {
-            LOGGER.warning("Unable to find length of stageStatus");
+            LOGGER.warning("Unable to find byte size of stageStatus");
             e.printStackTrace();
         }
         client.increment(stageStatus, 1);
@@ -118,7 +118,7 @@ public class StatsdNotifier implements BuildNotifier {
                 LOGGER.warning("Statsd notify exceeds maxPaketSize for stageDuration");
             }
         } catch (UnsupportedEncodingException e) {
-            LOGGER.warning("Unable to find length of stageDuration");
+            LOGGER.warning("Unable to find byte size of stageDuration");
             e.printStackTrace();
         }
         client.time(stageDuration, nodeDuration);
@@ -144,7 +144,7 @@ public class StatsdNotifier implements BuildNotifier {
                 LOGGER.warning("Statsd notify exceeds maxPaketSize for jobStatus");
             }
         } catch (UnsupportedEncodingException e) {
-            LOGGER.warning("Unable to find length of jobStatus");
+            LOGGER.warning("Unable to find byte size of jobStatus");
             e.printStackTrace();
         }
         client.increment(fqp, 1);
@@ -157,7 +157,7 @@ public class StatsdNotifier implements BuildNotifier {
                 LOGGER.warning("Statsd notify exceeds maxPaketSize for duration");
             }
         } catch (UnsupportedEncodingException e) {
-            LOGGER.warning("Unable to find length of duration");
+            LOGGER.warning("Unable to find byte size of duration");
             e.printStackTrace();
         }
         client.time(fqp, buildDuration);
@@ -170,7 +170,7 @@ public class StatsdNotifier implements BuildNotifier {
                 LOGGER.warning("Statsd notify exceeds maxPaketSize for blockedDuration");
             }
         } catch (UnsupportedEncodingException e) {
-            LOGGER.warning("Unable to find length of blockedDuration");
+            LOGGER.warning("Unable to find byte size of blockedDuration");
             e.printStackTrace();
         }
         client.time(fqp, buildDuration);
@@ -193,7 +193,7 @@ public class StatsdNotifier implements BuildNotifier {
                 LOGGER.warning("Statsd notify exceeds maxPaketSize for nonStageError");
             }
         } catch (UnsupportedEncodingException e) {
-            LOGGER.warning("Unable to find length of nonStageError");
+            LOGGER.warning("Unable to find byte size of nonStageError");
             e.printStackTrace();
         }
         client.increment(fqp, 1);
