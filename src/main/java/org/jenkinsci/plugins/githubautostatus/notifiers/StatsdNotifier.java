@@ -134,8 +134,8 @@ public class StatsdNotifier implements BuildNotifier {
      */
     public void notifyFinalBuildStatus(String jobName, BuildState buildState, long buildDuration, long blockedDuration) {
         byte[] fqpSize;
-        int statsDMaxSize = Integer.parseInt(config.getStatsdMaxSize().trim());
         String result = sanitizeAll(buildState.toString());
+        int statsDMaxSize = Integer.parseInt(config.getStatsdMaxSize().trim());
 
         String fqp = String.format("%s.job.status.%s", getBranchPath(), result);
         try {
