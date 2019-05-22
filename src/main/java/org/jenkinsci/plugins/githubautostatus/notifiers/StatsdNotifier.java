@@ -94,7 +94,7 @@ public class StatsdNotifier implements BuildNotifier {
         if (buildState == BuildState.Pending) {
             return;
         }
-        String result = buildState.toString();
+        String result = sanitizeAll(buildState.toString());
         int statsDMaxSize = Integer.parseInt(config.getStatsdMaxSize().trim());
 
         String stageStatus = String.format("%s.stage.%s.status.%s", getBranchPath(), sanitizeAll(nodeName), result);
@@ -135,8 +135,9 @@ public class StatsdNotifier implements BuildNotifier {
     public void notifyFinalBuildStatus(String jobName, BuildState buildState, long buildDuration, long blockedDuration) {
         byte[] fqpSize;
         int statsDMaxSize = Integer.parseInt(config.getStatsdMaxSize().trim());
+        String result = sanitizeAll(buildState.toString());
 
-        String fqp = String.format("%s.job.status.%s", getBranchPath(), buildState);
+        String fqp = String.format("%s.job.status.%s", getBranchPath(), result);
         try {
             fqpSize = fqp.getBytes("UTF-16");
             if (fqpSize.length > statsDMaxSize){
