@@ -50,7 +50,6 @@ public class StatsdClient implements StatsdWrapper {
     private ReentrantReadWriteLock lock;
 
     private static volatile StatsdClient statsDClient;
-    protected StatsdNotifierConfig config;
 
     /**
      * newClient attempts to create a new statsd client instance, if succesful then
@@ -58,10 +57,9 @@ public class StatsdClient implements StatsdWrapper {
      * 
      * @throws StatsDClientException throws an exceltopn if unable to refresh client
      */
-    public void newClient(StatsdNotifierConfig config) throws StatsDClientException {
+    public void newClient() throws StatsDClientException {
         Lock wl = lock.writeLock();
         StatsDClient newClient = null;
-        this.config = config;
         try {
             newClient = new NonBlockingStatsDClient(prefix, hostname, port);
             LOGGER.info("New StatsD client created. " + newClient.hashCode());
@@ -99,7 +97,7 @@ public class StatsdClient implements StatsdWrapper {
      * @param hostname Statsd collector hostname (default localhost)
      * @param port     Statsd collector listener port (default 8125)
      */
-    public StatsdClient(String prefix, String hostname, int port, StatsdNotifierConfig config) throws StatsDClientException {
+    public StatsdClient(String prefix, String hostname, int port) throws StatsDClientException {
         this.hostname = hostname;
         this.prefix = prefix;
         this.port = port;
@@ -111,21 +109,21 @@ public class StatsdClient implements StatsdWrapper {
         Runnable refreshClient = new Runnable() {
             @Override
             public void run() {
-                newClient(config);
+                newClient();
             }
         };
         exec.scheduleAtFixedRate(refreshClient, CLIENT_TTL, CLIENT_TTL, TimeUnit.SECONDS);
 
-        this.newClient(config);
+        this.newClient();
         LOGGER.info("StatsdClient wrapper created. " + this.hashCode());
     }
 
-    public static StatsdClient getInstance(String prefix, String hostname, int port, StatsdNotifierConfig config) {
+    public static StatsdClient getInstance(String prefix, String hostname, int port) {
         if (statsDClient == null) {
             synchronized (StatsdClient.class) {
                 // double check locking method to make singleton thread safe
                 if (statsDClient == null) {
-                    statsDClient = new StatsdClient(prefix, hostname, port, config);
+                    statsDClient = new StatsdClient(prefix, hostname, port);
                 }
             }
         }
