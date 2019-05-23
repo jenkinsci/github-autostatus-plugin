@@ -32,6 +32,8 @@ import java.util.concurrent.locks.Lock;
 import java.util.concurrent.locks.ReentrantReadWriteLock;
 import java.util.logging.Logger;
 
+import org.jenkinsci.plugins.githubautostatus.notifiers.StatsdNotifier;
+
 /**
  * Wraps regular UDP based Statd client with concurrent hostname refreshing logic.
  * 
@@ -48,6 +50,7 @@ public class StatsdClient implements StatsdWrapper {
     private ReentrantReadWriteLock lock;
 
     private static volatile StatsdClient statsDClient;
+    protected StatsdNotifierConfig config;
 
     /**
      * newClient attempts to create a new statsd client instance, if succesful then
@@ -55,9 +58,10 @@ public class StatsdClient implements StatsdWrapper {
      * 
      * @throws StatsDClientException throws an exceltopn if unable to refresh client
      */
-    public void newClient() throws StatsDClientException {
+    public void newClient(StatsdNotifierConfig config) throws StatsDClientException {
         Lock wl = lock.writeLock();
         StatsDClient newClient = null;
+        this.config = config;
         try {
             newClient = new NonBlockingStatsDClient(prefix, hostname, port);
             LOGGER.info("New StatsD client created. " + newClient.hashCode());
@@ -95,7 +99,7 @@ public class StatsdClient implements StatsdWrapper {
      * @param hostname Statsd collector hostname (default localhost)
      * @param port     Statsd collector listener port (default 8125)
      */
-    public StatsdClient(String prefix, String hostname, int port) throws StatsDClientException {
+    public StatsdClient(String prefix, String hostname, int port, StatsdNotifierConfig config) throws StatsDClientException {
         this.hostname = hostname;
         this.prefix = prefix;
         this.port = port;
@@ -107,21 +111,21 @@ public class StatsdClient implements StatsdWrapper {
         Runnable refreshClient = new Runnable() {
             @Override
             public void run() {
-                newClient();
+                newClient(config);
             }
         };
         exec.scheduleAtFixedRate(refreshClient, CLIENT_TTL, CLIENT_TTL, TimeUnit.SECONDS);
 
-        this.newClient();
+        this.newClient(config);
         LOGGER.info("StatsdClient wrapper created. " + this.hashCode());
     }
 
-    public static StatsdClient getInstance(String prefix, String hostname, int port) {
+    public static StatsdClient getInstance(String prefix, String hostname, int port, StatsdNotifierConfig config) {
         if (statsDClient == null) {
             synchronized (StatsdClient.class) {
                 // double check locking method to make singleton thread safe
                 if (statsDClient == null) {
-                    statsDClient = new StatsdClient(prefix, hostname, port);
+                    statsDClient = new StatsdClient(prefix, hostname, port, config);
                 }
             }
         }
