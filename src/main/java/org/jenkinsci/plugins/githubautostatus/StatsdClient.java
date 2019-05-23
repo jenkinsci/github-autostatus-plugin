@@ -32,8 +32,6 @@ import java.util.concurrent.locks.Lock;
 import java.util.concurrent.locks.ReentrantReadWriteLock;
 import java.util.logging.Logger;
 
-import org.jenkinsci.plugins.githubautostatus.notifiers.StatsdNotifier;
-
 /**
  * Wraps regular UDP based Statd client with concurrent hostname refreshing logic.
  * 
