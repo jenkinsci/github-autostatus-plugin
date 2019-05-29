@@ -1,7 +1,7 @@
 /*
  * The MIT License
  *
- * Copyright 2018 jxpearce.
+ * Copyright 2019 jxpearce.
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to deal
@@ -23,39 +23,31 @@
  */
 package org.jenkinsci.plugins.githubautostatus.notifiers;
 
-import hudson.model.Result;
+import org.junit.Test;
+import static org.junit.Assert.*;
 
 /**
- * Possible build states for notification
  *
- * @author Jeff Pearce (jxpearce@godaddy.com)
+ * @author jxpearce
  */
-public enum BuildState {
-
-    Pending,
-    CompletedSuccess,
-    CompletedError,
-    SkippedFailure,
-    SkippedUnstable,
-    SkippedConditional;
-
-    /**
-     * Converts value to Jenkins; result
-     * @return BuildState enum type
-     */
-    public Result toResult() {
-        switch(this) {
-            case Pending:
-            case CompletedSuccess:
-                return Result.SUCCESS;
-            case CompletedError:
-                return Result.FAILURE;
-            case SkippedFailure:
-            case SkippedUnstable:
-            case SkippedConditional:
-                return Result.NOT_BUILT;
-        }
-        return Result.NOT_BUILT;
+public class BuildNotifierConstantsTest {
+    
+    public BuildNotifierConstantsTest() {
     }
+    
+    @Test
+    public void testConstants() {
+        new BuildNotifierConstants();
+        assertNotNull(BuildNotifierConstants.BLOCKED_DURATION);
+        assertNotNull(BuildNotifierConstants.BRANCH_NAME);
+        assertNotNull(BuildNotifierConstants.BUILD_OBJECT);
+        assertNotNull(BuildNotifierConstants.COVERAGE_INFO);
+        assertNotNull(BuildNotifierConstants.JOB_DURATION);
+        assertNotNull(BuildNotifierConstants.JOB_NAME);
+        assertNotNull(BuildNotifierConstants.REPO_NAME);
+        assertNotNull(BuildNotifierConstants.REPO_OWNER);
+        assertNotNull(BuildNotifierConstants.STAGE_DURATION);
+        assertNotNull(BuildNotifierConstants.TEST_CASE_INFO);
+    }
+    
 }
-

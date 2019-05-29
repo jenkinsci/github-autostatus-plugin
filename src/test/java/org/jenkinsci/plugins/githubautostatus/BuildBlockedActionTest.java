@@ -23,50 +23,48 @@
  */
 package org.jenkinsci.plugins.githubautostatus;
 
-import org.junit.After;
-import org.junit.AfterClass;
-import org.junit.Before;
-import org.junit.BeforeClass;
+import static org.junit.Assert.*;
 import org.junit.Test;
 
-import static org.junit.Assert.*;
-
+/**
+ *
+ * @author jxpearce
+ */
 public class BuildBlockedActionTest {
-
-    static long time = 12345L;
 
     public BuildBlockedActionTest() {
     }
 
-    @BeforeClass
-    public static void setUpClass() {
-    }
-
-    @AfterClass
-    public static void tearDownClass() {
-    }
-
-    @Before
-    public void setUp() {
-    }
-
-    @After
-    public void tearDown() {
-    }
-
+    /**
+     * Verifies default constructor sets blocked time
+     */
     @Test
-    public void testGetTimeBlocked() {
-        BuildBlockedAction buildBlock = new BuildBlockedAction(time);
-        buildBlock.setTimeReleased(time);
-        assertEquals(0, buildBlock.getTimeBlocked());
+    public void testDefaultConstructorSetsStart() {
+        BuildBlockedAction instance = new BuildBlockedAction();
+
+        assertNotEquals(0, instance.getTimeBlocked());
     }
 
+    /**
+     * Verifies constructor overrides blocked time
+     */
     @Test
-    public void testSetAndGetTimeReleased() {
-        BuildBlockedAction buildBlock = new BuildBlockedAction();
-        buildBlock.setTimeReleased(time);
-        assertEquals(time, buildBlock.getTimeReleased());
+    public void testDefaultConstructorOverrideStart() {
+        BuildBlockedAction instance = new BuildBlockedAction(System.currentTimeMillis());
+
+        assertNotEquals(0, instance.getTimeBlocked());
     }
 
+    /**
+     * Verifies release time can be set
+     */
+    @Test
+    public void testGetSetTimeReleased() {
+        long timeReleased = 123456;
+        BuildBlockedAction instance = new BuildBlockedAction();
+        instance.setTimeReleased(timeReleased);
+
+        assertEquals(timeReleased, instance.getTimeReleased());
+    }
 
 }

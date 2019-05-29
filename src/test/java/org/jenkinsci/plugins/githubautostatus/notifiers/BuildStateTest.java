@@ -23,39 +23,28 @@
  */
 package org.jenkinsci.plugins.githubautostatus.notifiers;
 
-import hudson.model.Result;
+import org.junit.Test;
+import static org.junit.Assert.*;
 
 /**
- * Possible build states for notification
  *
- * @author Jeff Pearce (jxpearce@godaddy.com)
+ * @author jxpearce
  */
-public enum BuildState {
+public class BuildStateTest {
 
-    Pending,
-    CompletedSuccess,
-    CompletedError,
-    SkippedFailure,
-    SkippedUnstable,
-    SkippedConditional;
+    public BuildStateTest() {
+    }
 
     /**
-     * Converts value to Jenkins; result
-     * @return BuildState enum type
+     * Test of isEnabled method, of class InfluxDbNotifier.
      */
-    public Result toResult() {
-        switch(this) {
-            case Pending:
-            case CompletedSuccess:
-                return Result.SUCCESS;
-            case CompletedError:
-                return Result.FAILURE;
-            case SkippedFailure:
-            case SkippedUnstable:
-            case SkippedConditional:
-                return Result.NOT_BUILT;
-        }
-        return Result.NOT_BUILT;
+    @Test
+    public void testBuildStates() {
+        assertNotNull(BuildState.Pending.toResult());
+        assertNotNull(BuildState.CompletedSuccess.toResult());
+        assertNotNull(BuildState.CompletedError.toResult());
+        assertNotNull(BuildState.SkippedFailure.toResult());
+        assertNotNull(BuildState.SkippedUnstable.toResult());
+        assertNotNull(BuildState.SkippedConditional.toResult());
     }
 }
-

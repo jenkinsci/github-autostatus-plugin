@@ -23,39 +23,20 @@
  */
 package org.jenkinsci.plugins.githubautostatus.notifiers;
 
-import hudson.model.Result;
-
 /**
- * Possible build states for notification
  *
- * @author Jeff Pearce (jxpearce@godaddy.com)
+ * @author jxpearce
  */
-public enum BuildState {
+public class BuildNotifierConstants {
 
-    Pending,
-    CompletedSuccess,
-    CompletedError,
-    SkippedFailure,
-    SkippedUnstable,
-    SkippedConditional;
-
-    /**
-     * Converts value to Jenkins; result
-     * @return BuildState enum type
-     */
-    public Result toResult() {
-        switch(this) {
-            case Pending:
-            case CompletedSuccess:
-                return Result.SUCCESS;
-            case CompletedError:
-                return Result.FAILURE;
-            case SkippedFailure:
-            case SkippedUnstable:
-            case SkippedConditional:
-                return Result.NOT_BUILT;
-        }
-        return Result.NOT_BUILT;
-    }
+    public static final String BLOCKED_DURATION = "BLOCKED_DURATION";
+    public static final String BRANCH_NAME = "BRANCH_NAME";
+    public static final String BUILD_OBJECT = "BUILD_OBJECT";
+    public static final String COVERAGE_INFO = "COVERAGE_INFO";
+    public static final String JOB_DURATION = "JOB_DURATION";
+    public static final String JOB_NAME = "JOB_NAME";
+    public static final String REPO_NAME = "REPO_NAME";
+    public static final String REPO_OWNER = "REPO_OWNER";
+    public static final String STAGE_DURATION = "STAGE_DURATION";
+    public static final String TEST_CASE_INFO = "TEST_CASE_INFO";
 }
-

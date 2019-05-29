@@ -23,55 +23,60 @@
  */
 package org.jenkinsci.plugins.githubautostatus.notifiers;
 
+import hudson.ExtensionList;
+import hudson.ExtensionPoint;
+import java.util.Map;
+import org.jenkinsci.plugins.githubautostatus.BuildStageModel;
+
 /**
  * A notification subscriber which can send build stats to a particular sink.
  * @author Jeff Pearce (jxpearce@godaddy.com)
  */
-public interface BuildNotifier {
+public abstract class BuildNotifier implements ExtensionPoint {
+
+     /**
+     * Establishing a default long for use in getLong.
+     */
+     protected final long DEFAULT_LONG = 0;
+ 
+     /**
+     * Establishing a default string for use in Notifiers.
+     */
+     protected final String DEFAULT_STRING = "none";
 
     /**
      * Determine whether notifier is enabled.
      *
      * @return true if enabled; false otherwise.
      */
-    boolean isEnabled();
-
-    /**
-     * Send a state change, such as from Pending to Success or Pending to Error.
-     *
-     * @param jobName    the name of the job.
-     * @param nodeName   the node that has changed.
-     * @param buildState the new state. 
-     */
-    void notifyBuildState(String jobName, String nodeName, BuildState buildState);
+    abstract public boolean isEnabled();
 
     /**
      * Send a state change with timing info
      *
      * @param jobName      the name of the job
-     * @param nodeName     the node that has changed
-     * @param buildState   the new state
-     * @param nodeDuration elapsed time for this node
+     * @param stageItem    stage item
      */
-    void notifyBuildStageStatus(String jobName, String nodeName, BuildState buildState, long nodeDuration);
+    abstract public void notifyBuildStageStatus(String jobName, BuildStageModel stageItem);
 
     /**
      * Send a notification when the job is complete
      *
-     * @param jobName         the name of the job
      * @param buildState      state indicating success or failure
-     * @param buildDuration   the build duration
-     * @param blockedDuration time build was blocked before running
+     * @param parameters      build parameters
      */
-    void notifyFinalBuildStatus(String jobName, BuildState buildState, long buildDuration, long blockedDuration);
+    abstract public void notifyFinalBuildStatus(BuildState buildState, Map<String, Object> parameters);
 
-    /**
-     * Sends a notification for an error regardless of whether initial pending
-     * status was sent. Useful for reporting errors for non-declarative pipelines
-     * since they can happen outside of a stage.
-     *
-     * @param jobName  the name of the job
-     * @param nodeName the name of the node that failed
-     */
-    void sendNonStageError(String jobName, String nodeName);
+    public static ExtensionList<BuildNotifier> all() {
+        return ExtensionList.lookup(BuildNotifier.class);
+    }
+
+    public long getLong(Map<String, Object> map, String mapKey) {
+     Object mapValue = map.get(mapKey);
+     
+     if (mapValue != null) {
+         return (long)mapValue;
+     }
+     return DEFAULT_LONG;
+ }
 }

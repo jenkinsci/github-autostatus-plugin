@@ -26,6 +26,8 @@ package org.jenkinsci.plugins.githubautostatus.notifiers;
 import static org.junit.Assert.*;
 
 import java.io.IOException;
+import java.util.HashMap;
+import java.util.Map;
 
 import com.timgroup.statsd.NonBlockingStatsDClient;
 
@@ -55,6 +57,7 @@ import org.mockito.invocation.InvocationOnMock;
 import org.junit.runner.RunWith;
 import org.powermock.core.classloader.annotations.PrepareForTest;
 
+import org.jenkinsci.plugins.githubautostatus.BuildStageModel;
 import org.jenkinsci.plugins.githubautostatus.StatsdNotifierConfig;
 import org.jenkinsci.plugins.githubautostatus.StatsdClient;
 import org.jenkinsci.plugins.githubautostatus.StatsdWrapper;
@@ -145,18 +148,6 @@ public class StatsdNotifierTest {
     }
 
     /*
-     * Test that build results send the correct stats
-     */
-    @Test
-    public void testNotifyBuildState() throws Exception {
-        when(config.getExternalizedID()).thenReturn("Main Folder/Sub Folder/job name/branch name");
-        StatsdNotifier instance = new StatsdNotifier(client, config);
-        instance.notifyBuildState("Job Name!", "Stage Name$", BuildState.CompletedSuccess);
-        verify(client).increment("pipeline.main_folder.sub_folder.job_name.branch_name.stage.stage_name.status.completedsuccess", 1);
-        verify(client).time("pipeline.main_folder.sub_folder.job_name.branch_name.stage.stage_name.duration", 0);
-    }
-
-    /*
      * Test that stage results send the correct stats
      */
     @Test
@@ -164,7 +155,13 @@ public class StatsdNotifierTest {
         int buildDuration = 600;
         when(config.getExternalizedID()).thenReturn("Main Folder/Sub Folder/job name/branch name");
         StatsdNotifier instance = new StatsdNotifier(client, config);
-        instance.notifyBuildStageStatus("Job Name!", "Stage Name$", BuildState.CompletedError, buildDuration);
+        BuildStageModel stageItem = new BuildStageModel("stage_name");
+        stageItem.setBuildState(BuildState.CompletedError);
+        HashMap<String, Object> environment = new HashMap<String, Object>();
+        environment.put(BuildNotifierConstants.STAGE_DURATION, 600L);
+        stageItem.setEnvironment(environment);
+
+        instance.notifyBuildStageStatus("Job Name!", stageItem);
         verify(client).increment("pipeline.main_folder.sub_folder.job_name.branch_name.stage.stage_name.status.completederror", 1);
         verify(client).time("pipeline.main_folder.sub_folder.job_name.branch_name.stage.stage_name.duration", buildDuration);
     }
@@ -177,7 +174,13 @@ public class StatsdNotifierTest {
         int buildDuration = 600;
         when(config.getExternalizedID()).thenReturn("Main Folder/Sub Folder/job name/branch name");
         StatsdNotifier instance = new StatsdNotifier(client, config);
-        instance.notifyBuildStageStatus("Job Name!", "Stage Name$", BuildState.Pending, buildDuration);
+        BuildStageModel stageItem = new BuildStageModel("stage_name");
+        stageItem.setBuildState(BuildState.Pending);
+        HashMap<String, Object> environment = new HashMap<String, Object>();
+        environment.put(BuildNotifierConstants.STAGE_DURATION, 600L);
+        stageItem.setEnvironment(environment);
+
+        instance.notifyBuildStageStatus("Job Name!", stageItem);
         verify(client, times(0)).increment("pipeline.main_folder.sub_folder.job_name.branch_name.job.status.pending", 1);
         verify(client, times(0)).time("pipeline.main_folder.sub_folder.job_name.branch_name.job.duration", buildDuration);
     }
@@ -191,7 +194,13 @@ public class StatsdNotifierTest {
         int buildBlockedDuration = 55;
         when(config.getExternalizedID()).thenReturn("Main Folder/Sub Folder/job name/branch name");
         StatsdNotifier instance = new StatsdNotifier(client, config);
-        instance.notifyFinalBuildStatus("Job Name!", BuildState.CompletedError, buildDuration, buildBlockedDuration);
+
+        HashMap<String, Object> jobParams = new HashMap<String, Object>();
+        jobParams.put(BuildNotifierConstants.JOB_NAME, "job_name");
+        jobParams.put(BuildNotifierConstants.JOB_DURATION, 612L);
+        jobParams.put(BuildNotifierConstants.BLOCKED_DURATION, 12L);
+        instance.notifyFinalBuildStatus(BuildState.CompletedError, jobParams);
+
         verify(client).increment("pipeline.main_folder.sub_folder.job_name.branch_name.job.status.completederror", 1);
         verify(client).time("pipeline.main_folder.sub_folder.job_name.branch_name.job.duration", buildDuration);
     }

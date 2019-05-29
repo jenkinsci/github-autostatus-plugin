@@ -29,13 +29,17 @@ import com.cloudbees.plugins.credentials.impl.UsernamePasswordCredentialsImpl;
 import java.io.IOException;
 import java.net.MalformedURLException;
 import java.util.Base64;
+import java.util.HashMap;
+import java.util.Map;
 import org.apache.http.HttpEntity;
 import org.apache.http.StatusLine;
 import org.apache.http.client.methods.CloseableHttpResponse;
 import org.apache.http.client.methods.HttpPost;
 import org.apache.http.impl.client.CloseableHttpClient;
 import org.apache.http.util.EntityUtils;
+import org.jenkinsci.plugins.githubautostatus.BuildStageModel;
 import org.jenkinsci.plugins.githubautostatus.InfluxDbNotifierConfig;
+import static org.jenkinsci.plugins.githubautostatus.notifiers.GithubBuildNotifierTest.repository;
 import org.junit.After;
 import org.junit.AfterClass;
 import org.junit.Before;
@@ -138,11 +142,11 @@ public class InfluxDbNotifierTest {
 
     @Test
     public void testBasicAuth() {
-        UsernamePasswordCredentials credentials = 
-                new UsernamePasswordCredentialsImpl(CredentialsScope.GLOBAL, 
-                        influxDbCredentialsId, 
-                        "Description", 
-                        influxDbUser, 
+        UsernamePasswordCredentials credentials
+                = new UsernamePasswordCredentialsImpl(CredentialsScope.GLOBAL,
+                        influxDbCredentialsId,
+                        "Description",
+                        influxDbUser,
                         influxDbPassword);
         when(config.getCredentials())
                 .thenReturn(credentials);
@@ -150,7 +154,7 @@ public class InfluxDbNotifierTest {
         InfluxDbNotifier instance = new InfluxDbNotifier(config);
         assertEquals("http://fake/write?db=mockdb",
                 instance.influxDbUrlString);
-        assertEquals(new String(Base64.getDecoder().decode(instance.authorization)), 
+        assertEquals(new String(Base64.getDecoder().decode(instance.authorization)),
                 "mock-user:mock-password");
     }
 
@@ -162,10 +166,13 @@ public class InfluxDbNotifierTest {
     }
 
     @Test
-    public void testNotifyBuildState() throws IOException {
+    public void testNotifyBuildStageStatus() throws IOException {
         InfluxDbNotifier instance = new InfluxDbNotifier(config);
 
-        instance.notifyBuildState("mockjobname", "mocknodename", BuildState.CompletedSuccess);
+        BuildStageModel stageItem = new BuildStageModel("mocknodename");
+        stageItem.setBuildState(BuildState.CompletedSuccess);
+
+        instance.notifyBuildStageStatus("mockjobname", stageItem);
 
         verify(mockHttpClient).execute(any());
         assertEquals(statusLine,
@@ -173,11 +180,14 @@ public class InfluxDbNotifierTest {
     }
 
     @Test
-    public void testNotifyBuildStateHttpError() throws IOException {
+    public void testNotifyBuildStageStatusHttpError() throws IOException {
         InfluxDbNotifier instance = new InfluxDbNotifier(config);
         when(mockStatusLine.getStatusCode()).thenReturn(400);
 
-        instance.notifyBuildState("mockjobname", "mocknodename", BuildState.CompletedSuccess);
+        BuildStageModel stageItem = new BuildStageModel("mocknodename");
+        stageItem.setBuildState(BuildState.CompletedSuccess);
+
+        instance.notifyBuildStageStatus("mockjobname", stageItem);
 
         verify(mockHttpClient).execute(any());
         assertEquals(statusLine,
@@ -185,13 +195,16 @@ public class InfluxDbNotifierTest {
     }
 
     @Test
-    public void testNotifyBuildStateIoException() throws IOException {
+    public void testNotifyBuildStageStatusIoException() throws IOException {
         InfluxDbNotifier instance = new InfluxDbNotifier(config);
         when(mockStatusLine.getStatusCode()).thenAnswer((InvocationOnMock invocation) -> {
             throw new IOException();
         });
 
-        instance.notifyBuildState("mockjobname", "mocknodename", BuildState.CompletedSuccess);
+        BuildStageModel stageItem = new BuildStageModel("mocknodename");
+        stageItem.setBuildState(BuildState.CompletedSuccess);
+
+        instance.notifyBuildStageStatus("mockjobname", stageItem);
 
         verify(mockHttpClient).execute(any());
         assertEquals(statusLine,
@@ -199,10 +212,12 @@ public class InfluxDbNotifierTest {
     }
 
     @Test
-    public void testNotifyBuildStatePending() throws IOException {
+    public void testNotifyBuildStageStatusPending() throws IOException {
         InfluxDbNotifier instance = new InfluxDbNotifier(config);
 
-        instance.notifyBuildState("mockjobname", "mocknodename", BuildState.Pending);
+        BuildStageModel stageItem = new BuildStageModel("mocknodename");
+
+        instance.notifyBuildStageStatus("mockjobname", stageItem);
 
         verify(mockHttpClient, never()).execute(any());
         assertNull(statusLine);
@@ -212,33 +227,61 @@ public class InfluxDbNotifierTest {
     public void testNotifyFinalBuildStateSuccess() throws IOException {
         InfluxDbNotifier instance = new InfluxDbNotifier(config);
 
-        instance.notifyFinalBuildStatus("mockjobname", BuildState.CompletedSuccess, 100, 12);
+        HashMap<String, Object> jobParams = new HashMap<String, Object>();
+        jobParams.put(BuildNotifierConstants.JOB_NAME, "mockjobname");
+        jobParams.put(BuildNotifierConstants.JOB_DURATION, 88L);
+        jobParams.put(BuildNotifierConstants.BLOCKED_DURATION, 12L);
+        instance.notifyFinalBuildStatus(BuildState.CompletedSuccess, jobParams);
 
         verify(mockHttpClient).execute(any());
         assertEquals(statusLine,
-                "job,jobname=mockjobname,owner=mockowner,repo=mockrepo,branch=mockbranch,result=CompletedSuccess,blocked=1 jobtime=88,blockedtime=12,passed=1");
+                "job,jobname=mockjobname,owner=mockowner,repo=mockrepo,branch=mockbranch,result=CompletedSuccess,blocked=1 jobtime=76,blockedtime=12,passed=1");
     }
 
     @Test
     public void testNotifyFinalBuildStateFailed() throws IOException {
 
         InfluxDbNotifier instance = new InfluxDbNotifier(config);
+        Map<String, Object> parameters = new HashMap<String, Object>();
+        parameters.put(BuildNotifierConstants.JOB_NAME, "mockjobname");
+        parameters.put(BuildNotifierConstants.REPO_OWNER, "mockowner");
+        parameters.put(BuildNotifierConstants.REPO_NAME, "mockrepo");
+        parameters.put(BuildNotifierConstants.BRANCH_NAME, "mockbranch");
+        parameters.put(BuildNotifierConstants.JOB_DURATION, 1010L);
+        parameters.put(BuildNotifierConstants.BLOCKED_DURATION, 0L);
 
-        instance.notifyFinalBuildStatus("mockjobname", BuildState.CompletedError, 1010, 0);
+        instance.notifyFinalBuildStatus(BuildState.CompletedError, parameters);
 
         verify(mockHttpClient).execute(any());
         assertEquals(statusLine,
                 "job,jobname=mockjobname,owner=mockowner,repo=mockrepo,branch=mockbranch,result=CompletedError,blocked=0 jobtime=1010,blockedtime=0,passed=0");
     }
 
+    /**
+     * Verifies notifier reports errors that happen outside a stage.
+     *
+     * @throws java.io.IOException
+     */
     @Test
-    public void testNotifyNonStageError() throws IOException {
+    public void testNonStageError() throws IOException {
         InfluxDbNotifier instance = new InfluxDbNotifier(config);
+        Map<String, Object> parameters = new HashMap<String, Object>();
+        parameters.put(BuildNotifierConstants.JOB_NAME, "mockjobname");
+        parameters.put(BuildNotifierConstants.REPO_OWNER, "mockowner");
+        parameters.put(BuildNotifierConstants.REPO_NAME, "mockrepo");
+        parameters.put(BuildNotifierConstants.BRANCH_NAME, "mockbranch");
+        parameters.put(BuildNotifierConstants.STAGE_DURATION, 2020L);
+        parameters.put(BuildNotifierConstants.BLOCKED_DURATION, 0L);
+        
+        BuildStageModel stageItem = new BuildStageModel("mockstagename", parameters);
+        stageItem.setIsStage(false);
+        stageItem.setBuildState(BuildState.CompletedError);
 
-        instance.sendNonStageError("mockjobname", "mockstage");
+        instance.notifyBuildStageStatus("mockjobname", stageItem);
 
         verify(mockHttpClient).execute(any());
         assertEquals(statusLine,
-                "stage,jobname=mockjobname,owner=mockowner,repo=mockrepo,branch=mockbranch,stagename=mockstage,result=CompletedError stagetime=0,passed=0");
+                "stage,jobname=mockjobname,owner=mockowner,repo=mockrepo,branch=mockbranch,stagename=mockstagename,result=CompletedError stagetime=2020,passed=0");
     }
+
 }

@@ -26,6 +26,8 @@ package org.jenkinsci.plugins.githubautostatus.notifiers;
 import java.io.UnsupportedEncodingException;
 import java.util.logging.Level;
 import java.util.logging.Logger;
+import java.util.Map;
+import org.jenkinsci.plugins.githubautostatus.BuildStageModel;
 import org.jenkinsci.plugins.githubautostatus.StatsdWrapper;
 import org.jenkinsci.plugins.githubautostatus.StatsdClient;
 import org.jenkinsci.plugins.githubautostatus.StatsdNotifierConfig;
@@ -35,7 +37,7 @@ import org.jenkinsci.plugins.githubautostatus.StatsdNotifierConfig;
  * Sends job and stage metrics to a statsd collector server over UDP.
  * @author Tom Hadlaw (thomas.hadlaw@hootsuite.com)
  */
-public class StatsdNotifier implements BuildNotifier {
+public class StatsdNotifier extends BuildNotifier {
 
     private StatsdWrapper client;
     protected StatsdNotifierConfig config;
@@ -72,29 +74,30 @@ public class StatsdNotifier implements BuildNotifier {
     }
 
     /**
-     * Sends build status metric to statsd by doing an increment on the buildState
-     * categories
-     * 
-     * @param jobName    name of the job
-     * @param nodeName   the stage of the status on which to report on
-     * @param buildState the reported state
-     */
-    public void notifyBuildState(String jobName, String nodeName, BuildState buildState) {
-        notifyBuildStageStatus(getBranchPath(), nodeName, buildState, 0);
-    }
-
-    /**
      * Sends duration metric to statsd by doing a timer metric
      * 
-     * @param jobName  name of the job
-     * @param nodeName the stage of the status on which to report on
-     * @param buildState the current build stage of the running job
-     * @param nodeDuration the duration of the node
+     * @param jobName   the name of the job
+     * @param stageItem stage item describing the new state
      */
-    public void notifyBuildStageStatus(String jobName, String nodeName, BuildState buildState, long nodeDuration) {
+
+    public void notifyBuildStageStatus(String jobName, BuildStageModel stageItem) {
+
+        BuildState buildState = stageItem.getBuildState();
+
         if (buildState == BuildState.Pending) {
             return;
         }
+
+        Object timingInfo = stageItem.getEnvironment().get(BuildNotifierConstants.STAGE_DURATION);
+        String nodeName = stageItem.getStageName();
+        long nodeDuration;
+        try {
+            nodeDuration = (long) timingInfo;
+        } catch (NullPointerException e) {
+            nodeDuration = 0;
+        }
+    // public void notifyBuildStageStatus(String jobName, String nodeName, BuildState buildState, long nodeDuration) {
+
         String result = buildState.toString();
         int statsDMaxSize = Integer.parseInt(config.getStatsdMaxSize().trim());
 
@@ -128,12 +131,13 @@ public class StatsdNotifier implements BuildNotifier {
     /**
      * Sends final build status metric by doing a timer metric for blocked and unblocked job time 
      * 
-     * @param jobName name of the job
      * @param buildState the reported state
-     * @param buildDuration the duration of the build
-     * @param blockedDuration the blocked duration of the build
+     * @param parameters build parameters
      */
-    public void notifyFinalBuildStatus(String jobName, BuildState buildState, long buildDuration, long blockedDuration) {
+    public void notifyFinalBuildStatus(BuildState buildState, Map<String, Object> parameters) {
+
+        long blockedDuration = getLong(parameters, BuildNotifierConstants.BLOCKED_DURATION);
+        long buildDuration = getLong(parameters, BuildNotifierConstants.JOB_DURATION) - blockedDuration;
         byte[] fqpSize;
         String result = sanitizeAll(buildState.toString());
         int statsDMaxSize = Integer.parseInt(config.getStatsdMaxSize().trim());

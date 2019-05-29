@@ -27,30 +27,41 @@ import com.cloudbees.plugins.credentials.common.UsernamePasswordCredentials;
 import java.io.IOException;
 import java.io.UnsupportedEncodingException;
 import java.net.URLEncoder;
+import java.util.Map;
 import java.util.Base64;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import org.apache.commons.lang.StringUtils;
+import javax.annotation.Nullable;
 import org.apache.http.client.methods.CloseableHttpResponse;
 import org.apache.http.client.methods.HttpPost;
 import org.apache.http.entity.StringEntity;
 import org.apache.http.impl.client.CloseableHttpClient;
+import org.jenkinsci.plugins.githubautostatus.BuildStageModel;
 import org.jenkinsci.plugins.githubautostatus.InfluxDbNotifierConfig;
+import org.jenkinsci.plugins.githubautostatus.model.CodeCoverage;
+import org.jenkinsci.plugins.githubautostatus.model.TestCase;
+import org.jenkinsci.plugins.githubautostatus.model.TestResults;
+import org.jenkinsci.plugins.githubautostatus.model.TestSuite;
 
 /**
  * Writes job and stage measurements to an influxdb REST API.
  * @author Jeff Pearce (jxpearce@godaddy.com)
  */
-public class InfluxDbNotifier implements BuildNotifier {
+public class InfluxDbNotifier extends BuildNotifier {
 
-    protected final String DEFAULT_STRING = "none";
     protected String repoOwner;
     protected String repoName;
     protected String branchName;
     protected String influxDbUrlString;
     protected InfluxDbNotifierConfig config;
     protected transient String authorization;
-
+    
+    /**
+     * Constructor
+     *
+     * @param config influxdb configuration info
+     */
     public InfluxDbNotifier(
             InfluxDbNotifierConfig config) {
         if (StringUtils.isEmpty(config.getInfluxDbUrlString()) || StringUtils.isEmpty(config.getInfluxDbDatabase())) {
@@ -106,27 +117,17 @@ public class InfluxDbNotifier implements BuildNotifier {
     }
 
     /**
-     * Send stage status notification to influx
-     *
-     * @param nodeName the node that has changed
-     * @param buildState the new state
-     */
-    @Override
-    public void notifyBuildState(String jobName, String nodeName, BuildState buildState) {
-        notifyBuildStageStatus(jobName, nodeName, buildState, 0);
-    }
-
-    /**
      * Send a state change to influx
      *
      * @param jobName the name of the job
-     * @param nodeName the node that has changed
-     * @param buildState the new state
-     * @param timingInfo timingInfo
+     * @param stageItem stage item describing the new state
      */
     @Override
-    public void notifyBuildStageStatus(String jobName, String nodeName, BuildState buildState, long timingInfo) {
+    public void notifyBuildStageStatus(String jobName, BuildStageModel stageItem) {
 
+        BuildState buildState = stageItem.getBuildState();
+
+        Object timingInfo = stageItem.getEnvironment().get(BuildNotifierConstants.STAGE_DURATION);
         if (buildState == BuildState.Pending) {
             return;
         }
@@ -140,9 +141,9 @@ public class InfluxDbNotifier implements BuildNotifier {
                 repoOwner,
                 repoName,
                 branchName,
-                escapeTagValue(nodeName),
+                escapeTagValue(stageItem.getStageName()),
                 result,
-                timingInfo,
+                timingInfo != null ? timingInfo : 0,
                 passed);
         postData(data);
     }
@@ -150,14 +151,14 @@ public class InfluxDbNotifier implements BuildNotifier {
     /**
      * Send final build status to influx
      *
-     * @param jobName the name of the job
      * @param buildState the new state
-     * @param buildDuration overall build time
-     * @param blockedDuration time build was blocked before running
+     * @param parameters build parameters
      */
     @Override
-    public void notifyFinalBuildStatus(String jobName, BuildState buildState, long buildDuration, long blockedDuration) {
+    public void notifyFinalBuildStatus(BuildState buildState, Map<String, Object> parameters) {
+        String jobName = (String) parameters.getOrDefault(BuildNotifierConstants.JOB_NAME, DEFAULT_STRING);
         int passed = buildState == BuildState.CompletedSuccess ? 1 : 0;
+        long blockedDuration = getLong(parameters, BuildNotifierConstants.BLOCKED_DURATION);
         int blocked = blockedDuration > 0 ? 1 : 0;
 
         String dataPoint = String.format("job,jobname=%s,owner=%s,repo=%s,branch=%s,result=%s,blocked=%d jobtime=%d,blockedtime=%d,passed=%d",
@@ -167,17 +168,84 @@ public class InfluxDbNotifier implements BuildNotifier {
                 branchName,
                 buildState.toString(),
                 blocked,
-                buildDuration - blockedDuration,
+                getLong(parameters, BuildNotifierConstants.JOB_DURATION) - blockedDuration,
                 blockedDuration,
                 passed);
         postData(dataPoint);
+
+        notifyTestResults(jobName, (TestResults) parameters.get(BuildNotifierConstants.TEST_CASE_INFO));
+        notifyCoverage(jobName, (CodeCoverage) parameters.get(BuildNotifierConstants.COVERAGE_INFO));
     }
 
-    @Override
-    public void sendNonStageError(String jobName, String nodeName) {
-        notifyBuildState(jobName, nodeName, BuildState.CompletedError);
+    private void notifyCoverage(String jobName, @Nullable CodeCoverage coverageInfo) {
+        if (coverageInfo != null) {
+            String dataPoint = String.format("coverage,jobname=%s,owner=%s,repo=%s,branch=%s "
+                    + "classes=%f,conditionals=%f,files=%f,lines=%f,methods=%f,packages=%f",
+                    escapeTagValue(jobName),
+                    repoOwner,
+                    repoName,
+                    branchName,
+                    coverageInfo.getClasses(),
+                    coverageInfo.getConditionals(),
+                    coverageInfo.getFiles(),
+                    coverageInfo.getLines(),
+                    coverageInfo.getMethods(),
+                    coverageInfo.getPackages());
+            postData(dataPoint);
+        }
     }
-    
+
+    private void notifyTestResults(String jobName, @Nullable TestResults testResults) {
+
+        if (testResults != null) {
+            String dataPoint = String.format("tests,jobname=%s,owner=%s,repo=%s,branch=%s passed=%d,skipped=%d,failed=%d",
+                    escapeTagValue(jobName),
+                    repoOwner,
+                    repoName,
+                    branchName,
+                    testResults.getPassedTestCaseCount(),
+                    testResults.getSkippedTestCaseCount(),
+                    testResults.getFailedTestCaseCount());
+            postData(dataPoint);
+
+            for (TestSuite testSuite : testResults.getTestSuites()) {
+                notifyTestSuite(jobName, testSuite);
+            }
+        }
+    }
+
+    private void notifyTestSuite(String jobName, TestSuite testSuite) {
+        String suiteName = escapeTagValue(testSuite.getName());
+        String dataPoint = String.format("testsuite,jobname=%s,owner=%s,repo=%s,branch=%s,suite=%s passed=%d,skipped=%d,failed=%d",
+                escapeTagValue(jobName),
+                repoOwner,
+                repoName,
+                branchName,
+                suiteName,
+                testSuite.getPassedTestCaseCount(),
+                testSuite.getSkippedTestCaseCount(),
+                testSuite.getFailedTestCaseCount());
+        postData(dataPoint);
+
+        for (TestCase testCase : testSuite.getTestCases()) {
+            notifyTestCase(jobName, suiteName, testCase);
+        }
+    }
+
+    private void notifyTestCase(String jobName, String suiteName, TestCase testCase) {
+        String dataPoint = String.format("testcase,jobname=%s,owner=%s,repo=%s,branch=%s,suite=%s,testcase=%s passed=%d,skipped=%d,failed=%d",
+                escapeTagValue(jobName),
+                repoOwner,
+                repoName,
+                branchName,
+                suiteName,
+                escapeTagValue(testCase.getName()),
+                testCase.getPassedCount(),
+                testCase.getSkippedCount(),
+                testCase.getFailedCount());
+        postData(dataPoint);
+    }
+
     protected String escapeTagValue(String tagValue) {
         return tagValue.replace(" ", "\\ ")
                 .replace(",", "\\,")

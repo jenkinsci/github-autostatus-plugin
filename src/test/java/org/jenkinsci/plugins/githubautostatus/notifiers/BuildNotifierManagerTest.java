@@ -23,6 +23,9 @@
  */
 package org.jenkinsci.plugins.githubautostatus.notifiers;
 
+import java.util.Collections;
+import java.util.HashMap;
+import org.jenkinsci.plugins.githubautostatus.BuildStageModel;
 import org.jenkinsci.plugins.githubautostatus.GithubNotificationConfig;
 import org.jenkinsci.plugins.githubautostatus.InfluxDbNotifierConfig;
 import org.jenkinsci.plugins.githubautostatus.StatsdNotifierConfig;
@@ -83,7 +86,7 @@ public class BuildNotifierManagerTest {
     }
 
     /**
-     * Verifies github notifier is added correctly.
+     * Verifies GitHub notifier is added correctly.
      */
     @Test
     public void testAddGithubNotifier() {
@@ -111,9 +114,13 @@ public class BuildNotifierManagerTest {
     public void testNotifyBuildStageStatus() {
         GithubBuildNotifier notifier = mock(GithubBuildNotifier.class);
         instance.notifiers.add(notifier);
-        instance.notifyBuildStageStatus(stageName, BuildState.CompletedSuccess, 0);
+        
+        BuildStageModel stageItem = new BuildStageModel(stageName);
+        stageItem.setBuildState(BuildState.CompletedSuccess);
+        
+        instance.notifyBuildStageStatus(stageItem);
 
-        verify(notifier).notifyBuildStageStatus(mockJobName, stageName, BuildState.CompletedSuccess, 0);
+        verify(notifier).notifyBuildStageStatus(mockJobName, stageItem);
     }
 
     /**
@@ -123,9 +130,10 @@ public class BuildNotifierManagerTest {
     public void testNotifyFinalBuildStatus() {
         GithubBuildNotifier notifier = mock(GithubBuildNotifier.class);
         instance.notifiers.add(notifier);
-        instance.notifyFinalBuildStatus(BuildState.CompletedSuccess, 0, 1);
 
-        verify(notifier).notifyFinalBuildStatus(mockJobName, BuildState.CompletedSuccess, 0, 1);
+        instance.notifyFinalBuildStatus(BuildState.CompletedSuccess, Collections.EMPTY_MAP);
+
+        verify(notifier).notifyFinalBuildStatus(BuildState.CompletedSuccess, Collections.EMPTY_MAP);
     }
 
     /**
@@ -135,9 +143,16 @@ public class BuildNotifierManagerTest {
     public void testSendNonStageError() {
         GithubBuildNotifier notifier = mock(GithubBuildNotifier.class);
         instance.notifiers.add(notifier);
-        instance.sendNonStageError(stageName);
 
-        verify(notifier).sendNonStageError(mockJobName, stageName);
+        BuildStageModel stageItem = new BuildStageModel(stageName,
+                new HashMap<>(),
+                BuildState.CompletedError);
+        stageItem.setIsStage(false);
+
+
+        instance.sendNonStageError(stageItem);
+
+        verify(notifier).notifyBuildStageStatus(eq(mockJobName), any(BuildStageModel.class));
     }
 
     /**
