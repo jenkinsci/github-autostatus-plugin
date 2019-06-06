@@ -176,7 +176,7 @@ public class InfluxDbNotifierTest {
 
         verify(mockHttpClient).execute(any());
         assertEquals(
-                "stage,owner=mockowner,repo=mockrepo,stagename=\"mocknodename\",result=CompletedSuccess job_name=\"mockjobname\",branch_name=\"mockbranch\",stagetime=0,passed=1",
+                "stage,owner=mockowner,repo=mockrepo,stagename=\"mocknodename\",result=CompletedSuccess jobname=\"mockjobname\",branch=\"mockbranch\",stagetime=0,passed=1",
                 statusLine);
     }
 
@@ -192,7 +192,7 @@ public class InfluxDbNotifierTest {
 
         verify(mockHttpClient).execute(any());
         assertEquals(
-                "stage,owner=mockowner,repo=mockrepo,stagename=\"mocknodename\",result=CompletedSuccess job_name=\"mockjobname\",branch_name=\"mockbranch\",stagetime=0,passed=1",
+                "stage,owner=mockowner,repo=mockrepo,stagename=\"mocknodename\",result=CompletedSuccess jobname=\"mockjobname\",branch=\"mockbranch\",stagetime=0,passed=1",
                 statusLine);
     }
 
@@ -209,7 +209,7 @@ public class InfluxDbNotifierTest {
         instance.notifyBuildStageStatus("mockjobname", stageItem);
 
         verify(mockHttpClient).execute(any());
-        assertEquals("stage,owner=mockowner,repo=mockrepo,stagename=\"mocknodename\",result=CompletedSuccess job_name=\"mockjobname\",branch_name=\"mockbranch\",stagetime=0,passed=1",
+        assertEquals("stage,owner=mockowner,repo=mockrepo,stagename=\"mocknodename\",result=CompletedSuccess jobname=\"mockjobname\",branch=\"mockbranch\",stagetime=0,passed=1",
         statusLine);
 
     }
@@ -238,7 +238,7 @@ public class InfluxDbNotifierTest {
 
         verify(mockHttpClient).execute(any());
         assertEquals(
-                "job,owner=mockowner,repo=mockrepo,result=CompletedSuccess,blocked=1 job_name=\"mockjobname\",branch_name=\"mockbranch\",jobtime=76,blockedtime=12,passed=1",
+                "job,owner=mockowner,repo=mockrepo,result=CompletedSuccess jobname=\"mockjobname\",branch=\"mockbranch\",jobtime=76,blocked=1,blockedtime=12,passed=1",
                 statusLine);
     }
 
@@ -257,7 +257,7 @@ public class InfluxDbNotifierTest {
         instance.notifyFinalBuildStatus(BuildState.CompletedError, parameters);
 
         verify(mockHttpClient).execute(any());
-        assertEquals("job,owner=mockowner,repo=mockrepo,result=CompletedError,blocked=0 job_name=\"mockjobname\",branch_name=\"mockbranch\",jobtime=1010,blockedtime=0,passed=0",
+        assertEquals("job,owner=mockowner,repo=mockrepo,result=CompletedError jobname=\"mockjobname\",branch=\"mockbranch\",jobtime=1010,blocked=0,blockedtime=0,passed=0",
                 statusLine);
     }
 
@@ -284,7 +284,7 @@ public class InfluxDbNotifierTest {
         instance.notifyBuildStageStatus("mockjobname", stageItem);
 
         verify(mockHttpClient).execute(any());
-        assertEquals("stage,owner=mockowner,repo=mockrepo,stagename=\"mockstagename\",result=CompletedError job_name=\"mockjobname\",branch_name=\"mockbranch\",stagetime=2020,passed=0",
+        assertEquals("stage,owner=mockowner,repo=mockrepo,stagename=\"mockstagename\",result=CompletedError jobname=\"mockjobname\",branch=\"mockbranch\",stagetime=2020,passed=0",
         statusLine);
 
     }

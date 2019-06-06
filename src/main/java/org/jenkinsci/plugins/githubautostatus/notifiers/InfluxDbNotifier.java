@@ -69,15 +69,15 @@ public class InfluxDbNotifier extends BuildNotifier {
 
     }
     public static class TagNames {
-        public static final String Blocked = "blocked";
         public static final String Owner = "owner";
         public static final String Repo = "repo";
         public static final String Result = "result";
         public static final String StageName = "stagename";
     }
     public static class FieldNames {
+        public static final String Blocked = "blocked";
         public static final String BlockedTime = "blockedtime";
-        public static final String Branch = "branch_name";
+        public static final String Branch = "branch";
         public static class Coverage {
             public static final String Conditionals = "conditionals";
             public static final String Classes = "classes";
@@ -86,7 +86,7 @@ public class InfluxDbNotifier extends BuildNotifier {
             public static final String Methods = "methods";
             public static final String Packages = "packages";
         }
-        public static final String Jobname = "job_name";
+        public static final String Jobname = "jobname";
         public static final String JobTime = "jobtime";
         public static final String Passed = "passed";
         public static final String StageTime = "stagetime";
@@ -205,11 +205,11 @@ public class InfluxDbNotifier extends BuildNotifier {
                 .append(String.format(",%s=%s", TagNames.Owner, repoOwner))
                 .append(String.format(",%s=%s", TagNames.Repo, repoName))
                 .append(String.format(",%s=%s", TagNames.Result, buildState.toString()))
-                .append(String.format(",%s=%d", TagNames.Blocked, blocked))
                 // Fields
                 .append(String.format(" %s=\"%s\"", FieldNames.Jobname, escapeTagValue(jobName)))
                 .append(String.format(",%s=\"%s\"", FieldNames.Branch, branchName))
                 .append(String.format(",%s=%d", FieldNames.JobTime, getLong(parameters, BuildNotifierConstants.JOB_DURATION) - blockedDuration))
+                .append(String.format(",%s=%d", FieldNames.Blocked, blocked))
                 .append(String.format(",%s=%d", FieldNames.BlockedTime, blockedDuration))
                 .append(String.format(",%s=%d", FieldNames.Passed, passed))
                 .toString();
