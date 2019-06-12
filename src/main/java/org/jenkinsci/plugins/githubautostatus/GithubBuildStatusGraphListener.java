@@ -416,7 +416,7 @@ public class GithubBuildStatusGraphListener implements GraphListener {
     }
 
     /**
-     * Get the jenkins run objection of the specified executing workflow
+     * Get the jenkins run object of the specified executing workflow
      * 
      * @param exec execution of a workflow
      * @return jenkins run object of a job

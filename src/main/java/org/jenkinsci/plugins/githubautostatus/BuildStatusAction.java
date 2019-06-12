@@ -134,7 +134,7 @@ public class BuildStatusAction extends InvisibleAction {
     /**
      * Sets flag indicating whether notifications are for a declarative pipeline
      *
-     * @return if pipeline is declaritive or not
+     * @return if pipeline is declarative or not
      */
     public boolean isIsDeclarativePipeline() {
         return isDeclarativePipeline;

@@ -157,6 +157,6 @@ public class BuildStatusJobListener extends RunListener<Run<?, ?>> {
     }
 
     private static Logger getLogger() {
-        return Logger.getLogger(GithubNotificationConfig.class.getName());
+        return Logger.getLogger(BuildStatusJobListener.class.getName());
     }
 }
