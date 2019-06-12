@@ -1,7 +1,7 @@
 /*
  * The MIT License
  *
- * Copyright 2018 jxpearce.
+ * Copyright 2019 Tom Hadlaw.
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to deal
