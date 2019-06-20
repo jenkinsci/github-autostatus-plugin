@@ -23,6 +23,8 @@
  */
 package org.jenkinsci.plugins.githubautostatus;
 
+import java.util.logging.Level;
+import java.util.logging.Logger;
 import hudson.Extension;
 import hudson.model.JobProperty;
 import hudson.model.JobPropertyDescriptor;
@@ -59,6 +61,7 @@ public class BuildStatusJobListener extends RunListener<Run<?, ?>> {
     public void onCompleted(Run<?, ?> build, TaskListener listener) {
 
         BuildStatusAction statusAction = build.getAction(BuildStatusAction.class);
+        log(Level.INFO, "Build Completed");
         if (statusAction != null) {
             Map<String, Object> parameters = getParameters(build);
             parameters.put(BuildNotifierConstants.BUILD_OBJECT, build);
@@ -147,5 +150,13 @@ public class BuildStatusJobListener extends RunListener<Run<?, ?>> {
         BuildBlockedAction action = build.getAction(BuildBlockedAction.class);
 
         return action == null ? 0 : action.getTimeBlocked();
+    }
+
+    private static void log(Level level, String format, Object... args) {
+        getLogger().log(level, String.format(format, args));
+    }
+
+    private static Logger getLogger() {
+        return Logger.getLogger(BuildStatusJobListener.class.getName());
     }
 }

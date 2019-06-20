@@ -32,6 +32,7 @@ import java.util.Map;
 import org.jenkinsci.plugins.githubautostatus.notifiers.BuildNotifier;
 import org.jenkinsci.plugins.githubautostatus.notifiers.BuildNotifierConstants;
 import org.jenkinsci.plugins.githubautostatus.notifiers.BuildNotifierManager;
+
 import org.jenkinsci.plugins.githubautostatus.notifiers.BuildState;
 import org.jenkinsci.plugins.workflow.job.WorkflowJob;
 import org.jenkinsci.plugins.workflow.job.WorkflowRun;
@@ -91,6 +92,7 @@ public class BuildStatusAction extends InvisibleAction {
      * @param run the build
      * @param targetUrl link back to Jenkins
      * @param stageList list of stages if known
+     * @throws IOException general exception
      */
     public BuildStatusAction(Run<?, ?> run, String targetUrl, List<BuildStageModel> stageList) {
         this.run = run;
@@ -128,7 +130,12 @@ public class BuildStatusAction extends InvisibleAction {
             }
         });
     }
-    
+
+    /**
+     * Sets flag indicating whether notifications are for a declarative pipeline
+     *
+     * @return if pipeline is declarative or not
+     */
     public boolean isIsDeclarativePipeline() {
         return isDeclarativePipeline;
     }
@@ -142,9 +149,9 @@ public class BuildStatusAction extends InvisibleAction {
      *
      * @param config GitHub notifier config
      */
-    public void addGithubNofifier(GithubNotificationConfig config) {
+    public void addGithubNotifier(GithubNotificationConfig config) {
         if (config != null) {
-            sendNotications(buildNotifierManager.addGithubNotifier(config));
+            sendNotifications(buildNotifierManager.addGithubNotifier(config));
         }
     }
 
@@ -154,11 +161,21 @@ public class BuildStatusAction extends InvisibleAction {
      * @param influxDbNotifierConfig influx db notifier config
      */
     public void addInfluxDbNotifier(InfluxDbNotifierConfig influxDbNotifierConfig) {
-        sendNotications(buildNotifierManager.addInfluxDbNotifier(influxDbNotifierConfig));
+        sendNotifications(buildNotifierManager.addInfluxDbNotifier(influxDbNotifierConfig));
+    }
+
+    /**
+     * Attempts to add an Statsd notifier
+     *
+     * @param statsdNotifierConfig Statsd notifier config
+     */
+    public void addStatsdNotifier(StatsdNotifierConfig statsdNotifierConfig) {
+        BuildNotifier build = buildNotifierManager.addStatsdBuildNotifier(statsdNotifierConfig);
+        sendNotifications(build);
     }
     
     public void addGenericNofifier(BuildNotifier notifier) {
-        sendNotications(buildNotifierManager.addGenericNofifier(notifier));
+        sendNotifications(buildNotifierManager.addGenericNofifier(notifier));
     }
 
     /**
@@ -166,7 +183,7 @@ public class BuildStatusAction extends InvisibleAction {
      *
      * @param notifier notifier to send to
      */
-    public void sendNotications(BuildNotifier notifier) {
+    public void sendNotifications(BuildNotifier notifier) {
         if (notifier != null && notifier.isEnabled()) {
             this.buildStatuses.forEach((nodeName, stageItem) -> {
                 stageItem.setRun(run);

@@ -67,8 +67,9 @@ public class GithubNotificationConfig {
     protected GitHubBuilder githubBuilder;
 
     /**
-     * Gets the SHA for the build.
-     * @return SHA for the build.
+     * Gets the SHA for the build
+     * 
+     * @return the SHA for the build
      */
     public String getShaString() {
         return shaString;
@@ -76,6 +77,7 @@ public class GithubNotificationConfig {
 
     /**
      * Gets the repo owner.
+     * 
      * @return The repo owner.
      */
     public String getRepoOwner() {
@@ -110,7 +112,7 @@ public class GithubNotificationConfig {
      * Constructs a config object from a Run object.
      * @param run The build.
      * @param listener Task listener (for logging to the build).
-     * @return The constructed config object.
+     * @return The github config object
      */
     public static @Nullable
     GithubNotificationConfig fromRun(Run<?, ?> run, TaskListener listener) {

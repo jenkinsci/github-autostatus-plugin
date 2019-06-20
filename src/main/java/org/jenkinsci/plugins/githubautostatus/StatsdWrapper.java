@@ -23,48 +23,35 @@
  */
 package org.jenkinsci.plugins.githubautostatus;
 
-import static org.junit.Assert.*;
-import org.junit.Test;
+import com.timgroup.statsd.NonBlockingStatsDClient;
+import com.timgroup.statsd.StatsDClient;
+import com.timgroup.statsd.StatsDClientException;
+import java.util.concurrent.Executors;
+import java.util.concurrent.ScheduledExecutorService;
+import java.util.concurrent.TimeUnit;
+import java.util.concurrent.locks.Lock;
+import java.util.concurrent.locks.ReentrantReadWriteLock;
+import java.util.logging.Logger;
 
 /**
- *
- * @author jxpearce
+ * Wraps regular UDP based Statd client with concurrent hostname refreshing logic.
+ * 
+ * @author Tom Hadlaw (thomas.hadlaw@hootsuite.com)
  */
-public class BuildBlockedActionTest {
-
-    public BuildBlockedActionTest() {
-    }
+public interface StatsdWrapper {
+    /**
+     * Runs a Statsd increment in a safe way.
+     * 
+     * @param key    the bucket key
+     * @param amount amount to increment
+     */
+    void increment(String key, int amount);
 
     /**
-     * Verifies default constructor sets blocked time
+     * Run a Statsd timer state in a safe way.
+     * 
+     * @param key the bucket key
+     * @param duration the duration
      */
-    @Test
-    public void testDefaultConstructorSetsStart() {
-        BuildBlockedAction instance = new BuildBlockedAction();
-
-        assertNotEquals(0, instance.getTimeBlocked());
-    }
-
-    /**
-     * Verifies constructor overrides blocked time
-     */
-    @Test
-    public void testDefaultConstructorOverrideStart() {
-        BuildBlockedAction instance = new BuildBlockedAction(System.currentTimeMillis());
-
-        assertNotEquals(0, instance.getTimeBlocked());
-    }
-
-    /**
-     * Verifies release time can be set
-     */
-    @Test
-    public void testGetSetTimeReleased() {
-        long timeReleased = 123456;
-        BuildBlockedAction instance = new BuildBlockedAction();
-        instance.setTimeReleased(timeReleased);
-
-        assertEquals(timeReleased, instance.getTimeReleased());
-    }
-
+    void time(String key, long duration);
 }

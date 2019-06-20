@@ -33,7 +33,17 @@ import org.jenkinsci.plugins.githubautostatus.BuildStageModel;
  * @author Jeff Pearce (jxpearce@godaddy.com)
  */
 public abstract class BuildNotifier implements ExtensionPoint {
-    
+
+     /**
+     * Establishing a default long for use in getLong.
+     */
+     protected final long DEFAULT_LONG = 0;
+ 
+     /**
+     * Establishing a default string for use in Notifiers.
+     */
+     protected final String DEFAULT_STRING = "none";
+
     /**
      * Determine whether notifier is enabled.
      *
@@ -42,23 +52,31 @@ public abstract class BuildNotifier implements ExtensionPoint {
     abstract public boolean isEnabled();
 
     /**
-     * Send a state change, such as from Pending to Success or Pending to Error.
+     * Send a state change with timing info
      *
-
-     * @param jobName the name of the job
-     * @param stageItem stage item
+     * @param jobName      the name of the job
+     * @param stageItem    stage item
      */
     abstract public void notifyBuildStageStatus(String jobName, BuildStageModel stageItem);
 
     /**
      * Send a notification when the job is complete
      *
-     * @param buildState state indicating success or failure
-     * @param parameters build parameters
+     * @param buildState      state indicating success or failure
+     * @param parameters      build parameters
      */
     abstract public void notifyFinalBuildStatus(BuildState buildState, Map<String, Object> parameters);
 
     public static ExtensionList<BuildNotifier> all() {
         return ExtensionList.lookup(BuildNotifier.class);
     }
+
+    public long getLong(Map<String, Object> map, String mapKey) {
+     Object mapValue = map.get(mapKey);
+     
+     if (mapValue != null) {
+         return (long)mapValue;
+     }
+     return DEFAULT_LONG;
+ }
 }

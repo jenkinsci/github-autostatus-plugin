@@ -8,7 +8,7 @@
         <relativePath />
     </parent>
     <artifactId>github-autostatus</artifactId>
-    <version>3.4.3-SNAPSHOT</version>
+    <version>3.5.0-SNAPSHOT</version>
     <packaging>hpi</packaging>
     <properties>
         <jenkins.version>2.73.3</jenkins.version>
@@ -58,6 +58,26 @@
                 <configuration>
                     <compatibleSinceVersion>3.0</compatibleSinceVersion>
                 </configuration>
+            </plugin>
+            <plugin>
+                <groupId>org.jacoco</groupId>
+                <artifactId>jacoco-maven-plugin</artifactId>
+                <version>0.8.2</version>
+                <executions>
+                    <execution>
+                        <goals>
+                            <goal>prepare-agent</goal>
+                        </goals>
+                    </execution>
+                    <!-- attached to Maven test phase -->
+                    <execution>
+                        <id>report</id>
+                        <phase>test</phase>
+                        <goals>
+                            <goal>report</goal>
+                        </goals>
+                    </execution>
+                </executions>
             </plugin>
         </plugins>
     </build>
@@ -227,6 +247,11 @@
             <artifactId>powermock-api-mockito</artifactId>
             <version>${powermock.version}</version>
             <scope>test</scope>
+        </dependency>
+        <dependency>
+            <groupId>com.datadoghq</groupId>
+            <artifactId>java-dogstatsd-client</artifactId>
+            <version>2.7</version>
         </dependency>
         <dependency>
             <groupId>org.jenkins-ci.plugins</groupId>

@@ -50,8 +50,6 @@ import org.jenkinsci.plugins.githubautostatus.model.TestSuite;
  */
 public class InfluxDbNotifier extends BuildNotifier {
 
-    protected final String DEFAULT_STRING = "none";
-    protected final long DEFAULT_LONG = 0;
     protected String repoOwner;
     protected String repoName;
     protected String branchName;
@@ -177,15 +175,6 @@ public class InfluxDbNotifier extends BuildNotifier {
 
         notifyTestResults(jobName, (TestResults) parameters.get(BuildNotifierConstants.TEST_CASE_INFO));
         notifyCoverage(jobName, (CodeCoverage) parameters.get(BuildNotifierConstants.COVERAGE_INFO));
-    }
-    
-    private long getLong(Map<String, Object> map, String mapKey) {
-        Object mapValue = map.get(mapKey);
-        
-        if (mapValue != null) {
-            return (long)mapValue;
-        }
-        return DEFAULT_LONG;
     }
 
     private void notifyCoverage(String jobName, @Nullable CodeCoverage coverageInfo) {

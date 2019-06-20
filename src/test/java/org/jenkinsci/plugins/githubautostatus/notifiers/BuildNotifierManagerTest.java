@@ -28,6 +28,7 @@ import java.util.HashMap;
 import org.jenkinsci.plugins.githubautostatus.BuildStageModel;
 import org.jenkinsci.plugins.githubautostatus.GithubNotificationConfig;
 import org.jenkinsci.plugins.githubautostatus.InfluxDbNotifierConfig;
+import org.jenkinsci.plugins.githubautostatus.StatsdNotifierConfig;
 import org.junit.After;
 import org.junit.AfterClass;
 import org.junit.Before;
@@ -48,6 +49,8 @@ public class BuildNotifierManagerTest {
     private GithubNotificationConfig githubNotificationConfig;
     @Mock
     private InfluxDbNotifierConfig influxDbNotificationConfig;
+    @Mock
+    private StatsdNotifierConfig statsdNotificationConfig;
     @Mock
     private GHRepository repo;
     private BuildNotifierManager instance;

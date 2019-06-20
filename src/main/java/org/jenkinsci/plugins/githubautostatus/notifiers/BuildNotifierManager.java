@@ -29,6 +29,7 @@ import java.util.Map;
 import org.jenkinsci.plugins.githubautostatus.BuildStageModel;
 import org.jenkinsci.plugins.githubautostatus.GithubNotificationConfig;
 import org.jenkinsci.plugins.githubautostatus.InfluxDbNotifierConfig;
+import org.jenkinsci.plugins.githubautostatus.StatsdNotifierConfig;
 
 /**
  * Manages send build notifications to one or more notifiers
@@ -68,13 +69,24 @@ public class BuildNotifierManager {
      * Adds an influx DB notifier
      *
      * @param influxDbNotifierConfig influx db notification configuration
-     * @return the notifier which was added
+     * @return The notifier object which was added
      */
     public BuildNotifier addInfluxDbNotifier(InfluxDbNotifierConfig influxDbNotifierConfig) {
         InfluxDbNotifier buildNotifier = new InfluxDbNotifier(influxDbNotifierConfig);
         return addBuildNotifier(buildNotifier);
     }
     public BuildNotifier addGenericNofifier(BuildNotifier buildNotifier) {
+        return addBuildNotifier(buildNotifier);
+    }
+
+    /**
+     * Adds an Statsd notifier
+     *
+     * @param statsdNotifierConfig Statsd notification configuration
+     * @return the notifier object configured for Statsd
+     */
+    public BuildNotifier addStatsdBuildNotifier(StatsdNotifierConfig statsdNotifierConfig) {
+        StatsdNotifier buildNotifier = new StatsdNotifier(statsdNotifierConfig);
         return addBuildNotifier(buildNotifier);
     }
 
@@ -107,6 +119,8 @@ public class BuildNotifierManager {
      * Send overall build status notification
      *
      * @param buildState the build status
+     * @param buildDuration how long it took the build to finish
+     * @param blockedDuration time build was blocked before running
      * @param parameters build parameters
      */
     public void notifyFinalBuildStatus(BuildState buildState, Map<String, Object> parameters) {
