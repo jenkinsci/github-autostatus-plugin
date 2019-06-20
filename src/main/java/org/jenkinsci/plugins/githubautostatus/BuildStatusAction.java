@@ -26,6 +26,8 @@ package org.jenkinsci.plugins.githubautostatus;
 import hudson.model.InvisibleAction;
 import hudson.model.JobProperty;
 import hudson.model.Run;
+
+import java.io.IOException;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;

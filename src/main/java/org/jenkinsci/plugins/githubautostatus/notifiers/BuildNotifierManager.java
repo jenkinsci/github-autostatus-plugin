@@ -119,8 +119,6 @@ public class BuildNotifierManager {
      * Send overall build status notification
      *
      * @param buildState the build status
-     * @param buildDuration how long it took the build to finish
-     * @param blockedDuration time build was blocked before running
      * @param parameters build parameters
      */
     public void notifyFinalBuildStatus(BuildState buildState, Map<String, Object> parameters) {
