@@ -26,11 +26,7 @@ package org.jenkinsci.plugins.githubautostatus;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import hudson.Extension;
-import hudson.model.JobProperty;
-import hudson.model.JobPropertyDescriptor;
-import hudson.model.Result;
-import hudson.model.Run;
-import hudson.model.TaskListener;
+import hudson.model.*;
 import hudson.model.listeners.RunListener;
 import hudson.plugins.cobertura.CoberturaBuildAction;
 import hudson.plugins.jacoco.JacocoBuildAction;
@@ -90,15 +86,11 @@ public class BuildStatusJobListener extends RunListener<Run<?, ?>> {
     private Map<String, Object> getParameters(Run<?, ?> build) {
         HashMap<String, Object> result = new HashMap<String, Object>();
 
-        Map<JobPropertyDescriptor, ? extends JobProperty<?>> jobProperties = build.getParent().getProperties();
-        if (jobProperties != null) {
-            for (JobProperty property : jobProperties.values()) {
+        ParametersAction parametersAction = build.getAction(ParametersAction.class);
 
-                result.put(property.getDescriptor().getDisplayName(), property);
-
-//            List<ParameterValue> list = parameters.getAllParameters();
-//            for (JobPropertyDescriptor paramaterValue : jobProperties.entrySet()) {
-//                result.put(paramaterValue.getName(), paramaterValue.getValue());
+        if (parametersAction != null) {
+            for (ParameterValue parameterValue : parametersAction.getAllParameters()) {
+                result.put(parameterValue.getName(), parameterValue.getValue());
             }
         }
 
