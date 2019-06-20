@@ -94,7 +94,6 @@ public class BuildStatusAction extends InvisibleAction {
      * @param run the build
      * @param targetUrl link back to Jenkins
      * @param stageList list of stages if known
-     * @throws IOException general exception
      */
     public BuildStatusAction(Run<?, ?> run, String targetUrl, List<BuildStageModel> stageList) {
         this.run = run;
