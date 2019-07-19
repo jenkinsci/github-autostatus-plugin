@@ -279,7 +279,7 @@ public class InfluxDbNotifier extends BuildNotifier {
     }
 
     private void notifyTestCase(String jobName, String suiteName, TestCase testCase) {
-        String dataPoint = String.format("testcase,owner=%s,repo=%s,branch=%s,suite=%s jobname=\"%s\",testcase=%s,passed=%d,skipped=%d,failed=%d",
+        String dataPoint = String.format("testcase,owner=%s,repo=%s,branch=%s,suite=%s jobname=\"%s\",testcase=\"%s\",passed=%d,skipped=%d,failed=%d",
                 repoOwner,
                 repoName,
                 branchName,
