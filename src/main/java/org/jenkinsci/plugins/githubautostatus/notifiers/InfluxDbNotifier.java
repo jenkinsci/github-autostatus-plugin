@@ -232,7 +232,7 @@ public class InfluxDbNotifier extends BuildNotifier {
     private void notifyCoverage(String jobName, @Nullable CodeCoverage coverageInfo) {
         if (coverageInfo != null) {
 
-            String data = new StringBuilder(SeriesNames.Job)
+            String data = new StringBuilder(SeriesNames.Coverage)
                     // Tags
                     .append(String.format(",%s=%s", TagNames.Owner, repoOwner))
                     .append(String.format(",%s=%s", TagNames.Repo, repoName))
