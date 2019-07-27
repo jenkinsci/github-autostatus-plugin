@@ -11,7 +11,7 @@
     <version>3.4.3-SNAPSHOT</version>
     <packaging>hpi</packaging>
     <properties>
-        <jenkins.version>2.73.3</jenkins.version>
+        <jenkins.version>2.111</jenkins.version>
         <java.level>8</java.level>
         <powermock.version>1.7.4</powermock.version>
     </properties>
@@ -241,7 +241,7 @@
         <dependency>
             <groupId>org.jenkins-ci.main</groupId>
             <artifactId>jenkins-core</artifactId>
-            <version>2.73.3</version>
+            <version>${jenkins.version}</version>
         </dependency>
         <dependency>
             <groupId>org.apache.httpcomponents</groupId>
