@@ -29,14 +29,24 @@ import hudson.Extension;
 import hudson.model.*;
 import hudson.model.listeners.RunListener;
 import hudson.plugins.cobertura.CoberturaBuildAction;
+import hudson.plugins.git.util.Build;
+import hudson.plugins.git.util.BuildData;
 import hudson.plugins.jacoco.JacocoBuildAction;
 import hudson.tasks.junit.TestResultAction;
+
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.Set;
+import java.util.logging.Level;
+import java.util.logging.Logger;
+
+import org.jaxen.util.SingletonList;
 import org.jenkinsci.plugins.githubautostatus.model.CodeCoverage;
 import org.jenkinsci.plugins.githubautostatus.model.TestResults;
 import org.jenkinsci.plugins.githubautostatus.notifiers.BuildNotifierConstants;
 import org.jenkinsci.plugins.githubautostatus.notifiers.BuildState;
+import org.jenkinsci.plugins.workflow.job.WorkflowRun;
 
 /**
  * Implements {@link hudson.model.listeners.RunListener} extension point to
@@ -56,6 +66,12 @@ public class BuildStatusJobListener extends RunListener<Run<?, ?>> {
     @Override
     public void onCompleted(Run<?, ?> build, TaskListener listener) {
 
+        log(Level.INFO,"BuildStatusJobListener.onCompleted %s", build.getClass().getName());
+
+        if (build instanceof FreeStyleBuild) {
+            enableFreeStyleBuild((FreeStyleBuild)build);
+
+        }
         BuildStatusAction statusAction = build.getAction(BuildStatusAction.class);
         log(Level.INFO, "Build Completed");
         if (statusAction != null) {
@@ -78,6 +94,25 @@ public class BuildStatusJobListener extends RunListener<Run<?, ?>> {
     }
 
     /**
+     * Sets the build status action for a freestyle build, so we can send a few basic stats
+     * @param build the build.
+     */
+    private void enableFreeStyleBuild(FreeStyleBuild build) {
+        String repoOwner = "";
+        String repoName = build.getProject().getName();
+        String branchName = "";
+
+        BuildStatusAction buildStatusAction = new BuildStatusAction(build, null, Collections.emptyList());
+        build.addAction(buildStatusAction);
+
+        buildStatusAction.setRepoOwner(repoOwner);
+        buildStatusAction.setRepoName(repoName);
+        buildStatusAction.setBranchName(branchName);
+        buildStatusAction.addInfluxDbNotifier(
+                InfluxDbNotifierConfig.fromGlobalConfig(repoOwner, repoName, branchName));
+    }
+
+    /**
      * Gets Creates a map containing all job parameters.
      *
      * @param build the build.
@@ -88,6 +123,7 @@ public class BuildStatusJobListener extends RunListener<Run<?, ?>> {
 
         ParametersAction parametersAction = build.getAction(ParametersAction.class);
 
+        // TODO: reverify this code
         if (parametersAction != null) {
             for (ParameterValue parameterValue : parametersAction.getAllParameters()) {
                 result.put(parameterValue.getName(), parameterValue.getValue());
