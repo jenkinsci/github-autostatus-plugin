@@ -208,7 +208,7 @@ public class InfluxDbNotifier extends BuildNotifier {
                 .append(String.format(",%s=%d", FieldNames.Passed, passed))
                 .append(String.format(",%s=%d", FieldNames.BuildNumber, buildNumber))
                 .append(String.format(",%s=\"%s\"", FieldNames.BuildUrl, escapeTagValue(buildUrl)))
-                .append(String.format(",%s=\"%s\"", FieldNames.Trigger, escapeTagValue(buildCause)))
+                .append(String.format(",%s=\"%s\"", FieldNames.Trigger, buildCause))
                 .toString();
 
         postData(data);
@@ -245,7 +245,7 @@ public class InfluxDbNotifier extends BuildNotifier {
                 .append(String.format(",%s=%d", FieldNames.Passed, passed))
                 .append(String.format(",%s=\"%s\"", FieldNames.BuildUrl, escapeTagValue(buildUrl)))
                 .append(String.format(",%s=%d", FieldNames.BuildNumber, buildNumber))
-                .append(String.format(",%s=\"%s\"", FieldNames.Trigger, escapeTagValue(buildCause)))
+                .append(String.format(",%s=\"%s\"", FieldNames.Trigger, buildCause))
                 .toString();
 
         postData(data);
@@ -285,7 +285,7 @@ public class InfluxDbNotifier extends BuildNotifier {
                     .append(String.format(",%s=%f", FieldNames.Coverage.Packages, coverageInfo.getPackages()))
                     .append(String.format(",%s=\"%s\"", FieldNames.BuildUrl, escapeTagValue(buildUrl)))
                     .append(String.format(",%s=%d", FieldNames.BuildNumber, buildNumber))
-                    .append(String.format(",%s=\"%s\"", FieldNames.Trigger, escapeTagValue(buildCause)))
+                    .append(String.format(",%s=\"%s\"", FieldNames.Trigger, buildCause))
                     .toString();
 
             postData(data);
@@ -308,7 +308,7 @@ public class InfluxDbNotifier extends BuildNotifier {
                     .append(String.format(",%s=\"%s\"", FieldNames.JobName, escapeTagValue(jobName)))
                     .append(String.format(",%s=\"%s\"", FieldNames.BuildUrl, escapeTagValue(buildUrl)))
                     .append(String.format(",%s=%d", FieldNames.BuildNumber, buildNumber))
-                    .append(String.format(",%s=\"%s\"", FieldNames.Trigger, escapeTagValue(buildCause)))
+                    .append(String.format(",%s=\"%s\"", FieldNames.Trigger, buildCause))
                     .append(String.format(",%s=%d", FieldNames.Test.Passed, testResults.getPassedTestCaseCount()))
                     .append(String.format(",%s=%d", FieldNames.Test.Skipped, testResults.getSkippedTestCaseCount()))
                     .append(String.format(",%s=%d", FieldNames.Test.Failed, testResults.getFailedTestCaseCount()))
@@ -336,7 +336,7 @@ public class InfluxDbNotifier extends BuildNotifier {
                 .append(String.format(" %s=\"%s\"", FieldNames.Branch, branchName))
                 .append(String.format(",%s=\"%s\"", FieldNames.BuildUrl, escapeTagValue(buildUrl)))
                 .append(String.format(",%s=%d", FieldNames.BuildNumber, buildNumber))
-                .append(String.format(",%s=\"%s\"", FieldNames.Trigger, escapeTagValue(buildCause)))
+                .append(String.format(",%s=\"%s\"", FieldNames.Trigger, buildCause))
                 .append(String.format(",%s=\"%s\"", FieldNames.TestSuite.Suite, escapeTagValue(suiteName)))
                 .append(String.format(",%s=\"%s\"", FieldNames.JobName, escapeTagValue(jobName)))
                 .append(String.format(",%s=%d", FieldNames.Test.Passed, testSuite.getPassedTestCaseCount()))
@@ -367,7 +367,7 @@ public class InfluxDbNotifier extends BuildNotifier {
                 .append(String.format(" %s=\"%s\"", FieldNames.TestCase.TestCase, escapeTagValue(testCase.getName())))
                 .append(String.format(",%s=\"%s\"", FieldNames.BuildUrl, escapeTagValue(buildUrl)))
                 .append(String.format(",%s=%d", FieldNames.BuildNumber, buildNumber))
-                .append(String.format(",%s=\"%s\"", FieldNames.Trigger, escapeTagValue(buildCause)))
+                .append(String.format(",%s=\"%s\"", FieldNames.Trigger, buildCause))
                 .append(String.format(",%s=\"%s\"", FieldNames.JobName, escapeTagValue(jobName)))
                 .append(String.format(",%s=%d", FieldNames.Test.Passed, testCase.getPassedCount()))
                 .append(String.format(",%s=%d", FieldNames.Test.Skipped, testCase.getSkippedCount()))

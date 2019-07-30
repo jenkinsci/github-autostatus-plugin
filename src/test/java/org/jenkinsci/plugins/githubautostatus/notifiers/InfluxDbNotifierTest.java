@@ -189,7 +189,7 @@ public class InfluxDbNotifierTest {
 
         verify(mockHttpClient).execute(any());
         assertEquals(
-                "stage,owner=mockowner,repo=mockrepo,stagename=\"mocknodename\",result=CompletedSuccess jobname=\"mockjobname\",branch=\"mockbranch\",stagetime=0,passed=1,buildnumber=1,buildurl=\"https://jenkins.com/1\",trigger=\"user\\ A\"",
+                "stage,owner=mockowner,repo=mockrepo,stagename=\"mocknodename\",result=CompletedSuccess jobname=\"mockjobname\",branch=\"mockbranch\",stagetime=0,passed=1,buildnumber=1,buildurl=\"https://jenkins.com/1\",trigger=\"user A\"",
                 statusLine);
     }
 
@@ -205,7 +205,7 @@ public class InfluxDbNotifierTest {
 
         verify(mockHttpClient).execute(any());
         assertEquals(
-                "stage,owner=mockowner,repo=mockrepo,stagename=\"mocknodename\",result=CompletedSuccess jobname=\"mockjobname\",branch=\"mockbranch\",stagetime=0,passed=1,buildnumber=1,buildurl=\"https://jenkins.com/1\",trigger=\"user\\ A\"",
+                "stage,owner=mockowner,repo=mockrepo,stagename=\"mocknodename\",result=CompletedSuccess jobname=\"mockjobname\",branch=\"mockbranch\",stagetime=0,passed=1,buildnumber=1,buildurl=\"https://jenkins.com/1\",trigger=\"user A\"",
                 statusLine);
     }
 
@@ -222,7 +222,7 @@ public class InfluxDbNotifierTest {
         instance.notifyBuildStageStatus("mockjobname", stageItem);
 
         verify(mockHttpClient).execute(any());
-        assertEquals("stage,owner=mockowner,repo=mockrepo,stagename=\"mocknodename\",result=CompletedSuccess jobname=\"mockjobname\",branch=\"mockbranch\",stagetime=0,passed=1,buildnumber=1,buildurl=\"https://jenkins.com/1\",trigger=\"user\\ A\"",
+        assertEquals("stage,owner=mockowner,repo=mockrepo,stagename=\"mocknodename\",result=CompletedSuccess jobname=\"mockjobname\",branch=\"mockbranch\",stagetime=0,passed=1,buildnumber=1,buildurl=\"https://jenkins.com/1\",trigger=\"user A\"",
         statusLine);
 
     }
@@ -252,7 +252,7 @@ public class InfluxDbNotifierTest {
 
         verify(mockHttpClient).execute(any());
         assertEquals(
-                "job,owner=mockowner,repo=mockrepo,result=CompletedSuccess jobname=\"mockjobname\",branch=\"mockbranch\",jobtime=76,blocked=1,blockedtime=12,passed=1,buildurl=\"https://jenkins.com/1\",buildnumber=1,trigger=\"user\\ A\"",
+                "job,owner=mockowner,repo=mockrepo,result=CompletedSuccess jobname=\"mockjobname\",branch=\"mockbranch\",jobtime=76,blocked=1,blockedtime=12,passed=1,buildurl=\"https://jenkins.com/1\",buildnumber=1,trigger=\"user A\"",
                 statusLine);
     }
 
@@ -271,7 +271,7 @@ public class InfluxDbNotifierTest {
         instance.notifyFinalBuildStatus(BuildState.CompletedError, parameters);
 
         verify(mockHttpClient).execute(any());
-        assertEquals("job,owner=mockowner,repo=mockrepo,result=CompletedError jobname=\"mockjobname\",branch=\"mockbranch\",jobtime=1010,blocked=0,blockedtime=0,passed=0,buildurl=\"https://jenkins.com/1\",buildnumber=1,trigger=\"user\\ A\"",
+        assertEquals("job,owner=mockowner,repo=mockrepo,result=CompletedError jobname=\"mockjobname\",branch=\"mockbranch\",jobtime=1010,blocked=0,blockedtime=0,passed=0,buildurl=\"https://jenkins.com/1\",buildnumber=1,trigger=\"user A\"",
                 statusLine);
     }
 
@@ -300,7 +300,8 @@ public class InfluxDbNotifierTest {
         instance.notifyBuildStageStatus("mockjobname", stageItem);
 
         verify(mockHttpClient).execute(any());
-        assertEquals("stage,owner=mockowner,repo=mockrepo,stagename=\"mockstagename\",result=CompletedError jobname=\"mockjobname\",branch=\"mockbranch\",stagetime=2020,passed=0,buildnumber=1,buildurl=\"https://jenkins.com/1\",trigger=\"user\\ A\"",
+        assertEquals("stage,owner=mockowner,repo=mockrepo,stagename=\"mockstagename\",result=CompletedError jobname=\"mockjobname\",branch=\"mockbranch\",stagetime=2020,passed=0,buildnumber=1,buildurl=\"https://jenkins.com/1\",trigger=\"user" +
+                        " A\"",
         statusLine);
 
     }
