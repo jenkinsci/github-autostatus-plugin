@@ -194,7 +194,8 @@ public class InfluxDbNotifier extends BuildNotifier {
         String result = buildState.toString();
         String buildUrl = stageItem.getRun().getUrl();
         int buildNumber = stageItem.getRun().getNumber();
-        String buildCause = stageItem.getRun().getCause(Cause.class).getShortDescription();
+        Cause cause = stageItem.getRun().getCause(Cause.class);
+        String buildCause = cause == null ? DEFAULT_STRING : cause.getShortDescription();
         String data = new StringBuilder(SeriesNames.Stage)
                 // Tags
                 .append(String.format(",%s=%s", TagNames.Owner, repoOwner))
@@ -229,7 +230,8 @@ public class InfluxDbNotifier extends BuildNotifier {
         int blocked = blockedDuration > 0 ? 1 : 0;
         String buildUrl = run.getUrl();
         int buildNumber = run.getNumber();
-        String buildCause = run.getCause(Cause.class).getShortDescription();
+        Cause cause = run.getCause(Cause.class);
+        String buildCause = cause == null ? DEFAULT_STRING : cause.getShortDescription();
 
         String data = new StringBuilder(SeriesNames.Job)
                 // Tags
@@ -267,7 +269,8 @@ public class InfluxDbNotifier extends BuildNotifier {
         if (coverageInfo != null) {
             String buildUrl = run.getUrl();
             int buildNumber = run.getNumber();
-            String buildCause = run.getCause(Cause.class).getShortDescription();
+            Cause cause = run.getCause(Cause.class);
+            String buildCause = cause == null ? DEFAULT_STRING : cause.getShortDescription();
 
             String data = new StringBuilder(SeriesNames.Coverage)
                     // Tags
@@ -297,7 +300,8 @@ public class InfluxDbNotifier extends BuildNotifier {
         if (testResults != null) {
             String buildUrl = run.getUrl();
             int buildNumber = run.getNumber();
-            String buildCause = run.getCause(Cause.class).getShortDescription();
+            Cause cause = run.getCause(Cause.class);
+            String buildCause = cause == null ? DEFAULT_STRING : cause.getShortDescription();
             String data = new StringBuilder(SeriesNames.Tests)
                     // Tags
                     .append(String.format(",%s=%s", TagNames.Owner, repoOwner))
@@ -326,7 +330,8 @@ public class InfluxDbNotifier extends BuildNotifier {
         String suiteName = escapeTagValue(testSuite.getName());
         String buildUrl = run.getUrl();
         int buildNumber = run.getNumber();
-        String buildCause = run.getCause(Cause.class).getShortDescription();
+        Cause cause = run.getCause(Cause.class);
+        String buildCause = cause == null ? DEFAULT_STRING : cause.getShortDescription();
         String data = new StringBuilder(SeriesNames.TestSuite)
                 // Tags
                 .append(String.format(",%s=%s", TagNames.Owner, repoOwner))
@@ -354,7 +359,8 @@ public class InfluxDbNotifier extends BuildNotifier {
     private void notifyTestCase(String jobName, String suiteName, TestCase testCase, Run<?, ?> run) {
         String buildUrl = run.getUrl();
         int buildNumber = run.getNumber();
-        String buildCause = run.getCause(Cause.class).getShortDescription();
+        Cause cause = run.getCause(Cause.class);
+        String buildCause = cause == null ? DEFAULT_STRING : cause.getShortDescription();
 
         String data = new StringBuilder(SeriesNames.TestCase)
                 // Tags
