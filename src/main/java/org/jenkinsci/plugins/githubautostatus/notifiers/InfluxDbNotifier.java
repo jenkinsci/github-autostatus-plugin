@@ -31,6 +31,9 @@ import java.util.Map;
 import java.util.Base64;
 import java.util.logging.Level;
 import java.util.logging.Logger;
+
+import hudson.model.Cause;
+import hudson.model.Run;
 import org.apache.commons.lang.StringUtils;
 import javax.annotation.Nullable;
 
@@ -66,6 +69,9 @@ public class InfluxDbNotifier extends BuildNotifier {
         public static final String Coverage = "coverage";
         public static final String Stage = "stage";
         public static final String Job = "job";
+        public static final String Tests = "tests";
+        public static final String TestSuite = "testsuite";
+        public static final String TestCase = "testcase";
 
     }
     public static class TagNames {
@@ -73,6 +79,7 @@ public class InfluxDbNotifier extends BuildNotifier {
         public static final String Repo = "repo";
         public static final String Result = "result";
         public static final String StageName = "stagename";
+        public static final String Suite = "suite";
     }
     public static class FieldNames {
         public static final String Blocked = "blocked";
@@ -86,10 +93,24 @@ public class InfluxDbNotifier extends BuildNotifier {
             public static final String Methods = "methods";
             public static final String Packages = "packages";
         }
-        public static final String Jobname = "jobname";
+        public static class Test {
+            public static final String Passed = "passed";
+            public static final String Skipped = "skipped";
+            public static final String Failed = "failed";
+        }
+        public static class TestSuite {
+            public static final String Suite = "suite";
+        }
+        public static class TestCase {
+            public static final String TestCase = "testcase";
+        }
+        public static final String JobName = "jobname";
         public static final String JobTime = "jobtime";
         public static final String Passed = "passed";
         public static final String StageTime = "stagetime";
+        public static final String BuildUrl = "buildurl";
+        public static final String BuildNumber = "buildnumber";
+        public static final String Trigger = "trigger";
     }
 
 
@@ -171,6 +192,10 @@ public class InfluxDbNotifier extends BuildNotifier {
         // Success and all Skipped stages are marked as successful
         int passed = buildState == BuildState.CompletedError ? 0 : 1;
         String result = buildState.toString();
+        String buildUrl = stageItem.getRun().getUrl();
+        int buildNumber = stageItem.getRun().getNumber();
+        Cause cause = stageItem.getRun().getCause(Cause.class);
+        String buildCause = cause == null ? DEFAULT_STRING : cause.getShortDescription();
         String data = new StringBuilder(SeriesNames.Stage)
                 // Tags
                 .append(String.format(",%s=%s", TagNames.Owner, repoOwner))
@@ -178,10 +203,13 @@ public class InfluxDbNotifier extends BuildNotifier {
                 .append(String.format(",%s=\"%s\"", TagNames.StageName, escapeTagValue(stageItem.getStageName())))
                 .append(String.format(",%s=%s", TagNames.Result, result))
                 // Fields
-                .append(String.format(" %s=\"%s\"", FieldNames.Jobname, escapeTagValue(jobName)))
+                .append(String.format(" %s=\"%s\"", FieldNames.JobName, escapeTagValue(jobName)))
                 .append(String.format(",%s=\"%s\"", FieldNames.Branch, branchName))
                 .append(String.format(",%s=%d", FieldNames.StageTime, timingInfo != null ? timingInfo : 0))
                 .append(String.format(",%s=%d", FieldNames.Passed, passed))
+                .append(String.format(",%s=%d", FieldNames.BuildNumber, buildNumber))
+                .append(String.format(",%s=\"%s\"", FieldNames.BuildUrl, escapeTagValue(buildUrl)))
+                .append(String.format(",%s=\"%s\"", FieldNames.Trigger, buildCause))
                 .toString();
 
         postData(data);
@@ -195,10 +223,15 @@ public class InfluxDbNotifier extends BuildNotifier {
      */
     @Override
     public void notifyFinalBuildStatus(BuildState buildState, Map<String, Object> parameters) {
+        Run<?, ?> run = (Run<?, ?>) parameters.get(BuildNotifierConstants.BUILD_OBJECT);
         String jobName = (String) parameters.getOrDefault(BuildNotifierConstants.JOB_NAME, DEFAULT_STRING);
         int passed = buildState == BuildState.CompletedSuccess ? 1 : 0;
         long blockedDuration = getLong(parameters, BuildNotifierConstants.BLOCKED_DURATION);
         int blocked = blockedDuration > 0 ? 1 : 0;
+        String buildUrl = run.getUrl();
+        int buildNumber = run.getNumber();
+        Cause cause = run.getCause(Cause.class);
+        String buildCause = cause == null ? DEFAULT_STRING : cause.getShortDescription();
 
         String data = new StringBuilder(SeriesNames.Job)
                 // Tags
@@ -206,18 +239,21 @@ public class InfluxDbNotifier extends BuildNotifier {
                 .append(String.format(",%s=%s", TagNames.Repo, repoName))
                 .append(String.format(",%s=%s", TagNames.Result, buildState.toString()))
                 // Fields
-                .append(String.format(" %s=\"%s\"", FieldNames.Jobname, escapeTagValue(jobName)))
+                .append(String.format(" %s=\"%s\"", FieldNames.JobName, escapeTagValue(jobName)))
                 .append(String.format(",%s=\"%s\"", FieldNames.Branch, branchName))
                 .append(String.format(",%s=%d", FieldNames.JobTime, getLong(parameters, BuildNotifierConstants.JOB_DURATION) - blockedDuration))
                 .append(String.format(",%s=%d", FieldNames.Blocked, blocked))
                 .append(String.format(",%s=%d", FieldNames.BlockedTime, blockedDuration))
                 .append(String.format(",%s=%d", FieldNames.Passed, passed))
+                .append(String.format(",%s=\"%s\"", FieldNames.BuildUrl, escapeTagValue(buildUrl)))
+                .append(String.format(",%s=%d", FieldNames.BuildNumber, buildNumber))
+                .append(String.format(",%s=\"%s\"", FieldNames.Trigger, buildCause))
                 .toString();
 
         postData(data);
 
-        notifyTestResults(jobName, (TestResults) parameters.get(BuildNotifierConstants.TEST_CASE_INFO));
-        notifyCoverage(jobName, (CodeCoverage) parameters.get(BuildNotifierConstants.COVERAGE_INFO));
+        notifyTestResults(jobName, (TestResults) parameters.get(BuildNotifierConstants.TEST_CASE_INFO), run);
+        notifyCoverage(jobName, (CodeCoverage) parameters.get(BuildNotifierConstants.COVERAGE_INFO), run);
     }
     
     private long getLong(Map<String, Object> map, String mapKey) {
@@ -229,8 +265,12 @@ public class InfluxDbNotifier extends BuildNotifier {
         return DEFAULT_LONG;
     }
 
-    private void notifyCoverage(String jobName, @Nullable CodeCoverage coverageInfo) {
+    private void notifyCoverage(String jobName, @Nullable CodeCoverage coverageInfo, Run<?, ?> run) {
         if (coverageInfo != null) {
+            String buildUrl = run.getUrl();
+            int buildNumber = run.getNumber();
+            Cause cause = run.getCause(Cause.class);
+            String buildCause = cause == null ? DEFAULT_STRING : cause.getShortDescription();
 
             String data = new StringBuilder(SeriesNames.Coverage)
                     // Tags
@@ -238,7 +278,7 @@ public class InfluxDbNotifier extends BuildNotifier {
                     .append(String.format(",%s=%s", TagNames.Repo, repoName))
 
                     // Fields
-                    .append(String.format(" %s=\"%s\"", FieldNames.Jobname, escapeTagValue(jobName)))
+                    .append(String.format(" %s=\"%s\"", FieldNames.JobName, escapeTagValue(jobName)))
                     .append(String.format(",%s=\"%s\"", FieldNames.Branch, branchName))
                     .append(String.format(",%s=%f", FieldNames.Coverage.Classes, coverageInfo.getClasses()))
                     .append(String.format(",%s=%f", FieldNames.Coverage.Conditionals, coverageInfo.getConditionals()))
@@ -246,61 +286,100 @@ public class InfluxDbNotifier extends BuildNotifier {
                     .append(String.format(",%s=%f", FieldNames.Coverage.Lines, coverageInfo.getLines()))
                     .append(String.format(",%s=%f", FieldNames.Coverage.Methods, coverageInfo.getMethods()))
                     .append(String.format(",%s=%f", FieldNames.Coverage.Packages, coverageInfo.getPackages()))
+                    .append(String.format(",%s=\"%s\"", FieldNames.BuildUrl, escapeTagValue(buildUrl)))
+                    .append(String.format(",%s=%d", FieldNames.BuildNumber, buildNumber))
+                    .append(String.format(",%s=\"%s\"", FieldNames.Trigger, buildCause))
                     .toString();
 
             postData(data);
         }
     }
 
-    private void notifyTestResults(String jobName, @Nullable TestResults testResults) {
+    private void notifyTestResults(String jobName, @Nullable TestResults testResults, Run<?, ?> run) {
 
         if (testResults != null) {
-            String dataPoint = String.format("tests,owner=%s,repo=%s,branch=%s jobname=\"%s\",passed=%d,skipped=%d,failed=%d",
-                    repoOwner,
-                    repoName,
-                    branchName,
-                    escapeTagValue(jobName),
-                    testResults.getPassedTestCaseCount(),
-                    testResults.getSkippedTestCaseCount(),
-                    testResults.getFailedTestCaseCount());
-            postData(dataPoint);
+            String buildUrl = run.getUrl();
+            int buildNumber = run.getNumber();
+            Cause cause = run.getCause(Cause.class);
+            String buildCause = cause == null ? DEFAULT_STRING : cause.getShortDescription();
+            String data = new StringBuilder(SeriesNames.Tests)
+                    // Tags
+                    .append(String.format(",%s=%s", TagNames.Owner, repoOwner))
+                    .append(String.format(",%s=%s", TagNames.Repo, repoName))
+
+                    // Fields
+                    .append(String.format(" %s=\"%s\"", FieldNames.Branch, branchName))
+                    .append(String.format(",%s=\"%s\"", FieldNames.JobName, escapeTagValue(jobName)))
+                    .append(String.format(",%s=\"%s\"", FieldNames.BuildUrl, escapeTagValue(buildUrl)))
+                    .append(String.format(",%s=%d", FieldNames.BuildNumber, buildNumber))
+                    .append(String.format(",%s=\"%s\"", FieldNames.Trigger, buildCause))
+                    .append(String.format(",%s=%d", FieldNames.Test.Passed, testResults.getPassedTestCaseCount()))
+                    .append(String.format(",%s=%d", FieldNames.Test.Skipped, testResults.getSkippedTestCaseCount()))
+                    .append(String.format(",%s=%d", FieldNames.Test.Failed, testResults.getFailedTestCaseCount()))
+                    .toString();
+
+            postData(data);
 
             for (TestSuite testSuite : testResults.getTestSuites()) {
-                notifyTestSuite(jobName, testSuite);
+                notifyTestSuite(jobName, testSuite, run);
             }
         }
     }
 
-    private void notifyTestSuite(String jobName, TestSuite testSuite) {
+    private void notifyTestSuite(String jobName, TestSuite testSuite, Run<?, ?> run) {
         String suiteName = escapeTagValue(testSuite.getName());
-        String dataPoint = String.format("testsuite,owner=%s,repo=%s,branch=%s,suite=%s jobname=\"%s\",passed=%d,skipped=%d,failed=%d",
-                repoOwner,
-                repoName,
-                branchName,
-                suiteName,
-                escapeTagValue(jobName),
-                testSuite.getPassedTestCaseCount(),
-                testSuite.getSkippedTestCaseCount(),
-                testSuite.getFailedTestCaseCount());
-        postData(dataPoint);
+        String buildUrl = run.getUrl();
+        int buildNumber = run.getNumber();
+        Cause cause = run.getCause(Cause.class);
+        String buildCause = cause == null ? DEFAULT_STRING : cause.getShortDescription();
+        String data = new StringBuilder(SeriesNames.TestSuite)
+                // Tags
+                .append(String.format(",%s=%s", TagNames.Owner, repoOwner))
+                .append(String.format(",%s=%s", TagNames.Repo, repoName))
+
+                // Fields
+                .append(String.format(" %s=\"%s\"", FieldNames.Branch, branchName))
+                .append(String.format(",%s=\"%s\"", FieldNames.BuildUrl, escapeTagValue(buildUrl)))
+                .append(String.format(",%s=%d", FieldNames.BuildNumber, buildNumber))
+                .append(String.format(",%s=\"%s\"", FieldNames.Trigger, buildCause))
+                .append(String.format(",%s=\"%s\"", FieldNames.TestSuite.Suite, escapeTagValue(suiteName)))
+                .append(String.format(",%s=\"%s\"", FieldNames.JobName, escapeTagValue(jobName)))
+                .append(String.format(",%s=%d", FieldNames.Test.Passed, testSuite.getPassedTestCaseCount()))
+                .append(String.format(",%s=%d", FieldNames.Test.Skipped, testSuite.getSkippedTestCaseCount()))
+                .append(String.format(",%s=%d", FieldNames.Test.Failed, testSuite.getFailedTestCaseCount()))
+                .toString();
+
+        postData(data);
 
         for (TestCase testCase : testSuite.getTestCases()) {
-            notifyTestCase(jobName, suiteName, testCase);
+            notifyTestCase(jobName, suiteName, testCase, run);
         }
     }
 
-    private void notifyTestCase(String jobName, String suiteName, TestCase testCase) {
-        String dataPoint = String.format("testcase,owner=%s,repo=%s,branch=%s,suite=%s jobname=\"%s\",testcase=\"%s\",passed=%d,skipped=%d,failed=%d",
-                repoOwner,
-                repoName,
-                branchName,
-                suiteName,
-                escapeTagValue(jobName),
-                escapeTagValue(testCase.getName()),
-                testCase.getPassedCount(),
-                testCase.getSkippedCount(),
-                testCase.getFailedCount());
-        postData(dataPoint);
+    private void notifyTestCase(String jobName, String suiteName, TestCase testCase, Run<?, ?> run) {
+        String buildUrl = run.getUrl();
+        int buildNumber = run.getNumber();
+        Cause cause = run.getCause(Cause.class);
+        String buildCause = cause == null ? DEFAULT_STRING : cause.getShortDescription();
+
+        String data = new StringBuilder(SeriesNames.TestCase)
+                // Tags
+                .append(String.format(",%s=%s", TagNames.Owner, repoOwner))
+                .append(String.format(",%s=%s", TagNames.Repo, repoName))
+                .append(String.format(",%s=%s", TagNames.Suite, escapeTagValue(suiteName)))
+
+                // Fields
+                .append(String.format(" %s=\"%s\"", FieldNames.Branch, branchName))
+                .append(String.format(" %s=\"%s\"", FieldNames.TestCase.TestCase, escapeTagValue(testCase.getName())))
+                .append(String.format(",%s=\"%s\"", FieldNames.BuildUrl, escapeTagValue(buildUrl)))
+                .append(String.format(",%s=%d", FieldNames.BuildNumber, buildNumber))
+                .append(String.format(",%s=\"%s\"", FieldNames.Trigger, buildCause))
+                .append(String.format(",%s=\"%s\"", FieldNames.JobName, escapeTagValue(jobName)))
+                .append(String.format(",%s=%d", FieldNames.Test.Passed, testCase.getPassedCount()))
+                .append(String.format(",%s=%d", FieldNames.Test.Skipped, testCase.getSkippedCount()))
+                .append(String.format(",%s=%d", FieldNames.Test.Failed, testCase.getFailedCount()))
+                .toString();
+        postData(data);
     }
 
     protected String escapeTagValue(String tagValue) {

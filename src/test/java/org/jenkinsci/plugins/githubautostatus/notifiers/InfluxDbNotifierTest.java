@@ -31,6 +31,11 @@ import java.net.MalformedURLException;
 import java.util.Base64;
 import java.util.HashMap;
 import java.util.Map;
+
+import hudson.model.AbstractBuild;
+import hudson.model.Cause;
+
+import hudson.model.Run;
 import org.apache.http.HttpEntity;
 import org.apache.http.StatusLine;
 import org.apache.http.client.methods.CloseableHttpResponse;
@@ -39,7 +44,6 @@ import org.apache.http.impl.client.CloseableHttpClient;
 import org.apache.http.util.EntityUtils;
 import org.jenkinsci.plugins.githubautostatus.BuildStageModel;
 import org.jenkinsci.plugins.githubautostatus.InfluxDbNotifierConfig;
-import static org.jenkinsci.plugins.githubautostatus.notifiers.GithubBuildNotifierTest.repository;
 import org.junit.After;
 import org.junit.AfterClass;
 import org.junit.Before;
@@ -66,6 +70,8 @@ public class InfluxDbNotifierTest {
     private String statusLine;
     private CloseableHttpClient mockHttpClient;
     private StatusLine mockStatusLine;
+    private Run<?,?> mockRun;
+    private Cause mockCause;
 
     public InfluxDbNotifierTest() {
     }
@@ -105,6 +111,13 @@ public class InfluxDbNotifierTest {
             return mockResponse;
         });
 
+        mockCause = mock(Cause.UserIdCause.UserIdCause.class);
+        when(mockCause.getShortDescription()).thenReturn("user A");
+
+        mockRun = mock(AbstractBuild.class);
+        when(mockRun.getCause(Cause.class)).thenReturn(mockCause);
+        when(mockRun.getNumber()).thenReturn(1);
+        when(mockRun.getUrl()).thenReturn("https://jenkins.com/1");
     }
 
     @After
@@ -171,12 +184,12 @@ public class InfluxDbNotifierTest {
 
         BuildStageModel stageItem = new BuildStageModel("mocknodename");
         stageItem.setBuildState(BuildState.CompletedSuccess);
-
+        stageItem.setRun(mockRun);
         instance.notifyBuildStageStatus("mockjobname", stageItem);
 
         verify(mockHttpClient).execute(any());
         assertEquals(
-                "stage,owner=mockowner,repo=mockrepo,stagename=\"mocknodename\",result=CompletedSuccess jobname=\"mockjobname\",branch=\"mockbranch\",stagetime=0,passed=1",
+                "stage,owner=mockowner,repo=mockrepo,stagename=\"mocknodename\",result=CompletedSuccess jobname=\"mockjobname\",branch=\"mockbranch\",stagetime=0,passed=1,buildnumber=1,buildurl=\"https://jenkins.com/1\",trigger=\"user A\"",
                 statusLine);
     }
 
@@ -187,12 +200,12 @@ public class InfluxDbNotifierTest {
 
         BuildStageModel stageItem = new BuildStageModel("mocknodename");
         stageItem.setBuildState(BuildState.CompletedSuccess);
-
+        stageItem.setRun(mockRun);
         instance.notifyBuildStageStatus("mockjobname", stageItem);
 
         verify(mockHttpClient).execute(any());
         assertEquals(
-                "stage,owner=mockowner,repo=mockrepo,stagename=\"mocknodename\",result=CompletedSuccess jobname=\"mockjobname\",branch=\"mockbranch\",stagetime=0,passed=1",
+                "stage,owner=mockowner,repo=mockrepo,stagename=\"mocknodename\",result=CompletedSuccess jobname=\"mockjobname\",branch=\"mockbranch\",stagetime=0,passed=1,buildnumber=1,buildurl=\"https://jenkins.com/1\",trigger=\"user A\"",
                 statusLine);
     }
 
@@ -205,11 +218,11 @@ public class InfluxDbNotifierTest {
 
         BuildStageModel stageItem = new BuildStageModel("mocknodename");
         stageItem.setBuildState(BuildState.CompletedSuccess);
-
+        stageItem.setRun(mockRun);
         instance.notifyBuildStageStatus("mockjobname", stageItem);
 
         verify(mockHttpClient).execute(any());
-        assertEquals("stage,owner=mockowner,repo=mockrepo,stagename=\"mocknodename\",result=CompletedSuccess jobname=\"mockjobname\",branch=\"mockbranch\",stagetime=0,passed=1",
+        assertEquals("stage,owner=mockowner,repo=mockrepo,stagename=\"mocknodename\",result=CompletedSuccess jobname=\"mockjobname\",branch=\"mockbranch\",stagetime=0,passed=1,buildnumber=1,buildurl=\"https://jenkins.com/1\",trigger=\"user A\"",
         statusLine);
 
     }
@@ -234,11 +247,12 @@ public class InfluxDbNotifierTest {
         jobParams.put(BuildNotifierConstants.JOB_NAME, "mockjobname");
         jobParams.put(BuildNotifierConstants.JOB_DURATION, 88L);
         jobParams.put(BuildNotifierConstants.BLOCKED_DURATION, 12L);
+        jobParams.put(BuildNotifierConstants.BUILD_OBJECT, mockRun);
         instance.notifyFinalBuildStatus(BuildState.CompletedSuccess, jobParams);
 
         verify(mockHttpClient).execute(any());
         assertEquals(
-                "job,owner=mockowner,repo=mockrepo,result=CompletedSuccess jobname=\"mockjobname\",branch=\"mockbranch\",jobtime=76,blocked=1,blockedtime=12,passed=1",
+                "job,owner=mockowner,repo=mockrepo,result=CompletedSuccess jobname=\"mockjobname\",branch=\"mockbranch\",jobtime=76,blocked=1,blockedtime=12,passed=1,buildurl=\"https://jenkins.com/1\",buildnumber=1,trigger=\"user A\"",
                 statusLine);
     }
 
@@ -253,11 +267,11 @@ public class InfluxDbNotifierTest {
         parameters.put(BuildNotifierConstants.BRANCH_NAME, "mockbranch");
         parameters.put(BuildNotifierConstants.JOB_DURATION, 1010L);
         parameters.put(BuildNotifierConstants.BLOCKED_DURATION, 0L);
-
+        parameters.put(BuildNotifierConstants.BUILD_OBJECT, mockRun);
         instance.notifyFinalBuildStatus(BuildState.CompletedError, parameters);
 
         verify(mockHttpClient).execute(any());
-        assertEquals("job,owner=mockowner,repo=mockrepo,result=CompletedError jobname=\"mockjobname\",branch=\"mockbranch\",jobtime=1010,blocked=0,blockedtime=0,passed=0",
+        assertEquals("job,owner=mockowner,repo=mockrepo,result=CompletedError jobname=\"mockjobname\",branch=\"mockbranch\",jobtime=1010,blocked=0,blockedtime=0,passed=0,buildurl=\"https://jenkins.com/1\",buildnumber=1,trigger=\"user A\"",
                 statusLine);
     }
 
@@ -276,15 +290,18 @@ public class InfluxDbNotifierTest {
         parameters.put(BuildNotifierConstants.BRANCH_NAME, "mockbranch");
         parameters.put(BuildNotifierConstants.STAGE_DURATION, 2020L);
         parameters.put(BuildNotifierConstants.BLOCKED_DURATION, 0L);
-        
+        parameters.put(BuildNotifierConstants.BUILD_OBJECT, mockRun);
+
         BuildStageModel stageItem = new BuildStageModel("mockstagename", parameters);
         stageItem.setIsStage(false);
         stageItem.setBuildState(BuildState.CompletedError);
+        stageItem.setRun(mockRun);
 
         instance.notifyBuildStageStatus("mockjobname", stageItem);
 
         verify(mockHttpClient).execute(any());
-        assertEquals("stage,owner=mockowner,repo=mockrepo,stagename=\"mockstagename\",result=CompletedError jobname=\"mockjobname\",branch=\"mockbranch\",stagetime=2020,passed=0",
+        assertEquals("stage,owner=mockowner,repo=mockrepo,stagename=\"mockstagename\",result=CompletedError jobname=\"mockjobname\",branch=\"mockbranch\",stagetime=2020,passed=0,buildnumber=1,buildurl=\"https://jenkins.com/1\",trigger=\"user" +
+                        " A\"",
         statusLine);
 
     }
