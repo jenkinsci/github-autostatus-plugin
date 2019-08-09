@@ -23,6 +23,7 @@
  */
 package org.jenkinsci.plugins.githubautostatus.model;
 
+import com.google.gson.annotations.SerializedName;
 import hudson.tasks.junit.CaseResult;
 import hudson.tasks.junit.SuiteResult;
 import hudson.tasks.junit.TestResultAction;
@@ -35,10 +36,14 @@ import javax.annotation.Nullable;
  */
 public class TestResults {
 
+    @SerializedName("passed")
     private int passedTestCaseCount;
+    @SerializedName("skipped")
     private int skippedTestCaseCount;
+    @SerializedName("failed")
     private int failedTestCaseCount;
 
+    @SerializedName("suites")
     private ArrayList<TestSuite> testSuites;
 
     public void setTestSuites(ArrayList<TestSuite> testSuites) {

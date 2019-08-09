@@ -23,6 +23,8 @@
  */
 package org.jenkinsci.plugins.githubautostatus.model;
 
+import com.google.gson.annotations.SerializedName;
+
 import java.util.ArrayList;
 
 /**
@@ -34,8 +36,11 @@ public class TestSuite {
     private String name;
     private ArrayList<TestCase> testCases;
 
+    @SerializedName("passed")
     private int passedTestCaseCount;
+    @SerializedName("skipped")
     private int skippedTestCaseCount;
+    @SerializedName("failed")
     private int failedTestCaseCount;
 
     public TestSuite() {
