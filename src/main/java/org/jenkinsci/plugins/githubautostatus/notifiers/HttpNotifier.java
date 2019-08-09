@@ -46,6 +46,7 @@ import org.jenkinsci.plugins.githubautostatus.model.TestSuite;
 import javax.annotation.Nullable;
 import java.io.UnsupportedEncodingException;
 import java.util.Base64;
+import java.util.HashMap;
 import java.util.Map;
 import java.util.logging.Level;
 import java.util.logging.Logger;
@@ -57,12 +58,8 @@ public class HttpNotifier extends BuildNotifier {
   protected String branchName;
   protected HttpNotifierConfig config;
   protected String authorization;
+  protected Map<String, JSONObject> stageData;
 
-  public static final String NotificationType = "notificationType";
-  public enum HttpNotificationType {
-    StageStatus,
-    FinalBuildStatus
-  }
   public static class BuildStatus {
     public static final String RepoOwner = "repoOwner";
     public static final String RepoName = "repoName";
@@ -76,14 +73,14 @@ public class HttpNotifier extends BuildNotifier {
     public static final String BuildUrl = "buildUrl";
     public static final String BuildNumber = "buildNumber";
     public static final String Trigger = "trigger";
-
-    public static final String TestResults = "testResults";
+    public static final String Stages = "stages";
+    public static final String TestResults = "testResult";
     public static class TestResult {
       public static final String Passed = "passed";
       public static final String Skipped = "skipped";
       public static final String Failed = "failed";
 
-      public static final String TestSuites = "testSuites";
+      public static final String TestSuites = "suites";
       public static final String SuiteName = "suiteName";
       public static final String TestCases = "testCases";
       public static final String TestCaseName = "testCase";
@@ -101,6 +98,13 @@ public class HttpNotifier extends BuildNotifier {
     }
   }
 
+  public static class StageStatus {
+    public static final String StageName = "stageName";
+    public static final String Passed = "passed";
+    public static final String Result = "result";
+    public static final String StageTime = "stageTime";
+  }
+
   public HttpNotifier(HttpNotifierConfig config) {
     if (null == config || Strings.isNullOrEmpty(config.getHttpEndpoint())) {
       return;
@@ -109,6 +113,7 @@ public class HttpNotifier extends BuildNotifier {
     this.repoName = config.getRepoName();
     this.branchName = config.getBranchName();
     this.config = config;
+    this.stageData = new HashMap<>();
     try {
       UsernamePasswordCredentials credentials = config.getCredentials();
       if (credentials != null) {
@@ -131,18 +136,37 @@ public class HttpNotifier extends BuildNotifier {
 
   @Override
   public void notifyBuildStageStatus(String jobName, BuildStageModel stageItem) {
-    log(Level.INFO, "not implemented yet - notifyBuildStageStatus(%s, %s)", jobName, stageItem.getStageName());
+    BuildState buildState = stageItem.getBuildState();
+    if (buildState == BuildState.Pending) {
+      return;
+    }
+
+    Object timingInfo = stageItem.getEnvironment().get(BuildNotifierConstants.STAGE_DURATION);
+    // Success and all Skipped stages are marked as successful
+    int passed = buildState == BuildState.CompletedError ? 0 : 1;
+    String result = buildState.toString();
+    JSONObject data = new JSONObject();
+    data.put(StageStatus.StageName, stageItem.getStageName());
+    data.put(StageStatus.Passed, passed);
+    data.put(StageStatus.Result, result);
+    data.put(StageStatus.StageTime, timingInfo != null ? timingInfo : 0);
+
+    stageData.put(stageItem.getStageName(), data);
   }
 
   @Override
   public void notifyFinalBuildStatus(BuildState buildState, Map<String, Object> parameters) {
-    JSONObject finalBuildStatus = new JSONObject();
-    finalBuildStatus.put(NotificationType, HttpNotificationType.FinalBuildStatus);
-    finalBuildStatus.putAll(constructBuildStatus(buildState, parameters));
-    finalBuildStatus.put(BuildStatus.TestResults, constructTestResult((TestResults) parameters.get(BuildNotifierConstants.TEST_CASE_INFO)));
-    finalBuildStatus.put(BuildStatus.CoverageResults, constructCoverage((CodeCoverage) parameters.get(BuildNotifierConstants.COVERAGE_INFO)));
-    log(Level.FINE, "Final build status: %s", finalBuildStatus.toString());
-    sendData(finalBuildStatus.toString());
+    JSONObject buildStatus = new JSONObject();
+    buildStatus.putAll(constructBuildStatus(buildState, parameters));
+    buildStatus.put(BuildStatus.TestResults, constructTestResult((TestResults) parameters.get(BuildNotifierConstants.TEST_CASE_INFO)));
+    buildStatus.put(BuildStatus.CoverageResults, constructCoverage((CodeCoverage) parameters.get(BuildNotifierConstants.COVERAGE_INFO)));
+
+    JSONArray stages = new JSONArray();
+    stageData.forEach((name, data) -> stages.add(data));
+    buildStatus.put(BuildStatus.Stages, stages);
+
+    log(Level.FINE, "Final build status: %s", buildStatus.toString());
+    sendData(buildStatus.toString());
   }
 
   private JSONObject constructBuildStatus(BuildState buildState, Map<String, Object> parameters){
