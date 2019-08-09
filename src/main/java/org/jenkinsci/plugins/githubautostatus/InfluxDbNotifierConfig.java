@@ -39,7 +39,7 @@ import org.apache.http.impl.client.HttpClients;
  * Encapsulates the logic of determining influxdb configuration for a build.
  * @author Jeff Pearce (jxpearce@godaddy.com)
  */
-public class InfluxDbNotifierConfig {
+public class InfluxDbNotifierConfig extends AbstractNotifierConfig {
 
     private String repoOwner;
     private String repoName;
@@ -47,8 +47,6 @@ public class InfluxDbNotifierConfig {
     private String influxDbUrlString;
     private String influxDbDatabase;
     private String influxDbCredentialsId;
-    private String influxDbUser;
-    private String influxDbPassword;
     private String influxDbRetentionPolicy;
 
     /**
@@ -109,15 +107,6 @@ public class InfluxDbNotifierConfig {
             return false;
         }
         return true;
-    }
-
-    /**
-     * Gets an http client that can be used to make requests.
-     *
-     * @return http client.
-     */
-    public CloseableHttpClient getHttpClient() {
-        return HttpClients.createDefault();
     }
 
     /**

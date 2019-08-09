@@ -25,8 +25,10 @@ package org.jenkinsci.plugins.githubautostatus.notifiers;
 
 import hudson.ExtensionList;
 import hudson.ExtensionPoint;
-import java.util.Map;
 import org.jenkinsci.plugins.githubautostatus.BuildStageModel;
+import org.jenkinsci.plugins.githubautostatus.BuildState;
+
+import java.util.Map;
 
 /**
  * A notification subscriber which can send build stats to a particular sink.

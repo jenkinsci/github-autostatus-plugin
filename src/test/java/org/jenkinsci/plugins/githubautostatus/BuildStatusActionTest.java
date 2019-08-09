@@ -28,7 +28,7 @@ import hudson.model.Run;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
-import org.jenkinsci.plugins.githubautostatus.notifiers.BuildState;
+
 import org.junit.After;
 import org.junit.AfterClass;
 import static org.junit.Assume.assumeFalse;

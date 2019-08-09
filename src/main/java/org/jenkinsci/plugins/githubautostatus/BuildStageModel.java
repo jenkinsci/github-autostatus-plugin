@@ -26,7 +26,6 @@ package org.jenkinsci.plugins.githubautostatus;
 import hudson.model.Run;
 import java.util.HashMap;
 import java.util.Map;
-import org.jenkinsci.plugins.githubautostatus.notifiers.BuildState;
 
 /**
  *

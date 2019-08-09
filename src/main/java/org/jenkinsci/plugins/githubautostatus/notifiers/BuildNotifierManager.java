@@ -26,9 +26,8 @@ package org.jenkinsci.plugins.githubautostatus.notifiers;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
-import org.jenkinsci.plugins.githubautostatus.BuildStageModel;
-import org.jenkinsci.plugins.githubautostatus.GithubNotificationConfig;
-import org.jenkinsci.plugins.githubautostatus.InfluxDbNotifierConfig;
+
+import org.jenkinsci.plugins.githubautostatus.*;
 
 /**
  * Manages send build notifications to one or more notifiers
@@ -74,7 +73,13 @@ public class BuildNotifierManager {
         InfluxDbNotifier buildNotifier = new InfluxDbNotifier(influxDbNotifierConfig);
         return addBuildNotifier(buildNotifier);
     }
-    public BuildNotifier addGenericNofifier(BuildNotifier buildNotifier) {
+
+    public BuildNotifier addHttpNotifier(HttpNotifierConfig httpNotifierConfig) {
+        return addBuildNotifier(new HttpNotifier((httpNotifierConfig)));
+    }
+
+
+    public BuildNotifier addGenericNotifier(BuildNotifier buildNotifier) {
         return addBuildNotifier(buildNotifier);
     }
 

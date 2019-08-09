@@ -27,24 +27,17 @@ import hudson.Extension;
 import hudson.model.*;
 import hudson.model.listeners.RunListener;
 import hudson.plugins.cobertura.CoberturaBuildAction;
-import hudson.plugins.git.util.Build;
-import hudson.plugins.git.util.BuildData;
 import hudson.plugins.jacoco.JacocoBuildAction;
 import hudson.tasks.junit.TestResultAction;
+import org.jenkinsci.plugins.githubautostatus.model.CodeCoverage;
+import org.jenkinsci.plugins.githubautostatus.model.TestResults;
+import org.jenkinsci.plugins.githubautostatus.notifiers.BuildNotifierConstants;
 
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.Map;
-import java.util.Set;
 import java.util.logging.Level;
 import java.util.logging.Logger;
-
-import org.jaxen.util.SingletonList;
-import org.jenkinsci.plugins.githubautostatus.model.CodeCoverage;
-import org.jenkinsci.plugins.githubautostatus.model.TestResults;
-import org.jenkinsci.plugins.githubautostatus.notifiers.BuildNotifierConstants;
-import org.jenkinsci.plugins.githubautostatus.notifiers.BuildState;
-import org.jenkinsci.plugins.workflow.job.WorkflowRun;
 
 /**
  * Implements {@link hudson.model.listeners.RunListener} extension point to
@@ -107,6 +100,8 @@ public class BuildStatusJobListener extends RunListener<Run<?, ?>> {
         buildStatusAction.setBranchName(branchName);
         buildStatusAction.addInfluxDbNotifier(
                 InfluxDbNotifierConfig.fromGlobalConfig(repoOwner, repoName, branchName));
+        buildStatusAction.addHttpNotifier(
+                HttpNotifierConfig.fromGlobalConfig(repoOwner, repoName, branchName));
     }
 
     /**

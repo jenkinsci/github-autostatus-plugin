@@ -26,6 +26,7 @@ package org.jenkinsci.plugins.githubautostatus.notifiers;
 import java.io.IOException;
 import java.util.Collections;
 import org.jenkinsci.plugins.githubautostatus.BuildStageModel;
+import org.jenkinsci.plugins.githubautostatus.BuildState;
 import org.junit.After;
 import org.junit.AfterClass;
 import org.junit.Before;

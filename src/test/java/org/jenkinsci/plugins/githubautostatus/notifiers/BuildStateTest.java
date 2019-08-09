@@ -23,6 +23,7 @@
  */
 package org.jenkinsci.plugins.githubautostatus.notifiers;
 
+import org.jenkinsci.plugins.githubautostatus.BuildState;
 import org.junit.Test;
 import static org.junit.Assert.*;
 

@@ -32,7 +32,6 @@ import java.util.Map;
 import org.jenkinsci.plugins.githubautostatus.notifiers.BuildNotifier;
 import org.jenkinsci.plugins.githubautostatus.notifiers.BuildNotifierConstants;
 import org.jenkinsci.plugins.githubautostatus.notifiers.BuildNotifierManager;
-import org.jenkinsci.plugins.githubautostatus.notifiers.BuildState;
 import org.jenkinsci.plugins.workflow.job.WorkflowJob;
 import org.jenkinsci.plugins.workflow.job.WorkflowRun;
 
@@ -156,9 +155,13 @@ public class BuildStatusAction extends InvisibleAction {
     public void addInfluxDbNotifier(InfluxDbNotifierConfig influxDbNotifierConfig) {
         sendNotications(buildNotifierManager.addInfluxDbNotifier(influxDbNotifierConfig));
     }
+
+    public void addHttpNotifier(HttpNotifierConfig httpNotifierConfig) {
+        sendNotications(buildNotifierManager.addHttpNotifier(httpNotifierConfig));
+    }
     
-    public void addGenericNofifier(BuildNotifier notifier) {
-        sendNotications(buildNotifierManager.addGenericNofifier(notifier));
+    public void addGenericNotifier(BuildNotifier notifier) {
+        sendNotications(buildNotifierManager.addGenericNotifier(notifier));
     }
 
     /**

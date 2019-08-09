@@ -43,6 +43,7 @@ import org.apache.http.client.methods.HttpPost;
 import org.apache.http.impl.client.CloseableHttpClient;
 import org.apache.http.util.EntityUtils;
 import org.jenkinsci.plugins.githubautostatus.BuildStageModel;
+import org.jenkinsci.plugins.githubautostatus.BuildState;
 import org.jenkinsci.plugins.githubautostatus.InfluxDbNotifierConfig;
 import org.junit.After;
 import org.junit.AfterClass;
@@ -85,7 +86,7 @@ public class InfluxDbNotifierTest {
     }
 
     @Before
-    public void setUp() throws MalformedURLException, IOException {
+    public void setUp() throws Exception {
         statusLine = null;
         config = mock(InfluxDbNotifierConfig.class);
         when(config.influxDbIsReachable()).thenReturn(true);
@@ -96,7 +97,7 @@ public class InfluxDbNotifierTest {
         when(config.getBranchName()).thenReturn("mockbranch");
 
         mockHttpClient = mock(CloseableHttpClient.class);
-        when(config.getHttpClient()).thenReturn(mockHttpClient);
+        when(config.getHttpClient(false)).thenReturn(mockHttpClient);
 
         CloseableHttpResponse mockResponse = mock(CloseableHttpResponse.class);
         mockStatusLine = mock(StatusLine.class);

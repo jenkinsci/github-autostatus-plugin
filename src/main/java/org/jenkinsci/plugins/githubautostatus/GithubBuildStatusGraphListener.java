@@ -37,7 +37,6 @@ import javax.annotation.CheckForNull;
 import net.sf.json.JSONObject;
 import org.jenkinsci.plugins.displayurlapi.DisplayURLProvider;
 import org.jenkinsci.plugins.githubautostatus.notifiers.BuildNotifier;
-import org.jenkinsci.plugins.githubautostatus.notifiers.BuildState;
 import org.jenkinsci.plugins.pipeline.StageStatus;
 import org.jenkinsci.plugins.pipeline.modeldefinition.actions.ExecutionModelAction;
 import org.jenkinsci.plugins.pipeline.modeldefinition.ast.ModelASTEnvironment;
@@ -265,10 +264,12 @@ public class GithubBuildStatusGraphListener implements GraphListener {
                 buildStatusAction.setBranchName(branchName);
                 buildStatusAction.addInfluxDbNotifier(
                         InfluxDbNotifierConfig.fromGlobalConfig(repoOwner, repoName, branchName));
+                buildStatusAction.addHttpNotifier(
+                        HttpNotifierConfig.fromGlobalConfig(repoOwner, repoName, branchName));
 
                 ExtensionList<BuildNotifier> list = BuildNotifier.all();
                 for (BuildNotifier notifier : list) {
-                    buildStatusAction.addGenericNofifier(notifier);
+                    buildStatusAction.addGenericNotifier(notifier);
                 }
 
                 run.addAction(buildStatusAction);

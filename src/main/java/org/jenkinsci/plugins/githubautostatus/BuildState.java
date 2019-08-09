@@ -21,7 +21,7 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
  * THE SOFTWARE.
  */
-package org.jenkinsci.plugins.githubautostatus.notifiers;
+package org.jenkinsci.plugins.githubautostatus;
 
 import hudson.model.Result;
 

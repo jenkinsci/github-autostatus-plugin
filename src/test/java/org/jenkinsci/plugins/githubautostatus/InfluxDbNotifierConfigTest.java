@@ -39,6 +39,10 @@ import org.powermock.core.classloader.annotations.PowerMockIgnore;
 import org.powermock.core.classloader.annotations.PrepareForTest;
 import org.powermock.modules.junit4.PowerMockRunner;
 
+import java.security.KeyManagementException;
+import java.security.KeyStoreException;
+import java.security.NoSuchAlgorithmException;
+
 /**
  *
  * @author jxpearce
@@ -152,10 +156,10 @@ public class InfluxDbNotifierConfigTest {
     }
 
     @Test
-    public void testGetHttpClient() {
+    public void testGetHttpClient() throws Exception {
         InfluxDbNotifierConfig instance
                 = InfluxDbNotifierConfig.fromGlobalConfig("", "", branch);
-        assertNotNull(instance.getHttpClient());
+        assertNotNull(instance.getHttpClient(false));
     }
 
     @Test

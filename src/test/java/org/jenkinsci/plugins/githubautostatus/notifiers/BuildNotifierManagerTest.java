@@ -26,6 +26,7 @@ package org.jenkinsci.plugins.githubautostatus.notifiers;
 import java.util.Collections;
 import java.util.HashMap;
 import org.jenkinsci.plugins.githubautostatus.BuildStageModel;
+import org.jenkinsci.plugins.githubautostatus.BuildState;
 import org.jenkinsci.plugins.githubautostatus.GithubNotificationConfig;
 import org.jenkinsci.plugins.githubautostatus.InfluxDbNotifierConfig;
 import org.junit.After;

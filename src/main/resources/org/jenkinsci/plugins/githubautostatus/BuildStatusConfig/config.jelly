@@ -16,7 +16,18 @@
             <f:entry title="Retention policy" field="influxDbRetentionPolicy" name="influxDbRetentionPolicy">
                 <f:textbox />
             </f:entry>
-        </f:optionalBlock> 
+        </f:optionalBlock>
+        <f:optionalBlock inline="true" name="enableHttp" title="Send to an HTTP endpoint" checked="${instance.enableHttp}">
+            <f:entry title="HTTP endpoint" field="httpEndpoint" name="httpEndpoint">
+                <f:textbox />
+            </f:entry>
+            <f:entry title="Basic authentication" field="httpCredentialsId" name="httpCredentialsId">
+                <c:select/>
+            </f:entry>
+            <f:entry title="Verify SSL" field="httpVerifySSL" name="httpVerifySSL">
+                <f:checkbox checked="${instance.httpVerifySSL}" />
+            </f:entry>
+        </f:optionalBlock>
     </f:section>
 </j:jelly>
 

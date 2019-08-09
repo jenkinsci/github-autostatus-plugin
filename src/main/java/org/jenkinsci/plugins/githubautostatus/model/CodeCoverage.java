@@ -43,6 +43,7 @@ public class CodeCoverage {
     float lines;
     float methods;
     float packages;
+    float instructions;
 
     public static CodeCoverage fromCobertura(@Nullable CoberturaBuildAction coberturaAction) {
         if (coberturaAction == null) {
@@ -50,7 +51,7 @@ public class CodeCoverage {
         }
         CodeCoverage codeCoverage = new CodeCoverage();
         Map<CoverageMetric, Ratio> results = coberturaAction.getResults();
-
+        codeCoverage.setInstructions(-1f);
         if (results != null) {
             codeCoverage.setConditionals(results.get(CoverageMetric.CONDITIONAL));
             codeCoverage.setClasses(results.get(CoverageMetric.CLASSES));
@@ -78,8 +79,8 @@ public class CodeCoverage {
         }
 
         CodeCoverage codeCoverage = new CodeCoverage();
-        codeCoverage.setFiles(0.0f);
-        codeCoverage.setPackages(0.0f);
+        codeCoverage.setFiles(-1f);
+        codeCoverage.setPackages(-1f);
 
         for(Coverage c : jacocoAction.getCoverageRatios().keySet()){
             switch(c.getType()){
@@ -95,6 +96,8 @@ public class CodeCoverage {
                 case CLASS:
                     codeCoverage.setClasses(c.getPercentageFloat());
                     break;
+                case INSTRUCTION:
+                    codeCoverage.setInstructions(c.getPercentageFloat());
                 default:
                     break;
             }
@@ -185,6 +188,14 @@ public class CodeCoverage {
 
     public void setPackages(float packages) {
         this.packages = packages;
+    }
+
+    public float getInstructions() {
+        return instructions;
+    }
+
+    public void setInstructions(float instructions) {
+        this.instructions = instructions;
     }
 
 }

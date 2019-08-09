@@ -28,6 +28,7 @@ import java.util.Map;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import org.jenkinsci.plugins.githubautostatus.BuildStageModel;
+import org.jenkinsci.plugins.githubautostatus.BuildState;
 import org.kohsuke.github.GHCommitState;
 import org.kohsuke.github.GHRepository;
 
