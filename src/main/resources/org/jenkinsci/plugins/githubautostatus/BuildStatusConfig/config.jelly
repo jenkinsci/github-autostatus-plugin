@@ -16,8 +16,8 @@
             <f:entry title="Retention policy" field="influxDbRetentionPolicy" name="influxDbRetentionPolicy">
                 <f:textbox />
             </f:entry>
-            <f:entry title="Send tests results to influx?" field="sendTestsResultsToInflux">
-                <f:checkbox default="true" checked="${instance.sendTestsResultsToInflux}"/>
+            <f:entry title="Ignore notify of TestResults and Coverage" field="ignoreTestsResultsToInflux">
+                <f:checkbox default="false" checked="${instance.ignoreTestsResultsToInflux}"/>
             </f:entry>
         </f:optionalBlock>
         <f:optionalBlock inline="true" name="enableStatsd" title="Send to statsd" checked="${instance.enableStatsd}">

@@ -173,10 +173,11 @@ public class InfluxDbNotifier extends BuildNotifier {
                 passed);
         postData(dataPoint);
 
-        if(this.config.getSendTestsResultsToInflux()) {
+        if(!this.config.getIgnoreTestsResultsToInflux()) {
+            log(Level.INFO, "Test results will be sent to influx", null);
             notifyTestResults(jobName, (TestResults) parameters.get(BuildNotifierConstants.TEST_CASE_INFO));
             notifyCoverage(jobName, (CodeCoverage) parameters.get(BuildNotifierConstants.COVERAGE_INFO));
-        }
+        } else log(Level.INFO, "Test results will NOT be sent to influx", null);
     }
 
     private void notifyCoverage(String jobName, @Nullable CodeCoverage coverageInfo) {

@@ -308,11 +308,11 @@ public class BuildStatusConfigTest {
     }
 
     @Test
-    public void testSendTestsResultsToInflux() {
+    public void testIgnoreTestsResultsToInflux() {
         BuildStatusConfig instance = new BuildStatusConfig();
-        boolean expectedSendTestsResultsToInflux = true;
-        instance.setSendTestsResultsToInflux(expectedSendTestsResultsToInflux);
-        boolean result = instance.getSendTestsResultsToInflux();
-        assertEquals(expectedSendTestsResultsToInflux, result);
+        boolean expectedIgnoreTestsResultsToInflux = false;
+        instance.setIgnoreTestsResultsToInflux(expectedIgnoreTestsResultsToInflux);
+        boolean result = instance.getIgnoreTestsResultsToInflux();
+        assertEquals(expectedIgnoreTestsResultsToInflux, result);
     }
 }

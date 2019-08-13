@@ -65,7 +65,7 @@ public class BuildStatusConfig extends GlobalConfiguration {
     private String credentialsId;
     private String influxDbUrl;
     private String influxDbDatabase;
-    private boolean sendTestsResultsToInflux;
+    private boolean ignoreTestsResultsToInflux;
     @Deprecated
     private transient String influxDbUser;
     @Deprecated
@@ -203,22 +203,22 @@ public class BuildStatusConfig extends GlobalConfiguration {
     }
 
     /**
-     * Get the value of sendTestsResultsToInflux
+     * Get the value of ignoreTestsResultsToInflux
      *
-     * @return the value of sendTestsResultsToInflux
+     * @return the value of ignoreTestsResultsToInflux
      */
-    public boolean getSendTestsResultsToInflux() {
-        return sendTestsResultsToInflux;
+    public boolean getIgnoreTestsResultsToInflux() {
+        return ignoreTestsResultsToInflux;
     }
 
     /**
      * Set the value of sendTestsResultsToInflux
      *
-     * @param sendTestsResultsToInflux new value of sendTestsResultsToInflux
+     * @param ignoreTestsResultsToInflux new value of ignoreTestsResultsToInflux
      */
     @DataBoundSetter
-    public void setSendTestsResultsToInflux(boolean sendTestsResultsToInflux) {
-        this.sendTestsResultsToInflux = sendTestsResultsToInflux;
+    public void setIgnoreTestsResultsToInflux(boolean ignoreTestsResultsToInflux) {
+        this.ignoreTestsResultsToInflux = ignoreTestsResultsToInflux;
         save();
     }
 
