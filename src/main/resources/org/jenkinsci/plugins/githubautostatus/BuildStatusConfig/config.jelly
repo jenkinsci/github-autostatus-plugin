@@ -16,6 +16,9 @@
             <f:entry title="Retention policy" field="influxDbRetentionPolicy" name="influxDbRetentionPolicy">
                 <f:textbox />
             </f:entry>
+            <f:entry title="Send tests results to influx?" field="sendTestsResultsToInflux">
+                <f:checkbox default="true"/>
+            </f:entry>
         </f:optionalBlock>
         <f:optionalBlock inline="true" name="enableStatsd" title="Send to statsd" checked="${instance.enableStatsd}">
             <f:entry title="StatsD Hostname" field="statsdHost" name="statsdHost">
@@ -33,4 +36,3 @@
         </f:optionalBlock>
     </f:section>
 </j:jelly>
-

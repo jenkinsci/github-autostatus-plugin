@@ -50,6 +50,7 @@ public class InfluxDbNotifierConfig {
     private String influxDbUser;
     private String influxDbPassword;
     private String influxDbRetentionPolicy;
+    private boolean sendTestsResultsToInflux;
 
     /**
      * Gets the repo owner.
@@ -136,11 +137,11 @@ public class InfluxDbNotifierConfig {
     @CheckForNull
     public UsernamePasswordCredentials getCredentials() {
         return !StringUtils.isEmpty(influxDbCredentialsId) ?
-            BuildStatusConfig.getCredentials(UsernamePasswordCredentials.class, 
+            BuildStatusConfig.getCredentials(UsernamePasswordCredentials.class,
                     influxDbCredentialsId) :
             null;
     }
-    
+
     /**
      * Gets the optional retention policy.
      *
@@ -148,6 +149,16 @@ public class InfluxDbNotifierConfig {
      */
     public String getInfluxDbRetentionPolicy() {
         return influxDbRetentionPolicy;
+    }
+
+
+    /**
+     * Gets the flag sendTestsResultsToInflux.
+     *
+     * @return sendTestsResultsToInflux.
+     */
+    public boolean getSendTestsResultsToInflux() {
+        return sendTestsResultsToInflux;
     }
 
     /**
@@ -172,6 +183,7 @@ public class InfluxDbNotifierConfig {
             influxDbNotifierConfig.influxDbDatabase = config.getInfluxDbDatabase();
             influxDbNotifierConfig.influxDbCredentialsId = config.getCredentialsId();
             influxDbNotifierConfig.influxDbRetentionPolicy = config.getInfluxDbRetentionPolicy();
+            influxDbNotifierConfig.sendTestsResultsToInflux = config.getSendTestsResultsToInflux();
         }
 
         return influxDbNotifierConfig;

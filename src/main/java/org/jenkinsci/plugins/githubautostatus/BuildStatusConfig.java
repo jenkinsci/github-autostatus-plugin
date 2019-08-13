@@ -65,6 +65,7 @@ public class BuildStatusConfig extends GlobalConfiguration {
     private String credentialsId;
     private String influxDbUrl;
     private String influxDbDatabase;
+    private boolean sendTestsResultsToInflux;
     @Deprecated
     private transient String influxDbUser;
     @Deprecated
@@ -198,6 +199,26 @@ public class BuildStatusConfig extends GlobalConfiguration {
     @DataBoundSetter
     public void setInfluxDbUrl(String influxDbUrl) {
         this.influxDbUrl = influxDbUrl;
+        save();
+    }
+
+    /**
+     * Get the value of sendTestsResultsToInflux
+     *
+     * @return the value of sendTestsResultsToInflux
+     */
+    public boolean getSendTestsResultsToInflux() {
+        return sendTestsResultsToInflux;
+    }
+
+    /**
+     * Set the value of sendTestsResultsToInflux
+     *
+     * @param sendTestsResultsToInflux new value of sendTestsResultsToInflux
+     */
+    @DataBoundSetter
+    public void setSendTestsResultsToInflux(boolean sendTestsResultsToInflux) {
+        this.sendTestsResultsToInflux = sendTestsResultsToInflux;
         save();
     }
 
