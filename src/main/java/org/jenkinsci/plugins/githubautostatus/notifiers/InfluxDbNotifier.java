@@ -56,7 +56,7 @@ public class InfluxDbNotifier extends BuildNotifier {
     protected String influxDbUrlString;
     protected InfluxDbNotifierConfig config;
     protected transient String authorization;
-    
+
     /**
      * Constructor
      *
@@ -73,15 +73,15 @@ public class InfluxDbNotifier extends BuildNotifier {
             if (credentials != null) {
                 String influxDbUser = credentials.getUsername();
                 String influxDbPassword = credentials.getPassword().getPlainText();
-                
+
                 authorization = Base64.getEncoder().encodeToString(
-                        String.format("%s:%s", 
-                                influxDbUser, 
+                        String.format("%s:%s",
+                                influxDbUser,
                                 influxDbPassword).getBytes("UTF-8"));
             }
             if (!StringUtils.isEmpty(config.getInfluxDbRetentionPolicy())) {
                 urlString = urlString.concat(
-                        String.format("&rp=%s", 
+                        String.format("&rp=%s",
                                 URLEncoder.encode(config.getInfluxDbRetentionPolicy(), "UTF-8")));
             }
         } catch (UnsupportedEncodingException ex) {
@@ -173,8 +173,10 @@ public class InfluxDbNotifier extends BuildNotifier {
                 passed);
         postData(dataPoint);
 
-        notifyTestResults(jobName, (TestResults) parameters.get(BuildNotifierConstants.TEST_CASE_INFO));
-        notifyCoverage(jobName, (CodeCoverage) parameters.get(BuildNotifierConstants.COVERAGE_INFO));
+        if(this.config.getSendTestsResultsToInflux()) {
+            notifyTestResults(jobName, (TestResults) parameters.get(BuildNotifierConstants.TEST_CASE_INFO));
+            notifyCoverage(jobName, (CodeCoverage) parameters.get(BuildNotifierConstants.COVERAGE_INFO));
+        }
     }
 
     private void notifyCoverage(String jobName, @Nullable CodeCoverage coverageInfo) {
@@ -262,7 +264,7 @@ public class InfluxDbNotifier extends BuildNotifier {
             HttpPost httppost = new HttpPost(influxDbUrlString);
 
             httppost.setEntity(new StringEntity(seriesInfo));
-            
+
             if (!StringUtils.isEmpty(authorization)) {
                 httppost.setHeader("Authorization", String.format("Basic %s", authorization));
             }

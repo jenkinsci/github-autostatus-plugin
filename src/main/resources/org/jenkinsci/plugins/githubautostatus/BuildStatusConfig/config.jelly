@@ -17,7 +17,7 @@
                 <f:textbox />
             </f:entry>
             <f:entry title="Send tests results to influx?" field="sendTestsResultsToInflux">
-                <f:checkbox default="true"/>
+                <f:checkbox default="true" checked="${instance.sendTestsResultsToInflux}"/>
             </f:entry>
         </f:optionalBlock>
         <f:optionalBlock inline="true" name="enableStatsd" title="Send to statsd" checked="${instance.enableStatsd}">
