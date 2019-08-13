@@ -50,7 +50,7 @@ public class InfluxDbNotifierConfig {
     private String influxDbUser;
     private String influxDbPassword;
     private String influxDbRetentionPolicy;
-    private boolean ignoreTestsResultsToInflux;
+    private boolean ignoreSendingTestsResultsToInflux;
 
     /**
      * Gets the repo owner.
@@ -153,12 +153,12 @@ public class InfluxDbNotifierConfig {
 
 
     /**
-     * Gets the flag ignoreTestsResultsToInflux.
+     * Gets the flag ignoreSendingTestsResultsToInflux.
      *
-     * @return ignoreTestsResultsToInflux.
+     * @return ignoreSendingTestsResultsToInflux.
      */
-    public boolean getIgnoreTestsResultsToInflux() {
-        return ignoreTestsResultsToInflux;
+    public boolean getIgnoreSendingTestsResultsToInflux() {
+        return ignoreSendingTestsResultsToInflux;
     }
 
     /**
@@ -183,7 +183,7 @@ public class InfluxDbNotifierConfig {
             influxDbNotifierConfig.influxDbDatabase = config.getInfluxDbDatabase();
             influxDbNotifierConfig.influxDbCredentialsId = config.getCredentialsId();
             influxDbNotifierConfig.influxDbRetentionPolicy = config.getInfluxDbRetentionPolicy();
-            influxDbNotifierConfig.ignoreTestsResultsToInflux = config.getIgnoreTestsResultsToInflux();
+            influxDbNotifierConfig.ignoreSendingTestsResultsToInflux = config.getIgnoreSendingTestsResultsToInflux();
         }
 
         return influxDbNotifierConfig;
