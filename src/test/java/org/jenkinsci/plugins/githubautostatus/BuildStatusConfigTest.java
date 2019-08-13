@@ -94,7 +94,7 @@ public class BuildStatusConfigTest {
         String result = instance.getDisplayName();
         assertEquals(expResult, result);
     }
-    
+
     @Test
     public void testGetCredentialsId() {
         BuildStatusConfig instance = new BuildStatusConfig();
@@ -143,7 +143,7 @@ public class BuildStatusConfigTest {
 
     /**
      * Verifies round trip get/set of enableGithub
-     * @throws IOException 
+     * @throws IOException
      */
     @Test
     public void testSetEnableGithubTrue() throws IOException {
@@ -154,7 +154,7 @@ public class BuildStatusConfigTest {
 
     /**
      * Verifies round trip get/set of enableGithub
-     * @throws IOException 
+     * @throws IOException
      */
     @Test
     public void testSetEnableGithubFalse() throws IOException {
@@ -165,7 +165,7 @@ public class BuildStatusConfigTest {
 
     /**
      * Verifies round trip get/set of enableInfluxDb
-     * @throws IOException 
+     * @throws IOException
      */
     @Test
     public void testSetEnableInfluxDbTrue() throws IOException {
@@ -176,7 +176,7 @@ public class BuildStatusConfigTest {
 
     /**
      * Verifies round trip get/set of enableInfluxDb
-     * @throws IOException 
+     * @throws IOException
      */
     @Test
     public void testSetEnableInfluxDbFalse() throws IOException {
@@ -186,8 +186,8 @@ public class BuildStatusConfigTest {
     }
 
     /**
-     * Verifies doCheckCredentialsId returns OK if empty 
-     * @throws IOException 
+     * Verifies doCheckCredentialsId returns OK if empty
+     * @throws IOException
      */
     @Test
     public void testDoCheckCredentialsIdEmpty() throws IOException {
@@ -196,8 +196,8 @@ public class BuildStatusConfigTest {
     }
 
     /**
-     * Verifies doCheckCredentialsId returns OK for credentials in the store 
-     * @throws IOException 
+     * Verifies doCheckCredentialsId returns OK for credentials in the store
+     * @throws IOException
      */
     @Test
     public void testDoCheckCredentialsFound() throws IOException {
@@ -209,8 +209,8 @@ public class BuildStatusConfigTest {
     }
 
     /**
-     * Verifies doCheckCredentialsId returns ERROR for credentials not in the store 
-     * @throws IOException 
+     * Verifies doCheckCredentialsId returns ERROR for credentials not in the store
+     * @throws IOException
      */
     @Test
     public void testDoCheckCredentialsNotFound() throws IOException {
@@ -223,15 +223,15 @@ public class BuildStatusConfigTest {
 
     /**
      * Verifies doFillCredentialsIdItems adds the passed in current value
-     * @throws IOException 
+     * @throws IOException
      */
     @Test
     public void testDoFillCredentialsIdItemsAddsCurrent() throws IOException {
         BuildStatusConfig instance = new BuildStatusConfig();
-        
+
         final String currentValue = "mock-id";
         ListBoxModel model = instance.doFillCredentialsIdItems(currentValue);
-        
+
         assertEquals(2, model.size());
         ListBoxModel.Option item1 = model.get(0);
         assertEquals("", item1.value);
@@ -243,7 +243,7 @@ public class BuildStatusConfigTest {
 
     /**
      * Verifies doFillCredentialsIdItems adds values from the credentials store
-     * @throws IOException 
+     * @throws IOException
      */
     @Test
     public void testDoFillCredentialsIdItemsAddsFromCredentialsStore() throws IOException {
@@ -252,9 +252,9 @@ public class BuildStatusConfigTest {
 
         BuildStatusConfig instance = new BuildStatusConfig();
         instance.setCredentialsId(testCredentials);
-        
+
         ListBoxModel model = instance.doFillCredentialsIdItems(testCredentials);
-        
+
         assertEquals(2, model.size());
         ListBoxModel.Option item1 = model.get(0);
         assertEquals("", item1.value);
@@ -305,5 +305,14 @@ public class BuildStatusConfigTest {
         instance.setStatsdMaxSize(expResult);
         String result = instance.getStatsdMaxSize();
         assertEquals(expResult, result);
+    }
+
+    @Test
+    public void testSendTestsResultsToInflux() {
+        BuildStatusConfig instance = new BuildStatusConfig();
+        boolean expectedSendTestsResultsToInflux = true;
+        instance.setSendTestsResultsToInflux(expectedSendTestsResultsToInflux);
+        boolean result = instance.getSendTestsResultsToInflux();
+        assertEquals(expectedSendTestsResultsToInflux, result);
     }
 }

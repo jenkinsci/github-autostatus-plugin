@@ -58,6 +58,7 @@ public class InfluxDbNotifierConfigTest {
     private final String influxDbUser = "mock-user";
     private final String influxDbPassword = "mock-password";
     private final String influxDbRetention = "mock-retention-policy";
+    private final boolean testsResultsToInflux = true;
 
     public InfluxDbNotifierConfigTest() {
     }
@@ -73,6 +74,7 @@ public class InfluxDbNotifierConfigTest {
         when(config.getInfluxDbDatabase()).thenReturn(influxDatabase);
         when(config.getCredentialsId()).thenReturn(influxDbCredentialsId);
         when(config.getInfluxDbRetentionPolicy()).thenReturn(influxDbRetention);
+        when(config.getSendTestsResultsToInflux()).thenReturn(testsResultsToInflux);
     }
 
     @Test
@@ -115,11 +117,11 @@ public class InfluxDbNotifierConfigTest {
 
     @Test
     public void testGetCredentialsNotEmpty() {
-        StandardUsernameCredentials credentials = 
-                new UsernamePasswordCredentialsImpl(CredentialsScope.GLOBAL, 
-                        influxDbCredentialsId, 
-                        "Description", 
-                        influxDbUser, 
+        StandardUsernameCredentials credentials =
+                new UsernamePasswordCredentialsImpl(CredentialsScope.GLOBAL,
+                        influxDbCredentialsId,
+                        "Description",
+                        influxDbUser,
                         influxDbPassword);
         when(BuildStatusConfig.getCredentials(any(), eq(influxDbCredentialsId)))
                 .thenReturn(credentials);
@@ -131,11 +133,11 @@ public class InfluxDbNotifierConfigTest {
 
     @Test
     public void testGetCredentialsEmpty() {
-        StandardUsernameCredentials credentials = 
-                new UsernamePasswordCredentialsImpl(CredentialsScope.GLOBAL, 
-                        influxDbCredentialsId, 
-                        "Description", 
-                        influxDbUser, 
+        StandardUsernameCredentials credentials =
+                new UsernamePasswordCredentialsImpl(CredentialsScope.GLOBAL,
+                        influxDbCredentialsId,
+                        "Description",
+                        influxDbUser,
                         influxDbPassword);
         when(BuildStatusConfig.getCredentials(any(), any()))
                 .thenReturn(credentials);
@@ -149,6 +151,13 @@ public class InfluxDbNotifierConfigTest {
         InfluxDbNotifierConfig instance
                 = InfluxDbNotifierConfig.fromGlobalConfig("", "", branch);
         assertEquals(influxDbRetention, instance.getInfluxDbRetentionPolicy());
+    }
+
+    @Test
+    public void testGetSendTestsResultsToInflux() {
+        InfluxDbNotifierConfig instance
+                = InfluxDbNotifierConfig.fromGlobalConfig("", "", branch);
+        assertEquals(testsResultsToInflux, instance.getSendTestsResultsToInflux());
     }
 
     @Test
