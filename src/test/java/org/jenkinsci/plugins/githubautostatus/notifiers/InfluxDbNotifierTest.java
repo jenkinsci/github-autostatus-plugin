@@ -27,7 +27,6 @@ import com.cloudbees.plugins.credentials.CredentialsScope;
 import com.cloudbees.plugins.credentials.common.UsernamePasswordCredentials;
 import com.cloudbees.plugins.credentials.impl.UsernamePasswordCredentialsImpl;
 import java.io.IOException;
-import java.net.MalformedURLException;
 import java.util.Base64;
 import java.util.HashMap;
 import java.util.Map;
@@ -42,9 +41,9 @@ import org.apache.http.client.methods.CloseableHttpResponse;
 import org.apache.http.client.methods.HttpPost;
 import org.apache.http.impl.client.CloseableHttpClient;
 import org.apache.http.util.EntityUtils;
-import org.jenkinsci.plugins.githubautostatus.BuildStageModel;
-import org.jenkinsci.plugins.githubautostatus.BuildState;
-import org.jenkinsci.plugins.githubautostatus.InfluxDbNotifierConfig;
+import org.jenkinsci.plugins.githubautostatus.model.BuildStage;
+import org.jenkinsci.plugins.githubautostatus.model.BuildState;
+import org.jenkinsci.plugins.githubautostatus.config.InfluxDbNotifierConfig;
 import org.junit.After;
 import org.junit.AfterClass;
 import org.junit.Before;
@@ -183,7 +182,7 @@ public class InfluxDbNotifierTest {
     public void testNotifyBuildStageStatus() throws IOException {
         InfluxDbNotifier instance = new InfluxDbNotifier(config);
 
-        BuildStageModel stageItem = new BuildStageModel("mocknodename");
+        BuildStage stageItem = new BuildStage("mocknodename");
         stageItem.setBuildState(BuildState.CompletedSuccess);
         stageItem.setRun(mockRun);
         instance.notifyBuildStageStatus("mockjobname", stageItem);
@@ -199,7 +198,7 @@ public class InfluxDbNotifierTest {
         InfluxDbNotifier instance = new InfluxDbNotifier(config);
         when(mockStatusLine.getStatusCode()).thenReturn(400);
 
-        BuildStageModel stageItem = new BuildStageModel("mocknodename");
+        BuildStage stageItem = new BuildStage("mocknodename");
         stageItem.setBuildState(BuildState.CompletedSuccess);
         stageItem.setRun(mockRun);
         instance.notifyBuildStageStatus("mockjobname", stageItem);
@@ -217,7 +216,7 @@ public class InfluxDbNotifierTest {
             throw new IOException();
         });
 
-        BuildStageModel stageItem = new BuildStageModel("mocknodename");
+        BuildStage stageItem = new BuildStage("mocknodename");
         stageItem.setBuildState(BuildState.CompletedSuccess);
         stageItem.setRun(mockRun);
         instance.notifyBuildStageStatus("mockjobname", stageItem);
@@ -232,7 +231,7 @@ public class InfluxDbNotifierTest {
     public void testNotifyBuildStageStatusPending() throws IOException {
         InfluxDbNotifier instance = new InfluxDbNotifier(config);
 
-        BuildStageModel stageItem = new BuildStageModel("mocknodename");
+        BuildStage stageItem = new BuildStage("mocknodename");
 
         instance.notifyBuildStageStatus("mockjobname", stageItem);
 
@@ -293,7 +292,7 @@ public class InfluxDbNotifierTest {
         parameters.put(BuildNotifierConstants.BLOCKED_DURATION, 0L);
         parameters.put(BuildNotifierConstants.BUILD_OBJECT, mockRun);
 
-        BuildStageModel stageItem = new BuildStageModel("mockstagename", parameters);
+        BuildStage stageItem = new BuildStage("mockstagename", parameters);
         stageItem.setIsStage(false);
         stageItem.setBuildState(BuildState.CompletedError);
         stageItem.setRun(mockRun);

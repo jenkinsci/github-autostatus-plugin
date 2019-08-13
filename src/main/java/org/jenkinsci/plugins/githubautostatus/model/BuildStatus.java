@@ -1,7 +1,5 @@
 package org.jenkinsci.plugins.githubautostatus.model;
 
-import org.jenkinsci.plugins.githubautostatus.BuildState;
-
 import java.util.ArrayList;
 import java.util.List;
 
@@ -23,7 +21,7 @@ public class BuildStatus {
   private BuildState result;
   private TestResults testResult;
   private CodeCoverage coverage;
-  private List<Stage> stages;
+  private List<BuildStage> stages;
 
   public BuildStatus() {
     stages = new ArrayList<>();
@@ -141,15 +139,15 @@ public class BuildStatus {
     this.coverage = coverage;
   }
 
-  public List<Stage> getStages() {
+  public List<BuildStage> getStages() {
     return stages;
   }
 
-  public void setStages(List<Stage> stages) {
+  public void setStages(List<BuildStage> stages) {
     this.stages = stages;
   }
 
-  public void addStage(Stage stage) {
+  public void addStage(BuildStage stage) {
     stages.add(stage);
   }
 }

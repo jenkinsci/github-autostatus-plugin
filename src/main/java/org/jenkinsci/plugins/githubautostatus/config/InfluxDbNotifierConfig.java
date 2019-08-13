@@ -21,7 +21,7 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
  * THE SOFTWARE.
  */
-package org.jenkinsci.plugins.githubautostatus;
+package org.jenkinsci.plugins.githubautostatus.config;
 
 import com.cloudbees.plugins.credentials.common.UsernamePasswordCredentials;
 import java.io.IOException;
@@ -32,8 +32,7 @@ import java.util.logging.Level;
 import java.util.logging.Logger;
 import javax.annotation.CheckForNull;
 import org.apache.commons.lang.StringUtils;
-import org.apache.http.impl.client.CloseableHttpClient;
-import org.apache.http.impl.client.HttpClients;
+import org.jenkinsci.plugins.githubautostatus.BuildStatusConfig;
 
 /**
  * Encapsulates the logic of determining influxdb configuration for a build.
@@ -125,7 +124,7 @@ public class InfluxDbNotifierConfig extends AbstractNotifierConfig {
     @CheckForNull
     public UsernamePasswordCredentials getCredentials() {
         return !StringUtils.isEmpty(influxDbCredentialsId) ?
-            BuildStatusConfig.getCredentials(UsernamePasswordCredentials.class, 
+            BuildStatusConfig.getCredentials(UsernamePasswordCredentials.class,
                     influxDbCredentialsId) :
             null;
     }

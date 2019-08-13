@@ -33,9 +33,9 @@ import org.apache.http.client.methods.HttpPost;
 import org.apache.http.entity.StringEntity;
 import org.apache.http.impl.client.CloseableHttpClient;
 import org.apache.http.util.EntityUtils;
-import org.jenkinsci.plugins.githubautostatus.BuildStageModel;
-import org.jenkinsci.plugins.githubautostatus.BuildState;
-import org.jenkinsci.plugins.githubautostatus.InfluxDbNotifierConfig;
+import org.jenkinsci.plugins.githubautostatus.model.BuildStage;
+import org.jenkinsci.plugins.githubautostatus.model.BuildState;
+import org.jenkinsci.plugins.githubautostatus.config.InfluxDbNotifierConfig;
 import org.jenkinsci.plugins.githubautostatus.model.CodeCoverage;
 import org.jenkinsci.plugins.githubautostatus.model.TestCase;
 import org.jenkinsci.plugins.githubautostatus.model.TestResults;
@@ -178,18 +178,11 @@ public class InfluxDbNotifier extends BuildNotifier {
      * @param stageItem stage item describing the new state
      */
     @Override
-    public void notifyBuildStageStatus(String jobName, BuildStageModel stageItem) {
-
-        BuildState buildState = stageItem.getBuildState();
-
-        Object timingInfo = stageItem.getEnvironment().get(BuildNotifierConstants.STAGE_DURATION);
-        if (buildState == BuildState.Pending) {
+    public void notifyBuildStageStatus(String jobName, BuildStage stageItem) {
+        if (stageItem.getBuildState() == BuildState.Pending) {
             return;
         }
 
-        // Success and all Skipped stages are marked as successful
-        int passed = buildState == BuildState.CompletedError ? 0 : 1;
-        String result = buildState.toString();
         String buildUrl = stageItem.getRun().getUrl();
         int buildNumber = stageItem.getRun().getNumber();
         Cause cause = stageItem.getRun().getCause(Cause.class);
@@ -199,12 +192,12 @@ public class InfluxDbNotifier extends BuildNotifier {
                 .append(String.format(",%s=%s", TagNames.Owner, repoOwner))
                 .append(String.format(",%s=%s", TagNames.Repo, repoName))
                 .append(String.format(",%s=\"%s\"", TagNames.StageName, escapeTagValue(stageItem.getStageName())))
-                .append(String.format(",%s=%s", TagNames.Result, result))
+                .append(String.format(",%s=%s", TagNames.Result, stageItem.getBuildState().toString()))
                 // Fields
                 .append(String.format(" %s=\"%s\"", FieldNames.JobName, escapeTagValue(jobName)))
                 .append(String.format(",%s=\"%s\"", FieldNames.Branch, branchName))
-                .append(String.format(",%s=%d", FieldNames.StageTime, timingInfo != null ? timingInfo : 0))
-                .append(String.format(",%s=%d", FieldNames.Passed, passed))
+                .append(String.format(",%s=%d", FieldNames.StageTime, stageItem.getTime()))
+                .append(String.format(",%s=%d", FieldNames.Passed, stageItem.isPassed()? 1 : 0))
                 .append(String.format(",%s=%d", FieldNames.BuildNumber, buildNumber))
                 .append(String.format(",%s=\"%s\"", FieldNames.BuildUrl, escapeTagValue(buildUrl)))
                 .append(String.format(",%s=\"%s\"", FieldNames.Trigger, buildCause))

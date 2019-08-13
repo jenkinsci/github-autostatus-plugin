@@ -25,7 +25,10 @@ package org.jenkinsci.plugins.githubautostatus.notifiers;
 
 import com.cloudbees.plugins.credentials.common.UsernamePasswordCredentials;
 import com.google.common.base.Strings;
+import com.google.gson.ExclusionStrategy;
+import com.google.gson.FieldAttributes;
 import com.google.gson.Gson;
+import com.google.gson.GsonBuilder;
 import hudson.model.Cause;
 import hudson.model.Run;
 import org.apache.http.HttpEntity;
@@ -34,13 +37,8 @@ import org.apache.http.client.methods.HttpPost;
 import org.apache.http.entity.StringEntity;
 import org.apache.http.impl.client.CloseableHttpClient;
 import org.apache.http.util.EntityUtils;
-import org.jenkinsci.plugins.githubautostatus.BuildStageModel;
-import org.jenkinsci.plugins.githubautostatus.BuildState;
-import org.jenkinsci.plugins.githubautostatus.HttpNotifierConfig;
-import org.jenkinsci.plugins.githubautostatus.model.BuildStatus;
-import org.jenkinsci.plugins.githubautostatus.model.CodeCoverage;
-import org.jenkinsci.plugins.githubautostatus.model.Stage;
-import org.jenkinsci.plugins.githubautostatus.model.TestResults;
+import org.jenkinsci.plugins.githubautostatus.model.*;
+import org.jenkinsci.plugins.githubautostatus.config.HttpNotifierConfig;
 
 import java.io.UnsupportedEncodingException;
 import java.util.Base64;
@@ -56,8 +54,8 @@ public class HttpNotifier extends BuildNotifier {
   protected String branchName;
   protected HttpNotifierConfig config;
   protected String authorization;
-  protected Map<String, Stage> stageMap;
-  private Gson gson = new Gson();
+  protected Map<String, BuildStage> stageMap;
+  private Gson gson;
 
   public HttpNotifier(HttpNotifierConfig config) {
     if (null == config || Strings.isNullOrEmpty(config.getHttpEndpoint())) {
@@ -81,6 +79,18 @@ public class HttpNotifier extends BuildNotifier {
     } catch (UnsupportedEncodingException ex) {
       Logger.getLogger(InfluxDbNotifier.class.getName()).log(Level.SEVERE, null, ex);
     }
+    gson = new GsonBuilder()
+            .addSerializationExclusionStrategy(new ExclusionStrategy() {
+              @Override
+              public boolean shouldSkipField(FieldAttributes f) {
+                return f.getAnnotation(SkipSerialisation.class) != null;
+              }
+              @Override
+              public boolean shouldSkipClass(Class<?> clazz) {
+                return false;
+              }
+            })
+            .create();
   }
 
   @Override
@@ -89,19 +99,12 @@ public class HttpNotifier extends BuildNotifier {
   }
 
   @Override
-  public void notifyBuildStageStatus(String jobName, BuildStageModel stageItem) {
+  public void notifyBuildStageStatus(String jobName, BuildStage stageItem) {
     BuildState buildState = stageItem.getBuildState();
     if (buildState == BuildState.Pending) {
       return;
     }
-    Object timingInfo = stageItem.getEnvironment().get(BuildNotifierConstants.STAGE_DURATION);
-
-    Stage stage = new Stage();
-    stage.setName(stageItem.getStageName());
-    stage.setPassed(buildState != BuildState.CompletedError);
-    stage.setResult(buildState);
-    stage.setTime(timingInfo != null ? (long)timingInfo : 0);
-    stageMap.put(stageItem.getStageName(), stage);
+    stageMap.put(stageItem.getStageName(), stageItem);
   }
 
   @Override

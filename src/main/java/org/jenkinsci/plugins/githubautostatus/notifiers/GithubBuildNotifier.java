@@ -27,8 +27,8 @@ import com.google.common.collect.ImmutableMap;
 import java.util.Map;
 import java.util.logging.Level;
 import java.util.logging.Logger;
-import org.jenkinsci.plugins.githubautostatus.BuildStageModel;
-import org.jenkinsci.plugins.githubautostatus.BuildState;
+import org.jenkinsci.plugins.githubautostatus.model.BuildStage;
+import org.jenkinsci.plugins.githubautostatus.model.BuildState;
 import org.kohsuke.github.GHCommitState;
 import org.kohsuke.github.GHRepository;
 
@@ -90,7 +90,7 @@ public class GithubBuildNotifier extends BuildNotifier {
      * @param stageItem stage item describing the new state
      */
     @Override
-    public void notifyBuildStageStatus(String jobName, BuildStageModel stageItem) {
+    public void notifyBuildStageStatus(String jobName, BuildStage stageItem) {
         if (!stageItem.isStage()) {
             return;
         }

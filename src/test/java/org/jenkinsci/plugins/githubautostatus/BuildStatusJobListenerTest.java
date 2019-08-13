@@ -30,6 +30,7 @@ import hudson.model.TaskListener;
 import java.util.HashMap;
 import java.util.Map;
 
+import org.jenkinsci.plugins.githubautostatus.model.BuildState;
 import org.junit.After;
 import org.junit.AfterClass;
 import org.junit.Before;

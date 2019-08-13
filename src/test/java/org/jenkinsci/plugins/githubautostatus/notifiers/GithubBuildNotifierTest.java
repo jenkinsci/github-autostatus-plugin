@@ -25,8 +25,8 @@ package org.jenkinsci.plugins.githubautostatus.notifiers;
 
 import java.io.IOException;
 import java.util.Collections;
-import org.jenkinsci.plugins.githubautostatus.BuildStageModel;
-import org.jenkinsci.plugins.githubautostatus.BuildState;
+import org.jenkinsci.plugins.githubautostatus.model.BuildStage;
+import org.jenkinsci.plugins.githubautostatus.model.BuildState;
 import org.junit.After;
 import org.junit.AfterClass;
 import org.junit.Before;
@@ -101,7 +101,7 @@ public class GithubBuildNotifierTest {
     public void testSendPending() throws IOException {
         GithubBuildNotifier notifier = new GithubBuildNotifier(repository, sha, targetUrl);
 
-        BuildStageModel stageItem = new BuildStageModel(stageName);
+        BuildStage stageItem = new BuildStage(stageName);
 
         notifier.notifyBuildStageStatus(jobName, stageItem);
         verify(repository).createCommitStatus(sha, GHCommitState.PENDING, targetUrl, "Building stage", stageName);
@@ -116,7 +116,7 @@ public class GithubBuildNotifierTest {
     public void testSendSuccess() throws IOException {
         GithubBuildNotifier notifier = new GithubBuildNotifier(repository, sha, targetUrl);
 
-        BuildStageModel stageItem = new BuildStageModel(stageName);
+        BuildStage stageItem = new BuildStage(stageName);
         stageItem.setBuildState(BuildState.CompletedSuccess);
 
         notifier.notifyBuildStageStatus(jobName, stageItem);
@@ -132,7 +132,7 @@ public class GithubBuildNotifierTest {
     public void testSendError() throws IOException {
         GithubBuildNotifier notifier = new GithubBuildNotifier(repository, sha, targetUrl);
 
-        BuildStageModel stageItem = new BuildStageModel(stageName);
+        BuildStage stageItem = new BuildStage(stageName);
         stageItem.setBuildState(BuildState.CompletedError);
 
         notifier.notifyBuildStageStatus(jobName, stageItem);
@@ -159,7 +159,7 @@ public class GithubBuildNotifierTest {
     public void testNonStageError() throws IOException {
         GithubBuildNotifier notifier = new GithubBuildNotifier(repository, sha, targetUrl);
 
-        BuildStageModel stageItem = new BuildStageModel(stageName);
+        BuildStage stageItem = new BuildStage(stageName);
         stageItem.setIsStage(false);
         stageItem.setBuildState(BuildState.CompletedError);
         
