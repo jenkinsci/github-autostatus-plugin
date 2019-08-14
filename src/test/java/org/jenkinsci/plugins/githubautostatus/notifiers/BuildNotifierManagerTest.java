@@ -114,7 +114,7 @@ public class BuildNotifierManagerTest {
         instance.notifiers.add(notifier);
         
         BuildStage stageItem = new BuildStage(stageName);
-        stageItem.setBuildState(BuildState.CompletedSuccess);
+        stageItem.setBuildState(BuildStage.State.CompletedSuccess);
         
         instance.notifyBuildStageStatus(stageItem);
 
@@ -144,7 +144,7 @@ public class BuildNotifierManagerTest {
 
         BuildStage stageItem = new BuildStage(stageName,
                 new HashMap<>(),
-                BuildState.CompletedError);
+                BuildStage.State.CompletedError);
         stageItem.setIsStage(false);
 
 

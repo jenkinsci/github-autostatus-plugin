@@ -41,9 +41,11 @@ import org.jenkinsci.plugins.githubautostatus.model.*;
 import org.jenkinsci.plugins.githubautostatus.config.HttpNotifierConfig;
 
 import java.io.UnsupportedEncodingException;
+import java.time.Clock;
 import java.util.Base64;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.TimeZone;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
@@ -100,8 +102,8 @@ public class HttpNotifier extends BuildNotifier {
 
   @Override
   public void notifyBuildStageStatus(String jobName, BuildStage stageItem) {
-    BuildState buildState = stageItem.getBuildState();
-    if (buildState == BuildState.Pending) {
+    BuildStage.State buildState = stageItem.getBuildState();
+    if (buildState == BuildStage.State.Pending) {
       return;
     }
     stageMap.put(stageItem.getStageName(), stageItem);
@@ -133,7 +135,6 @@ public class HttpNotifier extends BuildNotifier {
     long buildDuration = BuildNotifierConstants.getLong(parameters, BuildNotifierConstants.JOB_DURATION) - blockedDuration;
     Cause cause = run.getCause(Cause.class);
     String buildCause = cause == null ? BuildNotifierConstants.DEFAULT_STRING : cause.getShortDescription();
-
     BuildStatus result = new org.jenkinsci.plugins.githubautostatus.model.BuildStatus();
     result.setRepoOwner(repoOwner);
     result.setRepoName(repoName);
@@ -147,6 +148,7 @@ public class HttpNotifier extends BuildNotifier {
     result.setDuration(buildDuration);
     result.setPassed(buildState == BuildState.CompletedSuccess);
     result.setResult(buildState);
+    result.setTimestamp(Clock.system(TimeZone.getTimeZone("UTC").toZoneId()).millis() / 1000);
     return result;
   }
 

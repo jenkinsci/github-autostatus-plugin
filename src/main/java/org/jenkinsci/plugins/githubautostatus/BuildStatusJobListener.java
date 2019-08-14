@@ -79,10 +79,7 @@ public class BuildStatusJobListener extends RunListener<Run<?, ?>> {
             parameters.put(BuildNotifierConstants.BRANCH_NAME, statusAction.getBranchName());
 
             Result result = build.getResult();
-            statusAction.updateBuildStatusForJob(result == Result.SUCCESS
-                    ? BuildState.CompletedSuccess
-                    : BuildState.CompletedError,
-                    parameters);
+            statusAction.updateBuildStatusForJob(BuildState.fromResult(result), parameters);
         }
     }
 

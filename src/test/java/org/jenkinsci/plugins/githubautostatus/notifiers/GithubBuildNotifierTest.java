@@ -117,7 +117,7 @@ public class GithubBuildNotifierTest {
         GithubBuildNotifier notifier = new GithubBuildNotifier(repository, sha, targetUrl);
 
         BuildStage stageItem = new BuildStage(stageName);
-        stageItem.setBuildState(BuildState.CompletedSuccess);
+        stageItem.setBuildState(BuildStage.State.CompletedSuccess);
 
         notifier.notifyBuildStageStatus(jobName, stageItem);
         verify(repository).createCommitStatus(sha, GHCommitState.SUCCESS, targetUrl, "Stage built successfully", stageName);
@@ -133,7 +133,7 @@ public class GithubBuildNotifierTest {
         GithubBuildNotifier notifier = new GithubBuildNotifier(repository, sha, targetUrl);
 
         BuildStage stageItem = new BuildStage(stageName);
-        stageItem.setBuildState(BuildState.CompletedError);
+        stageItem.setBuildState(BuildStage.State.CompletedError);
 
         notifier.notifyBuildStageStatus(jobName, stageItem);
         verify(repository).createCommitStatus(sha, GHCommitState.ERROR, targetUrl, "Failed to build stage", stageName);
@@ -161,7 +161,7 @@ public class GithubBuildNotifierTest {
 
         BuildStage stageItem = new BuildStage(stageName);
         stageItem.setIsStage(false);
-        stageItem.setBuildState(BuildState.CompletedError);
+        stageItem.setBuildState(BuildStage.State.CompletedError);
         
         notifier.notifyBuildStageStatus(jobName, stageItem);
 

@@ -179,7 +179,7 @@ public class InfluxDbNotifier extends BuildNotifier {
      */
     @Override
     public void notifyBuildStageStatus(String jobName, BuildStage stageItem) {
-        if (stageItem.getBuildState() == BuildState.Pending) {
+        if (stageItem.getBuildState() == BuildStage.State.Pending) {
             return;
         }
 
@@ -196,7 +196,7 @@ public class InfluxDbNotifier extends BuildNotifier {
                 // Fields
                 .append(String.format(" %s=\"%s\"", FieldNames.JobName, escapeTagValue(jobName)))
                 .append(String.format(",%s=\"%s\"", FieldNames.Branch, branchName))
-                .append(String.format(",%s=%d", FieldNames.StageTime, stageItem.getTime()))
+                .append(String.format(",%s=%d", FieldNames.StageTime, stageItem.getDuration()))
                 .append(String.format(",%s=%d", FieldNames.Passed, stageItem.isPassed()? 1 : 0))
                 .append(String.format(",%s=%d", FieldNames.BuildNumber, buildNumber))
                 .append(String.format(",%s=\"%s\"", FieldNames.BuildUrl, escapeTagValue(buildUrl)))

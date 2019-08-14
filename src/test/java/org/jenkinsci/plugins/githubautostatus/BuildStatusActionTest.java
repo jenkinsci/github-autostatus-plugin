@@ -128,7 +128,7 @@ public class BuildStatusActionTest {
         instance.addGithubNofifier(githubConfig);
         instance.addBuildStatus(stageName);
 
-        instance.updateBuildStatusForStage(stageName, BuildState.CompletedSuccess);
+        instance.updateBuildStatusForStage(stageName, BuildStage.State.CompletedSuccess);
 
         verify(repository).createCommitStatus(sha, GHCommitState.PENDING, targetUrl, "Building stage", stageName);
         verify(repository).createCommitStatus(sha, GHCommitState.SUCCESS, targetUrl, "Stage built successfully", stageName);
@@ -145,7 +145,7 @@ public class BuildStatusActionTest {
         instance.addGithubNofifier(githubConfig);
         instance.addBuildStatus(stageName);
 
-        instance.updateBuildStatusForStage(stageName, BuildState.CompletedError);
+        instance.updateBuildStatusForStage(stageName, BuildStage.State.CompletedError);
 
         verify(repository).createCommitStatus(sha, GHCommitState.PENDING, targetUrl, "Building stage", stageName);
         verify(repository).createCommitStatus(sha, GHCommitState.ERROR, targetUrl, "Failed to build stage", stageName);
@@ -161,7 +161,7 @@ public class BuildStatusActionTest {
         BuildStatusAction instance = new BuildStatusAction(mockRun, targetUrl, new ArrayList<>());
         instance.addGithubNofifier(githubConfig);
 
-        instance.updateBuildStatusForStage(stageName, BuildState.CompletedSuccess);
+        instance.updateBuildStatusForStage(stageName, BuildStage.State.CompletedSuccess);
 
         verify(repository, never()).createCommitStatus(any(), any(), any(), any());
     }
@@ -192,7 +192,7 @@ public class BuildStatusActionTest {
     public void testSendUnsentCompletedStages() throws IOException {
         BuildStatusAction instance = new BuildStatusAction(mockRun, targetUrl, new ArrayList<>());
         instance.addBuildStatus(stageName);
-        instance.updateBuildStatusForStage(stageName, BuildState.CompletedSuccess);
+        instance.updateBuildStatusForStage(stageName, BuildStage.State.CompletedSuccess);
 
         verify(repository, never()).createCommitStatus(any(), any(), any(), any());
 

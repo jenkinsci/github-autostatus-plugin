@@ -183,7 +183,7 @@ public class InfluxDbNotifierTest {
         InfluxDbNotifier instance = new InfluxDbNotifier(config);
 
         BuildStage stageItem = new BuildStage("mocknodename");
-        stageItem.setBuildState(BuildState.CompletedSuccess);
+        stageItem.setBuildState(BuildStage.State.CompletedSuccess);
         stageItem.setRun(mockRun);
         instance.notifyBuildStageStatus("mockjobname", stageItem);
 
@@ -199,7 +199,7 @@ public class InfluxDbNotifierTest {
         when(mockStatusLine.getStatusCode()).thenReturn(400);
 
         BuildStage stageItem = new BuildStage("mocknodename");
-        stageItem.setBuildState(BuildState.CompletedSuccess);
+        stageItem.setBuildState(BuildStage.State.CompletedSuccess);
         stageItem.setRun(mockRun);
         instance.notifyBuildStageStatus("mockjobname", stageItem);
 
@@ -217,7 +217,7 @@ public class InfluxDbNotifierTest {
         });
 
         BuildStage stageItem = new BuildStage("mocknodename");
-        stageItem.setBuildState(BuildState.CompletedSuccess);
+        stageItem.setBuildState(BuildStage.State.CompletedSuccess);
         stageItem.setRun(mockRun);
         instance.notifyBuildStageStatus("mockjobname", stageItem);
 
@@ -294,7 +294,7 @@ public class InfluxDbNotifierTest {
 
         BuildStage stageItem = new BuildStage("mockstagename", parameters);
         stageItem.setIsStage(false);
-        stageItem.setBuildState(BuildState.CompletedError);
+        stageItem.setBuildState(BuildStage.State.CompletedError);
         stageItem.setRun(mockRun);
 
         instance.notifyBuildStageStatus("mockjobname", stageItem);

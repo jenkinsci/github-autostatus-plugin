@@ -25,6 +25,7 @@ package org.jenkinsci.plugins.githubautostatus.model;
 
 import com.google.gson.annotations.SerializedName;
 import hudson.model.Run;
+import org.eclipse.jgit.annotations.NonNull;
 import org.jenkinsci.plugins.githubautostatus.notifiers.BuildNotifierConstants;
 
 import java.util.HashMap;
@@ -41,30 +42,39 @@ public class BuildStage {
     @SkipSerialisation
     private Map<String, Object> environment;
     @SerializedName("result")
-    private BuildState buildState;
+    private State buildState;
     private transient Run<?, ?> run;
     @SkipSerialisation
     private boolean isStage = true;
-    private long time;
+    private long duration;
     private boolean passed;
+
+    public enum State {
+        Pending,
+        SkippedConditional,
+        SkippedUnstable,
+        SkippedFailure,
+        CompletedSuccess,
+        CompletedError
+    }
 
     public BuildStage(String stageName) {
         this(stageName, new HashMap<>());
     }
 
     public BuildStage(String stageName, Map<String, Object> environment) {
-        this(stageName, environment, BuildState.Pending);
+        this(stageName, environment, State.Pending);
     }
 
     public BuildStage(String stageName,
                       Map<String, Object> environment,
-                      BuildState buildState) {
+                      State buildState) {
         this.stageName = stageName;
         this.environment = new HashMap(environment);
         Object timingInfo = this.environment.get(BuildNotifierConstants.STAGE_DURATION);
-        this.time = timingInfo == null ? 0 : (long)timingInfo;
+        this.duration = timingInfo == null ? 0 : (long)timingInfo;
         this.buildState = buildState;
-        this.passed = buildState != BuildState.CompletedError;
+        this.passed = buildState != State.CompletedError;
     }
     
     public String getStageName() {
@@ -78,20 +88,20 @@ public class BuildStage {
     public void addToEnvironment(String key, Object value) {
         environment.put(key, value);
         Object timingInfo = environment.get(BuildNotifierConstants.STAGE_DURATION);
-        time = timingInfo == null ? 0 : (long)timingInfo;
+        duration = timingInfo == null ? 0 : (long)timingInfo;
     }
     
     public void addAllToEnvironment(Map<String, Object> environment) {
         environment.forEach(this::addToEnvironment);
     }
 
-    public BuildState getBuildState() {
+    public State getBuildState() {
         return buildState;
     }
 
-    public void setBuildState(BuildState buildState) {
+    public void setBuildState(State buildState) {
         this.buildState = buildState;
-        passed = buildState != BuildState.CompletedError;
+        passed = buildState != State.CompletedError;
     }
 
     public Run<?, ?> getRun() {
@@ -110,8 +120,8 @@ public class BuildStage {
         this.isStage = isStage;
     }
 
-    public long getTime() {
-        return time;
+    public long getDuration() {
+        return duration;
     }
 
     public boolean isPassed() {

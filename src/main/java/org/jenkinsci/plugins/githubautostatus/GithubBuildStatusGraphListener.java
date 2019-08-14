@@ -144,7 +144,7 @@ public class GithubBuildStatusGraphListener implements GraphListener {
                 }
 
                 if (nodeName != null) {
-                    BuildState buildState = buildStateForStage(startNode, errorAction);
+                    BuildStage.State buildState = buildStateForStage(startNode, errorAction);
                     buildStatusAction.updateBuildStatusForStage(nodeName, buildState, time);
                 }
             }
@@ -160,22 +160,21 @@ public class GithubBuildStatusGraphListener implements GraphListener {
      * @param errorAction The error action from the stage end node
      * @return Build state
      */
-    static BuildState buildStateForStage(FlowNode flowNode, ErrorAction errorAction) {
-        BuildState buildState = errorAction == null ? BuildState.CompletedSuccess : BuildState.CompletedError;;
+    static BuildStage.State buildStateForStage(FlowNode flowNode, ErrorAction errorAction) {
+        BuildStage.State buildState = errorAction == null ? BuildStage.State.CompletedSuccess : BuildStage.State.CompletedError;
         TagsAction tags = flowNode.getAction(TagsAction.class);
         if (tags != null) {
             String status = tags.getTagValue(StageStatus.TAG_NAME);
             if (status != null) {
                 if (status.equals(StageStatus.getSkippedForFailure())) {
-                    return BuildState.SkippedFailure;
+                    return BuildStage.State.SkippedFailure;
                 } else if (status.equals(StageStatus.getSkippedForUnstable())) {
-                    return BuildState.SkippedUnstable;
+                    return BuildStage.State.SkippedUnstable;
                 } else if (status.equals(StageStatus.getSkippedForConditional())) {
-                    return BuildState.SkippedConditional;
+                    return BuildStage.State.SkippedConditional;
                 } else if (status.equals(StageStatus.getFailedAndContinued())) {
-                    return BuildState.CompletedError;
+                    return BuildStage.State.CompletedError;
                 }
-
             }
         }
         return buildState;

@@ -31,6 +31,7 @@ import java.util.Arrays;
 import java.util.List;
 
 import org.jenkinsci.plugins.githubautostatus.config.GithubNotificationConfig;
+import org.jenkinsci.plugins.githubautostatus.model.BuildStage;
 import org.jenkinsci.plugins.githubautostatus.model.BuildState;
 import org.jenkinsci.plugins.pipeline.StageStatus;
 import org.jenkinsci.plugins.pipeline.modeldefinition.actions.ExecutionModelAction;
@@ -231,8 +232,8 @@ public class GithubBuildStatusGraphListenerTest {
     public void buildStateForStageSuccess() {
         FlowNode flowNode = mock(FlowNode.class);
 
-        BuildState result = GithubBuildStatusGraphListener.buildStateForStage(flowNode, null);
-        assertEquals(BuildState.CompletedSuccess, result);
+        BuildStage.State result = GithubBuildStatusGraphListener.buildStateForStage(flowNode, null);
+        assertEquals(BuildStage.State.CompletedSuccess, result);
     }
 
     @Test
@@ -240,8 +241,8 @@ public class GithubBuildStatusGraphListenerTest {
         FlowNode flowNode = mock(FlowNode.class);
         ErrorAction errorAction = mock(ErrorAction.class);
 
-        BuildState result = GithubBuildStatusGraphListener.buildStateForStage(flowNode, errorAction);
-        assertEquals(BuildState.CompletedError, result);
+        BuildStage.State result = GithubBuildStatusGraphListener.buildStateForStage(flowNode, errorAction);
+        assertEquals(BuildStage.State.CompletedError, result);
     }
 
     @Test
@@ -251,8 +252,8 @@ public class GithubBuildStatusGraphListenerTest {
         when(flowNode.getAction(TagsAction.class)).thenReturn(tagsAction);
         when(tagsAction.getTagValue(StageStatus.TAG_NAME)).thenReturn(StageStatus.getSkippedForUnstable());
 
-        BuildState result = GithubBuildStatusGraphListener.buildStateForStage(flowNode, null);
-        assertEquals(BuildState.SkippedUnstable, result);
+        BuildStage.State result = GithubBuildStatusGraphListener.buildStateForStage(flowNode, null);
+        assertEquals(BuildStage.State.SkippedUnstable, result);
     }
 
     @Test
@@ -262,8 +263,8 @@ public class GithubBuildStatusGraphListenerTest {
         when(flowNode.getAction(TagsAction.class)).thenReturn(tagsAction);
         when(tagsAction.getTagValue(StageStatus.TAG_NAME)).thenReturn(StageStatus.getSkippedForConditional());
 
-        BuildState result = GithubBuildStatusGraphListener.buildStateForStage(flowNode, null);
-        assertEquals(BuildState.SkippedConditional, result);
+        BuildStage.State result = GithubBuildStatusGraphListener.buildStateForStage(flowNode, null);
+        assertEquals(BuildStage.State.SkippedConditional, result);
     }
 
     @Test
@@ -273,8 +274,8 @@ public class GithubBuildStatusGraphListenerTest {
         when(flowNode.getAction(TagsAction.class)).thenReturn(tagsAction);
         when(tagsAction.getTagValue(StageStatus.TAG_NAME)).thenReturn(StageStatus.getFailedAndContinued());
 
-        BuildState result = GithubBuildStatusGraphListener.buildStateForStage(flowNode, null);
-        assertEquals(BuildState.CompletedError, result);
+        BuildStage.State result = GithubBuildStatusGraphListener.buildStateForStage(flowNode, null);
+        assertEquals(BuildStage.State.CompletedError, result);
     }
 
     @Test

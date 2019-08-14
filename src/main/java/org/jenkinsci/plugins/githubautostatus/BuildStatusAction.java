@@ -128,8 +128,8 @@ public class BuildStatusAction extends InvisibleAction {
      */
     public void close() {
         this.buildStatuses.forEach((nodeName, stageItem) -> {
-            if (stageItem.getBuildState() == BuildState.Pending) {
-                this.updateBuildStatusForStage(nodeName, BuildState.CompletedSuccess);
+            if (stageItem.getBuildState() == BuildStage.State.Pending) {
+                this.updateBuildStatusForStage(nodeName, BuildStage.State.CompletedSuccess);
             }
         });
     }
@@ -203,12 +203,12 @@ public class BuildStatusAction extends InvisibleAction {
      * @param buildState build state
      * @param time stage time
      */
-    public void updateBuildStatusForStage(String nodeName, BuildState buildState, long time) {
+    public void updateBuildStatusForStage(String nodeName, BuildStage.State buildState, long time) {
         BuildStage stageItem = buildStatuses.get(nodeName);
         if (stageItem != null) {
             stageItem.addToEnvironment(BuildNotifierConstants.STAGE_DURATION, time);
-            BuildState currentStatus = stageItem.getBuildState();
-            if (currentStatus == BuildState.Pending) {
+            BuildStage.State currentStatus = stageItem.getBuildState();
+            if (currentStatus == BuildStage.State.Pending) {
                 stageItem.setBuildState(buildState);
                 buildNotifierManager.notifyBuildStageStatus(stageItem);
             }
@@ -221,7 +221,7 @@ public class BuildStatusAction extends InvisibleAction {
      * @param nodeName node name
      * @param buildState build state
      */
-    public void updateBuildStatusForStage(String nodeName, BuildState buildState) {
+    public void updateBuildStatusForStage(String nodeName, BuildStage.State buildState) {
         updateBuildStatusForStage(nodeName, buildState, 0);
     }
 
@@ -244,7 +244,7 @@ public class BuildStatusAction extends InvisibleAction {
     public void sendNonStageError(String nodeName) {
         BuildStage stageItem = new BuildStage(nodeName,
                 new HashMap<>(),
-                BuildState.CompletedError);
+                BuildStage.State.CompletedError);
         stageItem.setRun(run);
         stageItem.addAllToEnvironment(jobParameters);
         stageItem.setIsStage(false);

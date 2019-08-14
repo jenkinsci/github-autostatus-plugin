@@ -22,6 +22,7 @@ public class BuildStatus {
   private TestResults testResult;
   private CodeCoverage coverage;
   private List<BuildStage> stages;
+  private long timestamp;
 
   public BuildStatus() {
     stages = new ArrayList<>();
@@ -149,5 +150,13 @@ public class BuildStatus {
 
   public void addStage(BuildStage stage) {
     stages.add(stage);
+  }
+
+  public long getTimestamp() {
+    return timestamp;
+  }
+
+  public void setTimestamp(long timestamp) {
+    this.timestamp = timestamp;
   }
 }
