@@ -28,6 +28,7 @@ import com.cloudbees.plugins.credentials.CredentialsScope;
 import com.cloudbees.plugins.credentials.common.StandardUsernameCredentials;
 import com.cloudbees.plugins.credentials.domains.Domain;
 import com.cloudbees.plugins.credentials.impl.UsernamePasswordCredentialsImpl;
+import hudson.util.FormValidation;
 import hudson.util.FormValidation.Kind;
 import hudson.util.ListBoxModel;
 import java.io.IOException;
@@ -75,7 +76,7 @@ public class BuildStatusConfigTest {
     }
 
     @Before
-    public void setUp() throws IOException {
+    public void setUp() {
         suppress(method(BuildStatusConfig.class, "load"));
         suppress(method(BuildStatusConfig.class, "save"));
     }
@@ -143,10 +144,9 @@ public class BuildStatusConfigTest {
 
     /**
      * Verifies round trip get/set of enableGithub
-     * @throws IOException 
      */
     @Test
-    public void testSetEnableGithubTrue() throws IOException {
+    public void testSetEnableGithubTrue() {
         BuildStatusConfig instance = new BuildStatusConfig();
         instance.setEnableGithub(true);
         assertTrue(instance.getEnableGithub());
@@ -154,10 +154,9 @@ public class BuildStatusConfigTest {
 
     /**
      * Verifies round trip get/set of enableGithub
-     * @throws IOException 
      */
     @Test
-    public void testSetEnableGithubFalse() throws IOException {
+    public void testSetEnableGithubFalse() {
         BuildStatusConfig instance = new BuildStatusConfig();
         instance.setEnableGithub(false);
         assertFalse(instance.getEnableGithub());
@@ -165,10 +164,9 @@ public class BuildStatusConfigTest {
 
     /**
      * Verifies round trip get/set of enableInfluxDb
-     * @throws IOException 
      */
     @Test
-    public void testSetEnableInfluxDbTrue() throws IOException {
+    public void testSetEnableInfluxDbTrue() {
         BuildStatusConfig instance = new BuildStatusConfig();
         instance.setEnableInfluxDb(true);
         assertTrue(instance.getEnableInfluxDb());
@@ -176,10 +174,9 @@ public class BuildStatusConfigTest {
 
     /**
      * Verifies round trip get/set of enableInfluxDb
-     * @throws IOException 
      */
     @Test
-    public void testSetEnableInfluxDbFalse() throws IOException {
+    public void testSetEnableInfluxDbFalse() {
         BuildStatusConfig instance = new BuildStatusConfig();
         instance.setEnableInfluxDb(false);
         assertFalse(instance.getEnableInfluxDb());
@@ -187,10 +184,9 @@ public class BuildStatusConfigTest {
 
     /**
      * Verifies doCheckCredentialsId returns OK if empty 
-     * @throws IOException 
      */
     @Test
-    public void testDoCheckCredentialsIdEmpty() throws IOException {
+    public void testDoCheckCredentialsIdEmpty() {
         BuildStatusConfig instance = new BuildStatusConfig();
         assertEquals(Kind.OK, instance.doCheckCredentialsId(null, "").kind);
     }
@@ -223,10 +219,9 @@ public class BuildStatusConfigTest {
 
     /**
      * Verifies doFillCredentialsIdItems adds the passed in current value
-     * @throws IOException 
      */
     @Test
-    public void testDoFillCredentialsIdItemsAddsCurrent() throws IOException {
+    public void testDoFillCredentialsIdItemsAddsCurrent() {
         BuildStatusConfig instance = new BuildStatusConfig();
         
         final String currentValue = "mock-id";
@@ -262,5 +257,164 @@ public class BuildStatusConfigTest {
 
         ListBoxModel.Option item2 = model.get(1);
         assertEquals(testCredentials, item2.value);
+    }
+
+    /**
+     * Verifies round trip get/set of enableHttp
+     */
+    @Test
+    public void testSetEnableHttpTrue() {
+        BuildStatusConfig instance = new BuildStatusConfig();
+        instance.setEnableHttp(true);
+        assertTrue(instance.getEnableHttp());
+    }
+
+    /**
+     * Verifies round trip get/set of enableHttp
+     */
+    @Test
+    public void testSetEnableHttpFalse() {
+        BuildStatusConfig instance = new BuildStatusConfig();
+        instance.setEnableHttp(false);
+        assertFalse(instance.getEnableHttp());
+    }
+
+    /**
+     * Verifies round trip get/set of HttpVerifySSL
+     */
+    @Test
+    public void testSetHttpVerifySSLTrue() {
+        BuildStatusConfig instance = new BuildStatusConfig();
+        instance.setHttpVerifySSL(true);
+        assertTrue(instance.getHttpVerifySSL());
+    }
+
+    /**
+     * Verifies round trip get/set of HttpVerifySSL
+     */
+    @Test
+    public void testSetHttpVerifySSLFalse() {
+        BuildStatusConfig instance = new BuildStatusConfig();
+        instance.setHttpVerifySSL(false);
+        assertFalse(instance.getEnableHttp());
+    }
+
+    @Test
+    public void testHttpGetCredentialsId() {
+        BuildStatusConfig instance = new BuildStatusConfig();
+        String expResult = "mock-value";
+        instance.setHttpCredentialsId(expResult);
+        String result = instance.getHttpCredentialsId();
+        assertEquals(expResult, result);
+    }
+
+    /**
+     * Verifies doCheckHttpCredentialsId returns OK if empty
+     */
+    @Test
+    public void testDoCheckHttpCredentialsIdEmpty() {
+        BuildStatusConfig instance = new BuildStatusConfig();
+        assertEquals(Kind.OK, instance.doCheckHttpCredentialsId(null, "").kind);
+    }
+
+    /**
+     * Verifies doCheckHttpCredentialsId returns OK for credentials in the store
+     * @throws IOException
+     */
+    @Test
+    public void testDoCheckHttpCredentialsFound() throws IOException {
+        StandardUsernameCredentials user = new UsernamePasswordCredentialsImpl(CredentialsScope.GLOBAL, testCredentials, "Description", testCredentialsUser, testCredentialsPassword);
+        CredentialsProvider.lookupStores(j.getInstance()).iterator().next().addCredentials(Domain.global(), user);
+
+        BuildStatusConfig instance = new BuildStatusConfig();
+        assertEquals(Kind.OK, instance.doCheckHttpCredentialsId(null, testCredentials).kind);
+    }
+
+    /**
+     * Verifies doCheckHttpCredentialsId returns ERROR for credentials not in the store
+     * @throws IOException
+     */
+    @Test
+    public void testDoCheckHttpCredentialsNotFound() throws IOException {
+        StandardUsernameCredentials user = new UsernamePasswordCredentialsImpl(CredentialsScope.GLOBAL, testCredentials, "Description", testCredentialsUser, testCredentialsPassword);
+        CredentialsProvider.lookupStores(j.getInstance()).iterator().next().addCredentials(Domain.global(), user);
+
+        BuildStatusConfig instance = new BuildStatusConfig();
+        assertEquals(Kind.ERROR, instance.doCheckHttpCredentialsId(null, testInvalidCredentials).kind);
+    }
+
+    /**
+     * Verifies doFillHttpCredentialsIdItems adds the passed in current value
+     */
+    @Test
+    public void testDoFillHttpCredentialsIdItemsAddsCurrent() {
+        BuildStatusConfig instance = new BuildStatusConfig();
+
+        final String currentValue = "mock-id";
+        ListBoxModel model = instance.doFillHttpCredentialsIdItems(currentValue);
+
+        assertEquals(2, model.size());
+        ListBoxModel.Option item1 = model.get(0);
+        assertEquals("", item1.value);
+        assertEquals("- none -", item1.name);
+
+        ListBoxModel.Option item2 = model.get(1);
+        assertEquals(currentValue, item2.value);
+    }
+
+    /**
+     * Verifies doFillCredentialsIdItems adds values from the credentials store
+     * @throws IOException
+     */
+    @Test
+    public void testDoFillHttpCredentialsIdItemsAddsFromCredentialsStore() throws IOException {
+        StandardUsernameCredentials user = new UsernamePasswordCredentialsImpl(CredentialsScope.GLOBAL, testCredentials, "Description", testCredentialsUser, testCredentialsPassword);
+        CredentialsProvider.lookupStores(j.getInstance()).iterator().next().addCredentials(Domain.global(), user);
+
+        BuildStatusConfig instance = new BuildStatusConfig();
+        instance.setCredentialsId(testCredentials);
+
+        ListBoxModel model = instance.doFillHttpCredentialsIdItems(testCredentials);
+
+        assertEquals(2, model.size());
+        ListBoxModel.Option item1 = model.get(0);
+        assertEquals("", item1.value);
+        assertEquals("- none -", item1.name);
+
+        ListBoxModel.Option item2 = model.get(1);
+        assertEquals(testCredentials, item2.value);
+    }
+
+    /**
+     * Test of get/set httpEndpoint  method, of class BuildStatusConfig.
+     */
+    @Test
+    public void testHttpEndpoint () {
+        BuildStatusConfig instance = new BuildStatusConfig();
+        String expResult = "https://mock.com";
+        instance.setHttpEndpoint(expResult);
+        String result = instance.getHttpEndpoint();
+        assertEquals(expResult, result);
+    }
+
+    @Test
+    public void testDoCheckHttpEndpointEmpty(){
+        BuildStatusConfig instance = new BuildStatusConfig();
+        FormValidation result = instance.doCheckHttpEndpoint(null, "");
+        assertEquals(Kind.ERROR, result.kind);
+    }
+
+    @Test
+    public void testDoCheckHttpEndpointValid(){
+        BuildStatusConfig instance = new BuildStatusConfig();
+        FormValidation result = instance.doCheckHttpEndpoint(null, "https://mock.com:8443/api?token=1q2w3e");
+        assertEquals(Kind.OK, result.kind);
+    }
+
+    @Test
+    public void testDoCheckHttpEndpointInvalid(){
+        BuildStatusConfig instance = new BuildStatusConfig();
+        FormValidation result = instance.doCheckHttpEndpoint(null, "mock.com/api?token=1q2w3e");
+        assertEquals(Kind.ERROR, result.kind);
     }
 }

@@ -29,6 +29,7 @@ import hudson.plugins.cobertura.targets.CoverageMetric;
 import hudson.plugins.jacoco.JacocoBuildAction;
 import hudson.plugins.jacoco.model.Coverage;
 import java.util.Map;
+import java.util.Objects;
 import javax.annotation.Nullable;
 
 /**
@@ -198,4 +199,22 @@ public class CodeCoverage {
         this.instructions = instructions;
     }
 
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (!(o instanceof CodeCoverage)) return false;
+        CodeCoverage coverage = (CodeCoverage) o;
+        return Float.compare(coverage.getConditionals(), getConditionals()) == 0 &&
+                Float.compare(coverage.getClasses(), getClasses()) == 0 &&
+                Float.compare(coverage.getFiles(), getFiles()) == 0 &&
+                Float.compare(coverage.getLines(), getLines()) == 0 &&
+                Float.compare(coverage.getMethods(), getMethods()) == 0 &&
+                Float.compare(coverage.getPackages(), getPackages()) == 0 &&
+                Float.compare(coverage.getInstructions(), getInstructions()) == 0;
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(getConditionals(), getClasses(), getFiles(), getLines(), getMethods(), getPackages(), getInstructions());
+    }
 }

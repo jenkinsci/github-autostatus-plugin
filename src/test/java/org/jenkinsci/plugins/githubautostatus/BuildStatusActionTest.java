@@ -31,7 +31,6 @@ import java.util.List;
 
 import org.jenkinsci.plugins.githubautostatus.config.GithubNotificationConfig;
 import org.jenkinsci.plugins.githubautostatus.model.BuildStage;
-import org.jenkinsci.plugins.githubautostatus.model.BuildState;
 import org.junit.After;
 import org.junit.AfterClass;
 import static org.junit.Assume.assumeFalse;

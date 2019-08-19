@@ -26,6 +26,7 @@ package org.jenkinsci.plugins.githubautostatus.model;
 import com.google.gson.annotations.SerializedName;
 
 import java.util.ArrayList;
+import java.util.Objects;
 
 /**
  *
@@ -88,5 +89,22 @@ public class TestSuite {
 
     public void setFailedTestCaseCount(int failedTestCaseCount) {
         this.failedTestCaseCount = failedTestCaseCount;
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (!(o instanceof TestSuite)) return false;
+        TestSuite suite = (TestSuite) o;
+        return getPassedTestCaseCount() == suite.getPassedTestCaseCount() &&
+                getSkippedTestCaseCount() == suite.getSkippedTestCaseCount() &&
+                getFailedTestCaseCount() == suite.getFailedTestCaseCount() &&
+                Objects.equals(getName(), suite.getName()) &&
+                Objects.equals(getTestCases(), suite.getTestCases());
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(getName(), getTestCases(), getPassedTestCaseCount(), getSkippedTestCaseCount(), getFailedTestCaseCount());
     }
 }

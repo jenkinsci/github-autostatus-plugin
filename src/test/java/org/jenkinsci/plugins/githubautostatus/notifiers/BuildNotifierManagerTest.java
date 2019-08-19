@@ -25,6 +25,8 @@ package org.jenkinsci.plugins.githubautostatus.notifiers;
 
 import java.util.Collections;
 import java.util.HashMap;
+
+import org.jenkinsci.plugins.githubautostatus.config.HttpNotifierConfig;
 import org.jenkinsci.plugins.githubautostatus.model.BuildStage;
 import org.jenkinsci.plugins.githubautostatus.model.BuildState;
 import org.jenkinsci.plugins.githubautostatus.config.GithubNotificationConfig;
@@ -49,6 +51,8 @@ public class BuildNotifierManagerTest {
     private GithubNotificationConfig githubNotificationConfig;
     @Mock
     private InfluxDbNotifierConfig influxDbNotificationConfig;
+    @Mock
+    private HttpNotifierConfig httpNotifierConfig;
     @Mock
     private GHRepository repo;
     private BuildNotifierManager instance;
@@ -99,9 +103,30 @@ public class BuildNotifierManagerTest {
      * Verifies influxdb notifier is not added when disabled.
      */
     @Test
-    public void testAddInfluxDbNofifierDisabled() {
+    public void testAddInfluxDbNotifierDisabled() {
         when(influxDbNotificationConfig.getInfluxDbUrlString()).thenReturn("");
         BuildNotifier result = instance.addInfluxDbNotifier(influxDbNotificationConfig);
+        assertNull(result);
+    }
+
+    /**
+     * Verifies HTTP notifier is not added when enabled.
+     */
+    @Test
+    public void testAddHttpNotifier() {
+        when(httpNotifierConfig.getHttpEndpoint()).thenReturn("http://example.com");
+        BuildNotifier result = instance.addHttpNotifier(httpNotifierConfig);
+        assertNotNull(result);
+        assertTrue(instance.notifiers.contains(result));
+    }
+
+    /**
+     * Verifies HTTP notifier is not added when disabled.
+     */
+    @Test
+    public void testAddHttpNotifierDisabled() {
+        when(httpNotifierConfig.getHttpEndpoint()).thenReturn("");
+        BuildNotifier result = instance.addHttpNotifier(httpNotifierConfig);
         assertNull(result);
     }
 
@@ -157,7 +182,7 @@ public class BuildNotifierManagerTest {
      * Verifies addBuildNotifier adds enabled notifiers
      */
     @Test
-    public void testaddBuildNotifierEnabled() {
+    public void testAddBuildNotifierEnabled() {
         GithubBuildNotifier notifier = mock(GithubBuildNotifier.class);
         when(notifier.isEnabled()).thenReturn(true);
         instance.addBuildNotifier(notifier);
@@ -169,7 +194,7 @@ public class BuildNotifierManagerTest {
      * Verifies addBuildNotifier does not add disabled notifiers
      */
     @Test
-    public void testaddBuildNotifierDisabled() {
+    public void testAddBuildNotifierDisabled() {
         GithubBuildNotifier notifier = mock(GithubBuildNotifier.class);
         when(notifier.isEnabled()).thenReturn(false);
         instance.addBuildNotifier(notifier);

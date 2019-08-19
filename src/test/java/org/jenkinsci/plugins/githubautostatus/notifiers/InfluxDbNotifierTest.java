@@ -135,13 +135,13 @@ public class InfluxDbNotifierTest {
     }
 
     @Test
-    public void testIsEnabled() throws Exception {
+    public void testIsEnabled() {
         InfluxDbNotifier instance = new InfluxDbNotifier(config);
         assertTrue(instance.isEnabled());
     }
 
     @Test
-    public void testIsDisabledUrl() throws Exception {
+    public void testIsDisabledUrl() {
         when(config.influxDbIsReachable()).thenReturn(false);
         InfluxDbNotifier instance = new InfluxDbNotifier(config);
         assertFalse(instance.isEnabled());
@@ -172,7 +172,7 @@ public class InfluxDbNotifierTest {
     }
 
     @Test
-    public void testUrlRetention() throws Exception {
+    public void testUrlRetention() {
         when(config.getInfluxDbRetentionPolicy()).thenReturn("mockretention");
         InfluxDbNotifier instance = new InfluxDbNotifier(config);
         assertEquals("http://fake/write?db=mockdb&rp=mockretention", instance.influxDbUrlString);

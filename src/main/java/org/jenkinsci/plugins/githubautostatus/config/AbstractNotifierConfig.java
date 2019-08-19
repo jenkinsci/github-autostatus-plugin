@@ -31,14 +31,12 @@ public abstract class AbstractNotifierConfig {
       PoolingHttpClientConnectionManager connectionManager = new PoolingHttpClientConnectionManager(
               RegistryBuilder.<ConnectionSocketFactory>create()
                       .register("http", PlainConnectionSocketFactory.INSTANCE)
-                      .register("https", new SSLConnectionSocketFactory(sslContext,
-                              NoopHostnameVerifier.INSTANCE))
+                      .register("https", new SSLConnectionSocketFactory(sslContext, NoopHostnameVerifier.INSTANCE))
                       .build()
       );
       return HttpClientBuilder.create()
               .setSSLContext(sslContext)
-              .setConnectionManager(
-                      connectionManager)
+              .setConnectionManager(connectionManager)
               .build();
     }
     return HttpClients.createDefault();

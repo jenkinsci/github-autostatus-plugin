@@ -1,7 +1,7 @@
 /*
  * The MIT License
  *
- * Copyright 2018 jxpearce.
+ * Copyright 2019 nthienan.
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to deal
@@ -57,7 +57,7 @@ public class HttpNotifier extends BuildNotifier {
   protected HttpNotifierConfig config;
   protected String authorization;
   protected Map<String, BuildStage> stageMap;
-  private Gson gson;
+  protected Gson gson;
 
   public HttpNotifier(HttpNotifierConfig config) {
     if (null == config || Strings.isNullOrEmpty(config.getHttpEndpoint())) {
