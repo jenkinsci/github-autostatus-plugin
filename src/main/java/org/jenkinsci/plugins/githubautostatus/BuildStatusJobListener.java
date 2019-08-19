@@ -36,6 +36,7 @@ import org.jenkinsci.plugins.githubautostatus.model.CodeCoverage;
 import org.jenkinsci.plugins.githubautostatus.model.TestResults;
 import org.jenkinsci.plugins.githubautostatus.notifiers.BuildNotifierConstants;
 
+import javax.annotation.Nonnull;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.Map;
@@ -58,7 +59,7 @@ public class BuildStatusJobListener extends RunListener<Run<?, ?>> {
      * @param listener listener
      */
     @Override
-    public void onCompleted(Run<?, ?> build, TaskListener listener) {
+    public void onCompleted(Run<?, ?> build, @Nonnull TaskListener listener) {
 
         log(Level.INFO,"BuildStatusJobListener.onCompleted %s", build.getClass().getName());
 
@@ -78,7 +79,10 @@ public class BuildStatusJobListener extends RunListener<Run<?, ?>> {
             parameters.put(BuildNotifierConstants.REPO_NAME, statusAction.getRepoName());
             parameters.put(BuildNotifierConstants.BRANCH_NAME, statusAction.getBranchName());
 
-            Result result = build.getResult() != null ? build.getResult() : Result.FAILURE;
+            Result result = build.getResult();
+            if (result == null) {
+              result = Result.FAILURE;
+            }
             statusAction.updateBuildStatusForJob(BuildState.fromResult(result), parameters);
         }
     }
