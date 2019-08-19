@@ -26,6 +26,9 @@ import java.util.Map;
 import static org.junit.Assert.*;
 import static org.mockito.Mockito.*;
 
+/**
+ * @author nthienan
+ */
 public class HttpNotifierTest {
 
   private HttpNotifierConfig mockConfig;
