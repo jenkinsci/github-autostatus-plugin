@@ -78,7 +78,7 @@ public class BuildStatusJobListener extends RunListener<Run<?, ?>> {
             parameters.put(BuildNotifierConstants.REPO_NAME, statusAction.getRepoName());
             parameters.put(BuildNotifierConstants.BRANCH_NAME, statusAction.getBranchName());
 
-            Result result = build.getResult();
+            Result result = build.getResult() != null ? build.getResult() : Result.FAILURE;
             statusAction.updateBuildStatusForJob(BuildState.fromResult(result), parameters);
         }
     }

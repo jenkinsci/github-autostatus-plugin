@@ -399,7 +399,7 @@ public class BuildStatusConfig extends GlobalConfiguration {
 
     public FormValidation doCheckHttpEndpoint(@AncestorInPath Item item, @QueryParameter String value) {
         try {
-            URL url = new URL(value);
+            new URL(value);
         } catch (MalformedURLException e) {
             return FormValidation.error("Invalid URL");
         }

@@ -42,8 +42,12 @@ import org.jenkinsci.plugins.githubautostatus.model.TestResults;
 import org.jenkinsci.plugins.githubautostatus.model.TestSuite;
 
 import javax.annotation.Nullable;
+import java.io.IOException;
 import java.io.UnsupportedEncodingException;
 import java.net.URLEncoder;
+import java.security.KeyManagementException;
+import java.security.KeyStoreException;
+import java.security.NoSuchAlgorithmException;
 import java.util.Base64;
 import java.util.Map;
 import java.util.logging.Level;
@@ -403,7 +407,7 @@ public class InfluxDbNotifier extends BuildNotifier {
 
                 }
             }
-        } catch (Exception ex) {
+        } catch (IOException | KeyStoreException | NoSuchAlgorithmException | KeyManagementException ex) {
             log(Level.SEVERE, ex);
         }
     }

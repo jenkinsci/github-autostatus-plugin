@@ -99,6 +99,7 @@ public class CodeCoverage {
                     break;
                 case INSTRUCTION:
                     codeCoverage.setInstructions(c.getPercentageFloat());
+                    break;
                 default:
                     break;
             }

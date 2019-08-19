@@ -40,7 +40,11 @@ import org.apache.http.util.EntityUtils;
 import org.jenkinsci.plugins.githubautostatus.model.*;
 import org.jenkinsci.plugins.githubautostatus.config.HttpNotifierConfig;
 
+import java.io.IOException;
 import java.io.UnsupportedEncodingException;
+import java.security.KeyManagementException;
+import java.security.KeyStoreException;
+import java.security.NoSuchAlgorithmException;
 import java.time.Clock;
 import java.util.Base64;
 import java.util.HashMap;
@@ -180,7 +184,7 @@ public class HttpNotifier extends BuildNotifier {
           log(Level.INFO, "Successfully sent data to %s", config.getHttpEndpoint());
         }
       }
-    } catch (Exception ex) {
+    } catch (IOException | KeyStoreException | NoSuchAlgorithmException | KeyManagementException ex) {
       log(Level.SEVERE, ex);
     }
   }
