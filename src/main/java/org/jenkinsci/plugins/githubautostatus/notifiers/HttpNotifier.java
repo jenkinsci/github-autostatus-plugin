@@ -31,14 +31,15 @@ import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 import hudson.model.Cause;
 import hudson.model.Run;
+import jenkins.model.Jenkins;
 import org.apache.http.HttpEntity;
 import org.apache.http.client.methods.CloseableHttpResponse;
 import org.apache.http.client.methods.HttpPost;
 import org.apache.http.entity.StringEntity;
 import org.apache.http.impl.client.CloseableHttpClient;
 import org.apache.http.util.EntityUtils;
-import org.jenkinsci.plugins.githubautostatus.model.*;
 import org.jenkinsci.plugins.githubautostatus.config.HttpNotifierConfig;
+import org.jenkinsci.plugins.githubautostatus.model.*;
 
 import java.io.IOException;
 import java.io.UnsupportedEncodingException;
@@ -91,6 +92,7 @@ public class HttpNotifier extends BuildNotifier {
               public boolean shouldSkipField(FieldAttributes f) {
                 return f.getAnnotation(SkipSerialisation.class) != null;
               }
+
               @Override
               public boolean shouldSkipClass(Class<?> clazz) {
                 return false;
@@ -117,7 +119,7 @@ public class HttpNotifier extends BuildNotifier {
   public void notifyFinalBuildStatus(BuildState buildState, Map<String, Object> parameters) {
     BuildStatus buildStatus = constructBuildStatus(buildState, parameters);
     TestResults testResults = (TestResults) parameters.get(BuildNotifierConstants.TEST_CASE_INFO);
-    if(testResults != null) {
+    if (testResults != null) {
       buildStatus.setTestResult(testResults);
     }
     CodeCoverage coverage = (CodeCoverage) parameters.get(BuildNotifierConstants.COVERAGE_INFO);
@@ -130,7 +132,7 @@ public class HttpNotifier extends BuildNotifier {
     sendData(gson.toJson(buildStatus));
   }
 
-  private BuildStatus constructBuildStatus(BuildState buildState, Map<String, Object> parameters){
+  private BuildStatus constructBuildStatus(BuildState buildState, Map<String, Object> parameters) {
     Run<?, ?> run = (Run<?, ?>) parameters.get(BuildNotifierConstants.BUILD_OBJECT);
     String jobName = (String) parameters.getOrDefault(BuildNotifierConstants.JOB_NAME, BuildNotifierConstants.DEFAULT_STRING);
     long blockedDuration = BuildNotifierConstants.getLong(parameters, BuildNotifierConstants.BLOCKED_DURATION);
@@ -162,6 +164,7 @@ public class HttpNotifier extends BuildNotifier {
 
       httppost.setEntity(new StringEntity(jsonData));
       httppost.setHeader("Content-Type", "application/json");
+      httppost.setHeader("Referer", Jenkins.get().getRootUrl());
       if (!Strings.isNullOrEmpty(authorization)) {
         httppost.setHeader("Authorization", String.format("Basic %s", authorization));
       }

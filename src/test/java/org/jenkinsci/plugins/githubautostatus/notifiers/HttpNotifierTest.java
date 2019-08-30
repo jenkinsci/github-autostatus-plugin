@@ -6,6 +6,8 @@ import com.cloudbees.plugins.credentials.impl.UsernamePasswordCredentialsImpl;
 import hudson.model.AbstractBuild;
 import hudson.model.Cause;
 import hudson.model.Run;
+import jenkins.model.Jenkins;
+import org.apache.http.Header;
 import org.apache.http.HttpEntity;
 import org.apache.http.StatusLine;
 import org.apache.http.client.methods.CloseableHttpResponse;
@@ -16,7 +18,11 @@ import org.jenkinsci.plugins.githubautostatus.config.HttpNotifierConfig;
 import org.jenkinsci.plugins.githubautostatus.model.*;
 import org.junit.Before;
 import org.junit.Test;
+import org.junit.runner.RunWith;
 import org.mockito.invocation.InvocationOnMock;
+import org.powermock.api.mockito.PowerMockito;
+import org.powermock.core.classloader.annotations.PrepareForTest;
+import org.powermock.modules.junit4.PowerMockRunner;
 
 import java.io.IOException;
 import java.util.Base64;
@@ -29,6 +35,8 @@ import static org.mockito.Mockito.*;
 /**
  * @author nthienan
  */
+@RunWith(PowerMockRunner.class)
+@PrepareForTest({Jenkins.class})
 public class HttpNotifierTest {
 
   private HttpNotifierConfig mockConfig;
@@ -41,8 +49,9 @@ public class HttpNotifierTest {
   private Map<String, BuildStage> mockStageMap;
   private CloseableHttpClient mockHttpClient;
   private StatusLine mockStatusLine;
-  private Run<?,?> mockRun;
+  private Run<?, ?> mockRun;
   private String bodyData;
+  private Map<String, String> requestHeaders = new HashMap<>();
 
   private String repoOwner = "mock-repo-name";
   private String repoName = "mock-repo-name";
@@ -50,6 +59,7 @@ public class HttpNotifierTest {
   private long jobDuration = 1234L;
   private String trigger = "started by user A";
   private String buildUrl = "https://jenkins.com/job/job-1/build/1";
+  private final String jenkinsUrl = "https://mock-jenkins.com:8443/";
   private int buildNumber = 123123;
 
   @Before
@@ -75,7 +85,12 @@ public class HttpNotifierTest {
     when(mockResponse.getStatusLine()).thenReturn(mockStatusLine);
 
     when(mockHttpClient.execute(any())).thenAnswer((InvocationOnMock invocation) -> {
-      HttpEntity entity = ((HttpPost) invocation.getArguments()[0]).getEntity();
+      HttpPost httpPost = (HttpPost) invocation.getArguments()[0];
+      Header[] headers = httpPost.getAllHeaders();
+      for (Header header : headers) {
+        requestHeaders.put(header.getName(), header.getValue());
+      }
+      HttpEntity entity = httpPost.getEntity();
       bodyData = EntityUtils.toString(entity);
       return mockResponse;
     });
@@ -91,6 +106,11 @@ public class HttpNotifierTest {
     mockStageMap = mock(HashMap.class);
     notifier = new HttpNotifier(mockConfig);
     notifier.stageMap = mockStageMap;
+
+    Jenkins jenkins = mock(Jenkins.class);
+    when(jenkins.getRootUrl()).thenReturn(jenkinsUrl);
+    PowerMockito.mockStatic(Jenkins.class);
+    when(Jenkins.get()).thenReturn(jenkins);
   }
 
   @Test
@@ -254,6 +274,7 @@ public class HttpNotifierTest {
     assertEquals(trigger, actualResult.getTrigger());
     assertEquals(buildUrl, actualResult.getBuildUrl());
     assertEquals(buildNumber, actualResult.getBuildNumber());
+    assertEquals(jenkinsUrl, requestHeaders.get("Referer"));
   }
 
   private Map<String, Object> createParameter() {
