@@ -50,6 +50,7 @@ public class InfluxDbNotifierConfig {
     private String influxDbUser;
     private String influxDbPassword;
     private String influxDbRetentionPolicy;
+    private Integer schemaVersion = null;
 
     /**
      * Gets the repo owner.

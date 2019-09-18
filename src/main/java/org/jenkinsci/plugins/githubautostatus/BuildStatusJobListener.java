@@ -93,6 +93,11 @@ public class BuildStatusJobListener extends RunListener<Run<?, ?>> {
         }
     }
 
+    @Override
+    public void onStarted(Run<?, ?> run, TaskListener listener) {
+        super.onStarted(run, listener);
+    }
+
     /**
      * Sets the build status action for a freestyle build, so we can send a few basic stats
      * @param build the build.
