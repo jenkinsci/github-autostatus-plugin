@@ -21,44 +21,44 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
  * THE SOFTWARE.
  */
-package org.jenkinsci.plugins.githubautostatus;
+package org.jenkinsci.plugins.githubautostatus.config;
 
 import com.cloudbees.plugins.credentials.CredentialsMatchers;
 import com.cloudbees.plugins.credentials.CredentialsScope;
 import com.cloudbees.plugins.credentials.impl.UsernamePasswordCredentialsImpl;
 import hudson.model.AbstractBuild;
 import hudson.model.Run;
-import java.net.Proxy;
-import java.util.Collections;
 import jenkins.plugins.git.AbstractGitSCMSource.SCMRevisionImpl;
 import jenkins.scm.api.SCMRevision;
 import jenkins.scm.api.SCMRevisionAction;
 import org.jenkinsci.plugins.github_branch_source.BranchSCMHead;
 import org.jenkinsci.plugins.github_branch_source.GitHubSCMSource;
 import org.jenkinsci.plugins.github_branch_source.PullRequestSCMRevision;
+import org.jenkinsci.plugins.githubautostatus.BuildStatusConfig;
 import org.jenkinsci.plugins.workflow.job.WorkflowJob;
 import org.jenkinsci.plugins.workflow.multibranch.WorkflowMultiBranchProject;
-import org.junit.After;
-import org.junit.AfterClass;
-import org.junit.Before;
-import org.junit.BeforeClass;
-import org.junit.Test;
-import static org.junit.Assert.*;
+import org.junit.*;
 import org.junit.runner.RunWith;
 import org.kohsuke.github.GHRepository;
 import org.kohsuke.github.GHUser;
 import org.kohsuke.github.GitHub;
 import org.kohsuke.github.GitHubBuilder;
 import org.mockito.Matchers;
-import static org.mockito.Matchers.any;
-import static org.mockito.Matchers.anyString;
 import org.mockito.Mock;
 import org.mockito.Mockito;
-import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.when;
 import org.powermock.api.mockito.PowerMockito;
 import org.powermock.core.classloader.annotations.PrepareForTest;
 import org.powermock.modules.junit4.PowerMockRunner;
+
+import java.net.Proxy;
+import java.util.Collections;
+
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertNull;
+import static org.mockito.Matchers.any;
+import static org.mockito.Matchers.anyString;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.when;
 
 /**
  *

@@ -25,8 +25,10 @@ package org.jenkinsci.plugins.githubautostatus.notifiers;
 
 import hudson.ExtensionList;
 import hudson.ExtensionPoint;
+import org.jenkinsci.plugins.githubautostatus.model.BuildStage;
+import org.jenkinsci.plugins.githubautostatus.model.BuildState;
+
 import java.util.Map;
-import org.jenkinsci.plugins.githubautostatus.BuildStageModel;
 
 /**
  * A notification subscriber which can send build stats to a particular sink.
@@ -57,7 +59,7 @@ public abstract class BuildNotifier implements ExtensionPoint {
      * @param jobName      the name of the job
      * @param stageItem    stage item
      */
-    abstract public void notifyBuildStageStatus(String jobName, BuildStageModel stageItem);
+    abstract public void notifyBuildStageStatus(String jobName, BuildStage stageItem);
 
     /**
      * Send a notification when the job is complete

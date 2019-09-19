@@ -23,13 +23,16 @@
  */
 package org.jenkinsci.plugins.githubautostatus.notifiers;
 
+import org.jenkinsci.plugins.githubautostatus.StatsdNotifierConfig;
+import org.jenkinsci.plugins.githubautostatus.config.GithubNotificationConfig;
+import org.jenkinsci.plugins.githubautostatus.config.HttpNotifierConfig;
+import org.jenkinsci.plugins.githubautostatus.config.InfluxDbNotifierConfig;
+import org.jenkinsci.plugins.githubautostatus.model.BuildStage;
+import org.jenkinsci.plugins.githubautostatus.model.BuildState;
+
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
-import org.jenkinsci.plugins.githubautostatus.BuildStageModel;
-import org.jenkinsci.plugins.githubautostatus.GithubNotificationConfig;
-import org.jenkinsci.plugins.githubautostatus.InfluxDbNotifierConfig;
-import org.jenkinsci.plugins.githubautostatus.StatsdNotifierConfig;
 
 /**
  * Manages send build notifications to one or more notifiers
@@ -75,7 +78,13 @@ public class BuildNotifierManager {
         InfluxDbNotifier buildNotifier = new InfluxDbNotifier(influxDbNotifierConfig);
         return addBuildNotifier(buildNotifier);
     }
-    public BuildNotifier addGenericNofifier(BuildNotifier buildNotifier) {
+
+    public BuildNotifier addHttpNotifier(HttpNotifierConfig httpNotifierConfig) {
+        return addBuildNotifier(new HttpNotifier((httpNotifierConfig)));
+    }
+
+
+    public BuildNotifier addGenericNotifier(BuildNotifier buildNotifier) {
         return addBuildNotifier(buildNotifier);
     }
 
@@ -109,7 +118,7 @@ public class BuildNotifierManager {
      *
      * @param stageItem stage item
      */
-    public void notifyBuildStageStatus(BuildStageModel stageItem) {
+    public void notifyBuildStageStatus(BuildStage stageItem) {
         notifiers.forEach((notifier) -> {
             notifier.notifyBuildStageStatus(jobName, stageItem);
         });
@@ -134,7 +143,7 @@ public class BuildNotifierManager {
      *
      * @param stageItem stage item
      */
-    public void sendNonStageError(BuildStageModel stageItem) {
+    public void sendNonStageError(BuildStage stageItem) {
         notifiers.forEach((notifier) -> {
             notifier.notifyBuildStageStatus(jobName, stageItem);
         });

@@ -21,9 +21,11 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
  * THE SOFTWARE.
  */
-package org.jenkinsci.plugins.githubautostatus.notifiers;
+package org.jenkinsci.plugins.githubautostatus.model;
 
 import hudson.model.Result;
+
+import javax.annotation.Nonnull;
 
 /**
  * Possible build states for notification
@@ -32,30 +34,28 @@ import hudson.model.Result;
  */
 public enum BuildState {
 
-    Pending,
+    Unknown,
     CompletedSuccess,
     CompletedError,
-    SkippedFailure,
-    SkippedUnstable,
-    SkippedConditional;
+    Unstable,
+    NotBuild,
+    Aborted;
 
-    /**
-     * Converts value to Jenkins; result
-     * @return BuildState enum type
-     */
-    public Result toResult() {
-        switch(this) {
-            case Pending:
-            case CompletedSuccess:
-                return Result.SUCCESS;
-            case CompletedError:
-                return Result.FAILURE;
-            case SkippedFailure:
-            case SkippedUnstable:
-            case SkippedConditional:
-                return Result.NOT_BUILT;
+    public static @Nonnull BuildState fromResult(Result result) {
+        switch (result.ordinal) {
+            case 0:
+                return CompletedSuccess;
+            case 1:
+                return Unstable;
+            case 2:
+                return CompletedError;
+            case 3:
+                return NotBuild;
+            case 4:
+                return Aborted;
+            default:
+                return Unknown;
         }
-        return Result.NOT_BUILT;
     }
 }
 

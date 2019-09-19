@@ -23,45 +23,17 @@
  */
 package org.jenkinsci.plugins.githubautostatus.notifiers;
 
-import static org.junit.Assert.*;
+import org.jenkinsci.plugins.githubautostatus.StatsdClient;
+import org.jenkinsci.plugins.githubautostatus.StatsdNotifierConfig;
+import org.jenkinsci.plugins.githubautostatus.model.BuildStage;
+import org.jenkinsci.plugins.githubautostatus.model.BuildState;
+import org.junit.*;
 
 import java.io.IOException;
 import java.util.HashMap;
-import java.util.Map;
-
-import com.timgroup.statsd.NonBlockingStatsDClient;
-
-import org.junit.After;
-import org.junit.AfterClass;
-import org.junit.Before;
-import org.junit.BeforeClass;
-import org.junit.Test;
 
 import static org.junit.Assert.*;
-import static org.mockito.ArgumentMatchers.anyInt;
-import static org.mockito.ArgumentMatchers.anyString;
-import static org.mockito.Matchers.any;
-import static org.mockito.Mockito.doNothing;
-import static org.mockito.Mockito.doReturn;
-import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.never;
-import static org.mockito.Mockito.spy;
-import static org.mockito.Mockito.times;
-import static org.mockito.Mockito.verify;
-import static org.mockito.Mockito.when;
-
-import org.mockito.InjectMocks;
-import org.mockito.Mockito;
-import org.mockito.Spy;
-import org.mockito.invocation.InvocationOnMock;
-import org.junit.runner.RunWith;
-import org.powermock.core.classloader.annotations.PrepareForTest;
-
-import org.jenkinsci.plugins.githubautostatus.BuildStageModel;
-import org.jenkinsci.plugins.githubautostatus.StatsdNotifierConfig;
-import org.jenkinsci.plugins.githubautostatus.StatsdClient;
-import org.jenkinsci.plugins.githubautostatus.StatsdWrapper;
-import org.jenkinsci.plugins.githubautostatus.notifiers.StatsdNotifier;
+import static org.mockito.Mockito.*;
 
 /**
  *
@@ -155,11 +127,11 @@ public class StatsdNotifierTest {
         int buildDuration = 600;
         when(config.getExternalizedID()).thenReturn("Main Folder/Sub Folder/job name/branch name");
         StatsdNotifier instance = new StatsdNotifier(client, config);
-        BuildStageModel stageItem = new BuildStageModel("stage_name");
-        stageItem.setBuildState(BuildState.CompletedError);
+        BuildStage stageItem = new BuildStage("stage_name");
+        stageItem.setBuildState(BuildStage.State.CompletedError);
         HashMap<String, Object> environment = new HashMap<String, Object>();
         environment.put(BuildNotifierConstants.STAGE_DURATION, 600L);
-        stageItem.setEnvironment(environment);
+        stageItem.addAllToEnvironment(environment);
 
         instance.notifyBuildStageStatus("Job Name!", stageItem);
         verify(client).increment("pipeline.main_folder.sub_folder.job_name.branch_name.stage.stage_name.status.completederror", 1);
@@ -174,11 +146,11 @@ public class StatsdNotifierTest {
         int buildDuration = 600;
         when(config.getExternalizedID()).thenReturn("Main Folder/Sub Folder/job name/branch name");
         StatsdNotifier instance = new StatsdNotifier(client, config);
-        BuildStageModel stageItem = new BuildStageModel("stage_name");
-        stageItem.setBuildState(BuildState.Pending);
+        BuildStage stageItem = new BuildStage("stage_name");
+        stageItem.setBuildState(BuildStage.State.Pending);
         HashMap<String, Object> environment = new HashMap<String, Object>();
         environment.put(BuildNotifierConstants.STAGE_DURATION, 600L);
-        stageItem.setEnvironment(environment);
+        stageItem.addAllToEnvironment(environment);
 
         instance.notifyBuildStageStatus("Job Name!", stageItem);
         verify(client, times(0)).increment("pipeline.main_folder.sub_folder.job_name.branch_name.job.status.pending", 1);

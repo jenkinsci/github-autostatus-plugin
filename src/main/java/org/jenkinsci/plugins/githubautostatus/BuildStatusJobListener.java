@@ -23,30 +23,25 @@
  */
 package org.jenkinsci.plugins.githubautostatus;
 
-import java.util.logging.Level;
-import java.util.logging.Logger;
 import hudson.Extension;
 import hudson.model.*;
 import hudson.model.listeners.RunListener;
 import hudson.plugins.cobertura.CoberturaBuildAction;
-import hudson.plugins.git.util.Build;
-import hudson.plugins.git.util.BuildData;
 import hudson.plugins.jacoco.JacocoBuildAction;
 import hudson.tasks.junit.TestResultAction;
-
-import java.util.Collections;
-import java.util.HashMap;
-import java.util.Map;
-import java.util.Set;
-import java.util.logging.Level;
-import java.util.logging.Logger;
-
-import org.jaxen.util.SingletonList;
+import org.jenkinsci.plugins.githubautostatus.config.HttpNotifierConfig;
+import org.jenkinsci.plugins.githubautostatus.config.InfluxDbNotifierConfig;
+import org.jenkinsci.plugins.githubautostatus.model.BuildState;
 import org.jenkinsci.plugins.githubautostatus.model.CodeCoverage;
 import org.jenkinsci.plugins.githubautostatus.model.TestResults;
 import org.jenkinsci.plugins.githubautostatus.notifiers.BuildNotifierConstants;
-import org.jenkinsci.plugins.githubautostatus.notifiers.BuildState;
-import org.jenkinsci.plugins.workflow.job.WorkflowRun;
+
+import javax.annotation.Nonnull;
+import java.util.Collections;
+import java.util.HashMap;
+import java.util.Map;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 
 /**
  * Implements {@link hudson.model.listeners.RunListener} extension point to
@@ -64,7 +59,7 @@ public class BuildStatusJobListener extends RunListener<Run<?, ?>> {
      * @param listener listener
      */
     @Override
-    public void onCompleted(Run<?, ?> build, TaskListener listener) {
+    public void onCompleted(Run<?, ?> build, @Nonnull TaskListener listener) {
 
         log(Level.INFO,"BuildStatusJobListener.onCompleted %s", build.getClass().getName());
 
@@ -86,10 +81,11 @@ public class BuildStatusJobListener extends RunListener<Run<?, ?>> {
             parameters.put(BuildNotifierConstants.BRANCH_NAME, statusAction.getBranchName());
 
             Result result = build.getResult();
-            statusAction.updateBuildStatusForJob(result == Result.SUCCESS
-                    ? BuildState.CompletedSuccess
-                    : BuildState.CompletedError,
-                    parameters);
+            if (result == null) {
+                log(Level.WARNING, String.format("Could not get result of build \"%s\". Notifications are ignored.", statusAction.getRepoName()));
+                return;
+            }
+            statusAction.updateBuildStatusForJob(BuildState.fromResult(result), parameters);
         }
     }
 
@@ -115,6 +111,8 @@ public class BuildStatusJobListener extends RunListener<Run<?, ?>> {
         buildStatusAction.setBranchName(branchName);
         buildStatusAction.addInfluxDbNotifier(
                 InfluxDbNotifierConfig.fromGlobalConfig(repoOwner, repoName, branchName));
+        buildStatusAction.addHttpNotifier(
+                HttpNotifierConfig.fromGlobalConfig(repoOwner, repoName, branchName));
     }
 
     /**
@@ -126,12 +124,21 @@ public class BuildStatusJobListener extends RunListener<Run<?, ?>> {
     private Map<String, Object> getParameters(Run<?, ?> build) {
         HashMap<String, Object> result = new HashMap<String, Object>();
 
+//<<<<<<< HEAD
+        // TODO: not sure which of these legs to take :(
         ParametersAction parametersAction = build.getAction(ParametersAction.class);
 
         // TODO: reverify this code
         if (parametersAction != null) {
             for (ParameterValue parameterValue : parametersAction.getAllParameters()) {
                 result.put(parameterValue.getName(), parameterValue.getValue());
+//=======
+//        Map<JobPropertyDescriptor, ? extends JobProperty<?>> jobProperties = build.getParent().getProperties();
+//        if (jobProperties != null) {
+//            for (JobProperty property : jobProperties.values()) {
+//
+//                result.put(property.getDescriptor().getDisplayName(), property);
+//>>>>>>> 33f1c0039494438c80d0637d22bdb33e9a8d0a1c
             }
         }
 

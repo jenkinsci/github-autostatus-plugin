@@ -23,10 +23,12 @@
  */
 package org.jenkinsci.plugins.githubautostatus.model;
 
+import com.google.gson.annotations.SerializedName;
 import hudson.tasks.junit.CaseResult;
 import hudson.tasks.junit.SuiteResult;
 import hudson.tasks.junit.TestResultAction;
 import java.util.ArrayList;
+import java.util.Objects;
 import javax.annotation.Nullable;
 
 /**
@@ -35,10 +37,14 @@ import javax.annotation.Nullable;
  */
 public class TestResults {
 
+    @SerializedName("passed")
     private int passedTestCaseCount;
+    @SerializedName("skipped")
     private int skippedTestCaseCount;
+    @SerializedName("failed")
     private int failedTestCaseCount;
 
+    @SerializedName("suites")
     private ArrayList<TestSuite> testSuites;
 
     public void setTestSuites(ArrayList<TestSuite> testSuites) {
@@ -98,5 +104,21 @@ public class TestResults {
 
     public ArrayList<TestSuite> getTestSuites() {
         return testSuites;
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (!(o instanceof TestResults)) return false;
+        TestResults that = (TestResults) o;
+        return getPassedTestCaseCount() == that.getPassedTestCaseCount() &&
+                getSkippedTestCaseCount() == that.getSkippedTestCaseCount() &&
+                getFailedTestCaseCount() == that.getFailedTestCaseCount() &&
+                Objects.equals(getTestSuites(), that.getTestSuites());
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(getPassedTestCaseCount(), getSkippedTestCaseCount(), getFailedTestCaseCount(), getTestSuites());
     }
 }

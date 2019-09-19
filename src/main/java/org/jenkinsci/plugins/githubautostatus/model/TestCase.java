@@ -25,16 +25,26 @@ package org.jenkinsci.plugins.githubautostatus.model;
 
 import hudson.tasks.junit.CaseResult;
 
+import java.util.Objects;
+
 /**
  *
  * @author jxpearce
  */
 public class TestCase {
 
+    public enum TestCaseResult {
+        Passed,
+        Skipped,
+        Failed
+    }
+
     private String name;
     private boolean failed;
     private boolean passed;
     private boolean skipped;
+
+  private TestCaseResult result;
 
     public static TestCase fromCaseResult(CaseResult caseResult) {
         TestCase testCase = new TestCase();
@@ -59,6 +69,9 @@ public class TestCase {
 
     public void setPassed(boolean passed) {
         this.passed = passed;
+        if (this.passed) {
+            result = TestCaseResult.Passed;
+        }
     }
 
     public String getName() {
@@ -75,6 +88,9 @@ public class TestCase {
 
     public void setFailed(boolean failed) {
         this.failed = failed;
+        if (this.failed) {
+          result = TestCaseResult.Failed;
+        }
     }
 
     public boolean isSkipped() {
@@ -83,8 +99,11 @@ public class TestCase {
 
     public void setSkipped(boolean skipped) {
         this.skipped = skipped;
+        if (this.skipped) {
+          result = TestCaseResult.Skipped;
+        }
     }
-    
+
     public int getPassedCount() {
         return passed ? 1 : 0;
     }
@@ -96,4 +115,25 @@ public class TestCase {
     public int getFailedCount() {
         return failed ? 1 : 0;
     }
+
+    public TestCaseResult getResult() {
+      return result;
+    }
+
+  @Override
+  public boolean equals(Object o) {
+    if (this == o) return true;
+    if (!(o instanceof TestCase)) return false;
+    TestCase testCase = (TestCase) o;
+    return isFailed() == testCase.isFailed() &&
+            isPassed() == testCase.isPassed() &&
+            isSkipped() == testCase.isSkipped() &&
+            Objects.equals(getName(), testCase.getName()) &&
+            getResult() == testCase.getResult();
+  }
+
+  @Override
+  public int hashCode() {
+    return Objects.hash(getName(), isFailed(), isPassed(), isSkipped(), getResult());
+  }
 }

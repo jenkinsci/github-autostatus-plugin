@@ -26,7 +26,6 @@ package org.jenkinsci.plugins.githubautostatus;
 import com.cloudbees.plugins.credentials.Credentials;
 import com.cloudbees.plugins.credentials.CredentialsMatchers;
 import com.cloudbees.plugins.credentials.CredentialsProvider;
-import static com.cloudbees.plugins.credentials.CredentialsProvider.lookupCredentials;
 import com.cloudbees.plugins.credentials.common.StandardCredentials;
 import com.cloudbees.plugins.credentials.common.StandardListBoxModel;
 import com.cloudbees.plugins.credentials.common.StandardUsernamePasswordCredentials;
@@ -37,10 +36,6 @@ import hudson.model.Item;
 import hudson.security.ACL;
 import hudson.util.FormValidation;
 import hudson.util.ListBoxModel;
-import java.io.IOException;
-import java.io.ObjectInputStream;
-import java.util.Collections;
-import javax.annotation.Nonnull;
 import jenkins.model.GlobalConfiguration;
 import jenkins.model.Jenkins;
 import net.sf.json.JSONObject;
@@ -49,6 +44,15 @@ import org.kohsuke.stapler.AncestorInPath;
 import org.kohsuke.stapler.DataBoundSetter;
 import org.kohsuke.stapler.QueryParameter;
 import org.kohsuke.stapler.StaplerRequest;
+
+import javax.annotation.Nonnull;
+import java.io.IOException;
+import java.io.ObjectInputStream;
+import java.net.MalformedURLException;
+import java.net.URL;
+import java.util.Collections;
+
+import static com.cloudbees.plugins.credentials.CredentialsProvider.lookupCredentials;
 
 /**
  *
@@ -77,6 +81,10 @@ public class BuildStatusConfig extends GlobalConfiguration {
     private String statsdPort;
     private String statsdBucket;
     private String statsdMaxSize;
+    private boolean enableHttp;
+    private String httpEndpoint;
+    private String httpCredentialsId;
+    private boolean httpVerifySSL;
 
     /**
      * Convenience method to get the configuration object
@@ -142,6 +150,46 @@ public class BuildStatusConfig extends GlobalConfiguration {
     }
 
     /**
+     * Get a flag indicating whether to enable HTTP publisher
+     *
+     * @return true if writing to HTTP is enabled
+     */
+    public boolean getEnableHttp() {
+        return enableHttp;
+    }
+
+    /**
+     * Set whether sending status to HTTP endpoint is enabled
+     *
+     * @param enableHttp true to enable sending status to HTTP endpoint
+     */
+    @DataBoundSetter
+    public void setEnableHttp(boolean enableHttp) {
+        this.enableHttp = enableHttp;
+        save();
+    }
+
+    /**
+     * Get a flag indicating whether to enable SSL verify
+     *
+     * @return true if verify SSL is enabled
+     */
+    public boolean getHttpVerifySSL() {
+        return httpVerifySSL;
+    }
+
+    /**
+     * Set whether to enable SSL verify
+     *
+     * @param httpVerifySSL true to verify SSL
+     */
+    @DataBoundSetter
+    public void setHttpVerifySSL(boolean httpVerifySSL) {
+        this.httpVerifySSL = httpVerifySSL;
+        save();
+    }
+
+    /**
      * Get the credentials Id
      *
      * @return the credentials
@@ -158,6 +206,46 @@ public class BuildStatusConfig extends GlobalConfiguration {
     @DataBoundSetter
     public void setCredentialsId(String credentialsId) {
         this.credentialsId = credentialsId;
+        save();
+    }
+
+    /**
+     * Get HTTP credentials Id
+     *
+     * @return the HTTP credentials
+     */
+    public String getHttpCredentialsId() {
+        return httpCredentialsId;
+    }
+
+    /**
+     * Sets the HTTP credentials Id
+     *
+     * @param httpCredentialsId the credentials Id
+     */
+    @DataBoundSetter
+    public void setHttpCredentialsId(String httpCredentialsId) {
+        this.httpCredentialsId = httpCredentialsId;
+        save();
+    }
+
+    /**
+     * Get HTTP URL endpoint
+     *
+     * @return http endpoint URL
+     */
+    public String getHttpEndpoint() {
+        return httpEndpoint;
+    }
+
+    /**
+     * Set HTTP endpoint URL
+     *
+     * @param httpEndpoint the HTTP URL
+     */
+    @DataBoundSetter
+    public void setHttpEndpoint(String httpEndpoint) {
+        this.httpEndpoint = httpEndpoint;
         save();
     }
 
@@ -364,6 +452,17 @@ public class BuildStatusConfig extends GlobalConfiguration {
     }
 
     /**
+     * Fill the list box in the settings page with valid credentials
+     *
+     * @param credentialsId the current credentials Id
+     * @return ListBoxModel containing credentials to show
+     */
+    public ListBoxModel doFillHttpCredentialsIdItems(
+            @QueryParameter String credentialsId) {
+        return doFillCredentialsIdItems(credentialsId);
+    }
+
+    /**
      * Validates the credentialsId
      *
      * @param item context for validation
@@ -388,6 +487,28 @@ public class BuildStatusConfig extends GlobalConfiguration {
         }
         if (null == getCredentials(UsernamePasswordCredentials.class, value)) {
             return FormValidation.error("Cannot find currently selected credentials");
+        }
+        return FormValidation.ok();
+    }
+
+    /**
+     * Validates the credentialsId
+     *
+     * @param item context for validation
+     * @param value to validate
+     * @return FormValidation
+     */
+    public FormValidation doCheckHttpCredentialsId(
+            @AncestorInPath Item item,
+            @QueryParameter String value) {
+        return doCheckCredentialsId(item, value);
+    }
+
+    public FormValidation doCheckHttpEndpoint(@AncestorInPath Item item, @QueryParameter String value) {
+        try {
+            new URL(value);
+        } catch (MalformedURLException e) {
+            return FormValidation.error("Invalid URL");
         }
         return FormValidation.ok();
     }

@@ -28,7 +28,9 @@ import hudson.model.Run;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
-import org.jenkinsci.plugins.githubautostatus.notifiers.BuildState;
+
+import org.jenkinsci.plugins.githubautostatus.config.GithubNotificationConfig;
+import org.jenkinsci.plugins.githubautostatus.model.BuildStage;
 import org.junit.After;
 import org.junit.AfterClass;
 import static org.junit.Assume.assumeFalse;
@@ -92,8 +94,8 @@ public class BuildStatusActionTest {
      */
     @Test
     public void testInitialStage() throws IOException {
-        List<BuildStageModel> model = new ArrayList<BuildStageModel>();
-        model.add(new BuildStageModel(stageName));
+        List<BuildStage> model = new ArrayList<BuildStage>();
+        model.add(new BuildStage(stageName));
         BuildStatusAction instance = new BuildStatusAction(mockRun, targetUrl, model);
         instance.addGithubNotifier(githubConfig);
 
@@ -125,7 +127,7 @@ public class BuildStatusActionTest {
         instance.addGithubNotifier(githubConfig);
         instance.addBuildStatus(stageName);
 
-        instance.updateBuildStatusForStage(stageName, BuildState.CompletedSuccess);
+        instance.updateBuildStatusForStage(stageName, BuildStage.State.CompletedSuccess);
 
         verify(repository).createCommitStatus(sha, GHCommitState.PENDING, targetUrl, "Building stage", stageName);
         verify(repository).createCommitStatus(sha, GHCommitState.SUCCESS, targetUrl, "Stage built successfully", stageName);
@@ -142,7 +144,7 @@ public class BuildStatusActionTest {
         instance.addGithubNotifier(githubConfig);
         instance.addBuildStatus(stageName);
 
-        instance.updateBuildStatusForStage(stageName, BuildState.CompletedError);
+        instance.updateBuildStatusForStage(stageName, BuildStage.State.CompletedError);
 
         verify(repository).createCommitStatus(sha, GHCommitState.PENDING, targetUrl, "Building stage", stageName);
         verify(repository).createCommitStatus(sha, GHCommitState.ERROR, targetUrl, "Failed to build stage", stageName);
@@ -158,7 +160,7 @@ public class BuildStatusActionTest {
         BuildStatusAction instance = new BuildStatusAction(mockRun, targetUrl, new ArrayList<>());
         instance.addGithubNotifier(githubConfig);
 
-        instance.updateBuildStatusForStage(stageName, BuildState.CompletedSuccess);
+        instance.updateBuildStatusForStage(stageName, BuildStage.State.CompletedSuccess);
 
         verify(repository, never()).createCommitStatus(any(), any(), any(), any());
     }
@@ -189,7 +191,7 @@ public class BuildStatusActionTest {
     public void testSendUnsentCompletedStages() throws IOException {
         BuildStatusAction instance = new BuildStatusAction(mockRun, targetUrl, new ArrayList<>());
         instance.addBuildStatus(stageName);
-        instance.updateBuildStatusForStage(stageName, BuildState.CompletedSuccess);
+        instance.updateBuildStatusForStage(stageName, BuildStage.State.CompletedSuccess);
 
         verify(repository, never()).createCommitStatus(any(), any(), any(), any());
 

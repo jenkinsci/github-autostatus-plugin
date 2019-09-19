@@ -27,7 +27,8 @@ import com.google.common.collect.ImmutableMap;
 import java.util.Map;
 import java.util.logging.Level;
 import java.util.logging.Logger;
-import org.jenkinsci.plugins.githubautostatus.BuildStageModel;
+import org.jenkinsci.plugins.githubautostatus.model.BuildStage;
+import org.jenkinsci.plugins.githubautostatus.model.BuildState;
 import org.kohsuke.github.GHCommitState;
 import org.kohsuke.github.GHRepository;
 
@@ -41,22 +42,22 @@ public class GithubBuildNotifier extends BuildNotifier {
     private final String shaString;
     private final String targetUrl;
 
-    static final ImmutableMap<BuildState, GHCommitState> STATE_MAP = new ImmutableMap.Builder()
-            .put(BuildState.Pending, GHCommitState.PENDING)
-            .put(BuildState.CompletedError, GHCommitState.ERROR)
-            .put(BuildState.CompletedSuccess, GHCommitState.SUCCESS)
-            .put(BuildState.SkippedFailure, GHCommitState.SUCCESS)
-            .put(BuildState.SkippedUnstable, GHCommitState.SUCCESS)
-            .put(BuildState.SkippedConditional, GHCommitState.SUCCESS)
+    static final ImmutableMap<BuildStage.State, GHCommitState> STATE_MAP = new ImmutableMap.Builder()
+            .put(BuildStage.State.Pending, GHCommitState.PENDING)
+            .put(BuildStage.State.CompletedError, GHCommitState.ERROR)
+            .put(BuildStage.State.CompletedSuccess, GHCommitState.SUCCESS)
+            .put(BuildStage.State.SkippedFailure, GHCommitState.SUCCESS)
+            .put(BuildStage.State.SkippedUnstable, GHCommitState.SUCCESS)
+            .put(BuildStage.State.SkippedConditional, GHCommitState.SUCCESS)
             .build();
 
-    static final ImmutableMap<BuildState, String> DESCRIPTION_MAP = new ImmutableMap.Builder()
-            .put(BuildState.Pending, "Building stage")
-            .put(BuildState.CompletedError, "Failed to build stage")
-            .put(BuildState.CompletedSuccess, "Stage built successfully")
-            .put(BuildState.SkippedFailure, "Stage did not run due to earlier failure(s)")
-            .put(BuildState.SkippedUnstable, "Stage did not run due to earlier stage(s) marking the build as unstable")
-            .put(BuildState.SkippedConditional, "Stage did not run due to when conditional")
+    static final ImmutableMap<BuildStage.State, String> DESCRIPTION_MAP = new ImmutableMap.Builder()
+            .put(BuildStage.State.Pending, "Building stage")
+            .put(BuildStage.State.CompletedError, "Failed to build stage")
+            .put(BuildStage.State.CompletedSuccess, "Stage built successfully")
+            .put(BuildStage.State.SkippedFailure, "Stage did not run due to earlier failure(s)")
+            .put(BuildStage.State.SkippedUnstable, "Stage did not run due to earlier stage(s) marking the build as unstable")
+            .put(BuildStage.State.SkippedConditional, "Stage did not run due to when conditional")
             .build();
 
     /**
@@ -89,12 +90,12 @@ public class GithubBuildNotifier extends BuildNotifier {
      * @param stageItem stage item describing the new state
      */
     @Override
-    public void notifyBuildStageStatus(String jobName, BuildStageModel stageItem) {
+    public void notifyBuildStageStatus(String jobName, BuildStage stageItem) {
         if (!stageItem.isStage()) {
             return;
         }
         try {
-            BuildState buildState = stageItem.getBuildState();
+            BuildStage.State buildState = stageItem.getBuildState();
             repository.createCommitStatus(shaString, STATE_MAP.get(buildState), targetUrl, DESCRIPTION_MAP.get(buildState), stageItem.getStageName());
         } catch (org.kohsuke.github.HttpException ex) {
             if (ex.getResponseCode() < 200 || ex.getResponseCode() > 299) {
