@@ -81,7 +81,8 @@ public class BuildStatusJobListener extends RunListener<Run<?, ?>> {
 
             Result result = build.getResult();
             if (result == null) {
-              result = Result.FAILURE;
+                log(Level.WARNING, String.format("Could not get result of build \"%s\". Notifications are ignored.", statusAction.getRepoName()));
+                return;
             }
             statusAction.updateBuildStatusForJob(BuildState.fromResult(result), parameters);
         }

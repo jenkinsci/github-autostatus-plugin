@@ -37,11 +37,9 @@ import java.util.Map;
  */
 public class BuildStage {
 
-    @SerializedName("name")
     private String stageName;
     @SkipSerialisation
     private Map<String, Object> environment;
-    @SerializedName("result")
     private State buildState;
     private transient Run<?, ?> run;
     @SkipSerialisation
