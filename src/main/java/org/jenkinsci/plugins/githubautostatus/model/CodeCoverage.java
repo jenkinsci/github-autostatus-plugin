@@ -29,6 +29,7 @@ import hudson.plugins.cobertura.targets.CoverageMetric;
 import hudson.plugins.jacoco.JacocoBuildAction;
 import hudson.plugins.jacoco.model.Coverage;
 import java.util.Map;
+import java.util.Objects;
 import javax.annotation.Nullable;
 
 /**
@@ -43,6 +44,7 @@ public class CodeCoverage {
     float lines;
     float methods;
     float packages;
+    float instructions;
 
     public static CodeCoverage fromCobertura(@Nullable CoberturaBuildAction coberturaAction) {
         if (coberturaAction == null) {
@@ -50,7 +52,7 @@ public class CodeCoverage {
         }
         CodeCoverage codeCoverage = new CodeCoverage();
         Map<CoverageMetric, Ratio> results = coberturaAction.getResults();
-
+        codeCoverage.setInstructions(-1f);
         if (results != null) {
             codeCoverage.setConditionals(results.get(CoverageMetric.CONDITIONAL));
             codeCoverage.setClasses(results.get(CoverageMetric.CLASSES));
@@ -78,8 +80,8 @@ public class CodeCoverage {
         }
 
         CodeCoverage codeCoverage = new CodeCoverage();
-        codeCoverage.setFiles(0.0f);
-        codeCoverage.setPackages(0.0f);
+        codeCoverage.setFiles(-1f);
+        codeCoverage.setPackages(-1f);
 
         for(Coverage c : jacocoAction.getCoverageRatios().keySet()){
             switch(c.getType()){
@@ -94,6 +96,9 @@ public class CodeCoverage {
                     break;
                 case CLASS:
                     codeCoverage.setClasses(c.getPercentageFloat());
+                    break;
+                case INSTRUCTION:
+                    codeCoverage.setInstructions(c.getPercentageFloat());
                     break;
                 default:
                     break;
@@ -187,4 +192,30 @@ public class CodeCoverage {
         this.packages = packages;
     }
 
+    public float getInstructions() {
+        return instructions;
+    }
+
+    public void setInstructions(float instructions) {
+        this.instructions = instructions;
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (!(o instanceof CodeCoverage)) return false;
+        CodeCoverage coverage = (CodeCoverage) o;
+        return Float.compare(coverage.getConditionals(), getConditionals()) == 0 &&
+                Float.compare(coverage.getClasses(), getClasses()) == 0 &&
+                Float.compare(coverage.getFiles(), getFiles()) == 0 &&
+                Float.compare(coverage.getLines(), getLines()) == 0 &&
+                Float.compare(coverage.getMethods(), getMethods()) == 0 &&
+                Float.compare(coverage.getPackages(), getPackages()) == 0 &&
+                Float.compare(coverage.getInstructions(), getInstructions()) == 0;
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(getConditionals(), getClasses(), getFiles(), getLines(), getMethods(), getPackages(), getInstructions());
+    }
 }

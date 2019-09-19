@@ -36,8 +36,12 @@ import java.util.logging.Logger;
 import javax.annotation.CheckForNull;
 import net.sf.json.JSONObject;
 import org.jenkinsci.plugins.displayurlapi.DisplayURLProvider;
+import org.jenkinsci.plugins.githubautostatus.config.GithubNotificationConfig;
+import org.jenkinsci.plugins.githubautostatus.config.HttpNotifierConfig;
+import org.jenkinsci.plugins.githubautostatus.config.InfluxDbNotifierConfig;
+import org.jenkinsci.plugins.githubautostatus.model.BuildStage;
+import org.jenkinsci.plugins.githubautostatus.model.BuildState;
 import org.jenkinsci.plugins.githubautostatus.notifiers.BuildNotifier;
-import org.jenkinsci.plugins.githubautostatus.notifiers.BuildState;
 import org.jenkinsci.plugins.pipeline.StageStatus;
 import org.jenkinsci.plugins.pipeline.modeldefinition.actions.ExecutionModelAction;
 import org.jenkinsci.plugins.pipeline.modeldefinition.ast.ModelASTEnvironment;
@@ -140,7 +144,7 @@ public class GithubBuildStatusGraphListener implements GraphListener {
                 }
 
                 if (nodeName != null) {
-                    BuildState buildState = buildStateForStage(startNode, errorAction);
+                    BuildStage.State buildState = buildStateForStage(startNode, errorAction);
                     buildStatusAction.updateBuildStatusForStage(nodeName, buildState, time);
                 }
             }
@@ -156,22 +160,21 @@ public class GithubBuildStatusGraphListener implements GraphListener {
      * @param errorAction The error action from the stage end node
      * @return Build state
      */
-    static BuildState buildStateForStage(FlowNode flowNode, ErrorAction errorAction) {
-        BuildState buildState = errorAction == null ? BuildState.CompletedSuccess : BuildState.CompletedError;;
+    static BuildStage.State buildStateForStage(FlowNode flowNode, ErrorAction errorAction) {
+        BuildStage.State buildState = errorAction == null ? BuildStage.State.CompletedSuccess : BuildStage.State.CompletedError;
         TagsAction tags = flowNode.getAction(TagsAction.class);
         if (tags != null) {
             String status = tags.getTagValue(StageStatus.TAG_NAME);
             if (status != null) {
                 if (status.equals(StageStatus.getSkippedForFailure())) {
-                    return BuildState.SkippedFailure;
+                    return BuildStage.State.SkippedFailure;
                 } else if (status.equals(StageStatus.getSkippedForUnstable())) {
-                    return BuildState.SkippedUnstable;
+                    return BuildStage.State.SkippedUnstable;
                 } else if (status.equals(StageStatus.getSkippedForConditional())) {
-                    return BuildState.SkippedConditional;
+                    return BuildStage.State.SkippedConditional;
                 } else if (status.equals(StageStatus.getFailedAndContinued())) {
-                    return BuildState.CompletedError;
+                    return BuildStage.State.CompletedError;
                 }
-
             }
         }
         return buildState;
@@ -222,15 +225,15 @@ public class GithubBuildStatusGraphListener implements GraphListener {
             // to get all of the stages at once at the beginning of the kob. 
             // Older scripted pipeline jobs do not, so we have to add them one at a 
             // time as we discover them.
-            List<BuildStageModel> stageNames = getDeclarativeStages(run);
+            List<BuildStage> stageNames = getDeclarativeStages(run);
             boolean isDeclarativePipeline = stageNames != null;
 
             if (isDeclarativePipeline && buildStatusAction != null) {
                 return;
             }
             if (stageNames == null) {
-                ArrayList<BuildStageModel> stageNameList = new ArrayList<>();
-                stageNameList.add(new BuildStageModel(flowNode.getDisplayName()));
+                ArrayList<BuildStage> stageNameList = new ArrayList<>();
+                stageNameList.add(new BuildStage(flowNode.getDisplayName()));
                 stageNames = stageNameList;
             }
 
@@ -265,10 +268,12 @@ public class GithubBuildStatusGraphListener implements GraphListener {
                 buildStatusAction.setBranchName(branchName);
                 buildStatusAction.addInfluxDbNotifier(
                         InfluxDbNotifierConfig.fromGlobalConfig(repoOwner, repoName, branchName));
+                buildStatusAction.addHttpNotifier(
+                        HttpNotifierConfig.fromGlobalConfig(repoOwner, repoName, branchName));
 
                 ExtensionList<BuildNotifier> list = BuildNotifier.all();
                 for (BuildNotifier notifier : list) {
-                    buildStatusAction.addGenericNofifier(notifier);
+                    buildStatusAction.addGenericNotifier(notifier);
                 }
 
                 run.addAction(buildStatusAction);
@@ -294,7 +299,7 @@ public class GithubBuildStatusGraphListener implements GraphListener {
 
     }
 
-    protected static List<BuildStageModel> getDeclarativeStages(Run<?, ?> run) {
+    protected static List<BuildStage> getDeclarativeStages(Run<?, ?> run) {
         ExecutionModelAction executionModelAction = run.getAction(ExecutionModelAction.class);
         if (null == executionModelAction) {
             return null;
@@ -316,8 +321,8 @@ public class GithubBuildStatusGraphListener implements GraphListener {
      * @param modelList list to convert
      * @return list of stage names
      */
-    private static List<BuildStageModel> convertList(List<ModelASTStage> modelList) {
-        ArrayList<BuildStageModel> result = new ArrayList<>();
+    private static List<BuildStage> convertList(List<ModelASTStage> modelList) {
+        ArrayList<BuildStage> result = new ArrayList<>();
         for (ModelASTStage stage : modelList) {
             HashMap<String, Object> environmentVariables = new HashMap<String, Object>();
             ModelASTEnvironment modelEnvironment = stage.getEnvironment();
@@ -349,7 +354,7 @@ public class GithubBuildStatusGraphListener implements GraphListener {
             }
 
             for (String stageName : getAllStageNames(stage)) {
-                result.add(new BuildStageModel(stageName, environmentVariables));                
+                result.add(new BuildStage(stageName, environmentVariables));
             }
         }
         return result;

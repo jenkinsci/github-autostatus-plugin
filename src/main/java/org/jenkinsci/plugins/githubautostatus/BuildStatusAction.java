@@ -29,10 +29,15 @@ import hudson.model.Run;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+
+import org.jenkinsci.plugins.githubautostatus.config.GithubNotificationConfig;
+import org.jenkinsci.plugins.githubautostatus.config.HttpNotifierConfig;
+import org.jenkinsci.plugins.githubautostatus.config.InfluxDbNotifierConfig;
+import org.jenkinsci.plugins.githubautostatus.model.BuildStage;
+import org.jenkinsci.plugins.githubautostatus.model.BuildState;
 import org.jenkinsci.plugins.githubautostatus.notifiers.BuildNotifier;
 import org.jenkinsci.plugins.githubautostatus.notifiers.BuildNotifierConstants;
 import org.jenkinsci.plugins.githubautostatus.notifiers.BuildNotifierManager;
-import org.jenkinsci.plugins.githubautostatus.notifiers.BuildState;
 import org.jenkinsci.plugins.workflow.job.WorkflowJob;
 import org.jenkinsci.plugins.workflow.job.WorkflowRun;
 
@@ -53,7 +58,7 @@ public class BuildStatusAction extends InvisibleAction {
     private Run<?, ?> run;
     private HashMap<String, Object> jobParameters;
     
-    private final HashMap<String, BuildStageModel> buildStatuses;
+    private final HashMap<String, BuildStage> buildStatuses;
     
     private final transient BuildNotifierManager buildNotifierManager;
     
@@ -92,7 +97,7 @@ public class BuildStatusAction extends InvisibleAction {
      * @param targetUrl link back to Jenkins
      * @param stageList list of stages if known
      */
-    public BuildStatusAction(Run<?, ?> run, String targetUrl, List<BuildStageModel> stageList) {
+    public BuildStatusAction(Run<?, ?> run, String targetUrl, List<BuildStage> stageList) {
         this.run = run;
         this.jobName = run.getExternalizableId();
         this.buildStatuses = new HashMap<>();
@@ -101,7 +106,7 @@ public class BuildStatusAction extends InvisibleAction {
         buildNotifierManager = new BuildNotifierManager(jobName, targetUrl);
         stageList.forEach((stageItem) -> {
             stageItem.setRun(run);
-            stageItem.addToEnvironment(jobParameters);
+            stageItem.addAllToEnvironment(jobParameters);
             buildStatuses.put(stageItem.getStageName(), stageItem);
         });
     }
@@ -123,8 +128,8 @@ public class BuildStatusAction extends InvisibleAction {
      */
     public void close() {
         this.buildStatuses.forEach((nodeName, stageItem) -> {
-            if (stageItem.getBuildState() == BuildState.Pending) {
-                this.updateBuildStatusForStage(nodeName, BuildState.CompletedSuccess);
+            if (stageItem.getBuildState() == BuildStage.State.Pending) {
+                this.updateBuildStatusForStage(nodeName, BuildStage.State.CompletedSuccess);
             }
         });
     }
@@ -144,7 +149,7 @@ public class BuildStatusAction extends InvisibleAction {
      */
     public void addGithubNofifier(GithubNotificationConfig config) {
         if (config != null) {
-            sendNotications(buildNotifierManager.addGithubNotifier(config));
+            sendNotifications(buildNotifierManager.addGithubNotifier(config));
         }
     }
 
@@ -154,11 +159,15 @@ public class BuildStatusAction extends InvisibleAction {
      * @param influxDbNotifierConfig influx db notifier config
      */
     public void addInfluxDbNotifier(InfluxDbNotifierConfig influxDbNotifierConfig) {
-        sendNotications(buildNotifierManager.addInfluxDbNotifier(influxDbNotifierConfig));
+        sendNotifications(buildNotifierManager.addInfluxDbNotifier(influxDbNotifierConfig));
+    }
+
+    public void addHttpNotifier(HttpNotifierConfig httpNotifierConfig) {
+        sendNotifications(buildNotifierManager.addHttpNotifier(httpNotifierConfig));
     }
     
-    public void addGenericNofifier(BuildNotifier notifier) {
-        sendNotications(buildNotifierManager.addGenericNofifier(notifier));
+    public void addGenericNotifier(BuildNotifier notifier) {
+        sendNotifications(buildNotifierManager.addGenericNotifier(notifier));
     }
 
     /**
@@ -166,7 +175,7 @@ public class BuildStatusAction extends InvisibleAction {
      *
      * @param notifier notifier to send to
      */
-    public void sendNotications(BuildNotifier notifier) {
+    public void sendNotifications(BuildNotifier notifier) {
         if (notifier != null && notifier.isEnabled()) {
             this.buildStatuses.forEach((nodeName, stageItem) -> {
                 stageItem.setRun(run);
@@ -181,7 +190,7 @@ public class BuildStatusAction extends InvisibleAction {
      * @param stageName stage name
      */
     public void addBuildStatus(String stageName) {
-        BuildStageModel stageItem = new BuildStageModel(stageName);
+        BuildStage stageItem = new BuildStage(stageName);
         stageItem.setRun(run);
         buildStatuses.put(stageName, stageItem);
         buildNotifierManager.notifyBuildStageStatus(stageItem);
@@ -194,12 +203,12 @@ public class BuildStatusAction extends InvisibleAction {
      * @param buildState build state
      * @param time stage time
      */
-    public void updateBuildStatusForStage(String nodeName, BuildState buildState, long time) {
-        BuildStageModel stageItem = buildStatuses.get(nodeName);
+    public void updateBuildStatusForStage(String nodeName, BuildStage.State buildState, long time) {
+        BuildStage stageItem = buildStatuses.get(nodeName);
         if (stageItem != null) {
-            stageItem.getEnvironment().put(BuildNotifierConstants.STAGE_DURATION, time);
-            BuildState currentStatus = stageItem.getBuildState();
-            if (currentStatus == BuildState.Pending) {
+            stageItem.addToEnvironment(BuildNotifierConstants.STAGE_DURATION, time);
+            BuildStage.State currentStatus = stageItem.getBuildState();
+            if (currentStatus == BuildStage.State.Pending) {
                 stageItem.setBuildState(buildState);
                 buildNotifierManager.notifyBuildStageStatus(stageItem);
             }
@@ -212,7 +221,7 @@ public class BuildStatusAction extends InvisibleAction {
      * @param nodeName node name
      * @param buildState build state
      */
-    public void updateBuildStatusForStage(String nodeName, BuildState buildState) {
+    public void updateBuildStatusForStage(String nodeName, BuildStage.State buildState) {
         updateBuildStatusForStage(nodeName, buildState, 0);
     }
 
@@ -233,11 +242,11 @@ public class BuildStatusAction extends InvisibleAction {
      * @param nodeName name of node that failed
      */
     public void sendNonStageError(String nodeName) {
-        BuildStageModel stageItem = new BuildStageModel(nodeName,
+        BuildStage stageItem = new BuildStage(nodeName,
                 new HashMap<>(),
-                BuildState.CompletedError);
+                BuildStage.State.CompletedError);
         stageItem.setRun(run);
-        stageItem.addToEnvironment(jobParameters);
+        stageItem.addAllToEnvironment(jobParameters);
         stageItem.setIsStage(false);
         buildStatuses.put(nodeName, stageItem);
         buildNotifierManager.sendNonStageError(stageItem);

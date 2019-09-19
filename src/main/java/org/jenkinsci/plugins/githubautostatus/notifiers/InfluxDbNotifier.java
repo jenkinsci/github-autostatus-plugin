@@ -24,31 +24,34 @@
 package org.jenkinsci.plugins.githubautostatus.notifiers;
 
 import com.cloudbees.plugins.credentials.common.UsernamePasswordCredentials;
-import java.io.IOException;
-import java.io.UnsupportedEncodingException;
-import java.net.URLEncoder;
-import java.util.Map;
-import java.util.Base64;
-import java.util.logging.Level;
-import java.util.logging.Logger;
-
 import hudson.model.Cause;
 import hudson.model.Run;
 import org.apache.commons.lang.StringUtils;
-import javax.annotation.Nullable;
-
 import org.apache.http.HttpEntity;
 import org.apache.http.client.methods.CloseableHttpResponse;
 import org.apache.http.client.methods.HttpPost;
 import org.apache.http.entity.StringEntity;
 import org.apache.http.impl.client.CloseableHttpClient;
 import org.apache.http.util.EntityUtils;
-import org.jenkinsci.plugins.githubautostatus.BuildStageModel;
-import org.jenkinsci.plugins.githubautostatus.InfluxDbNotifierConfig;
+import org.jenkinsci.plugins.githubautostatus.model.BuildStage;
+import org.jenkinsci.plugins.githubautostatus.model.BuildState;
+import org.jenkinsci.plugins.githubautostatus.config.InfluxDbNotifierConfig;
 import org.jenkinsci.plugins.githubautostatus.model.CodeCoverage;
 import org.jenkinsci.plugins.githubautostatus.model.TestCase;
 import org.jenkinsci.plugins.githubautostatus.model.TestResults;
 import org.jenkinsci.plugins.githubautostatus.model.TestSuite;
+
+import javax.annotation.Nullable;
+import java.io.IOException;
+import java.io.UnsupportedEncodingException;
+import java.net.URLEncoder;
+import java.security.KeyManagementException;
+import java.security.KeyStoreException;
+import java.security.NoSuchAlgorithmException;
+import java.util.Base64;
+import java.util.Map;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 
 /**
  * Writes job and stage measurements to an influxdb REST API.
@@ -56,8 +59,6 @@ import org.jenkinsci.plugins.githubautostatus.model.TestSuite;
  */
 public class InfluxDbNotifier extends BuildNotifier {
 
-    protected final String DEFAULT_STRING = "none";
-    protected final long DEFAULT_LONG = 0;
     protected String repoOwner;
     protected String repoName;
     protected String branchName;
@@ -92,6 +93,7 @@ public class InfluxDbNotifier extends BuildNotifier {
             public static final String Lines = "lines";
             public static final String Methods = "methods";
             public static final String Packages = "packages";
+            public static final String Instructions = "instructions";
         }
         public static class Test {
             public static final String Passed = "passed";
@@ -150,13 +152,13 @@ public class InfluxDbNotifier extends BuildNotifier {
             this.repoName = escapeTagValue(config.getRepoName());
             this.branchName = escapeTagValue(config.getBranchName());
             if (StringUtils.isEmpty(this.repoOwner)) {
-                this.repoOwner = DEFAULT_STRING;
+                this.repoOwner = BuildNotifierConstants.DEFAULT_STRING;
             }
             if (StringUtils.isEmpty(this.repoName)) {
-                this.repoName = DEFAULT_STRING;
+                this.repoName = BuildNotifierConstants.DEFAULT_STRING;
             }
             if (StringUtils.isEmpty(this.branchName)) {
-                this.branchName = DEFAULT_STRING;
+                this.branchName = BuildNotifierConstants.DEFAULT_STRING;
             }
             this.influxDbUrlString = urlString;
             this.config = config;
@@ -180,33 +182,26 @@ public class InfluxDbNotifier extends BuildNotifier {
      * @param stageItem stage item describing the new state
      */
     @Override
-    public void notifyBuildStageStatus(String jobName, BuildStageModel stageItem) {
-
-        BuildState buildState = stageItem.getBuildState();
-
-        Object timingInfo = stageItem.getEnvironment().get(BuildNotifierConstants.STAGE_DURATION);
-        if (buildState == BuildState.Pending) {
+    public void notifyBuildStageStatus(String jobName, BuildStage stageItem) {
+        if (stageItem.getBuildState() == BuildStage.State.Pending) {
             return;
         }
 
-        // Success and all Skipped stages are marked as successful
-        int passed = buildState == BuildState.CompletedError ? 0 : 1;
-        String result = buildState.toString();
         String buildUrl = stageItem.getRun().getUrl();
         int buildNumber = stageItem.getRun().getNumber();
         Cause cause = stageItem.getRun().getCause(Cause.class);
-        String buildCause = cause == null ? DEFAULT_STRING : cause.getShortDescription();
+        String buildCause = cause == null ? BuildNotifierConstants.DEFAULT_STRING : cause.getShortDescription();
         String data = new StringBuilder(SeriesNames.Stage)
                 // Tags
                 .append(String.format(",%s=%s", TagNames.Owner, repoOwner))
                 .append(String.format(",%s=%s", TagNames.Repo, repoName))
                 .append(String.format(",%s=\"%s\"", TagNames.StageName, escapeTagValue(stageItem.getStageName())))
-                .append(String.format(",%s=%s", TagNames.Result, result))
+                .append(String.format(",%s=%s", TagNames.Result, stageItem.getBuildState().toString()))
                 // Fields
                 .append(String.format(" %s=\"%s\"", FieldNames.JobName, escapeTagValue(jobName)))
                 .append(String.format(",%s=\"%s\"", FieldNames.Branch, branchName))
-                .append(String.format(",%s=%d", FieldNames.StageTime, timingInfo != null ? timingInfo : 0))
-                .append(String.format(",%s=%d", FieldNames.Passed, passed))
+                .append(String.format(",%s=%d", FieldNames.StageTime, stageItem.getDuration()))
+                .append(String.format(",%s=%d", FieldNames.Passed, stageItem.isPassed()? 1 : 0))
                 .append(String.format(",%s=%d", FieldNames.BuildNumber, buildNumber))
                 .append(String.format(",%s=\"%s\"", FieldNames.BuildUrl, escapeTagValue(buildUrl)))
                 .append(String.format(",%s=\"%s\"", FieldNames.Trigger, buildCause))
@@ -224,14 +219,14 @@ public class InfluxDbNotifier extends BuildNotifier {
     @Override
     public void notifyFinalBuildStatus(BuildState buildState, Map<String, Object> parameters) {
         Run<?, ?> run = (Run<?, ?>) parameters.get(BuildNotifierConstants.BUILD_OBJECT);
-        String jobName = (String) parameters.getOrDefault(BuildNotifierConstants.JOB_NAME, DEFAULT_STRING);
+        String jobName = (String) parameters.getOrDefault(BuildNotifierConstants.JOB_NAME, BuildNotifierConstants.DEFAULT_STRING);
         int passed = buildState == BuildState.CompletedSuccess ? 1 : 0;
-        long blockedDuration = getLong(parameters, BuildNotifierConstants.BLOCKED_DURATION);
+        long blockedDuration = BuildNotifierConstants.getLong(parameters, BuildNotifierConstants.BLOCKED_DURATION);
         int blocked = blockedDuration > 0 ? 1 : 0;
         String buildUrl = run.getUrl();
         int buildNumber = run.getNumber();
         Cause cause = run.getCause(Cause.class);
-        String buildCause = cause == null ? DEFAULT_STRING : cause.getShortDescription();
+        String buildCause = cause == null ? BuildNotifierConstants.DEFAULT_STRING : cause.getShortDescription();
 
         String data = new StringBuilder(SeriesNames.Job)
                 // Tags
@@ -241,7 +236,7 @@ public class InfluxDbNotifier extends BuildNotifier {
                 // Fields
                 .append(String.format(" %s=\"%s\"", FieldNames.JobName, escapeTagValue(jobName)))
                 .append(String.format(",%s=\"%s\"", FieldNames.Branch, branchName))
-                .append(String.format(",%s=%d", FieldNames.JobTime, getLong(parameters, BuildNotifierConstants.JOB_DURATION) - blockedDuration))
+                .append(String.format(",%s=%d", FieldNames.JobTime, BuildNotifierConstants.getLong(parameters, BuildNotifierConstants.JOB_DURATION) - blockedDuration))
                 .append(String.format(",%s=%d", FieldNames.Blocked, blocked))
                 .append(String.format(",%s=%d", FieldNames.BlockedTime, blockedDuration))
                 .append(String.format(",%s=%d", FieldNames.Passed, passed))
@@ -255,22 +250,13 @@ public class InfluxDbNotifier extends BuildNotifier {
         notifyTestResults(jobName, (TestResults) parameters.get(BuildNotifierConstants.TEST_CASE_INFO), run);
         notifyCoverage(jobName, (CodeCoverage) parameters.get(BuildNotifierConstants.COVERAGE_INFO), run);
     }
-    
-    private long getLong(Map<String, Object> map, String mapKey) {
-        Object mapValue = map.get(mapKey);
-        
-        if (mapValue != null) {
-            return (long)mapValue;
-        }
-        return DEFAULT_LONG;
-    }
 
     private void notifyCoverage(String jobName, @Nullable CodeCoverage coverageInfo, Run<?, ?> run) {
         if (coverageInfo != null) {
             String buildUrl = run.getUrl();
             int buildNumber = run.getNumber();
             Cause cause = run.getCause(Cause.class);
-            String buildCause = cause == null ? DEFAULT_STRING : cause.getShortDescription();
+            String buildCause = cause == null ? BuildNotifierConstants.DEFAULT_STRING : cause.getShortDescription();
 
             String data = new StringBuilder(SeriesNames.Coverage)
                     // Tags
@@ -286,6 +272,7 @@ public class InfluxDbNotifier extends BuildNotifier {
                     .append(String.format(",%s=%f", FieldNames.Coverage.Lines, coverageInfo.getLines()))
                     .append(String.format(",%s=%f", FieldNames.Coverage.Methods, coverageInfo.getMethods()))
                     .append(String.format(",%s=%f", FieldNames.Coverage.Packages, coverageInfo.getPackages()))
+                    .append(String.format(",%s=%f", FieldNames.Coverage.Instructions, coverageInfo.getInstructions()))
                     .append(String.format(",%s=\"%s\"", FieldNames.BuildUrl, escapeTagValue(buildUrl)))
                     .append(String.format(",%s=%d", FieldNames.BuildNumber, buildNumber))
                     .append(String.format(",%s=\"%s\"", FieldNames.Trigger, buildCause))
@@ -301,7 +288,7 @@ public class InfluxDbNotifier extends BuildNotifier {
             String buildUrl = run.getUrl();
             int buildNumber = run.getNumber();
             Cause cause = run.getCause(Cause.class);
-            String buildCause = cause == null ? DEFAULT_STRING : cause.getShortDescription();
+            String buildCause = cause == null ? BuildNotifierConstants.DEFAULT_STRING : cause.getShortDescription();
             String data = new StringBuilder(SeriesNames.Tests)
                     // Tags
                     .append(String.format(",%s=%s", TagNames.Owner, repoOwner))
@@ -331,7 +318,7 @@ public class InfluxDbNotifier extends BuildNotifier {
         String buildUrl = run.getUrl();
         int buildNumber = run.getNumber();
         Cause cause = run.getCause(Cause.class);
-        String buildCause = cause == null ? DEFAULT_STRING : cause.getShortDescription();
+        String buildCause = cause == null ? BuildNotifierConstants.DEFAULT_STRING : cause.getShortDescription();
         String data = new StringBuilder(SeriesNames.TestSuite)
                 // Tags
                 .append(String.format(",%s=%s", TagNames.Owner, repoOwner))
@@ -360,7 +347,7 @@ public class InfluxDbNotifier extends BuildNotifier {
         String buildUrl = run.getUrl();
         int buildNumber = run.getNumber();
         Cause cause = run.getCause(Cause.class);
-        String buildCause = cause == null ? DEFAULT_STRING : cause.getShortDescription();
+        String buildCause = cause == null ? BuildNotifierConstants.DEFAULT_STRING : cause.getShortDescription();
 
         String data = new StringBuilder(SeriesNames.TestCase)
                 // Tags
@@ -394,7 +381,7 @@ public class InfluxDbNotifier extends BuildNotifier {
      * @param seriesInfo the data point
      */
     private void postData(String seriesInfo) {
-        try (CloseableHttpClient httpclient = config.getHttpClient()) {
+        try (CloseableHttpClient httpclient = config.getHttpClient(false)) {
             HttpPost httppost = new HttpPost(influxDbUrlString);
 
             httppost.setEntity(new StringEntity(seriesInfo));
@@ -420,7 +407,7 @@ public class InfluxDbNotifier extends BuildNotifier {
 
                 }
             }
-        } catch (IOException ex) {
+        } catch (IOException | KeyStoreException | NoSuchAlgorithmException | KeyManagementException ex) {
             log(Level.SEVERE, ex);
         }
     }

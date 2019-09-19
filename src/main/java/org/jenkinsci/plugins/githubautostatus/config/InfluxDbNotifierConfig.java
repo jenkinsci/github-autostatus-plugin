@@ -21,7 +21,7 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
  * THE SOFTWARE.
  */
-package org.jenkinsci.plugins.githubautostatus;
+package org.jenkinsci.plugins.githubautostatus.config;
 
 import com.cloudbees.plugins.credentials.common.UsernamePasswordCredentials;
 import java.io.IOException;
@@ -32,14 +32,13 @@ import java.util.logging.Level;
 import java.util.logging.Logger;
 import javax.annotation.CheckForNull;
 import org.apache.commons.lang.StringUtils;
-import org.apache.http.impl.client.CloseableHttpClient;
-import org.apache.http.impl.client.HttpClients;
+import org.jenkinsci.plugins.githubautostatus.BuildStatusConfig;
 
 /**
  * Encapsulates the logic of determining influxdb configuration for a build.
  * @author Jeff Pearce (jxpearce@godaddy.com)
  */
-public class InfluxDbNotifierConfig {
+public class InfluxDbNotifierConfig extends AbstractNotifierConfig {
 
     private String repoOwner;
     private String repoName;
@@ -47,8 +46,6 @@ public class InfluxDbNotifierConfig {
     private String influxDbUrlString;
     private String influxDbDatabase;
     private String influxDbCredentialsId;
-    private String influxDbUser;
-    private String influxDbPassword;
     private String influxDbRetentionPolicy;
 
     /**
@@ -112,15 +109,6 @@ public class InfluxDbNotifierConfig {
     }
 
     /**
-     * Gets an http client that can be used to make requests.
-     *
-     * @return http client.
-     */
-    public CloseableHttpClient getHttpClient() {
-        return HttpClients.createDefault();
-    }
-
-    /**
      * Gets the influx db to write to.
      *
      * @return influx db.
@@ -136,7 +124,7 @@ public class InfluxDbNotifierConfig {
     @CheckForNull
     public UsernamePasswordCredentials getCredentials() {
         return !StringUtils.isEmpty(influxDbCredentialsId) ?
-            BuildStatusConfig.getCredentials(UsernamePasswordCredentials.class, 
+            BuildStatusConfig.getCredentials(UsernamePasswordCredentials.class,
                     influxDbCredentialsId) :
             null;
     }
