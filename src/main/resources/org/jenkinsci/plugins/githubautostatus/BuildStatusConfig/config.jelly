@@ -16,6 +16,9 @@
             <f:entry title="Retention policy" field="influxDbRetentionPolicy" name="influxDbRetentionPolicy">
                 <f:textbox />
             </f:entry>
+            <f:entry name="dbVersion" title="Database Version" field="dbVersion">
+                <f:select />
+            </f:entry>
         </f:optionalBlock>
         <f:optionalBlock inline="true" name="enableStatsd" title="Send to statsd" checked="${instance.enableStatsd}">
             <f:entry title="StatsD Hostname" field="statsdHost" name="statsdHost">
