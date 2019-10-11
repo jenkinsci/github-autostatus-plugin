@@ -90,8 +90,8 @@ public class InfluxDbNotifierConfig extends AbstractNotifierConfig {
     }
 
     public Integer getDbVersion() {
-        if (schemaVersion == null || schemaVersion <= 0 || schemaVersion > InfluxDbNotifierSchemas.Schemas.length ) {
-            return InfluxDbNotifierSchemas.Schemas.length;
+        if (schemaVersion == null || schemaVersion <= 0 || schemaVersion > InfluxDbNotifierSchemas.getSchemaCount() ) {
+            return InfluxDbNotifierSchemas.getSchemaCount();
         }
         return schemaVersion;
     }
@@ -152,7 +152,7 @@ public class InfluxDbNotifierConfig extends AbstractNotifierConfig {
     }
 
     public InfluxDbNotifierSchemas.SchemaInfo getSchema() {
-        return InfluxDbNotifierSchemas.Schemas[getDbVersion() - 1];
+        return InfluxDbNotifierSchemas.getSchema(getDbVersion() - 1);
     }
 
     /**

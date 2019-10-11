@@ -11,13 +11,13 @@ import static org.junit.Assert.*;
  */
 public class InfluxDbNotifierSchemasTest {
 
-    private InfluxDbNotifierSchemas.SchemaInfo.v1 v1Schema;
-    private InfluxDbNotifierSchemas.SchemaInfo.v2 v2Schema;
+    private InfluxDbNotifierSchemas.SchemaInfo.V1 v1Schema;
+    private InfluxDbNotifierSchemas.SchemaInfo.V2 v2Schema;
 
     @Before
     public void setUp() {
-        v1Schema = new InfluxDbNotifierSchemas.SchemaInfo.v1();
-        v2Schema = new InfluxDbNotifierSchemas.SchemaInfo.v2();
+        v1Schema = new InfluxDbNotifierSchemas.SchemaInfo.V1();
+        v2Schema = new InfluxDbNotifierSchemas.SchemaInfo.V2();
 
     }
 

@@ -1,6 +1,5 @@
 package org.jenkinsci.plugins.githubautostatus.notifiers;
 
-import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
 
@@ -18,47 +17,47 @@ public class InfluxDbLineBuilderTest {
 
     @Test
     public void appendStringTagValue() {
-        builder.AppendTagValue("tag", "value");
-        assertEquals("msr,tag=value", builder.Build());
+        builder.appendTagValue("tag", "value");
+        assertEquals("msr,tag=value", builder.build());
     }
 
     @Test
     public void appendIntTagValue() {
-        builder.AppendTagValue("tag", 10);
-        assertEquals("msr,tag=10", builder.Build());
+        builder.appendTagValue("tag", 10);
+        assertEquals("msr,tag=10", builder.build());
     }
     @Test
     public void appendStringFieldValue() {
-        builder.AppendFieldValue("field", "value");
-        assertEquals("msr field=\"value\"", builder.Build());
+        builder.appendFieldValue("field", "value");
+        assertEquals("msr field=\"value\"", builder.build());
     }
 
     @Test
     public void appendIntFieldValue() {
-        builder.AppendFieldValue("field", 12);
-        assertEquals("msr field=12", builder.Build());
+        builder.appendFieldValue("field", 12);
+        assertEquals("msr field=12", builder.build());
     }
 
     @Test
     public void appendFloatFieldValue() {
-        builder.AppendFieldValue("field", 12.34);
-        assertEquals("msr field=12.3400", builder.Build());
+        builder.appendFieldValue("field", 12.34);
+        assertEquals("msr field=12.3400", builder.build());
     }
 
     @Test
     public void appendFloatFieldValueRound() {
-        builder.AppendFieldValue("field", 12.34567);
-        assertEquals("msr field=12.3457", builder.Build());
+        builder.appendFieldValue("field", 12.34567);
+        assertEquals("msr field=12.3457", builder.build());
     }
 
     @Test
     public void appendTwoFieldTwoTag() {
-        builder.AppendFieldValue("field1", "value1");
-        builder.AppendFieldValue("field2", "value2");
-        builder.AppendTagValue("tag1", "value3");
-        builder.AppendTagValue("tag2", "value4");
+        builder.appendFieldValue("field1", "value1");
+        builder.appendFieldValue("field2", "value2");
+        builder.appendTagValue("tag1", "value3");
+        builder.appendTagValue("tag2", "value4");
 
-        assertEquals("msr,tag1=value3,tag2=value4 field1=\"value1\",field2=\"value2\"", builder.Build());
+        assertEquals("msr,tag1=value3,tag2=value4 field1=\"value1\",field2=\"value2\"", builder.build());
     }
 
 

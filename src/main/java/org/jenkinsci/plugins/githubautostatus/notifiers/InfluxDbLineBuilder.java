@@ -1,6 +1,8 @@
 package org.jenkinsci.plugins.githubautostatus.notifiers;
 
-import javafx.util.Pair;
+
+import org.apache.commons.lang3.tuple.ImmutablePair;
+import org.apache.commons.lang3.tuple.Pair;
 
 import java.util.ArrayList;
 
@@ -13,31 +15,31 @@ public class InfluxDbLineBuilder {
 
 
     private String measurement;
-    private ArrayList<Pair<String, Object>> fields = new ArrayList<Pair<String, Object>>();
-    private ArrayList<Pair<String, Object>> tags = new ArrayList<Pair<String, Object>>();
+    private ArrayList<Pair<String, Object>> fields = new ArrayList<>();
+    private ArrayList<Pair<String, Object>> tags = new ArrayList<>();
 
     public InfluxDbLineBuilder(String measurement) {
         this.measurement = measurement;
     }
 
-    public <T> InfluxDbLineBuilder AppendTagValue(String tag, T value) {
-        tags.add(new Pair(tag, value));
+    public <T> InfluxDbLineBuilder appendTagValue(String tag, T value) {
+        tags.add(new ImmutablePair<String, Object>(tag, value));
         return this;
     }
 
-    public <T> InfluxDbLineBuilder AppendFieldValue(String field, T value) {
-        fields.add(new Pair(field, value));
+    public <T> InfluxDbLineBuilder appendFieldValue(String field, T value) {
+        fields.add(new ImmutablePair<String, Object>(field, value));
         return this;
     }
 
-    public String Build() {
+    public String build() {
         StringBuilder builder = new StringBuilder(measurement);
 
         for (Pair<String, Object> tag: this.tags) {
-            if (tag.getValue() instanceof String) {
-                builder.append(String.format(",%s=%s", tag.getKey(), escapeTagValue((String)tag.getValue())));
+            if (tag.getRight() instanceof String) {
+                builder.append(String.format(",%s=%s", tag.getLeft(), escapeTagValue((String)tag.getRight())));
             } else {
-                builder.append(String.format(",%s=%s", tag.getKey(), tag.getValue().toString()));
+                builder.append(String.format(",%s=%s", tag.getLeft(), tag.getRight()));
             }
         }
         boolean firstField = true;
@@ -48,12 +50,12 @@ public class InfluxDbLineBuilder {
             } else {
                 builder.append(",");
             }
-            if (field.getValue() instanceof String) {
-                builder.append(String.format("%s=\"%s\"", field.getKey(), escapeFieldValue((String)field.getValue())));
-            } else if (field.getValue() instanceof Float || field.getValue() instanceof Double) {
-                builder.append(String.format("%s=%.4f", field.getKey(), field.getValue()));
+            if (field.getRight() instanceof String) {
+                builder.append(String.format("%s=\"%s\"", field.getLeft(), escapeFieldValue((String)field.getRight())));
+            } else if (field.getRight() instanceof Float || field.getRight() instanceof Double) {
+                builder.append(String.format("%s=%.4f", field.getLeft(), field.getRight()));
             } else {
-                builder.append(String.format("%s=%d", field.getKey(), field.getValue()));
+                builder.append(String.format("%s=%d", field.getLeft(), field.getRight()));
             }
         }
 

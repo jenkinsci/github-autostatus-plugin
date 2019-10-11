@@ -94,7 +94,7 @@ public class InfluxDbNotifierTest {
         when(config.getRepoOwner()).thenReturn("mockowner");
         when(config.getRepoName()).thenReturn("mockrepo");
         when(config.getBranchName()).thenReturn("mockbranch");
-        when(config.getSchema()).thenReturn(new InfluxDbNotifierSchemas.SchemaInfo.v2());
+        when(config.getSchema()).thenReturn(new InfluxDbNotifierSchemas.SchemaInfo.V2());
 
         mockHttpClient = mock(CloseableHttpClient.class);
         when(config.getHttpClient(false)).thenReturn(mockHttpClient);
@@ -274,7 +274,7 @@ public class InfluxDbNotifierTest {
 
         verify(mockHttpClient).execute(any());
         assertEquals(
-                "job,owner=mockowner,repo=mockrepo,result=CompletedSuccess jobname=\"mockjobname\",branch=\"mockbranch\",jobtime=76,blocked=1,blockedtime=12,passed=1,buildurl=\"https://jenkins.com/1\",buildnumber=1,trigger=\"user A\"",
+                "job,owner=mockowner,repo=mockrepo,result=CompletedSuccess jobname=\"mockjobname\",branch=\"mockbranch\",blocked=1,jobtime=76,blockedtime=12,passed=1,buildurl=\"https://jenkins.com/1\",buildnumber=1,trigger=\"user A\"",
                 statusLine);
     }
 
@@ -293,7 +293,7 @@ public class InfluxDbNotifierTest {
         instance.notifyFinalBuildStatus(BuildState.CompletedError, parameters);
 
         verify(mockHttpClient).execute(any());
-        assertEquals("job,owner=mockowner,repo=mockrepo,result=CompletedError jobname=\"mockjobname\",branch=\"mockbranch\",jobtime=1010,blocked=0,blockedtime=0,passed=0,buildurl=\"https://jenkins.com/1\",buildnumber=1,trigger=\"user A\"",
+        assertEquals("job,owner=mockowner,repo=mockrepo,result=CompletedError jobname=\"mockjobname\",branch=\"mockbranch\",blocked=0,jobtime=1010,blockedtime=0,passed=0,buildurl=\"https://jenkins.com/1\",buildnumber=1,trigger=\"user A\"",
                 statusLine);
     }
 

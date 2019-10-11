@@ -24,21 +24,23 @@
 package org.jenkinsci.plugins.githubautostatus.notifiers;
 
 
-import org.jenkinsci.plugins.githubautostatus.notifiers.BuildNotifierConstants;
-import org.jenkinsci.plugins.githubautostatus.notifiers.InfluxDbNotifier;
-
-import java.lang.reflect.Type;
-
 /**
  * Encapsulates the logic of determining influxdb configuration for a build.
  *
  * @author Jeff Pearce (jeffpearce)
  */
 public class InfluxDbNotifierSchemas {
-    public static SchemaInfo[]Schemas = {
-            new SchemaInfo.v1(),
-            new SchemaInfo.v2()
+    private static final SchemaInfo[] schemas = {
+            new SchemaInfo.V1(),
+            new SchemaInfo.V2()
     };
+
+    public static int getSchemaCount() {
+        return schemas.length;
+    }
+    public static SchemaInfo getSchema(int schemaIndex) {
+        return schemas[schemaIndex];
+    }
 
     public static class SeriesNames {
         public static final String Coverage = "coverage";
@@ -178,7 +180,7 @@ public class InfluxDbNotifierSchemas {
                                      int buildNumber,
                                      String buildCause);
 
-        public class v1 implements SchemaInfo {
+        public class V1 implements SchemaInfo {
             // "job,jobname=%s,owner=%s,repo=%s,branch=%s,result=%s,blocked=%d jobtime=%d,blockedtime=%d,passed=%d",
             public String formatJob(String jobName,
                                     String owner,
@@ -193,18 +195,18 @@ public class InfluxDbNotifierSchemas {
                                     int buildNumber,
                                     String buildCause) {
                 return new InfluxDbLineBuilder(SeriesNames.Job)
-                        .AppendTagValue(TagNames.Jobname, jobName)
-                        .AppendTagValue(TagNames.Owner, owner)
-                        .AppendTagValue(TagNames.Repo, repo)
-                        .AppendTagValue(TagNames.Branch, branch)
-                        .AppendTagValue(TagNames.Result, result)
-                        .AppendTagValue(TagNames.Blocked, blocked)
+                        .appendTagValue(TagNames.Jobname, jobName)
+                        .appendTagValue(TagNames.Owner, owner)
+                        .appendTagValue(TagNames.Repo, repo)
+                        .appendTagValue(TagNames.Branch, branch)
+                        .appendTagValue(TagNames.Result, result)
+                        .appendTagValue(TagNames.Blocked, blocked)
 
-                        .AppendFieldValue(FieldNames.JobTime, jobtime)
-                        .AppendFieldValue(FieldNames.BlockedTime, blockedtime)
-                        .AppendFieldValue(FieldNames.Passed, passed)
+                        .appendFieldValue(FieldNames.JobTime, jobtime)
+                        .appendFieldValue(FieldNames.BlockedTime, blockedtime)
+                        .appendFieldValue(FieldNames.Passed, passed)
 
-                        .Build();
+                        .build();
             }
 
             // "stage,jobname=%s,owner=%s,repo=%s,branch=%s,stagename=%s,result=%s stagetime=%d,passed=%d"
@@ -220,17 +222,17 @@ public class InfluxDbNotifierSchemas {
                                       int buildNumber,
                                       String buildCause) {
                 return new InfluxDbLineBuilder(SeriesNames.Stage)
-                        .AppendTagValue(TagNames.Jobname, jobName)
-                        .AppendTagValue(TagNames.Owner, owner)
-                        .AppendTagValue(TagNames.Repo, repo)
-                        .AppendTagValue(TagNames.Branch, branch)
-                        .AppendTagValue(TagNames.StageName, stageName)
-                        .AppendTagValue(TagNames.Result, result)
+                        .appendTagValue(TagNames.Jobname, jobName)
+                        .appendTagValue(TagNames.Owner, owner)
+                        .appendTagValue(TagNames.Repo, repo)
+                        .appendTagValue(TagNames.Branch, branch)
+                        .appendTagValue(TagNames.StageName, stageName)
+                        .appendTagValue(TagNames.Result, result)
 
-                        .AppendFieldValue(FieldNames.StageTime, stageTime)
-                        .AppendFieldValue(FieldNames.Passed, passed)
+                        .appendFieldValue(FieldNames.StageTime, stageTime)
+                        .appendFieldValue(FieldNames.Passed, passed)
 
-                        .Build();
+                        .build();
             }
 
             // coverage,jobname=%s,owner=%s,repo=%s,branch=%s "classes=%f,conditionals=%f,files=%f,lines=%f,methods=%f,packages=%f
@@ -249,19 +251,19 @@ public class InfluxDbNotifierSchemas {
                                          int buildNumber,
                                          String buildCause) {
                 return new InfluxDbLineBuilder(SeriesNames.Coverage)
-                        .AppendTagValue(TagNames.Jobname, jobName)
-                        .AppendTagValue(TagNames.Owner, owner)
-                        .AppendTagValue(TagNames.Repo, repo)
-                        .AppendTagValue(TagNames.Branch, branch)
+                        .appendTagValue(TagNames.Jobname, jobName)
+                        .appendTagValue(TagNames.Owner, owner)
+                        .appendTagValue(TagNames.Repo, repo)
+                        .appendTagValue(TagNames.Branch, branch)
 
-                        .AppendFieldValue(FieldNames.Coverage.Classes, classes)
-                        .AppendFieldValue(FieldNames.Coverage.Conditionals, conditionals)
-                        .AppendFieldValue(FieldNames.Coverage.Files, files)
-                        .AppendFieldValue(FieldNames.Coverage.Lines, lines)
-                        .AppendFieldValue(FieldNames.Coverage.Methods, methods)
-                        .AppendFieldValue(FieldNames.Coverage.Packages, packages)
+                        .appendFieldValue(FieldNames.Coverage.Classes, classes)
+                        .appendFieldValue(FieldNames.Coverage.Conditionals, conditionals)
+                        .appendFieldValue(FieldNames.Coverage.Files, files)
+                        .appendFieldValue(FieldNames.Coverage.Lines, lines)
+                        .appendFieldValue(FieldNames.Coverage.Methods, methods)
+                        .appendFieldValue(FieldNames.Coverage.Packages, packages)
 
-                        .Build();
+                        .build();
             }
 
             // tests,jobname=%s,owner=%s,repo=%s,branch=%s passed=%d,skipped=%d,failed=%d"
@@ -276,16 +278,16 @@ public class InfluxDbNotifierSchemas {
                                       int buildNumber,
                                       String buildCause) {
                 return new InfluxDbLineBuilder(SeriesNames.Tests)
-                        .AppendTagValue(TagNames.Jobname, jobName)
-                        .AppendTagValue(TagNames.Owner, owner)
-                        .AppendTagValue(TagNames.Repo, repo)
-                        .AppendTagValue(TagNames.Branch, branch)
+                        .appendTagValue(TagNames.Jobname, jobName)
+                        .appendTagValue(TagNames.Owner, owner)
+                        .appendTagValue(TagNames.Repo, repo)
+                        .appendTagValue(TagNames.Branch, branch)
 
-                        .AppendFieldValue(FieldNames.Test.Passed, passed)
-                        .AppendFieldValue(FieldNames.Test.Skipped, skipped)
-                        .AppendFieldValue(FieldNames.Test.Failed, failed)
+                        .appendFieldValue(FieldNames.Test.Passed, passed)
+                        .appendFieldValue(FieldNames.Test.Skipped, skipped)
+                        .appendFieldValue(FieldNames.Test.Failed, failed)
 
-                        .Build();
+                        .build();
             }
 
             // "testsuite,jobname=%s,owner=%s,repo=%s,branch=%s,suite=%s passed=%d,skipped=%d,failed=%d"
@@ -301,17 +303,17 @@ public class InfluxDbNotifierSchemas {
                                           int buildNumber,
                                           String buildCause) {
                 return new InfluxDbLineBuilder(SeriesNames.TestSuite)
-                        .AppendTagValue(TagNames.Jobname, jobName)
-                        .AppendTagValue(TagNames.Owner, owner)
-                        .AppendTagValue(TagNames.Repo, repo)
-                        .AppendTagValue(TagNames.Branch, branch)
-                        .AppendTagValue(TagNames.Test.Suite, suite)
+                        .appendTagValue(TagNames.Jobname, jobName)
+                        .appendTagValue(TagNames.Owner, owner)
+                        .appendTagValue(TagNames.Repo, repo)
+                        .appendTagValue(TagNames.Branch, branch)
+                        .appendTagValue(TagNames.Test.Suite, suite)
 
-                        .AppendFieldValue(FieldNames.Test.Passed, passed)
-                        .AppendFieldValue(FieldNames.Test.Skipped, skipped)
-                        .AppendFieldValue(FieldNames.Test.Failed, failed)
+                        .appendFieldValue(FieldNames.Test.Passed, passed)
+                        .appendFieldValue(FieldNames.Test.Skipped, skipped)
+                        .appendFieldValue(FieldNames.Test.Failed, failed)
 
-                        .Build();
+                        .build();
             }
 
             // "testcase,jobname=%s,owner=%s,repo=%s,branch=%s,suite=%s,testcase=%s passed=%d,skipped=%d,failed=%d"
@@ -327,22 +329,22 @@ public class InfluxDbNotifierSchemas {
                                          int buildNumber,
                                          String buildCause) {
                 return new InfluxDbLineBuilder(SeriesNames.TestCase)
-                        .AppendTagValue(TagNames.Jobname, jobName)
-                        .AppendTagValue(TagNames.Owner, owner)
-                        .AppendTagValue(TagNames.Repo, repo)
-                        .AppendTagValue(TagNames.Branch, branch)
-                        .AppendTagValue(TagNames.Test.Suite, suite)
-                        .AppendTagValue(TagNames.Test.TestCase, testCase)
+                        .appendTagValue(TagNames.Jobname, jobName)
+                        .appendTagValue(TagNames.Owner, owner)
+                        .appendTagValue(TagNames.Repo, repo)
+                        .appendTagValue(TagNames.Branch, branch)
+                        .appendTagValue(TagNames.Test.Suite, suite)
+                        .appendTagValue(TagNames.Test.TestCase, testCase)
 
-                        .AppendFieldValue(FieldNames.Test.Passed, passed)
-                        .AppendFieldValue(FieldNames.Test.Skipped, skipped)
-                        .AppendFieldValue(FieldNames.Test.Failed, failed)
+                        .appendFieldValue(FieldNames.Test.Passed, passed)
+                        .appendFieldValue(FieldNames.Test.Skipped, skipped)
+                        .appendFieldValue(FieldNames.Test.Failed, failed)
 
-                        .Build();
+                        .build();
             }
         }
 
-        public class v2 implements SchemaInfo {
+        public class V2 implements SchemaInfo {
 
             public String formatJob(String jobName,
                                     String owner,
@@ -357,21 +359,21 @@ public class InfluxDbNotifierSchemas {
                                     int buildNumber,
                                     String buildCause) {
                 return new InfluxDbLineBuilder(SeriesNames.Job)
-                        .AppendTagValue(TagNames.Owner, owner)
-                        .AppendTagValue(TagNames.Repo, repo)
-                        .AppendTagValue(TagNames.Result, result)
+                        .appendTagValue(TagNames.Owner, owner)
+                        .appendTagValue(TagNames.Repo, repo)
+                        .appendTagValue(TagNames.Result, result)
 
-                        .AppendFieldValue(FieldNames.JobName, jobName)
-                        .AppendFieldValue(FieldNames.Branch, branch)
-                        .AppendFieldValue(FieldNames.JobTime, jobtime)
-                        .AppendFieldValue(FieldNames.Blocked, blocked)
-                        .AppendFieldValue(FieldNames.BlockedTime, blockedtime)
-                        .AppendFieldValue(FieldNames.Passed, passed)
-                        .AppendFieldValue(FieldNames.BuildUrl, buildUrl)
-                        .AppendFieldValue(FieldNames.BuildNumber, buildNumber)
-                        .AppendFieldValue(FieldNames.Trigger, buildCause)
+                        .appendFieldValue(FieldNames.JobName, jobName)
+                        .appendFieldValue(FieldNames.Branch, branch)
+                        .appendFieldValue(FieldNames.Blocked, blocked)
+                        .appendFieldValue(FieldNames.JobTime, jobtime)
+                        .appendFieldValue(FieldNames.BlockedTime, blockedtime)
+                        .appendFieldValue(FieldNames.Passed, passed)
+                        .appendFieldValue(FieldNames.BuildUrl, buildUrl)
+                        .appendFieldValue(FieldNames.BuildNumber, buildNumber)
+                        .appendFieldValue(FieldNames.Trigger, buildCause)
 
-                        .Build();
+                        .build();
             }
 
             public String formatStage(String jobName,
@@ -386,20 +388,20 @@ public class InfluxDbNotifierSchemas {
                                       int buildNumber,
                                       String buildCause) {
                 return new InfluxDbLineBuilder(SeriesNames.Stage)
-                        .AppendTagValue(TagNames.Owner, owner)
-                        .AppendTagValue(TagNames.Repo, repo)
-                        .AppendTagValue(TagNames.StageName, stageName)
-                        .AppendTagValue(TagNames.Result, result)
+                        .appendTagValue(TagNames.Owner, owner)
+                        .appendTagValue(TagNames.Repo, repo)
+                        .appendTagValue(TagNames.StageName, stageName)
+                        .appendTagValue(TagNames.Result, result)
 
-                        .AppendFieldValue(FieldNames.JobName, jobName)
-                        .AppendFieldValue(FieldNames.Branch, branch)
-                        .AppendFieldValue(FieldNames.StageTime, stageTime)
-                        .AppendFieldValue(FieldNames.Passed, passed)
-                        .AppendFieldValue(FieldNames.BuildUrl, buildUrl)
-                        .AppendFieldValue(FieldNames.BuildNumber, buildNumber)
-                        .AppendFieldValue(FieldNames.Trigger, buildCause)
+                        .appendFieldValue(FieldNames.JobName, jobName)
+                        .appendFieldValue(FieldNames.Branch, branch)
+                        .appendFieldValue(FieldNames.StageTime, stageTime)
+                        .appendFieldValue(FieldNames.Passed, passed)
+                        .appendFieldValue(FieldNames.BuildUrl, buildUrl)
+                        .appendFieldValue(FieldNames.BuildNumber, buildNumber)
+                        .appendFieldValue(FieldNames.Trigger, buildCause)
 
-                        .Build();
+                        .build();
             }
 
             public String formatCoverage(String jobName,
@@ -417,23 +419,23 @@ public class InfluxDbNotifierSchemas {
                                          int buildNumber,
                                          String buildCause) {
                 return new InfluxDbLineBuilder(SeriesNames.Coverage)
-                        .AppendTagValue(TagNames.Owner, owner)
-                        .AppendTagValue(TagNames.Repo, repo)
+                        .appendTagValue(TagNames.Owner, owner)
+                        .appendTagValue(TagNames.Repo, repo)
 
-                        .AppendFieldValue(FieldNames.JobName, jobName)
-                        .AppendFieldValue(FieldNames.Branch, branch)
-                        .AppendFieldValue(FieldNames.Coverage.Classes, classes)
-                        .AppendFieldValue(FieldNames.Coverage.Conditionals, conditionals)
-                        .AppendFieldValue(FieldNames.Coverage.Files, files)
-                        .AppendFieldValue(FieldNames.Coverage.Lines, lines)
-                        .AppendFieldValue(FieldNames.Coverage.Methods, methods)
-                        .AppendFieldValue(FieldNames.Coverage.Packages, packages)
-                        .AppendFieldValue(FieldNames.Coverage.Instructions, instructions)
-                        .AppendFieldValue(FieldNames.BuildUrl, buildUrl)
-                        .AppendFieldValue(FieldNames.BuildNumber, buildNumber)
-                        .AppendFieldValue(FieldNames.Trigger, buildCause)
+                        .appendFieldValue(FieldNames.JobName, jobName)
+                        .appendFieldValue(FieldNames.Branch, branch)
+                        .appendFieldValue(FieldNames.Coverage.Classes, classes)
+                        .appendFieldValue(FieldNames.Coverage.Conditionals, conditionals)
+                        .appendFieldValue(FieldNames.Coverage.Files, files)
+                        .appendFieldValue(FieldNames.Coverage.Lines, lines)
+                        .appendFieldValue(FieldNames.Coverage.Methods, methods)
+                        .appendFieldValue(FieldNames.Coverage.Packages, packages)
+                        .appendFieldValue(FieldNames.Coverage.Instructions, instructions)
+                        .appendFieldValue(FieldNames.BuildUrl, buildUrl)
+                        .appendFieldValue(FieldNames.BuildNumber, buildNumber)
+                        .appendFieldValue(FieldNames.Trigger, buildCause)
 
-                        .Build();
+                        .build();
             }
 
             public String formatTests(String jobName,
@@ -447,19 +449,19 @@ public class InfluxDbNotifierSchemas {
                                       int buildNumber,
                                       String buildCause) {
                 return new InfluxDbLineBuilder(SeriesNames.Tests)
-                        .AppendTagValue(TagNames.Owner, owner)
-                        .AppendTagValue(TagNames.Repo, repo)
+                        .appendTagValue(TagNames.Owner, owner)
+                        .appendTagValue(TagNames.Repo, repo)
 
-                        .AppendFieldValue(FieldNames.JobName, jobName)
-                        .AppendFieldValue(FieldNames.Branch, branch)
-                        .AppendFieldValue(FieldNames.Test.Passed, passed)
-                        .AppendFieldValue(FieldNames.Test.Skipped, skipped)
-                        .AppendFieldValue(FieldNames.Test.Failed, failed)
-                        .AppendFieldValue(FieldNames.BuildUrl, buildUrl)
-                        .AppendFieldValue(FieldNames.BuildNumber, buildNumber)
-                        .AppendFieldValue(FieldNames.Trigger, buildCause)
+                        .appendFieldValue(FieldNames.JobName, jobName)
+                        .appendFieldValue(FieldNames.Branch, branch)
+                        .appendFieldValue(FieldNames.Test.Passed, passed)
+                        .appendFieldValue(FieldNames.Test.Skipped, skipped)
+                        .appendFieldValue(FieldNames.Test.Failed, failed)
+                        .appendFieldValue(FieldNames.BuildUrl, buildUrl)
+                        .appendFieldValue(FieldNames.BuildNumber, buildNumber)
+                        .appendFieldValue(FieldNames.Trigger, buildCause)
 
-                        .Build();
+                        .build();
             }
 
             public String formatTestSuite(String jobName,
@@ -474,20 +476,20 @@ public class InfluxDbNotifierSchemas {
                                           int buildNumber,
                                           String buildCause) {
                 return new InfluxDbLineBuilder(SeriesNames.TestSuite)
-                        .AppendTagValue(TagNames.Owner, owner)
-                        .AppendTagValue(TagNames.Repo, repo)
+                        .appendTagValue(TagNames.Owner, owner)
+                        .appendTagValue(TagNames.Repo, repo)
 
-                        .AppendFieldValue(FieldNames.JobName, jobName)
-                        .AppendFieldValue(FieldNames.Branch, branch)
-                        .AppendFieldValue(FieldNames.TestSuite.Suite, suite)
-                        .AppendFieldValue(FieldNames.Test.Passed, passed)
-                        .AppendFieldValue(FieldNames.Test.Skipped, skipped)
-                        .AppendFieldValue(FieldNames.Test.Failed, failed)
-                        .AppendFieldValue(FieldNames.BuildUrl, buildUrl)
-                        .AppendFieldValue(FieldNames.BuildNumber, buildNumber)
-                        .AppendFieldValue(FieldNames.Trigger, buildCause)
+                        .appendFieldValue(FieldNames.JobName, jobName)
+                        .appendFieldValue(FieldNames.Branch, branch)
+                        .appendFieldValue(FieldNames.TestSuite.Suite, suite)
+                        .appendFieldValue(FieldNames.Test.Passed, passed)
+                        .appendFieldValue(FieldNames.Test.Skipped, skipped)
+                        .appendFieldValue(FieldNames.Test.Failed, failed)
+                        .appendFieldValue(FieldNames.BuildUrl, buildUrl)
+                        .appendFieldValue(FieldNames.BuildNumber, buildNumber)
+                        .appendFieldValue(FieldNames.Trigger, buildCause)
 
-                        .Build();
+                        .build();
             }
 
             public String formatTestCase(String jobName,
@@ -503,21 +505,21 @@ public class InfluxDbNotifierSchemas {
                                          int buildNumber,
                                          String buildCause) {
                 return new InfluxDbLineBuilder(SeriesNames.TestCase)
-                        .AppendTagValue(TagNames.Owner, owner)
-                        .AppendTagValue(TagNames.Repo, repo)
+                        .appendTagValue(TagNames.Owner, owner)
+                        .appendTagValue(TagNames.Repo, repo)
 
-                        .AppendFieldValue(FieldNames.JobName, jobName)
-                        .AppendFieldValue(FieldNames.Branch, branch)
-                        .AppendFieldValue(TagNames.Suite, suite)
-                        .AppendFieldValue(FieldNames.TestCase.TestCase, testCase)
-                        .AppendFieldValue(FieldNames.Test.Passed, passed)
-                        .AppendFieldValue(FieldNames.Test.Skipped, skipped)
-                        .AppendFieldValue(FieldNames.Test.Failed, failed)
-                        .AppendFieldValue(FieldNames.BuildUrl, buildUrl)
-                        .AppendFieldValue(FieldNames.BuildNumber, buildNumber)
-                        .AppendFieldValue(FieldNames.Trigger, buildCause)
+                        .appendFieldValue(FieldNames.JobName, jobName)
+                        .appendFieldValue(FieldNames.Branch, branch)
+                        .appendFieldValue(TagNames.Suite, suite)
+                        .appendFieldValue(FieldNames.TestCase.TestCase, testCase)
+                        .appendFieldValue(FieldNames.Test.Passed, passed)
+                        .appendFieldValue(FieldNames.Test.Skipped, skipped)
+                        .appendFieldValue(FieldNames.Test.Failed, failed)
+                        .appendFieldValue(FieldNames.BuildUrl, buildUrl)
+                        .appendFieldValue(FieldNames.BuildNumber, buildNumber)
+                        .appendFieldValue(FieldNames.Trigger, buildCause)
 
-                        .Build();
+                        .build();
             }
 
         }
