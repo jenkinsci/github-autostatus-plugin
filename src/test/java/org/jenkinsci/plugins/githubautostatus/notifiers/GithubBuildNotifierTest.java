@@ -140,7 +140,7 @@ public class GithubBuildNotifierTest {
     }
 
     /**
-     * Verifies nofitfyFinalBuildStatus doesn't send any commit status
+     * Verifies notifyFinalBuildStatus doesn't send any commit status
      * @throws IOException 
      */
     @Test

@@ -68,6 +68,7 @@ public class BuildStatusJobListener extends RunListener<Run<?, ?>> {
 
         }
         BuildStatusAction statusAction = build.getAction(BuildStatusAction.class);
+        log(Level.INFO, "Build Completed");
         if (statusAction != null) {
             Map<String, Object> parameters = getParameters(build);
             parameters.put(BuildNotifierConstants.BUILD_OBJECT, build);
@@ -86,6 +87,11 @@ public class BuildStatusJobListener extends RunListener<Run<?, ?>> {
             }
             statusAction.updateBuildStatusForJob(BuildState.fromResult(result), parameters);
         }
+    }
+
+    @Override
+    public void onStarted(Run<?, ?> run, TaskListener listener) {
+        super.onStarted(run, listener);
     }
 
     /**
@@ -118,11 +124,21 @@ public class BuildStatusJobListener extends RunListener<Run<?, ?>> {
     private Map<String, Object> getParameters(Run<?, ?> build) {
         HashMap<String, Object> result = new HashMap<String, Object>();
 
-        Map<JobPropertyDescriptor, ? extends JobProperty<?>> jobProperties = build.getParent().getProperties();
-        if (jobProperties != null) {
-            for (JobProperty property : jobProperties.values()) {
+//<<<<<<< HEAD
+        // TODO: not sure which of these legs to take :(
+        ParametersAction parametersAction = build.getAction(ParametersAction.class);
 
-                result.put(property.getDescriptor().getDisplayName(), property);
+        // TODO: reverify this code
+        if (parametersAction != null) {
+            for (ParameterValue parameterValue : parametersAction.getAllParameters()) {
+                result.put(parameterValue.getName(), parameterValue.getValue());
+//=======
+//        Map<JobPropertyDescriptor, ? extends JobProperty<?>> jobProperties = build.getParent().getProperties();
+//        if (jobProperties != null) {
+//            for (JobProperty property : jobProperties.values()) {
+//
+//                result.put(property.getDescriptor().getDisplayName(), property);
+//>>>>>>> 33f1c0039494438c80d0637d22bdb33e9a8d0a1c
             }
         }
 

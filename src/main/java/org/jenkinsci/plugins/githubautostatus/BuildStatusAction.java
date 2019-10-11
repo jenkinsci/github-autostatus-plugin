@@ -26,10 +26,6 @@ package org.jenkinsci.plugins.githubautostatus;
 import hudson.model.InvisibleAction;
 import hudson.model.JobProperty;
 import hudson.model.Run;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-
 import org.jenkinsci.plugins.githubautostatus.config.GithubNotificationConfig;
 import org.jenkinsci.plugins.githubautostatus.config.HttpNotifierConfig;
 import org.jenkinsci.plugins.githubautostatus.config.InfluxDbNotifierConfig;
@@ -40,6 +36,10 @@ import org.jenkinsci.plugins.githubautostatus.notifiers.BuildNotifierConstants;
 import org.jenkinsci.plugins.githubautostatus.notifiers.BuildNotifierManager;
 import org.jenkinsci.plugins.workflow.job.WorkflowJob;
 import org.jenkinsci.plugins.workflow.job.WorkflowRun;
+
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 
 /**
  * Keeps track of build status for each stage in a build, and provides
@@ -133,7 +133,12 @@ public class BuildStatusAction extends InvisibleAction {
             }
         });
     }
-    
+
+    /**
+     * Sets flag indicating whether notifications are for a declarative pipeline
+     *
+     * @return if pipeline is declarative or not
+     */
     public boolean isIsDeclarativePipeline() {
         return isDeclarativePipeline;
     }
@@ -147,7 +152,7 @@ public class BuildStatusAction extends InvisibleAction {
      *
      * @param config GitHub notifier config
      */
-    public void addGithubNofifier(GithubNotificationConfig config) {
+    public void addGithubNotifier(GithubNotificationConfig config) {
         if (config != null) {
             sendNotifications(buildNotifierManager.addGithubNotifier(config));
         }
@@ -162,6 +167,16 @@ public class BuildStatusAction extends InvisibleAction {
         sendNotifications(buildNotifierManager.addInfluxDbNotifier(influxDbNotifierConfig));
     }
 
+    /**
+     * Attempts to add an Statsd notifier
+     *
+     * @param statsdNotifierConfig Statsd notifier config
+     */
+    public void addStatsdNotifier(StatsdNotifierConfig statsdNotifierConfig) {
+        BuildNotifier build = buildNotifierManager.addStatsdBuildNotifier(statsdNotifierConfig);
+        sendNotifications(build);
+    }
+    
     public void addHttpNotifier(HttpNotifierConfig httpNotifierConfig) {
         sendNotifications(buildNotifierManager.addHttpNotifier(httpNotifierConfig));
     }

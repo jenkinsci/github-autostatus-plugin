@@ -259,6 +259,49 @@ public class BuildStatusConfigTest {
         assertEquals(testCredentials, item2.value);
     }
 
+    @Test
+    public void testGetEnableStatsd() throws IOException {
+        BuildStatusConfig instance = new BuildStatusConfig();
+        instance.setEnableStatsd(false);
+        assertFalse(instance.getEnableStatsd());
+    }
+
+    @Test
+    public void testStatsdUrl() {
+        BuildStatusConfig instance = new BuildStatusConfig();
+        String expResult = "mock-value";
+        instance.setStatsdHost(expResult);
+        String result = instance.getStatsdHost();
+        assertEquals(expResult, result);
+    }
+
+    @Test
+    public void testStatsdPort() {
+        BuildStatusConfig instance = new BuildStatusConfig();
+        String expResult = "mock-value";
+        instance.setStatsdPort(expResult);
+        String result = instance.getStatsdPort();
+        assertEquals(expResult, result);
+    }
+
+    @Test
+    public void testStatsdBucket() {
+        BuildStatusConfig instance = new BuildStatusConfig();
+        String expResult = "mock-value";
+        instance.setStatsdBucket(expResult);
+        String result = instance.getStatsdBucket();
+        assertEquals(expResult, result);
+    }
+
+    @Test
+    public void testStatsdMaxSize() {
+        BuildStatusConfig instance = new BuildStatusConfig();
+        String expResult = "mock-value";
+        instance.setStatsdMaxSize(expResult);
+        String result = instance.getStatsdMaxSize();
+        assertEquals(expResult, result);
+    }
+
     /**
      * Verifies round trip get/set of enableHttp
      */

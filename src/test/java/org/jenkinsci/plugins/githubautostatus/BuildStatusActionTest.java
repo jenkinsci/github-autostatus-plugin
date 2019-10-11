@@ -97,7 +97,7 @@ public class BuildStatusActionTest {
         List<BuildStage> model = new ArrayList<BuildStage>();
         model.add(new BuildStage(stageName));
         BuildStatusAction instance = new BuildStatusAction(mockRun, targetUrl, model);
-        instance.addGithubNofifier(githubConfig);
+        instance.addGithubNotifier(githubConfig);
 
         verify(repository).createCommitStatus(sha, GHCommitState.PENDING, targetUrl, "Building stage", stageName);
     }
@@ -110,7 +110,7 @@ public class BuildStatusActionTest {
     @Test
     public void testAddBuildStatusGitHub() throws IOException {
         BuildStatusAction instance = new BuildStatusAction(mockRun, targetUrl, new ArrayList<>());
-        instance.addGithubNofifier(githubConfig);
+        instance.addGithubNotifier(githubConfig);
         instance.addBuildStatus(stageName);
 
         verify(repository).createCommitStatus(sha, GHCommitState.PENDING, targetUrl, "Building stage", stageName);
@@ -124,7 +124,7 @@ public class BuildStatusActionTest {
     @Test
     public void testStageSuccessGitHub() throws IOException {
         BuildStatusAction instance = new BuildStatusAction(mockRun, targetUrl, new ArrayList<>());
-        instance.addGithubNofifier(githubConfig);
+        instance.addGithubNotifier(githubConfig);
         instance.addBuildStatus(stageName);
 
         instance.updateBuildStatusForStage(stageName, BuildStage.State.CompletedSuccess);
@@ -141,7 +141,7 @@ public class BuildStatusActionTest {
     @Test
     public void testStageErrorGitHub() throws IOException {
         BuildStatusAction instance = new BuildStatusAction(mockRun, targetUrl, new ArrayList<>());
-        instance.addGithubNofifier(githubConfig);
+        instance.addGithubNotifier(githubConfig);
         instance.addBuildStatus(stageName);
 
         instance.updateBuildStatusForStage(stageName, BuildStage.State.CompletedError);
@@ -158,7 +158,7 @@ public class BuildStatusActionTest {
     @Test
     public void testIgnoreInvalidStageGitHub() throws IOException {
         BuildStatusAction instance = new BuildStatusAction(mockRun, targetUrl, new ArrayList<>());
-        instance.addGithubNofifier(githubConfig);
+        instance.addGithubNotifier(githubConfig);
 
         instance.updateBuildStatusForStage(stageName, BuildStage.State.CompletedSuccess);
 
@@ -177,7 +177,7 @@ public class BuildStatusActionTest {
 
         verify(repository, never()).createCommitStatus(any(), any(), any(), any());
 
-        instance.addGithubNofifier(githubConfig);
+        instance.addGithubNotifier(githubConfig);
 
         verify(repository).createCommitStatus(sha, GHCommitState.PENDING, targetUrl, "Building stage", stageName);
     }
@@ -195,7 +195,7 @@ public class BuildStatusActionTest {
 
         verify(repository, never()).createCommitStatus(any(), any(), any(), any());
 
-        instance.addGithubNofifier(githubConfig);
+        instance.addGithubNotifier(githubConfig);
 
         verify(repository).createCommitStatus(sha, GHCommitState.SUCCESS, targetUrl, "Stage built successfully", stageName);
     }
@@ -210,7 +210,7 @@ public class BuildStatusActionTest {
         BuildStatusAction instance = new BuildStatusAction(mockRun, targetUrl, new ArrayList<>());
         instance.addBuildStatus(stageName);
 
-        instance.addGithubNofifier(githubConfig);
+        instance.addGithubNotifier(githubConfig);
 
         verify(repository, never()).createCommitStatus(sha, GHCommitState.SUCCESS, targetUrl, "Stage built successfully", stageName);
 

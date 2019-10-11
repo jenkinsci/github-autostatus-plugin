@@ -59,7 +59,7 @@ import org.mockito.invocation.InvocationOnMock;
 
 /**
  *
- * @author jxpearce
+ * @author Jeff Pearce (github jeffpearce)
  */
 public class InfluxDbNotifierTest {
 
@@ -94,6 +94,7 @@ public class InfluxDbNotifierTest {
         when(config.getRepoOwner()).thenReturn("mockowner");
         when(config.getRepoName()).thenReturn("mockrepo");
         when(config.getBranchName()).thenReturn("mockbranch");
+        when(config.getSchema()).thenReturn(new InfluxDbNotifierSchemas.SchemaInfo.V2());
 
         mockHttpClient = mock(CloseableHttpClient.class);
         when(config.getHttpClient(false)).thenReturn(mockHttpClient);
@@ -120,9 +121,6 @@ public class InfluxDbNotifierTest {
         when(mockRun.getUrl()).thenReturn("https://jenkins.com/1");
     }
 
-    @After
-    public void tearDown() {
-    }
 
     /**
      * Test of isEnabled method, of class InfluxDbNotifier.
@@ -179,6 +177,30 @@ public class InfluxDbNotifierTest {
     }
 
     @Test
+    public void TestDefaultsEmptyString() {
+        when(config.getBranchName()).thenReturn("");
+        when(config.getRepoOwner()).thenReturn("");
+        when(config.getRepoName()).thenReturn("");
+
+        InfluxDbNotifier instance = new InfluxDbNotifier(config);
+        assertEquals(BuildNotifierConstants.DEFAULT_STRING, instance.repoOwner);
+        assertEquals(BuildNotifierConstants.DEFAULT_STRING, instance.repoName);
+        assertEquals(BuildNotifierConstants.DEFAULT_STRING, instance.branchName);
+    }
+
+    @Test
+    public void TestDefaultNull() {
+        when(config.getBranchName()).thenReturn(null);
+        when(config.getRepoOwner()).thenReturn(null);
+        when(config.getRepoName()).thenReturn(null);
+
+        InfluxDbNotifier instance = new InfluxDbNotifier(config);
+        assertEquals(BuildNotifierConstants.DEFAULT_STRING, instance.repoOwner);
+        assertEquals(BuildNotifierConstants.DEFAULT_STRING, instance.repoName);
+        assertEquals(BuildNotifierConstants.DEFAULT_STRING, instance.branchName);
+    }
+
+    @Test
     public void testNotifyBuildStageStatus() throws IOException {
         InfluxDbNotifier instance = new InfluxDbNotifier(config);
 
@@ -189,7 +211,7 @@ public class InfluxDbNotifierTest {
 
         verify(mockHttpClient).execute(any());
         assertEquals(
-                "stage,owner=mockowner,repo=mockrepo,stagename=\"mocknodename\",result=CompletedSuccess jobname=\"mockjobname\",branch=\"mockbranch\",stagetime=0,passed=1,buildnumber=1,buildurl=\"https://jenkins.com/1\",trigger=\"user A\"",
+                "stage,owner=mockowner,repo=mockrepo,stagename=mocknodename,result=CompletedSuccess jobname=\"mockjobname\",branch=\"mockbranch\",stagetime=0,passed=1,buildurl=\"https://jenkins.com/1\",buildnumber=1,trigger=\"user A\"",
                 statusLine);
     }
 
@@ -205,7 +227,7 @@ public class InfluxDbNotifierTest {
 
         verify(mockHttpClient).execute(any());
         assertEquals(
-                "stage,owner=mockowner,repo=mockrepo,stagename=\"mocknodename\",result=CompletedSuccess jobname=\"mockjobname\",branch=\"mockbranch\",stagetime=0,passed=1,buildnumber=1,buildurl=\"https://jenkins.com/1\",trigger=\"user A\"",
+                "stage,owner=mockowner,repo=mockrepo,stagename=mocknodename,result=CompletedSuccess jobname=\"mockjobname\",branch=\"mockbranch\",stagetime=0,passed=1,buildurl=\"https://jenkins.com/1\",buildnumber=1,trigger=\"user A\"",
                 statusLine);
     }
 
@@ -222,7 +244,7 @@ public class InfluxDbNotifierTest {
         instance.notifyBuildStageStatus("mockjobname", stageItem);
 
         verify(mockHttpClient).execute(any());
-        assertEquals("stage,owner=mockowner,repo=mockrepo,stagename=\"mocknodename\",result=CompletedSuccess jobname=\"mockjobname\",branch=\"mockbranch\",stagetime=0,passed=1,buildnumber=1,buildurl=\"https://jenkins.com/1\",trigger=\"user A\"",
+        assertEquals("stage,owner=mockowner,repo=mockrepo,stagename=mocknodename,result=CompletedSuccess jobname=\"mockjobname\",branch=\"mockbranch\",stagetime=0,passed=1,buildurl=\"https://jenkins.com/1\",buildnumber=1,trigger=\"user A\"",
         statusLine);
 
     }
@@ -252,7 +274,7 @@ public class InfluxDbNotifierTest {
 
         verify(mockHttpClient).execute(any());
         assertEquals(
-                "job,owner=mockowner,repo=mockrepo,result=CompletedSuccess jobname=\"mockjobname\",branch=\"mockbranch\",jobtime=76,blocked=1,blockedtime=12,passed=1,buildurl=\"https://jenkins.com/1\",buildnumber=1,trigger=\"user A\"",
+                "job,owner=mockowner,repo=mockrepo,result=CompletedSuccess jobname=\"mockjobname\",branch=\"mockbranch\",blocked=1,jobtime=76,blockedtime=12,passed=1,buildurl=\"https://jenkins.com/1\",buildnumber=1,trigger=\"user A\"",
                 statusLine);
     }
 
@@ -271,7 +293,7 @@ public class InfluxDbNotifierTest {
         instance.notifyFinalBuildStatus(BuildState.CompletedError, parameters);
 
         verify(mockHttpClient).execute(any());
-        assertEquals("job,owner=mockowner,repo=mockrepo,result=CompletedError jobname=\"mockjobname\",branch=\"mockbranch\",jobtime=1010,blocked=0,blockedtime=0,passed=0,buildurl=\"https://jenkins.com/1\",buildnumber=1,trigger=\"user A\"",
+        assertEquals("job,owner=mockowner,repo=mockrepo,result=CompletedError jobname=\"mockjobname\",branch=\"mockbranch\",blocked=0,jobtime=1010,blockedtime=0,passed=0,buildurl=\"https://jenkins.com/1\",buildnumber=1,trigger=\"user A\"",
                 statusLine);
     }
 
@@ -300,7 +322,7 @@ public class InfluxDbNotifierTest {
         instance.notifyBuildStageStatus("mockjobname", stageItem);
 
         verify(mockHttpClient).execute(any());
-        assertEquals("stage,owner=mockowner,repo=mockrepo,stagename=\"mockstagename\",result=CompletedError jobname=\"mockjobname\",branch=\"mockbranch\",stagetime=2020,passed=0,buildnumber=1,buildurl=\"https://jenkins.com/1\",trigger=\"user" +
+        assertEquals("stage,owner=mockowner,repo=mockrepo,stagename=mockstagename,result=CompletedError jobname=\"mockjobname\",branch=\"mockbranch\",stagetime=2020,passed=0,buildurl=\"https://jenkins.com/1\",buildnumber=1,trigger=\"user" +
                         " A\"",
         statusLine);
 

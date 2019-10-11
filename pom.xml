@@ -8,7 +8,7 @@
         <relativePath />
     </parent>
     <artifactId>github-autostatus</artifactId>
-    <version>3.4.4-SNAPSHOT</version>
+    <version>3.5.1-SNAPSHOT</version>
     <packaging>hpi</packaging>
     <properties>
         <jenkins.version>2.111</jenkins.version>
@@ -58,6 +58,26 @@
                 <configuration>
                     <compatibleSinceVersion>4.0</compatibleSinceVersion>
                 </configuration>
+            </plugin>
+            <plugin>
+                <groupId>org.jacoco</groupId>
+                <artifactId>jacoco-maven-plugin</artifactId>
+                <version>0.8.2</version>
+                <executions>
+                    <execution>
+                        <goals>
+                            <goal>prepare-agent</goal>
+                        </goals>
+                    </execution>
+                    <!-- attached to Maven test phase -->
+                    <execution>
+                        <id>report</id>
+                        <phase>test</phase>
+                        <goals>
+                            <goal>report</goal>
+                        </goals>
+                    </execution>
+                </executions>
             </plugin>
         </plugins>
     </build>
@@ -234,6 +254,11 @@
             <scope>test</scope>
         </dependency>
         <dependency>
+            <groupId>com.datadoghq</groupId>
+            <artifactId>java-dogstatsd-client</artifactId>
+            <version>2.7</version>
+        </dependency>
+        <dependency>
             <groupId>org.jenkins-ci.plugins</groupId>
             <artifactId>cobertura</artifactId>
             <version>1.12.1</version>
@@ -278,5 +303,14 @@
             <artifactId>doxia-logging-api</artifactId>
             <version>1.1.2</version>
         </dependency>
-    </dependencies>
+        <dependency>
+            <groupId>com.google.errorprone</groupId>
+            <artifactId>javac-shaded</artifactId>
+            <version>9+181-r4173-1</version>
+        </dependency>
+        <dependency>
+            <groupId>org.javatuples</groupId>
+            <artifactId>javatuples</artifactId>
+            <version>1.2</version>
+        </dependency> </dependencies>
 </project>

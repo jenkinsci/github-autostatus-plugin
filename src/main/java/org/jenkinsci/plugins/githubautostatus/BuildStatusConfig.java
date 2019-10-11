@@ -26,7 +26,6 @@ package org.jenkinsci.plugins.githubautostatus;
 import com.cloudbees.plugins.credentials.Credentials;
 import com.cloudbees.plugins.credentials.CredentialsMatchers;
 import com.cloudbees.plugins.credentials.CredentialsProvider;
-import static com.cloudbees.plugins.credentials.CredentialsProvider.lookupCredentials;
 import com.cloudbees.plugins.credentials.common.StandardCredentials;
 import com.cloudbees.plugins.credentials.common.StandardListBoxModel;
 import com.cloudbees.plugins.credentials.common.StandardUsernamePasswordCredentials;
@@ -37,12 +36,6 @@ import hudson.model.Item;
 import hudson.security.ACL;
 import hudson.util.FormValidation;
 import hudson.util.ListBoxModel;
-import java.io.IOException;
-import java.io.ObjectInputStream;
-import java.net.MalformedURLException;
-import java.net.URL;
-import java.util.Collections;
-import javax.annotation.Nonnull;
 import jenkins.model.GlobalConfiguration;
 import jenkins.model.Jenkins;
 import net.sf.json.JSONObject;
@@ -51,6 +44,15 @@ import org.kohsuke.stapler.AncestorInPath;
 import org.kohsuke.stapler.DataBoundSetter;
 import org.kohsuke.stapler.QueryParameter;
 import org.kohsuke.stapler.StaplerRequest;
+
+import javax.annotation.Nonnull;
+import java.io.IOException;
+import java.io.ObjectInputStream;
+import java.net.MalformedURLException;
+import java.net.URL;
+import java.util.Collections;
+
+import static com.cloudbees.plugins.credentials.CredentialsProvider.lookupCredentials;
 
 /**
  *
@@ -74,10 +76,16 @@ public class BuildStatusConfig extends GlobalConfiguration {
     private String influxDbRetentionPolicy;
     private boolean enableInfluxDb;
     private boolean disableGithub;
+    private boolean enableStatsd;
+    private String statsdHost;
+    private String statsdPort;
+    private String statsdBucket;
+    private String statsdMaxSize;
     private boolean enableHttp;
     private String httpEndpoint;
     private String httpCredentialsId;
     private boolean httpVerifySSL;
+    private transient Integer dbVersion;
 
     /**
      * Convenience method to get the configuration object
@@ -111,7 +119,7 @@ public class BuildStatusConfig extends GlobalConfiguration {
      * @param req Request that represents the form submission
      * @param json The JSON object that captures the configuration data
      * @return always returns true (allow config page to be closed)
-     * @throws hudson.model.Descriptor.FormException on form error
+     * @throws hudson.model.Descriptor.FormException exception if a form field is invalid
      */
     @Override
     public boolean configure(StaplerRequest req, JSONObject json) throws FormException {
@@ -323,6 +331,131 @@ public class BuildStatusConfig extends GlobalConfiguration {
     }
 
     /**
+     * Get the value of dbVersion
+     *
+     * @return the value of dbVersion
+     */
+    public Integer getDbVersion() { return dbVersion; }
+
+    /**
+     * Set the value of dbVersion
+     *
+     * @param dbVersion new value of dbVersion
+     */
+    @DataBoundSetter
+    public void setDbVersion(String dbVersion) {
+        this.dbVersion = Integer.parseInt(dbVersion);
+        save();
+    }
+
+    public ListBoxModel doFillDbVersionItems() {
+        ListBoxModel items = new ListBoxModel();
+        items.add("Version 1 (legacy)", "1");
+        items.add("Version 2 (recommended for new installs)", "2");
+        return items;
+    }
+
+    /**
+     * Get flag determining whether writing to statsd is enabled
+     *
+     * @return true if writing to statsd is enabled
+     */
+    public boolean getEnableStatsd() {
+        return enableStatsd;
+    }
+
+    /**
+     * Set whether writing to statsd is enabled
+     *
+     * @param enableStatsd true to enable writing to statsd
+     */
+    @DataBoundSetter
+    public void setEnableStatsd(boolean enableStatsd) {
+        this.enableStatsd = enableStatsd;
+        save();
+    }
+
+    /**
+     * Get the value of statsdHost
+     *
+     * @return the value of statsdHost
+     */
+    public String getStatsdHost() {
+        return statsdHost;
+    }
+
+    /**
+     * Set the value of statsdHost
+     *
+     * @param statsdURL new value of statsdHost
+     */
+    @DataBoundSetter
+    public void setStatsdHost(String statsdURL) {
+        this.statsdHost = statsdURL;
+        save();
+    }
+
+    /**
+     * Get the value of statsdPort
+     *
+     * @return the value of statsdPort
+     */
+    public String getStatsdPort() {
+        return statsdPort;
+    }
+
+    /**
+     * Set the value of statsdPort
+     *
+     * @param statsdPort new value of statsdPort
+     */
+    @DataBoundSetter
+    public void setStatsdPort(String statsdPort) {
+        this.statsdPort = statsdPort;
+        save();
+    }
+
+    /**
+     * Get the value of statsdBucket
+     *
+     * @return the value of statsdBucket
+     */
+    public String getStatsdBucket() {
+        return statsdBucket;
+    }
+
+    /**
+     * Set the value of statsdBucket
+     *
+     * @param statsdBucket new value of statsdBucket
+     */
+    @DataBoundSetter
+    public void setStatsdBucket(String statsdBucket) {
+        this.statsdBucket = statsdBucket;
+        save();
+    }
+
+    /**
+     * Get the value of statsdMaxSize
+     *
+     * @return the value of statsdMaxSize
+     */
+    public String getStatsdMaxSize() {
+        return statsdMaxSize;
+    }
+
+    /**
+     * Set the value of statsdMaxSize
+     *
+     * @param statsdMaxSize new value of statsdMaxSize
+     */
+    @DataBoundSetter
+    public void setStatsdMaxSize(String statsdMaxSize) {
+        this.statsdMaxSize = statsdMaxSize;
+        save();
+    }
+
+    /**
      * Fill the list box in the settings page with valid credentials
      *
      * @param credentialsId the current credentials Id
@@ -422,6 +555,10 @@ public class BuildStatusConfig extends GlobalConfiguration {
         if (influxDbUser != null || influxDbPassword != null) {
             influxDbUser = null;
             influxDbPassword = null;
+            save();
+        }
+        if (dbVersion == null) {
+            dbVersion = 2;
             save();
         }
         return this;

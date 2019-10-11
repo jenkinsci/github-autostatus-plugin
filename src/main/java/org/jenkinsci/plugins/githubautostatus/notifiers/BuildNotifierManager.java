@@ -23,15 +23,16 @@
  */
 package org.jenkinsci.plugins.githubautostatus.notifiers;
 
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Map;
-
+import org.jenkinsci.plugins.githubautostatus.StatsdNotifierConfig;
 import org.jenkinsci.plugins.githubautostatus.config.GithubNotificationConfig;
 import org.jenkinsci.plugins.githubautostatus.config.HttpNotifierConfig;
 import org.jenkinsci.plugins.githubautostatus.config.InfluxDbNotifierConfig;
 import org.jenkinsci.plugins.githubautostatus.model.BuildStage;
 import org.jenkinsci.plugins.githubautostatus.model.BuildState;
+
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Map;
 
 /**
  * Manages send build notifications to one or more notifiers
@@ -71,7 +72,7 @@ public class BuildNotifierManager {
      * Adds an influx DB notifier
      *
      * @param influxDbNotifierConfig influx db notification configuration
-     * @return the notifier which was added
+     * @return The notifier object which was added
      */
     public BuildNotifier addInfluxDbNotifier(InfluxDbNotifierConfig influxDbNotifierConfig) {
         InfluxDbNotifier buildNotifier = new InfluxDbNotifier(influxDbNotifierConfig);
@@ -84,6 +85,17 @@ public class BuildNotifierManager {
 
 
     public BuildNotifier addGenericNotifier(BuildNotifier buildNotifier) {
+        return addBuildNotifier(buildNotifier);
+    }
+
+    /**
+     * Adds an Statsd notifier
+     *
+     * @param statsdNotifierConfig Statsd notification configuration
+     * @return the notifier object configured for Statsd
+     */
+    public BuildNotifier addStatsdBuildNotifier(StatsdNotifierConfig statsdNotifierConfig) {
+        StatsdNotifier buildNotifier = new StatsdNotifier(statsdNotifierConfig);
         return addBuildNotifier(buildNotifier);
     }
 

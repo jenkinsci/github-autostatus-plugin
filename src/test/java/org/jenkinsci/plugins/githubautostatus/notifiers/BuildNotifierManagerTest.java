@@ -23,22 +23,21 @@
  */
 package org.jenkinsci.plugins.githubautostatus.notifiers;
 
+import org.jenkinsci.plugins.githubautostatus.StatsdNotifierConfig;
+import org.jenkinsci.plugins.githubautostatus.config.GithubNotificationConfig;
+import org.jenkinsci.plugins.githubautostatus.config.HttpNotifierConfig;
+import org.jenkinsci.plugins.githubautostatus.config.InfluxDbNotifierConfig;
+import org.jenkinsci.plugins.githubautostatus.model.BuildStage;
+import org.jenkinsci.plugins.githubautostatus.model.BuildState;
+import org.junit.*;
+import org.kohsuke.github.GHRepository;
+import org.mockito.Mock;
+import org.mockito.MockitoAnnotations;
+
 import java.util.Collections;
 import java.util.HashMap;
 
-import org.jenkinsci.plugins.githubautostatus.config.HttpNotifierConfig;
-import org.jenkinsci.plugins.githubautostatus.model.BuildStage;
-import org.jenkinsci.plugins.githubautostatus.model.BuildState;
-import org.jenkinsci.plugins.githubautostatus.config.GithubNotificationConfig;
-import org.jenkinsci.plugins.githubautostatus.config.InfluxDbNotifierConfig;
-import org.junit.After;
-import org.junit.AfterClass;
-import org.junit.Before;
-import org.junit.BeforeClass;
-import org.junit.Test;
 import static org.junit.Assert.*;
-import org.kohsuke.github.GHRepository;
-import org.mockito.*;
 import static org.mockito.Mockito.*;
 
 /**
@@ -51,6 +50,8 @@ public class BuildNotifierManagerTest {
     private GithubNotificationConfig githubNotificationConfig;
     @Mock
     private InfluxDbNotifierConfig influxDbNotificationConfig;
+    @Mock
+    private StatsdNotifierConfig statsdNotificationConfig;
     @Mock
     private HttpNotifierConfig httpNotifierConfig;
     @Mock

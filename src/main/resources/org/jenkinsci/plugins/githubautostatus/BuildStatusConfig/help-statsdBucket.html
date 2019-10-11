@@ -1,0 +1,15 @@
+<div>
+    Bucket to be prepended to the metrics you are sending (with trailing period). Example:
+    <ul>
+        <li>service.jenkins.pipeline-metrics.</li>
+    </ul>
+
+    Final metrics paths will follow the pattern:
+    <ul>
+        <li>{bucket}.{folder}.{subfolder}.{job name}.{branch}.job.status</li>
+        <li>{bucket}.{folder}.{subfolder}.{job name}.{branch}.job.duration</li>
+        <li>{bucket}.{folder}.{subfolder}.{job name}.{branch}.stage.{stage name}.status</li>
+        <li>{bucket}.{folder}.{subfolder}.{job name}.{branch}.stage.{stage name}.duration</li>
+    </ul>
+    <em>Note: For non multibranch pipelines the branch portion of the path is omitted.</em>
+</div>
