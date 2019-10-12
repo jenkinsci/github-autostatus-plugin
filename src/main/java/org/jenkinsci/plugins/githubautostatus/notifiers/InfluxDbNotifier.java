@@ -62,6 +62,65 @@ public class InfluxDbNotifier extends BuildNotifier {
     protected InfluxDbNotifierConfig config;
     protected transient String authorization;
 
+<<<<<<< HEAD
+    public static class SeriesNames {
+        public static final String Coverage = "coverage";
+        public static final String Stage = "stage";
+        public static final String Job = "job";
+        public static final String Tests = "tests";
+        public static final String TestSuite = "testsuite";
+        public static final String TestCase = "testcase";
+
+    }
+    public static class TagNames {
+        public static final String Owner = "owner";
+        public static final String Repo = "repo";
+        public static final String Result = "result";
+        public static final String StageName = "stagename";
+        public static final String Suite = "suite";
+    }
+    public static class FieldNames {
+        public static final String Blocked = "blocked";
+        public static final String BlockedTime = "blockedtime";
+        public static final String Branch = "branch";
+        public static class Coverage {
+            public static final String Conditionals = "conditionals";
+            public static final String Classes = "classes";
+            public static final String Files = "files";
+            public static final String Instructions = "instructions";
+            public static final String Lines = "lines";
+            public static final String Methods = "methods";
+            public static final String Packages = "packages";
+        }
+//        public static final String Jobname = "jobname";
+//        public static final String JobTime = "jobtime";
+//        public static final String Passed = "passed";
+//        public static final String StageTime = "stagetime";
+//        public static final String Instructions = "instructions";
+
+        public static class Test {
+            public static final String Passed = "passed";
+            public static final String Skipped = "skipped";
+            public static final String Failed = "failed";
+        }
+        public static class TestSuite {
+            public static final String Suite = "suite";
+        }
+        public static class TestCase {
+            public static final String TestCase = "testcase";
+        }
+        public static final String JobName = "jobname";
+        public static final String JobTime = "jobtime";
+        public static final String Passed = "passed";
+        public static final String StageTime = "stagetime";
+        public static final String BuildUrl = "buildurl";
+        public static final String BuildNumber = "buildnumber";
+        public static final String Trigger = "trigger";
+    }
+
+
+=======
+>>>>>>> dc059d12770d7366aa0f60ac9c495c9572d42c18
     /**
      * Constructor
      *
@@ -137,6 +196,33 @@ public class InfluxDbNotifier extends BuildNotifier {
         int buildNumber = stageItem.getRun().getNumber();
         Cause cause = stageItem.getRun().getCause(Cause.class);
         String buildCause = cause == null ? BuildNotifierConstants.DEFAULT_STRING : cause.getShortDescription();
+<<<<<<< HEAD
+        String data = new StringBuilder(SeriesNames.Stage)
+                // Tags
+                .append(String.format(",%s=%s", TagNames.Owner, repoOwner))
+                .append(String.format(",%s=%s", TagNames.Repo, repoName))
+                .append(String.format(",%s=\"%s\"", TagNames.StageName, escapeTagValue(stageItem.getStageName())))
+//<<<<<<< HEAD
+//                .append(String.format(",%s=%s", TagNames.Result, result))
+//                // Fields
+//                .append(String.format(" %s=\"%s\"", FieldNames.Jobname, escapeTagValue(jobName)))
+//                .append(String.format(",%s=\"%s\"", FieldNames.Branch, branchName))
+//                .append(String.format(",%s=%d", FieldNames.StageTime, timingInfo != null ? timingInfo : 0))
+//                .append(String.format(",%s=%d", FieldNames.Passed, passed))
+//=======
+                // TODO: this is *probably* the right merge leg - verify
+                .append(String.format(",%s=%s", TagNames.Result, stageItem.getBuildState().toString()))
+                // Fields
+                .append(String.format(" %s=\"%s\"", FieldNames.JobName, escapeTagValue(jobName)))
+                .append(String.format(",%s=\"%s\"", FieldNames.Branch, branchName))
+                .append(String.format(",%s=%d", FieldNames.StageTime, stageItem.getDuration()))
+                .append(String.format(",%s=%d", FieldNames.Passed, stageItem.isPassed()? 1 : 0))
+                .append(String.format(",%s=%d", FieldNames.BuildNumber, buildNumber))
+                .append(String.format(",%s=\"%s\"", FieldNames.BuildUrl, escapeTagValue(buildUrl)))
+                .append(String.format(",%s=\"%s\"", FieldNames.Trigger, buildCause))
+//>>>>>>> 33f1c0039494438c80d0637d22bdb33e9a8d0a1c
+                .toString();
+=======
 
         String data = config.getSchema().formatStage(jobName,
                 repoOwner,
@@ -149,6 +235,7 @@ public class InfluxDbNotifier extends BuildNotifier {
                 buildUrl,
                 buildNumber,
                 buildCause);
+>>>>>>> dc059d12770d7366aa0f60ac9c495c9572d42c18
 
         postData(data);
     }
@@ -171,6 +258,34 @@ public class InfluxDbNotifier extends BuildNotifier {
         Cause cause = run.getCause(Cause.class);
         String buildCause = cause == null ? BuildNotifierConstants.DEFAULT_STRING : cause.getShortDescription();
 
+<<<<<<< HEAD
+        String data = new StringBuilder(SeriesNames.Job)
+                // Tags
+                .append(String.format(",%s=%s", TagNames.Owner, repoOwner))
+                .append(String.format(",%s=%s", TagNames.Repo, repoName))
+                .append(String.format(",%s=%s", TagNames.Result, buildState.toString()))
+                // Fields
+//<<<<<<< HEAD
+//                .append(String.format(" %s=\"%s\"", FieldNames.Jobname, escapeTagValue(jobName)))
+//                .append(String.format(",%s=\"%s\"", FieldNames.Branch, branchName))
+//                .append(String.format(",%s=%d", FieldNames.JobTime, getLong(parameters, BuildNotifierConstants.JOB_DURATION) - blockedDuration))
+//                .append(String.format(",%s=%d", FieldNames.Blocked, blocked))
+//                .append(String.format(",%s=%d", FieldNames.BlockedTime, blockedDuration))
+//                .append(String.format(",%s=%d", FieldNames.Passed, passed))
+//=======
+                // TODO: verify I took the correct leg of the merge
+                .append(String.format(" %s=\"%s\"", FieldNames.JobName, escapeTagValue(jobName)))
+                .append(String.format(",%s=\"%s\"", FieldNames.Branch, branchName))
+                .append(String.format(",%s=%d", FieldNames.JobTime, BuildNotifierConstants.getLong(parameters, BuildNotifierConstants.JOB_DURATION) - blockedDuration))
+                .append(String.format(",%s=%d", FieldNames.Blocked, blocked))
+                .append(String.format(",%s=%d", FieldNames.BlockedTime, blockedDuration))
+                .append(String.format(",%s=%d", FieldNames.Passed, passed))
+                .append(String.format(",%s=\"%s\"", FieldNames.BuildUrl, escapeTagValue(buildUrl)))
+                .append(String.format(",%s=%d", FieldNames.BuildNumber, buildNumber))
+                .append(String.format(",%s=\"%s\"", FieldNames.Trigger, buildCause))
+//>>>>>>> 33f1c0039494438c80d0637d22bdb33e9a8d0a1c
+                .toString();
+=======
         String data = config.getSchema().formatJob(jobName,
                 repoOwner,
                 repoName,
@@ -183,6 +298,7 @@ public class InfluxDbNotifier extends BuildNotifier {
                 buildUrl,
                 buildNumber,
                 buildCause);
+>>>>>>> dc059d12770d7366aa0f60ac9c495c9572d42c18
 
         postData(data);
 

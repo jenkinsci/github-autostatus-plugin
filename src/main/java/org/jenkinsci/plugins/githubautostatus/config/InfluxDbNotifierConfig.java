@@ -51,7 +51,11 @@ public class InfluxDbNotifierConfig extends AbstractNotifierConfig {
     private String influxDbDatabase;
     private String influxDbCredentialsId;
     private String influxDbRetentionPolicy;
+<<<<<<< HEAD
+    private Integer schemaVersion = null;
+=======
     private Integer schemaVersion;
+>>>>>>> dc059d12770d7366aa0f60ac9c495c9572d42c18
 
     /**
      * Gets the repo owner.
