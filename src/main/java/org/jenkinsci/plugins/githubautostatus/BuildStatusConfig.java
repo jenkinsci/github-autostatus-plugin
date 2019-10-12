@@ -32,7 +32,10 @@ import com.cloudbees.plugins.credentials.common.StandardUsernamePasswordCredenti
 import com.cloudbees.plugins.credentials.common.UsernamePasswordCredentials;
 import com.cloudbees.plugins.credentials.domains.DomainRequirement;
 import hudson.Extension;
+import hudson.init.InitMilestone;
+import hudson.init.Initializer;
 import hudson.model.Item;
+import hudson.model.Items;
 import hudson.security.ACL;
 import hudson.util.FormValidation;
 import hudson.util.ListBoxModel;
@@ -85,6 +88,13 @@ public class BuildStatusConfig extends GlobalConfiguration {
     private String httpEndpoint;
     private String httpCredentialsId;
     private boolean httpVerifySSL;
+
+
+    @Initializer(before = InitMilestone.PLUGINS_STARTED)
+    public static void addAliases() {
+        Items.XSTREAM2.addCompatibilityAlias("org.jenkinsci.plugins.githubautostatus.BuildStageModel", org.jenkinsci.plugins.githubautostatus.model.BuildStage.class);
+        Items.XSTREAM2.addCompatibilityAlias("org.jenkinsci.plugins.githubautostatus.notifiers.BuildState", org.jenkinsci.plugins.githubautostatus.model.BuildState.class);
+    }
 
     /**
      * Convenience method to get the configuration object
