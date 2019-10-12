@@ -88,6 +88,7 @@ public class BuildStatusConfig extends GlobalConfiguration {
     private String httpEndpoint;
     private String httpCredentialsId;
     private boolean httpVerifySSL;
+    private transient Integer dbVersion;
 
 
     @Initializer(before = InitMilestone.PLUGINS_STARTED)
@@ -340,6 +341,31 @@ public class BuildStatusConfig extends GlobalConfiguration {
     }
 
     /**
+     * Get the value of dbVersion
+     *
+     * @return the value of dbVersion
+     */
+    public Integer getDbVersion() { return dbVersion; }
+
+    /**
+     * Set the value of dbVersion
+     *
+     * @param dbVersion new value of dbVersion
+     */
+    @DataBoundSetter
+    public void setDbVersion(String dbVersion) {
+        this.dbVersion = Integer.parseInt(dbVersion);
+        save();
+    }
+
+    public ListBoxModel doFillDbVersionItems() {
+        ListBoxModel items = new ListBoxModel();
+        items.add("Version 1 (legacy)", "1");
+        items.add("Version 2 (recommended for new installs)", "2");
+        return items;
+    }
+
+    /**
      * Get flag determining whether writing to statsd is enabled
      *
      * @return true if writing to statsd is enabled
@@ -539,6 +565,10 @@ public class BuildStatusConfig extends GlobalConfiguration {
         if (influxDbUser != null || influxDbPassword != null) {
             influxDbUser = null;
             influxDbPassword = null;
+            save();
+        }
+        if (dbVersion == null) {
+            dbVersion = 2;
             save();
         }
         return this;

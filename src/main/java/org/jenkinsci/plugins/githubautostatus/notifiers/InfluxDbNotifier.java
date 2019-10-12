@@ -49,8 +49,9 @@ import java.util.logging.Level;
 import java.util.logging.Logger;
 
 /**
- * Writes job and stage measurements to an influxdb REST API.
- * @author Jeff Pearce (jxpearce@godaddy.com)
+ * Writes job and stage and other measurements to an influxdb REST API.
+ *
+ * @author Jeff Pearce (jeffpearce)
  */
 public class InfluxDbNotifier extends BuildNotifier {
 
@@ -61,6 +62,7 @@ public class InfluxDbNotifier extends BuildNotifier {
     protected InfluxDbNotifierConfig config;
     protected transient String authorization;
 
+<<<<<<< HEAD
     public static class SeriesNames {
         public static final String Coverage = "coverage";
         public static final String Stage = "stage";
@@ -117,6 +119,8 @@ public class InfluxDbNotifier extends BuildNotifier {
     }
 
 
+=======
+>>>>>>> dc059d12770d7366aa0f60ac9c495c9572d42c18
     /**
      * Constructor
      *
@@ -133,15 +137,15 @@ public class InfluxDbNotifier extends BuildNotifier {
             if (credentials != null) {
                 String influxDbUser = credentials.getUsername();
                 String influxDbPassword = credentials.getPassword().getPlainText();
-                
+
                 authorization = Base64.getEncoder().encodeToString(
-                        String.format("%s:%s", 
-                                influxDbUser, 
+                        String.format("%s:%s",
+                                influxDbUser,
                                 influxDbPassword).getBytes("UTF-8"));
             }
             if (!StringUtils.isEmpty(config.getInfluxDbRetentionPolicy())) {
                 urlString = urlString.concat(
-                        String.format("&rp=%s", 
+                        String.format("&rp=%s",
                                 URLEncoder.encode(config.getInfluxDbRetentionPolicy(), "UTF-8")));
             }
         } catch (UnsupportedEncodingException ex) {
@@ -149,9 +153,9 @@ public class InfluxDbNotifier extends BuildNotifier {
         }
 
         if (config.influxDbIsReachable()) {
-            this.repoOwner = escapeTagValue(config.getRepoOwner());
-            this.repoName = escapeTagValue(config.getRepoName());
-            this.branchName = escapeTagValue(config.getBranchName());
+            this.repoOwner = config.getRepoOwner();
+            this.repoName = config.getRepoName();
+            this.branchName = config.getBranchName();
             if (StringUtils.isEmpty(this.repoOwner)) {
                 this.repoOwner = BuildNotifierConstants.DEFAULT_STRING;
             }
@@ -179,7 +183,7 @@ public class InfluxDbNotifier extends BuildNotifier {
     /**
      * Send a state change to influx
      *
-     * @param jobName the name of the job
+     * @param jobName   the name of the job
      * @param stageItem stage item describing the new state
      */
     @Override
@@ -192,6 +196,7 @@ public class InfluxDbNotifier extends BuildNotifier {
         int buildNumber = stageItem.getRun().getNumber();
         Cause cause = stageItem.getRun().getCause(Cause.class);
         String buildCause = cause == null ? BuildNotifierConstants.DEFAULT_STRING : cause.getShortDescription();
+<<<<<<< HEAD
         String data = new StringBuilder(SeriesNames.Stage)
                 // Tags
                 .append(String.format(",%s=%s", TagNames.Owner, repoOwner))
@@ -217,6 +222,20 @@ public class InfluxDbNotifier extends BuildNotifier {
                 .append(String.format(",%s=\"%s\"", FieldNames.Trigger, buildCause))
 //>>>>>>> 33f1c0039494438c80d0637d22bdb33e9a8d0a1c
                 .toString();
+=======
+
+        String data = config.getSchema().formatStage(jobName,
+                repoOwner,
+                repoName,
+                branchName,
+                stageItem.getStageName(),
+                stageItem.getBuildState().toString(),
+                stageItem.getDuration(),
+                stageItem.isPassed() ? 1 : 0,
+                buildUrl,
+                buildNumber,
+                buildCause);
+>>>>>>> dc059d12770d7366aa0f60ac9c495c9572d42c18
 
         postData(data);
     }
@@ -239,6 +258,7 @@ public class InfluxDbNotifier extends BuildNotifier {
         Cause cause = run.getCause(Cause.class);
         String buildCause = cause == null ? BuildNotifierConstants.DEFAULT_STRING : cause.getShortDescription();
 
+<<<<<<< HEAD
         String data = new StringBuilder(SeriesNames.Job)
                 // Tags
                 .append(String.format(",%s=%s", TagNames.Owner, repoOwner))
@@ -265,6 +285,20 @@ public class InfluxDbNotifier extends BuildNotifier {
                 .append(String.format(",%s=\"%s\"", FieldNames.Trigger, buildCause))
 //>>>>>>> 33f1c0039494438c80d0637d22bdb33e9a8d0a1c
                 .toString();
+=======
+        String data = config.getSchema().formatJob(jobName,
+                repoOwner,
+                repoName,
+                branchName,
+                buildState.toString(),
+                blocked,
+                BuildNotifierConstants.getLong(parameters, BuildNotifierConstants.JOB_DURATION) - blockedDuration,
+                blockedDuration,
+                passed,
+                buildUrl,
+                buildNumber,
+                buildCause);
+>>>>>>> dc059d12770d7366aa0f60ac9c495c9572d42c18
 
         postData(data);
 
@@ -279,25 +313,20 @@ public class InfluxDbNotifier extends BuildNotifier {
             Cause cause = run.getCause(Cause.class);
             String buildCause = cause == null ? BuildNotifierConstants.DEFAULT_STRING : cause.getShortDescription();
 
-            String data = new StringBuilder(SeriesNames.Coverage)
-                    // Tags
-                    .append(String.format(",%s=%s", TagNames.Owner, repoOwner))
-                    .append(String.format(",%s=%s", TagNames.Repo, repoName))
-
-                    // Fields
-                    .append(String.format(" %s=\"%s\"", FieldNames.JobName, escapeTagValue(jobName)))
-                    .append(String.format(",%s=\"%s\"", FieldNames.Branch, branchName))
-                    .append(String.format(",%s=%f", FieldNames.Coverage.Classes, coverageInfo.getClasses()))
-                    .append(String.format(",%s=%f", FieldNames.Coverage.Conditionals, coverageInfo.getConditionals()))
-                    .append(String.format(",%s=%f", FieldNames.Coverage.Files, coverageInfo.getFiles()))
-                    .append(String.format(",%s=%f", FieldNames.Coverage.Lines, coverageInfo.getLines()))
-                    .append(String.format(",%s=%f", FieldNames.Coverage.Methods, coverageInfo.getMethods()))
-                    .append(String.format(",%s=%f", FieldNames.Coverage.Packages, coverageInfo.getPackages()))
-                    .append(String.format(",%s=%f", FieldNames.Coverage.Instructions, coverageInfo.getInstructions()))
-                    .append(String.format(",%s=\"%s\"", FieldNames.BuildUrl, escapeTagValue(buildUrl)))
-                    .append(String.format(",%s=%d", FieldNames.BuildNumber, buildNumber))
-                    .append(String.format(",%s=\"%s\"", FieldNames.Trigger, buildCause))
-                    .toString();
+            String data = config.getSchema().formatCoverage(jobName,
+                    repoOwner,
+                    repoName,
+                    branchName,
+                    coverageInfo.getClasses(),
+                    coverageInfo.getConditionals(),
+                    coverageInfo.getFiles(),
+                    coverageInfo.getLines(),
+                    coverageInfo.getMethods(),
+                    coverageInfo.getPackages(),
+                    coverageInfo.getInstructions(),
+                    buildUrl,
+                    buildNumber,
+                    buildCause);
 
             postData(data);
         }
@@ -310,21 +339,17 @@ public class InfluxDbNotifier extends BuildNotifier {
             int buildNumber = run.getNumber();
             Cause cause = run.getCause(Cause.class);
             String buildCause = cause == null ? BuildNotifierConstants.DEFAULT_STRING : cause.getShortDescription();
-            String data = new StringBuilder(SeriesNames.Tests)
-                    // Tags
-                    .append(String.format(",%s=%s", TagNames.Owner, repoOwner))
-                    .append(String.format(",%s=%s", TagNames.Repo, repoName))
 
-                    // Fields
-                    .append(String.format(" %s=\"%s\"", FieldNames.Branch, branchName))
-                    .append(String.format(",%s=\"%s\"", FieldNames.JobName, escapeTagValue(jobName)))
-                    .append(String.format(",%s=\"%s\"", FieldNames.BuildUrl, escapeTagValue(buildUrl)))
-                    .append(String.format(",%s=%d", FieldNames.BuildNumber, buildNumber))
-                    .append(String.format(",%s=\"%s\"", FieldNames.Trigger, buildCause))
-                    .append(String.format(",%s=%d", FieldNames.Test.Passed, testResults.getPassedTestCaseCount()))
-                    .append(String.format(",%s=%d", FieldNames.Test.Skipped, testResults.getSkippedTestCaseCount()))
-                    .append(String.format(",%s=%d", FieldNames.Test.Failed, testResults.getFailedTestCaseCount()))
-                    .toString();
+            String data = config.getSchema().formatTests(jobName,
+                    repoOwner,
+                    repoName,
+                    branchName,
+                    testResults.getPassedTestCaseCount(),
+                    testResults.getSkippedTestCaseCount(),
+                    testResults.getFailedTestCaseCount(),
+                    buildUrl,
+                    buildNumber,
+                    buildCause);
 
             postData(data);
 
@@ -335,27 +360,23 @@ public class InfluxDbNotifier extends BuildNotifier {
     }
 
     private void notifyTestSuite(String jobName, TestSuite testSuite, Run<?, ?> run) {
-        String suiteName = escapeTagValue(testSuite.getName());
+        String suiteName = testSuite.getName();
         String buildUrl = run.getUrl();
         int buildNumber = run.getNumber();
         Cause cause = run.getCause(Cause.class);
         String buildCause = cause == null ? BuildNotifierConstants.DEFAULT_STRING : cause.getShortDescription();
-        String data = new StringBuilder(SeriesNames.TestSuite)
-                // Tags
-                .append(String.format(",%s=%s", TagNames.Owner, repoOwner))
-                .append(String.format(",%s=%s", TagNames.Repo, repoName))
 
-                // Fields
-                .append(String.format(" %s=\"%s\"", FieldNames.Branch, branchName))
-                .append(String.format(",%s=\"%s\"", FieldNames.BuildUrl, escapeTagValue(buildUrl)))
-                .append(String.format(",%s=%d", FieldNames.BuildNumber, buildNumber))
-                .append(String.format(",%s=\"%s\"", FieldNames.Trigger, buildCause))
-                .append(String.format(",%s=\"%s\"", FieldNames.TestSuite.Suite, escapeTagValue(suiteName)))
-                .append(String.format(",%s=\"%s\"", FieldNames.JobName, escapeTagValue(jobName)))
-                .append(String.format(",%s=%d", FieldNames.Test.Passed, testSuite.getPassedTestCaseCount()))
-                .append(String.format(",%s=%d", FieldNames.Test.Skipped, testSuite.getSkippedTestCaseCount()))
-                .append(String.format(",%s=%d", FieldNames.Test.Failed, testSuite.getFailedTestCaseCount()))
-                .toString();
+        String data = config.getSchema().formatTestSuite(jobName,
+                repoOwner,
+                repoName,
+                branchName,
+                suiteName,
+                testSuite.getPassedTestCaseCount(),
+                testSuite.getSkippedTestCaseCount(),
+                testSuite.getFailedTestCaseCount(),
+                buildUrl,
+                buildNumber,
+                buildCause);
 
         postData(data);
 
@@ -370,30 +391,20 @@ public class InfluxDbNotifier extends BuildNotifier {
         Cause cause = run.getCause(Cause.class);
         String buildCause = cause == null ? BuildNotifierConstants.DEFAULT_STRING : cause.getShortDescription();
 
-        String data = new StringBuilder(SeriesNames.TestCase)
-                // Tags
-                .append(String.format(",%s=%s", TagNames.Owner, repoOwner))
-                .append(String.format(",%s=%s", TagNames.Repo, repoName))
-                .append(String.format(",%s=%s", TagNames.Suite, escapeTagValue(suiteName)))
+        String data = config.getSchema().formatTestCase(jobName,
+                repoOwner,
+                repoName,
+                branchName,
+                suiteName,
+                testCase.getName(),
+                testCase.getPassedCount(),
+                testCase.getSkippedCount(),
+                testCase.getFailedCount(),
+                buildUrl,
+                buildNumber,
+                buildCause);
 
-                // Fields
-                .append(String.format(" %s=\"%s\"", FieldNames.Branch, branchName))
-                .append(String.format(" %s=\"%s\"", FieldNames.TestCase.TestCase, escapeTagValue(testCase.getName())))
-                .append(String.format(",%s=\"%s\"", FieldNames.BuildUrl, escapeTagValue(buildUrl)))
-                .append(String.format(",%s=%d", FieldNames.BuildNumber, buildNumber))
-                .append(String.format(",%s=\"%s\"", FieldNames.Trigger, buildCause))
-                .append(String.format(",%s=\"%s\"", FieldNames.JobName, escapeTagValue(jobName)))
-                .append(String.format(",%s=%d", FieldNames.Test.Passed, testCase.getPassedCount()))
-                .append(String.format(",%s=%d", FieldNames.Test.Skipped, testCase.getSkippedCount()))
-                .append(String.format(",%s=%d", FieldNames.Test.Failed, testCase.getFailedCount()))
-                .toString();
         postData(data);
-    }
-
-    protected String escapeTagValue(String tagValue) {
-        return tagValue.replace(" ", "\\ ")
-                .replace(",", "\\,")
-                .replace("=", "\\=");
     }
 
     /**
@@ -406,7 +417,7 @@ public class InfluxDbNotifier extends BuildNotifier {
             HttpPost httppost = new HttpPost(influxDbUrlString);
 
             httppost.setEntity(new StringEntity(seriesInfo));
-            
+
             if (!StringUtils.isEmpty(authorization)) {
                 httppost.setHeader("Authorization", String.format("Basic %s", authorization));
             }

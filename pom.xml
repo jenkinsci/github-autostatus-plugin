@@ -303,5 +303,14 @@
             <artifactId>doxia-logging-api</artifactId>
             <version>1.1.2</version>
         </dependency>
-    </dependencies>
+        <dependency>
+            <groupId>com.google.errorprone</groupId>
+            <artifactId>javac-shaded</artifactId>
+            <version>9+181-r4173-1</version>
+        </dependency>
+        <dependency>
+            <groupId>org.javatuples</groupId>
+            <artifactId>javatuples</artifactId>
+            <version>1.2</version>
+        </dependency> </dependencies>
 </project>
