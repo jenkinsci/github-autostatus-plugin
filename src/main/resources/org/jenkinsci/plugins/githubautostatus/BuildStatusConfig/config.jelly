@@ -1,19 +1,18 @@
 <?jelly escape-by-default='true'?>
 <j:jelly xmlns:j="jelly:core" xmlns:st="jelly:stapler" xmlns:d="jelly:define" xmlns:l="/lib/layout" xmlns:t="/lib/hudson" xmlns:f="/lib/form" xmlns:c="/lib/credentials">
-
     <f:section title="Autostatus Config">
-        <f:optionalBlock inline="true" name="enableGithub" title="Send to github" checked="${instance.enableGithub}"/>
-        <f:optionalBlock inline="true" name="enableInfluxDb" title="Send to influxdb" checked="${instance.enableInfluxDb}">
-            <f:entry title="Influxdb url" field="influxDbUrl" name="influxDbUrl">
+        <f:optionalBlock inline="true" name="enableGithub" title="Send to GitHub" checked="${instance.enableGithub}"/>
+        <f:optionalBlock inline="true" name="enableInfluxDb" title="Send to InfluxDB" checked="${instance.enableInfluxDb}">
+            <f:entry title="InfluxDB URL" field="influxDbUrl" name="influxDbUrl">
                 <f:textbox />
             </f:entry>
-            <f:entry title="Influxdb database" field="influxDbDatabase" name="influxDbDatabase">
+            <f:entry title="InfluxDB Database" field="influxDbDatabase" name="influxDbDatabase">
                 <f:textbox />
             </f:entry>
-            <f:entry field="credentialsId" title="Influxdb credentials">
+            <f:entry title="InfluxDB Credentials" field="credentialsId">
                 <c:select/>
             </f:entry>
-            <f:entry title="Retention policy" field="influxDbRetentionPolicy" name="influxDbRetentionPolicy">
+            <f:entry title="InfluxDB Retention policy" field="influxDbRetentionPolicy" name="influxDbRetentionPolicy">
                 <f:textbox />
             </f:entry>
         </f:optionalBlock>
@@ -27,10 +26,9 @@
             <f:entry title="StatsD Bucket" field="statsdBucket" name="statsdBucket">
                 <f:textbox />
             </f:entry>
-            <f:entry title="Maximum packet size" field="statsdMaxSize" name="statsdMaxSize">
+            <f:entry title="StatsD Maximum packet size" field="statsdMaxSize" name="statsdMaxSize">
                 <f:textbox default="1400" />
             </f:entry>
         </f:optionalBlock>
     </f:section>
 </j:jelly>
-

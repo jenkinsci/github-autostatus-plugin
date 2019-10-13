@@ -45,7 +45,7 @@ import org.jenkinsci.plugins.githubautostatus.model.TestResults;
 import org.jenkinsci.plugins.githubautostatus.model.TestSuite;
 
 /**
- * Writes job and stage measurements to an influxdb REST API.
+ * Writes job and stage measurements to an InfluxDB REST API.
  * @author Jeff Pearce (jxpearce@godaddy.com)
  */
 public class InfluxDbNotifier extends BuildNotifier {
@@ -60,7 +60,7 @@ public class InfluxDbNotifier extends BuildNotifier {
     /**
      * Constructor
      *
-     * @param config influxdb configuration info
+     * @param config InfluxDB configuration info
      */
     public InfluxDbNotifier(
             InfluxDbNotifierConfig config) {
@@ -117,7 +117,7 @@ public class InfluxDbNotifier extends BuildNotifier {
     }
 
     /**
-     * Send a state change to influx
+     * Send a state change to InfluxDB
      *
      * @param jobName the name of the job
      * @param stageItem stage item describing the new state
@@ -149,7 +149,7 @@ public class InfluxDbNotifier extends BuildNotifier {
     }
 
     /**
-     * Send final build status to influx
+     * Send final build status to InfluxDB
      *
      * @param buildState the new state
      * @param parameters build parameters
@@ -272,8 +272,8 @@ public class InfluxDbNotifier extends BuildNotifier {
 
                 if (statusCode > 299) {
                     String statusLine = response.getStatusLine().toString();
-                    log(Level.WARNING, "Could not write to influxdb - %s", statusLine);
-                    log(Level.WARNING, "Influxdb url - %s", influxDbUrlString);
+                    log(Level.WARNING, "Could not write to InfluxDB - %s", statusLine);
+                    log(Level.WARNING, "InfluxDB URL - %s", influxDbUrlString);
                     log(Level.WARNING, "Series - %s", seriesInfo);
                 }
             }

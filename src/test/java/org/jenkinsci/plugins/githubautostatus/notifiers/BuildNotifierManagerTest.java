@@ -98,7 +98,7 @@ public class BuildNotifierManagerTest {
     }
 
     /**
-     * Verifies influxdb notifier is not added when disabled.
+     * Verifies InfluxDB notifier is not added when disabled.
      */
     @Test
     public void testAddInfluxDbNofifierDisabled() {

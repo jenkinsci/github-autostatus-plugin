@@ -34,7 +34,7 @@ import org.jenkinsci.plugins.githubautostatus.StatsdNotifierConfig;
 
 
 /**
- * Sends job and stage metrics to a statsd collector server over UDP.
+ * Sends job and stage metrics to a StatsD collector server over UDP.
  * @author Tom Hadlaw (thomas.hadlaw@hootsuite.com)
  */
 public class StatsdNotifier extends BuildNotifier {
@@ -64,7 +64,7 @@ public class StatsdNotifier extends BuildNotifier {
     }
 
     /**
-     * Returns the statsd including the global prefix up to the branch bucket
+     * Returns the StatsD including the global prefix up to the branch bucket
      * 
      * @return string of path up to branch bucket
      */
@@ -74,7 +74,7 @@ public class StatsdNotifier extends BuildNotifier {
     }
 
     /**
-     * Sends duration metric to statsd by doing a timer metric
+     * Sends duration metric to StatsD by doing a timer metric
      * 
      * @param jobName   the name of the job
      * @param stageItem stage item describing the new state
@@ -106,7 +106,7 @@ public class StatsdNotifier extends BuildNotifier {
         try {
             stageStatusSize = stageStatus.getBytes("UTF-16");
             if (stageStatusSize.length > statsDMaxSize){
-                log(Level.INFO, "Statsd notify exceeds maxPaketSize for stageStatus");
+                log(Level.INFO, "StatsD notify exceeds maxPaketSize for stageStatus");
             }
         } catch (UnsupportedEncodingException e) {
             log(Level.WARNING, "Unable to find byte size of stageStatus");
@@ -119,7 +119,7 @@ public class StatsdNotifier extends BuildNotifier {
         try {
             stageDurationSize = stageDuration.getBytes("UTF-16");
             if (stageDurationSize.length > statsDMaxSize){
-                log(Level.WARNING, "Statsd notify exceeds maxPaketSize for stageDuration");
+                log(Level.WARNING, "StatsD notify exceeds maxPaketSize for stageDuration");
             }
         } catch (UnsupportedEncodingException e) {
             log(Level.WARNING, "Unable to find byte size of stageDuration");
@@ -146,7 +146,7 @@ public class StatsdNotifier extends BuildNotifier {
         try {
             fqpSize = fqp.getBytes("UTF-16");
             if (fqpSize.length > statsDMaxSize){
-                log(Level.WARNING, "Statsd notify exceeds maxPaketSize for jobStatus");
+                log(Level.WARNING, "StatsD notify exceeds maxPaketSize for jobStatus");
             }
         } catch (UnsupportedEncodingException e) {
             log(Level.WARNING, "Unable to find byte size of jobStatus");
@@ -159,7 +159,7 @@ public class StatsdNotifier extends BuildNotifier {
         try {
             fqpSize = fqp.getBytes("UTF-16");
             if (fqpSize.length > statsDMaxSize){
-                log(Level.WARNING, "Statsd notify exceeds maxPaketSize for duration");
+                log(Level.WARNING, "StatsD notify exceeds maxPaketSize for duration");
             }
         } catch (UnsupportedEncodingException e) {
             log(Level.WARNING, "Unable to find byte size of duration");
@@ -172,7 +172,7 @@ public class StatsdNotifier extends BuildNotifier {
         try {
             fqpSize = fqp.getBytes("UTF-16");
             if (fqpSize.length > statsDMaxSize){
-                log(Level.WARNING, "Statsd notify exceeds maxPaketSize for blockedDuration");
+                log(Level.WARNING, "StatsD notify exceeds maxPaketSize for blockedDuration");
             }
         } catch (UnsupportedEncodingException e) {
             log(Level.WARNING, "Unable to find byte size of blockedDuration");
@@ -182,7 +182,7 @@ public class StatsdNotifier extends BuildNotifier {
     }
 
     /**
-     * Sends build status metric to statsd by doing an increment on the buildState categories
+     * Sends build status metric to StatsD by doing an increment on the buildState categories
      * 
      * @param jobName name of the job
      * @param nodeName the stage of the status on which to report on
@@ -195,7 +195,7 @@ public class StatsdNotifier extends BuildNotifier {
         try {
             fqpSize = fqp.getBytes("UTF-16");
             if (fqpSize.length > statsDMaxSize){
-                log(Level.WARNING, "Statsd notify exceeds maxPaketSize for nonStageError");
+                log(Level.WARNING, "StatsD notify exceeds maxPaketSize for nonStageError");
             }
         } catch (UnsupportedEncodingException e) {
             log(Level.WARNING, "Unable to find byte size of nonStageError");
@@ -205,7 +205,7 @@ public class StatsdNotifier extends BuildNotifier {
     }
 
     /**
-     * Does the same sanitization as Statsd would do if sanitization is on.
+     * Does the same sanitization as StatsD would do if sanitization is on.
      * See: https://github.com/statsd/statsd/blob/master/stats.js#L168
      * 
      * @param key key to sanitize
@@ -250,9 +250,9 @@ public class StatsdNotifier extends BuildNotifier {
     }
 
     /**
-     * Applies all sanitizations to a key, folders are expanded into seperate statsd buckets.
+     * Applies all sanitizations to a key, folders are expanded into seperate StatsD buckets.
      * It firest applies bucket sanitization (removing periods to prevent them being interprested as 
-     * seperate buckets). It the applies the statsd bucket key sanitization.
+     * seperate buckets). It the applies the StatsD bucket key sanitization.
      * 
      * @param key key to sanitize
      * @return sanitized key

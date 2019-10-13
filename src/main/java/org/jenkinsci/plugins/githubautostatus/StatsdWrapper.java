@@ -34,13 +34,13 @@ import java.util.concurrent.locks.ReentrantReadWriteLock;
 import java.util.logging.Logger;
 
 /**
- * Wraps regular UDP based Statd client with concurrent hostname refreshing logic.
+ * Wraps regular UDP based StatsD client with concurrent hostname refreshing logic.
  * 
  * @author Tom Hadlaw (thomas.hadlaw@hootsuite.com)
  */
 public interface StatsdWrapper {
     /**
-     * Runs a Statsd increment in a safe way.
+     * Runs a StatsD increment in a safe way.
      * 
      * @param key    the bucket key
      * @param amount amount to increment
@@ -48,7 +48,7 @@ public interface StatsdWrapper {
     void increment(String key, int amount);
 
     /**
-     * Run a Statsd timer state in a safe way.
+     * Runs a StatsD timer state in a safe way.
      * 
      * @param key the bucket key
      * @param duration the duration
