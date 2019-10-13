@@ -33,7 +33,7 @@ import java.util.concurrent.locks.ReentrantReadWriteLock;
 import java.util.logging.Logger;
 
 /**
- * Wraps regular UDP based Statd client with concurrent hostname refreshing logic.
+ * Wraps regular UDP based StatsD client with concurrent hostname refreshing logic.
  * 
  * @author Tom Hadlaw (thomas.hadlaw@hootsuite.com)
  */
@@ -50,7 +50,7 @@ public class StatsdClient implements StatsdWrapper {
     private static volatile StatsdClient statsDClient;
 
     /**
-     * newClient attempts to create a new statsd client instance, if succesful then
+     * Attempts to create a new StatsD client instance, if succesful then
      * the active client is safely swapped out.
      * 
      * @throws StatsDClientException throws an exceltopn if unable to refresh client
@@ -89,11 +89,11 @@ public class StatsdClient implements StatsdWrapper {
     }
 
     /**
-     * Constructs a new StatsdClient.
+     * Constructs a new StatsD client.
      * 
-     * @param prefix   Statsd prefix
-     * @param hostname Statsd collector hostname (default localhost)
-     * @param port     Statsd collector listener port (default 8125)
+     * @param prefix   StatsD prefix
+     * @param hostname StatsD collector hostname (default localhost)
+     * @param port     StatsD collector listener port (default 8125)
      */
     public StatsdClient(String prefix, String hostname, int port) throws StatsDClientException {
         this.hostname = hostname;
@@ -147,7 +147,7 @@ public class StatsdClient implements StatsdWrapper {
     }
 
     /**
-     * Runs a Statsd increment in a safe way.
+     * Runs a StatsD increment in a safe way.
      * 
      * @param key    the bucket key
      * @param amount amount to increment
@@ -164,7 +164,7 @@ public class StatsdClient implements StatsdWrapper {
     }
 
     /**
-     * Run a Statsd timer state in a safe way.
+     * Runs a StatsD timer state in a safe way.
      * 
      * @param key the bucket key
      * @param duration the duration

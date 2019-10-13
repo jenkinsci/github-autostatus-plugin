@@ -49,43 +49,43 @@ public class StatsdNotifierConfig {
     }
 
     /**
-     * Gets statsd url.
+     * Gets StatsD URL.
      *
-     * @return statsd url.
+     * @return StatsD URL.
      */
     public String getStatsdHost() {
         return statsdHost;
     }
 
     /**
-     * Gets statsd port.
+     * Gets StatsD port.
      *
-     * @return statsd port.
+     * @return StatsD port.
      */
     public int getStatsdPort() {
         return statsdPort;
     }
 
     /**
-     * Gets statsd bucket.
+     * Gets StatsD bucket.
      *
-     * @return statsd bucket.
+     * @return StatsD bucket.
      */
     public String getStatsdBucket() {
         return statsdBucket;
     }
 
     /**
-     * Gets statsd max packet size.
+     * Gets StatsD maximum packet size.
      *
-     * @return statsd max packet size.
+     * @return StatsD maximum packet size.
      */
     public String getStatsdMaxSize() {
         return statsdMaxSize;
     }
 
     /**
-     * Creates an statsd notification config based on the global settings.
+     * Creates a StatsD notification config based on the global settings.
      *
      * @param externalizedID externalized ID.
      * @return config.

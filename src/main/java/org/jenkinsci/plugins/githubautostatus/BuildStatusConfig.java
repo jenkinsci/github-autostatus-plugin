@@ -119,21 +119,21 @@ public class BuildStatusConfig extends GlobalConfiguration {
     }
 
     /**
-     * Get a flag indicating whether to enable GitHub. For compatibility reasons
+     * Gets whether sending status to GitHub is enabled. For compatibility reasons
      * the flag is stored as the inverse (disableGithub) so that GitHub is
      * enabled by default for users who upgrade from a version prior to the
      * flag.
      *
-     * @return true if writing to github is enabled
+     * @return true if writing to GitHub is enabled
      */
     public boolean getEnableGithub() {
         return !disableGithub;
     }
 
     /**
-     * Set whether sending status to github is enabled
+     * Sets whether sending status to GitHub is enabled.
      *
-     * @param enableGithub true to enable sending status to github
+     * @param enableGithub true to enable sending status to GitHub
      */
     @DataBoundSetter
     public void setEnableGithub(boolean enableGithub) {
@@ -142,18 +142,18 @@ public class BuildStatusConfig extends GlobalConfiguration {
     }
 
     /**
-     * Get the credentials Id
+     * Gets the credentials id.
      *
-     * @return the credentials
+     * @return the credentials id
      */
     public String getCredentialsId() {
         return credentialsId;
     }
 
     /**
-     * Sets the credentials Id
+     * Sets the credentials id.
      *
-     * @param credentialsId the credentials Id
+     * @param credentialsId the credentials id
      */
     @DataBoundSetter
     public void setCredentialsId(String credentialsId) {
@@ -162,18 +162,18 @@ public class BuildStatusConfig extends GlobalConfiguration {
     }
 
     /**
-     * Get flag determining whether writing to influxdb is enabled
+     * Gets whether writing to InfluxDB is enabled.
      *
-     * @return true if writing to influxdb is enabled
+     * @return true if writing to InfluxDB is enabled
      */
     public boolean getEnableInfluxDb() {
         return enableInfluxDb;
     }
 
     /**
-     * Set whether writing to influxdb is enabled
+     * Sets whether writing to InfluxDB is enabled.
      *
-     * @param enableInfluxDb true to enable writing to influxdb
+     * @param enableInfluxDb true to enable writing to InfluxDB
      */
     @DataBoundSetter
     public void setEnableInfluxDb(boolean enableInfluxDb) {
@@ -182,7 +182,7 @@ public class BuildStatusConfig extends GlobalConfiguration {
     }
 
     /**
-     * Get the value of influxDbUrl
+     * Gets the InfluxDB URL.
      *
      * @return the value of influxDbUrl
      */
@@ -191,7 +191,7 @@ public class BuildStatusConfig extends GlobalConfiguration {
     }
 
     /**
-     * Set the value of influxDbUrl
+     * Sets the InfluxDB URL.
      *
      * @param influxDbUrl new value of influxDbUrl
      */
@@ -202,7 +202,7 @@ public class BuildStatusConfig extends GlobalConfiguration {
     }
 
     /**
-     * Get the value of influxDbDatabase
+     * Gets the InfluxDB database.
      *
      * @return the value of influxDbDatabase
      */
@@ -211,7 +211,7 @@ public class BuildStatusConfig extends GlobalConfiguration {
     }
 
     /**
-     * Set the value of influxDbDatabase
+     * Sets the InfluxDB database.
      *
      * @param influxDbDatabase new value of influxDbDatabase
      */
@@ -222,7 +222,7 @@ public class BuildStatusConfig extends GlobalConfiguration {
     }
 
     /**
-     * Get the value of influxDbRetentionPolicy
+     * Gets the InfluxDB retention policy.
      *
      * @return the value of influxDbRetentionPolicy
      */
@@ -231,7 +231,7 @@ public class BuildStatusConfig extends GlobalConfiguration {
     }
 
     /**
-     * Set the value of influxDbRetentionPolicy
+     * Sets the InfluxDB retention policy.
      *
      * @param influxDbRetentionPolicy new value of influxDbRetentionPolicy
      */
@@ -242,18 +242,18 @@ public class BuildStatusConfig extends GlobalConfiguration {
     }
 
     /**
-     * Get flag determining whether writing to statsd is enabled
+     * Gets whether writing to StatsD is enabled.
      *
-     * @return true if writing to statsd is enabled
+     * @return true if writing to StatsD is enabled
      */
     public boolean getEnableStatsd() {
         return enableStatsd;
     }
 
     /**
-     * Set whether writing to statsd is enabled
+     * Sets whether writing to StatsD is enabled.
      *
-     * @param enableStatsd true to enable writing to statsd
+     * @param enableStatsd true to enable writing to StatsD
      */
     @DataBoundSetter
     public void setEnableStatsd(boolean enableStatsd) {
@@ -262,7 +262,7 @@ public class BuildStatusConfig extends GlobalConfiguration {
     }
 
     /**
-     * Get the value of statsdHost
+     * Gets the StatsD host.
      *
      * @return the value of statsdHost
      */
@@ -271,18 +271,18 @@ public class BuildStatusConfig extends GlobalConfiguration {
     }
 
     /**
-     * Set the value of statsdHost
+     * Sets the StatsD host.
      *
      * @param statsdURL new value of statsdHost
      */
     @DataBoundSetter
-    public void setStatsdHost(String statsdURL) {
-        this.statsdHost = statsdURL;
+    public void setStatsdHost(String statsdHost) {
+        this.statsdHost = statsdHost;
         save();
     }
 
     /**
-     * Get the value of statsdPort
+     * Gets the StatsD port.
      *
      * @return the value of statsdPort
      */
@@ -291,7 +291,7 @@ public class BuildStatusConfig extends GlobalConfiguration {
     }
 
     /**
-     * Set the value of statsdPort
+     * Sets the StatsD port.
      *
      * @param statsdPort new value of statsdPort
      */
@@ -302,7 +302,7 @@ public class BuildStatusConfig extends GlobalConfiguration {
     }
 
     /**
-     * Get the value of statsdBucket
+     * Gets the StatsD bucket.
      *
      * @return the value of statsdBucket
      */
@@ -311,7 +311,7 @@ public class BuildStatusConfig extends GlobalConfiguration {
     }
 
     /**
-     * Set the value of statsdBucket
+     * Sets the StatsD bucket.
      *
      * @param statsdBucket new value of statsdBucket
      */
@@ -322,7 +322,7 @@ public class BuildStatusConfig extends GlobalConfiguration {
     }
 
     /**
-     * Get the value of statsdMaxSize
+     * Gets the StatsD maximum packet size.
      *
      * @return the value of statsdMaxSize
      */
@@ -331,7 +331,7 @@ public class BuildStatusConfig extends GlobalConfiguration {
     }
 
     /**
-     * Set the value of statsdMaxSize
+     * Sets the StatsD maximum packet size.
      *
      * @param statsdMaxSize new value of statsdMaxSize
      */

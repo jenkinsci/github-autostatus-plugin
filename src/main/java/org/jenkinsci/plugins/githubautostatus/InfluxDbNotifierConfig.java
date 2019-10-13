@@ -36,7 +36,7 @@ import org.apache.http.impl.client.CloseableHttpClient;
 import org.apache.http.impl.client.HttpClients;
 
 /**
- * Encapsulates the logic of determining influxdb configuration for a build.
+ * Encapsulates the logic of determining InfluxDB configuration for a build.
  * @author Jeff Pearce (jxpearce@godaddy.com)
  */
 public class InfluxDbNotifierConfig {
@@ -79,18 +79,18 @@ public class InfluxDbNotifierConfig {
     }
 
     /**
-     * Gets influx db url.
+     * Gets InfluxDB URL.
      *
-     * @return influx db url.
+     * @return InfluxDB URL.
      */
     public String getInfluxDbUrlString() {
         return influxDbUrlString;
     }
 
     /**
-     * Determines if influx db url is reachable.
+     * Determines if InfluxDB is reachable.
      *
-     * @return true if url is reachable; false otherwise.
+     * @return true if URL is reachable; false otherwise.
      */
     public Boolean influxDbIsReachable() {
         try {
@@ -121,16 +121,16 @@ public class InfluxDbNotifierConfig {
     }
 
     /**
-     * Gets the influx db to write to.
+     * Gets the InfluxDB database to write to.
      *
-     * @return influx db.
+     * @return InfluxDB database.
      */
     public String getInfluxDbDatabase() {
         return influxDbDatabase;
     }
 
     /**
-     * Returns credentials for calling influxdb if they are configured.
+     * Returns credentials for calling InfluxDB if they are configured.
      * @return credentials; null if not provided.
      */
     @CheckForNull
@@ -151,7 +151,7 @@ public class InfluxDbNotifierConfig {
     }
 
     /**
-     * Creates an influxdb notification config based on the global settings.
+     * Creates an InfluxDB notification config based on the global settings.
      *
      * @param repoOwner repo owner.
      * @param repoName repo name.

@@ -1,7 +1,7 @@
 <?jelly escape-by-default='true'?>
 <div>
     Watches pipeline jobs and provides job and stage stats such as time and pass/fail.
-    Can be configured to update Github commit status (one status per stage) and send stats
-    to an influxDB instance, or statsd collector, for build health monitoring of job/stage
+    Can be configured to update GitHub commit status (one status per stage) and send stats
+    to an InfluxDB instance, or StatsD collector, for build health monitoring of job/stage
     timing and success rate.
 </div>

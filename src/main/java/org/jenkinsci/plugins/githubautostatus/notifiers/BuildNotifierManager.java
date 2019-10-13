@@ -66,10 +66,10 @@ public class BuildNotifierManager {
     }
 
     /**
-     * Adds an influx DB notifier
+     * Adds an InfluxDB notifier
      *
-     * @param influxDbNotifierConfig influx db notification configuration
-     * @return The notifier object which was added
+     * @param influxDbNotifierConfig InfluxDB notification configuration
+     * @return the notifier which was added
      */
     public BuildNotifier addInfluxDbNotifier(InfluxDbNotifierConfig influxDbNotifierConfig) {
         InfluxDbNotifier buildNotifier = new InfluxDbNotifier(influxDbNotifierConfig);
@@ -80,10 +80,10 @@ public class BuildNotifierManager {
     }
 
     /**
-     * Adds an Statsd notifier
+     * Adds a StatsD notifier
      *
-     * @param statsdNotifierConfig Statsd notification configuration
-     * @return the notifier object configured for Statsd
+     * @param statsdNotifierConfig StatsD notification configuration
+     * @return the notifier which was added
      */
     public BuildNotifier addStatsdBuildNotifier(StatsdNotifierConfig statsdNotifierConfig) {
         StatsdNotifier buildNotifier = new StatsdNotifier(statsdNotifierConfig);
