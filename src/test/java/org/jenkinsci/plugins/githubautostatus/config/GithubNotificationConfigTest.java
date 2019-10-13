@@ -26,7 +26,6 @@ package org.jenkinsci.plugins.githubautostatus.config;
 import com.cloudbees.plugins.credentials.CredentialsMatchers;
 import com.cloudbees.plugins.credentials.CredentialsScope;
 import com.cloudbees.plugins.credentials.impl.UsernamePasswordCredentialsImpl;
-import hudson.model.AbstractBuild;
 import hudson.model.Run;
 import jenkins.plugins.git.AbstractGitSCMSource.SCMRevisionImpl;
 import jenkins.scm.api.SCMRevision;
@@ -95,7 +94,7 @@ public class GithubNotificationConfigTest {
 
     @Test
     public void testConfigBranchSource() throws Exception {
-        AbstractBuild build = Mockito.mock(AbstractBuild.class);
+        Run build = Mockito.mock(Run.class);
         SCMRevisionAction mockSCMRevisionAction = mock(SCMRevisionAction.class);
         when(build.getAction(SCMRevisionAction.class)).thenReturn(mockSCMRevisionAction);
 
@@ -127,7 +126,7 @@ public class GithubNotificationConfigTest {
         PowerMockito.when(builder.build()).thenReturn(github);
         PowerMockito.when(builder.withEndpoint(any())).thenReturn(builder);
 
-        GithubNotificationConfig instance = GithubNotificationConfig.fromRun((Run<WorkflowJob, ?>) build,  builder);
+        GithubNotificationConfig instance = GithubNotificationConfig.fromRun(build, builder);
         assertEquals("what-the-hash", instance.getShaString());
         assertEquals("test-branch", instance.getBranchName());
     }
@@ -135,12 +134,12 @@ public class GithubNotificationConfigTest {
     @Test
     public void testDisabledInConfig() {
         when(config.getEnableGithub()).thenReturn(false);
-        assertNull(GithubNotificationConfig.fromRun(mock(AbstractBuild.class), null));
+        assertNull(GithubNotificationConfig.fromRun(mock(Run.class), null));
     }
 
 //    @Test
 //    public void testConfigPullRequest() throws Exception {
-//        AbstractBuild build = Mockito.mock(AbstractBuild.class);
+//        Run build = Mockito.mock(Run.class);
 //        SCMRevisionAction mockSCMRevisionAction = mock(SCMRevisionAction.class);
 //        when(build.getAction(SCMRevisionAction.class)).thenReturn(mockSCMRevisionAction);
 //
@@ -169,6 +168,6 @@ public class GithubNotificationConfigTest {
 //        PowerMockito.when(builder.withEndpoint(any())).thenReturn(builder);
 //
 //
-//        GithubNotificationConfig instance = GithubNotificationConfig.fromRun(build, null, builder);
+//        GithubNotificationConfig instance = GithubNotificationConfig.fromRun(build, builder);
 //    }
 }

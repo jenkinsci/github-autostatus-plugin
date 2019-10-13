@@ -13,7 +13,7 @@
     <properties>
         <jenkins.version>2.138.4</jenkins.version>
         <java.level>8</java.level>
-        <powermock.version>1.7.4</powermock.version>
+        <powermock.version>2.0.2</powermock.version>
         <hpi.compatibleSinceVersion>4.0</hpi.compatibleSinceVersion>
     </properties>
     <name>Job and Stage monitoring Plugin</name>
@@ -204,9 +204,15 @@
             <version>1.42</version>
         </dependency>
         <dependency>
+            <groupId>org.jenkins-ci.plugins</groupId>
+            <artifactId>support-core</artifactId>
+            <version>2.32</version>
+            <scope>test</scope>
+        </dependency>
+        <dependency>
             <groupId>org.mockito</groupId>
-            <artifactId>mockito-all</artifactId>
-            <version>2.0.2-beta</version>
+            <artifactId>mockito-core</artifactId>
+            <version>3.1.0</version>
             <scope>test</scope>
         </dependency>
         <dependency>
@@ -217,19 +223,13 @@
         </dependency>
         <dependency>
             <groupId>org.powermock</groupId>
-            <artifactId>powermock-core</artifactId>
-            <version>${powermock.version}</version>
-            <scope>test</scope>
-        </dependency>
-        <dependency>
-            <groupId>org.powermock</groupId>
             <artifactId>powermock-module-junit4</artifactId>
             <version>${powermock.version}</version>
             <scope>test</scope>
         </dependency>
         <dependency>
             <groupId>org.powermock</groupId>
-            <artifactId>powermock-api-mockito</artifactId>
+            <artifactId>powermock-api-mockito2</artifactId>
             <version>${powermock.version}</version>
             <scope>test</scope>
         </dependency>
