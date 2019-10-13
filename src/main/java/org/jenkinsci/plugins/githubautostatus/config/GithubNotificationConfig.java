@@ -113,7 +113,7 @@ public class GithubNotificationConfig {
      * Constructs a config object from a Run object.
      * @param run The build.
      * @param listener Task listener (for logging to the build).
-     * @return The github config object
+     * @return The GitHub config object
      */
     public static @Nullable
     GithubNotificationConfig fromRun(Run<?, ?> run, TaskListener listener) {
@@ -225,10 +225,7 @@ public class GithubNotificationConfig {
         repoOwner = gitHubScmSource.getRepoOwner();
         repoName = gitHubScmSource.getRepository();
         String url = gitHubScmSource.getApiUri();
-        if (null == url) {
-            url = GitHubSCMSource.GITHUB_URL;
-        }
-        
+
         String userName = null;
         String password = "";
 

@@ -159,18 +159,18 @@ public class BuildStatusAction extends InvisibleAction {
     }
 
     /**
-     * Attempts to add an influx db notifier
+     * Attempts to add an InfluxDB notifier
      *
-     * @param influxDbNotifierConfig influx db notifier config
+     * @param influxDbNotifierConfig InfluxDB notifier config
      */
     public void addInfluxDbNotifier(InfluxDbNotifierConfig influxDbNotifierConfig) {
         sendNotifications(buildNotifierManager.addInfluxDbNotifier(influxDbNotifierConfig));
     }
 
     /**
-     * Attempts to add an Statsd notifier
+     * Attempts to add a StatsD notifier
      *
-     * @param statsdNotifierConfig Statsd notifier config
+     * @param statsdNotifierConfig StatsD notifier config
      */
     public void addStatsdNotifier(StatsdNotifierConfig statsdNotifierConfig) {
         BuildNotifier build = buildNotifierManager.addStatsdBuildNotifier(statsdNotifierConfig);

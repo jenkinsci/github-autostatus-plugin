@@ -34,13 +34,14 @@ import java.util.logging.Logger;
 import javax.annotation.CheckForNull;
 
 import org.apache.commons.lang.StringUtils;
+import org.apache.http.impl.client.CloseableHttpClient;
+import org.apache.http.impl.client.HttpClients;
 import org.jenkinsci.plugins.githubautostatus.BuildStatusConfig;
 import org.jenkinsci.plugins.githubautostatus.notifiers.InfluxDbNotifierSchemas;
 
 /**
- * Encapsulates the logic of determining influxdb configuration for a build.
- *
- * @author Jeff Pearce (jxpearce@godaddy.com)
+ * Encapsulates the logic of determining InfluxDB configuration for a build.
+ * @author Jeff Pearce (GitHub jeffpearce)
  */
 public class InfluxDbNotifierConfig extends AbstractNotifierConfig {
 
@@ -81,9 +82,9 @@ public class InfluxDbNotifierConfig extends AbstractNotifierConfig {
     }
 
     /**
-     * Gets influx db url.
+     * Gets InfluxDB URL.
      *
-     * @return influx db url.
+     * @return InfluxDB URL.
      */
     public String getInfluxDbUrlString() {
         return influxDbUrlString;
@@ -97,9 +98,9 @@ public class InfluxDbNotifierConfig extends AbstractNotifierConfig {
     }
 
     /**
-     * Determines if influx db url is reachable.
+     * Determines if InfluxDB is reachable.
      *
-     * @return true if url is reachable; false otherwise.
+     * @return true if URL is reachable; false otherwise.
      */
     public Boolean influxDbIsReachable() {
         try {
@@ -121,17 +122,25 @@ public class InfluxDbNotifierConfig extends AbstractNotifierConfig {
     }
 
     /**
-     * Gets the influx db to write to.
+     * Gets an http client that can be used to make requests.
      *
-     * @return influx db.
+     * @return http client.
+     */
+    public CloseableHttpClient getHttpClient() {
+        return HttpClients.createDefault();
+    }
+
+    /**
+     * Gets the InfluxDB database to write to.
+     *
+     * @return InfluxDB database.
      */
     public String getInfluxDbDatabase() {
         return influxDbDatabase;
     }
 
     /**
-     * Returns credentials for calling influxdb if they are configured.
-     *
+     * Returns credentials for calling InfluxDB if they are configured.
      * @return credentials; null if not provided.
      */
     @CheckForNull
@@ -156,7 +165,7 @@ public class InfluxDbNotifierConfig extends AbstractNotifierConfig {
     }
 
     /**
-     * Creates an influxdb notification config based on the global settings.
+     * Creates an InfluxDB notification config based on the global settings.
      *
      * @param repoOwner  repo owner.
      * @param repoName   repo name.

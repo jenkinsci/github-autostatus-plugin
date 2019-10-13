@@ -84,7 +84,7 @@ public class GithubBuildNotifier extends BuildNotifier {
     }
 
     /**
-     * Send stage status notification to github
+     * Send stage status notification to GitHub
      *
      * @param jobName the job  name
      * @param stageItem stage item describing the new state
