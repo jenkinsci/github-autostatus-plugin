@@ -224,10 +224,7 @@ public class GithubNotificationConfig {
         repoOwner = gitHubScmSource.getRepoOwner();
         repoName = gitHubScmSource.getRepository();
         String url = gitHubScmSource.getApiUri();
-        if (null == url) {
-            url = GitHubSCMSource.GITHUB_URL;
-        }
-        
+
         String userName = null;
         String password = "";
 
