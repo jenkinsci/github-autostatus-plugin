@@ -86,7 +86,7 @@ public class BuildStatusConfig extends GlobalConfiguration {
     private String httpEndpoint;
     private String httpCredentialsId;
     private boolean httpVerifySSL;
-    private transient Integer dbVersion;
+    private Integer dbVersion;
 
 
     /**
