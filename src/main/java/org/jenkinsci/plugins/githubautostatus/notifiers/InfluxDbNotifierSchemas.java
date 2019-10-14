@@ -42,65 +42,65 @@ public class InfluxDbNotifierSchemas {
         return schemas[schemaIndex];
     }
 
-    public static class SeriesNames {
-        public static final String Coverage = "coverage";
-        public static final String Stage = "stage";
-        public static final String Job = "job";
-        public static final String TestSuite = "testsuite";
-        public static final String Tests = "tests";
-        public static final String TestCase = "testcase";
+    private static class SeriesNames {
+        private static final String Coverage = "coverage";
+        private static final String Stage = "stage";
+        private static final String Job = "job";
+        private static final String TestSuite = "testsuite";
+        private static final String Tests = "tests";
+        private static final String TestCase = "testcase";
     }
 
-    public static class TagNames {
-        public static final String Jobname = "jobname"; // This is for v1 compat; don't use as a tag going forward
-        public static final String Owner = "owner";
-        public static final String Branch = "branch"; // This is for v1 compat; don't use as a tag going forward
-        public static final String Repo = "repo";
-        public static final String Result = "result";
-        public static final String Blocked = "blocked"; // This is for v1 compat; don't use as a tag going forward
-        public static final String StageName = "stagename";
-        public static final String Suite = "suite";
+    private static class TagNames {
+        private static final String Jobname = "jobname"; // This is for v1 compat; don't use as a tag going forward
+        private static final String Owner = "owner";
+        private static final String Branch = "branch"; // This is for v1 compat; don't use as a tag going forward
+        private static final String Repo = "repo";
+        private static final String Result = "result";
+        private static final String Blocked = "blocked"; // This is for v1 compat; don't use as a tag going forward
+        private static final String StageName = "stagename";
+        private static final String Suite = "suite";
 
-        public static class Test {
-            public static final String Suite = "suite";
-            public static final String TestCase = "testcase";
+        private static class Test {
+            private static final String Suite = "suite";
+            private static final String TestCase = "testcase";
         }
     }
 
-    public static class FieldNames {
-        public static final String Blocked = "blocked";
-        public static final String BlockedTime = "blockedtime";
-        public static final String Branch = "branch";
+    private static class FieldNames {
+        private static final String Blocked = "blocked";
+        private static final String BlockedTime = "blockedtime";
+        private static final String Branch = "branch";
 
         public static class Coverage {
-            public static final String Conditionals = "conditionals";
-            public static final String Classes = "classes";
-            public static final String Files = "files";
-            public static final String Instructions = "instructions";
-            public static final String Lines = "lines";
-            public static final String Methods = "methods";
-            public static final String Packages = "packages";
+            private static final String Conditionals = "conditionals";
+            private static final String Classes = "classes";
+            private static final String Files = "files";
+            private static final String Instructions = "instructions";
+            private static final String Lines = "lines";
+            private static final String Methods = "methods";
+            private static final String Packages = "packages";
         }
 
-        public static class Test {
-            public static final String Passed = "passed";
-            public static final String Skipped = "skipped";
-            public static final String Failed = "failed";
+        private static class Test {
+            private static final String Passed = "passed";
+            private static final String Skipped = "skipped";
+            private static final String Failed = "failed";
         }
-        public static class TestSuite {
-            public static final String Suite = "suite";
+        private static class TestSuite {
+            private static final String Suite = "suite";
         }
 
-        public static class TestCase {
-            public static final String TestCase = "testcase";
+        private static class TestCase {
+            private static final String TestCase = "testcase";
         }
-        public static final String JobName = "jobname";
-        public static final String JobTime = "jobtime";
-        public static final String Passed = "passed";
-        public static final String StageTime = "stagetime";
-        public static final String BuildUrl = "buildurl";
-        public static final String BuildNumber = "buildnumber";
-        public static final String Trigger = "trigger";
+        private static final String JobName = "jobname";
+        private static final String JobTime = "jobtime";
+        private static final String Passed = "passed";
+        private static final String StageTime = "stagetime";
+        private static final String BuildUrl = "buildurl";
+        private static final String BuildNumber = "buildnumber";
+        private static final String Trigger = "trigger";
     }
 
     public interface SchemaInfo {

@@ -93,7 +93,7 @@ public class BuildStatusConfig extends GlobalConfiguration {
      * Adds compatibility aliases to prevent "old data" warnings
      */
     @Initializer(before = InitMilestone.PLUGINS_STARTED)
-    public static void AddCompatilityAliases() {
+    public static void addCompatilityAliases() {
         XSTREAM2.addCompatibilityAlias("org.jenkinsci.plugins.githubautostatus.BuildStageModel", BuildStage.class);
         XSTREAM2.addCompatibilityAlias("org.jenkinsci.plugins.githubautostatus.notifiers.BuildState", BuildState.class);
     }
