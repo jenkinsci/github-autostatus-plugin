@@ -35,7 +35,6 @@ import hudson.Extension;
 import hudson.init.InitMilestone;
 import hudson.init.Initializer;
 import hudson.model.Item;
-import hudson.model.Items;
 import hudson.security.ACL;
 import hudson.util.FormValidation;
 import hudson.util.ListBoxModel;
@@ -43,6 +42,8 @@ import jenkins.model.GlobalConfiguration;
 import jenkins.model.Jenkins;
 import net.sf.json.JSONObject;
 import org.apache.commons.lang.StringUtils;
+import org.jenkinsci.plugins.githubautostatus.model.BuildStage;
+import org.jenkinsci.plugins.githubautostatus.model.BuildState;
 import org.kohsuke.stapler.AncestorInPath;
 import org.kohsuke.stapler.DataBoundSetter;
 import org.kohsuke.stapler.QueryParameter;
@@ -56,6 +57,7 @@ import java.net.URL;
 import java.util.Collections;
 
 import static com.cloudbees.plugins.credentials.CredentialsProvider.lookupCredentials;
+import static hudson.model.Run.XSTREAM2;
 
 /**
  * Provides configuration options for this plugin.
@@ -87,10 +89,13 @@ public class BuildStatusConfig extends GlobalConfiguration {
     private transient Integer dbVersion;
 
 
+    /**
+     * Adds compatibility aliases to prevent "old data" warnings
+     */
     @Initializer(before = InitMilestone.PLUGINS_STARTED)
-    public static void addAliases() {
-        Items.XSTREAM2.addCompatibilityAlias("org.jenkinsci.plugins.githubautostatus.BuildStageModel", org.jenkinsci.plugins.githubautostatus.model.BuildStage.class);
-        Items.XSTREAM2.addCompatibilityAlias("org.jenkinsci.plugins.githubautostatus.notifiers.BuildState", org.jenkinsci.plugins.githubautostatus.model.BuildState.class);
+    public static void AddCompatilityAliases() {
+        XSTREAM2.addCompatibilityAlias("org.jenkinsci.plugins.githubautostatus.BuildStageModel", BuildStage.class);
+        XSTREAM2.addCompatibilityAlias("org.jenkinsci.plugins.githubautostatus.notifiers.BuildState", BuildState.class);
     }
 
     /**
