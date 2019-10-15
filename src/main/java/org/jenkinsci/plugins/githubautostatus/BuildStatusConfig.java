@@ -26,38 +26,43 @@ package org.jenkinsci.plugins.githubautostatus;
 import com.cloudbees.plugins.credentials.Credentials;
 import com.cloudbees.plugins.credentials.CredentialsMatchers;
 import com.cloudbees.plugins.credentials.CredentialsProvider;
-import static com.cloudbees.plugins.credentials.CredentialsProvider.lookupCredentials;
 import com.cloudbees.plugins.credentials.common.StandardCredentials;
 import com.cloudbees.plugins.credentials.common.StandardListBoxModel;
 import com.cloudbees.plugins.credentials.common.StandardUsernamePasswordCredentials;
 import com.cloudbees.plugins.credentials.common.UsernamePasswordCredentials;
 import com.cloudbees.plugins.credentials.domains.DomainRequirement;
 import hudson.Extension;
+import hudson.init.InitMilestone;
+import hudson.init.Initializer;
 import hudson.model.Item;
 import hudson.security.ACL;
 import hudson.util.FormValidation;
 import hudson.util.ListBoxModel;
-import java.io.IOException;
-import java.io.ObjectInputStream;
-import java.util.Collections;
-import javax.annotation.Nonnull;
 import jenkins.model.GlobalConfiguration;
 import jenkins.model.Jenkins;
 import net.sf.json.JSONObject;
 import org.apache.commons.lang.StringUtils;
+import org.jenkinsci.plugins.githubautostatus.model.BuildStage;
+import org.jenkinsci.plugins.githubautostatus.model.BuildState;
 import org.kohsuke.stapler.AncestorInPath;
 import org.kohsuke.stapler.DataBoundSetter;
 import org.kohsuke.stapler.QueryParameter;
 import org.kohsuke.stapler.StaplerRequest;
 
-/**
- *
- * @author jxpearce
- */
+import javax.annotation.Nonnull;
+import java.io.IOException;
+import java.io.ObjectInputStream;
+import java.net.MalformedURLException;
+import java.net.URL;
+import java.util.Collections;
+
+import static com.cloudbees.plugins.credentials.CredentialsProvider.lookupCredentials;
+import static hudson.model.Run.XSTREAM2;
+
 /**
  * Provides configuration options for this plugin.
  *
- * @author Jeff Pearce (jxpearce@godaddy.com)
+ * @author Jeff Pearce (GitHub jeffpearce)
  */
 @Extension
 public class BuildStatusConfig extends GlobalConfiguration {
@@ -77,6 +82,22 @@ public class BuildStatusConfig extends GlobalConfiguration {
     private String statsdPort;
     private String statsdBucket;
     private String statsdMaxSize;
+    private boolean enableHttp;
+    private String httpEndpoint;
+    private String httpCredentialsId;
+    private boolean httpVerifySSL;
+    private Integer dbVersion;
+    private Integer configVersion = 2;
+
+
+    /**
+     * Adds compatibility aliases to prevent "old data" warnings
+     */
+    @Initializer(before = InitMilestone.PLUGINS_STARTED)
+    public static void addCompatilityAliases() {
+        XSTREAM2.addCompatibilityAlias("org.jenkinsci.plugins.githubautostatus.BuildStageModel", BuildStage.class);
+        XSTREAM2.addCompatibilityAlias("org.jenkinsci.plugins.githubautostatus.notifiers.BuildState", BuildState.class);
+    }
 
     /**
      * Convenience method to get the configuration object
@@ -142,7 +163,47 @@ public class BuildStatusConfig extends GlobalConfiguration {
     }
 
     /**
-     * Gets the credentials id.
+     * Get a flag indicating whether to enable HTTP publisher
+     *
+     * @return true if writing to HTTP is enabled
+     */
+    public boolean getEnableHttp() {
+        return enableHttp;
+    }
+
+    /**
+     * Set whether sending status to HTTP endpoint is enabled
+     *
+     * @param enableHttp true to enable sending status to HTTP endpoint
+     */
+    @DataBoundSetter
+    public void setEnableHttp(boolean enableHttp) {
+        this.enableHttp = enableHttp;
+        save();
+    }
+
+    /**
+     * Gets whether SSL verify is enabled
+     *
+     * @return true if verify SSL is enabled
+     */
+    public boolean getHttpVerifySSL() {
+        return httpVerifySSL;
+    }
+
+    /**
+     * Set whether to enable SSL verify
+     *
+     * @param httpVerifySSL true to verify SSL
+     */
+    @DataBoundSetter
+    public void setHttpVerifySSL(boolean httpVerifySSL) {
+        this.httpVerifySSL = httpVerifySSL;
+        save();
+    }
+
+    /**
+     * Get the credentials Id
      *
      * @return the credentials id
      */
@@ -162,6 +223,47 @@ public class BuildStatusConfig extends GlobalConfiguration {
     }
 
     /**
+     * Get HTTP credentials ID
+     *
+     * @return the HTTP credentials
+     */
+    public String getHttpCredentialsId() {
+        return httpCredentialsId;
+    }
+
+    /**
+     * Sets the HTTP credentials Id
+     *
+     * @param httpCredentialsId the credentials Id
+     */
+    @DataBoundSetter
+    public void setHttpCredentialsId(String httpCredentialsId) {
+        this.httpCredentialsId = httpCredentialsId;
+        save();
+    }
+
+    /**
+     * Get HTTP URL endpoint
+     *
+     * @return http endpoint URL
+     */
+    public String getHttpEndpoint() {
+        return httpEndpoint;
+    }
+
+    /**
+     * Set HTTP endpoint URL
+     *
+     * @param httpEndpoint the HTTP URL
+     */
+    @DataBoundSetter
+    public void setHttpEndpoint(String httpEndpoint) {
+        this.httpEndpoint = httpEndpoint;
+        save();
+    }
+
+    /**
+     * Get flag determining whether writing to influxdb is enabled
      * Gets whether writing to InfluxDB is enabled.
      *
      * @return true if writing to InfluxDB is enabled
@@ -242,6 +344,31 @@ public class BuildStatusConfig extends GlobalConfiguration {
     }
 
     /**
+     * Get the InfluxDB database version.
+     *
+     * @return the InfluxDB database version
+     */
+    public Integer getDbVersion() { return dbVersion; }
+
+    /**
+     * Set the value of dbVersion
+     *
+     * @param dbVersion new value of dbVersion
+     */
+    @DataBoundSetter
+    public void setDbVersion(String dbVersion) {
+        this.dbVersion = Integer.parseInt(dbVersion);
+        save();
+    }
+
+    public ListBoxModel doFillDbVersionItems() {
+        ListBoxModel items = new ListBoxModel();
+        items.add("Version 1 (legacy)", "1");
+        items.add("Version 2 (recommended for new installs)", "2");
+        return items;
+    }
+
+    /**
      * Gets whether writing to StatsD is enabled.
      *
      * @return true if writing to StatsD is enabled
@@ -273,7 +400,7 @@ public class BuildStatusConfig extends GlobalConfiguration {
     /**
      * Sets the StatsD host.
      *
-     * @param statsdURL new value of statsdHost
+     * @param statsdHost new value of statsdHost
      */
     @DataBoundSetter
     public void setStatsdHost(String statsdHost) {
@@ -364,6 +491,17 @@ public class BuildStatusConfig extends GlobalConfiguration {
     }
 
     /**
+     * Fill the list box in the settings page with valid credentials
+     *
+     * @param credentialsId the current credentials Id
+     * @return ListBoxModel containing credentials to show
+     */
+    public ListBoxModel doFillHttpCredentialsIdItems(
+            @QueryParameter String credentialsId) {
+        return doFillCredentialsIdItems(credentialsId);
+    }
+
+    /**
      * Validates the credentialsId
      *
      * @param item context for validation
@@ -392,6 +530,28 @@ public class BuildStatusConfig extends GlobalConfiguration {
         return FormValidation.ok();
     }
 
+    /**
+     * Validates the credentialsId
+     *
+     * @param item context for validation
+     * @param value to validate
+     * @return FormValidation
+     */
+    public FormValidation doCheckHttpCredentialsId(
+            @AncestorInPath Item item,
+            @QueryParameter String value) {
+        return doCheckCredentialsId(item, value);
+    }
+
+    public FormValidation doCheckHttpEndpoint(@AncestorInPath Item item, @QueryParameter String value) {
+        try {
+            new URL(value);
+        } catch (MalformedURLException e) {
+            return FormValidation.error("Invalid URL");
+        }
+        return FormValidation.ok();
+    }
+
     public static <T extends Credentials> T getCredentials(@Nonnull Class<T> type, @Nonnull String credentialsId) {
         return CredentialsMatchers.firstOrNull(lookupCredentials(
                 type, Jenkins.getInstance(), ACL.SYSTEM,
@@ -408,6 +568,14 @@ public class BuildStatusConfig extends GlobalConfiguration {
         if (influxDbUser != null || influxDbPassword != null) {
             influxDbUser = null;
             influxDbPassword = null;
+            save();
+        }
+        if (configVersion == null && dbVersion == null) {
+            if (influxDbUrl == null && influxDbDatabase == null) {
+                dbVersion = 2;
+            } else {
+                dbVersion = 1;
+            }
             save();
         }
         return this;

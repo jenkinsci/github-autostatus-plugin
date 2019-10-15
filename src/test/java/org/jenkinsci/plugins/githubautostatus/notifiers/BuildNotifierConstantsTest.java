@@ -24,6 +24,10 @@
 package org.jenkinsci.plugins.githubautostatus.notifiers;
 
 import org.junit.Test;
+
+import java.util.HashMap;
+import java.util.Map;
+
 import static org.junit.Assert.*;
 
 /**
@@ -48,6 +52,22 @@ public class BuildNotifierConstantsTest {
         assertNotNull(BuildNotifierConstants.REPO_OWNER);
         assertNotNull(BuildNotifierConstants.STAGE_DURATION);
         assertNotNull(BuildNotifierConstants.TEST_CASE_INFO);
+        assertEquals(BuildNotifierConstants.DEFAULT_STRING, "none");
+        assertEquals(BuildNotifierConstants.DEFAULT_LONG, 0L);
     }
-    
+
+    @Test
+    public void testGetLong(){
+        Map<String, Object> map = new HashMap<>();
+        long expectedResult = 1234L;
+        map.put("key", expectedResult);
+        assertEquals(expectedResult, BuildNotifierConstants.getLong(map, "key"));
+    }
+
+    @Test
+    public void testGetLongWithDefaultValue(){
+        Map<String, Object> map = new HashMap<>();
+        map.put("key", "value");
+        assertEquals(BuildNotifierConstants.DEFAULT_LONG, BuildNotifierConstants.getLong(map, "not-exist"));
+    }
 }

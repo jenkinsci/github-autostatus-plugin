@@ -21,9 +21,10 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
  * THE SOFTWARE.
  */
-package org.jenkinsci.plugins.githubautostatus;
+package org.jenkinsci.plugins.githubautostatus.config;
 
 import com.cloudbees.plugins.credentials.common.UsernamePasswordCredentials;
+
 import java.io.IOException;
 import java.net.MalformedURLException;
 import java.net.URL;
@@ -31,15 +32,18 @@ import java.net.URLConnection;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import javax.annotation.CheckForNull;
+
 import org.apache.commons.lang.StringUtils;
 import org.apache.http.impl.client.CloseableHttpClient;
 import org.apache.http.impl.client.HttpClients;
+import org.jenkinsci.plugins.githubautostatus.BuildStatusConfig;
+import org.jenkinsci.plugins.githubautostatus.notifiers.InfluxDbNotifierSchemas;
 
 /**
  * Encapsulates the logic of determining InfluxDB configuration for a build.
- * @author Jeff Pearce (jxpearce@godaddy.com)
+ * @author Jeff Pearce (GitHub jeffpearce)
  */
-public class InfluxDbNotifierConfig {
+public class InfluxDbNotifierConfig extends AbstractNotifierConfig {
 
     private String repoOwner;
     private String repoName;
@@ -47,9 +51,8 @@ public class InfluxDbNotifierConfig {
     private String influxDbUrlString;
     private String influxDbDatabase;
     private String influxDbCredentialsId;
-    private String influxDbUser;
-    private String influxDbPassword;
     private String influxDbRetentionPolicy;
+    private Integer schemaVersion;
 
     /**
      * Gets the repo owner.
@@ -85,6 +88,13 @@ public class InfluxDbNotifierConfig {
      */
     public String getInfluxDbUrlString() {
         return influxDbUrlString;
+    }
+
+    public Integer getDbVersion() {
+        if (schemaVersion == null || schemaVersion <= 0 || schemaVersion > InfluxDbNotifierSchemas.getSchemaCount() ) {
+            return InfluxDbNotifierSchemas.getSchemaCount();
+        }
+        return schemaVersion;
     }
 
     /**
@@ -136,11 +146,11 @@ public class InfluxDbNotifierConfig {
     @CheckForNull
     public UsernamePasswordCredentials getCredentials() {
         return !StringUtils.isEmpty(influxDbCredentialsId) ?
-            BuildStatusConfig.getCredentials(UsernamePasswordCredentials.class, 
-                    influxDbCredentialsId) :
-            null;
+                BuildStatusConfig.getCredentials(UsernamePasswordCredentials.class,
+                        influxDbCredentialsId) :
+                null;
     }
-    
+
     /**
      * Gets the optional retention policy.
      *
@@ -150,11 +160,15 @@ public class InfluxDbNotifierConfig {
         return influxDbRetentionPolicy;
     }
 
+    public InfluxDbNotifierSchemas.SchemaInfo getSchema() {
+        return InfluxDbNotifierSchemas.getSchema(getDbVersion() - 1);
+    }
+
     /**
      * Creates an InfluxDB notification config based on the global settings.
      *
-     * @param repoOwner repo owner.
-     * @param repoName repo name.
+     * @param repoOwner  repo owner.
+     * @param repoName   repo name.
      * @param branchName branch name.
      * @return config.
      */
@@ -172,6 +186,7 @@ public class InfluxDbNotifierConfig {
             influxDbNotifierConfig.influxDbDatabase = config.getInfluxDbDatabase();
             influxDbNotifierConfig.influxDbCredentialsId = config.getCredentialsId();
             influxDbNotifierConfig.influxDbRetentionPolicy = config.getInfluxDbRetentionPolicy();
+            influxDbNotifierConfig.schemaVersion = config.getDbVersion();
         }
 
         return influxDbNotifierConfig;

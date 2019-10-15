@@ -43,6 +43,7 @@ public class TestCaseTest {
         when(caseResult.isPassed()).thenReturn(true);
         TestCase result = TestCase.fromCaseResult(caseResult);
         assertTrue(result.isPassed());
+        assertEquals(result.getResult(), TestCase.TestCaseResult.Passed);
     }
 
     @Test
@@ -52,6 +53,7 @@ public class TestCaseTest {
         when(caseResult.getFullName()).thenReturn(testName);
         TestCase result = TestCase.fromCaseResult(caseResult);
         assertEquals(testName, result.getName());
+        assertNull(result.getResult());
     }
 
     @Test
@@ -60,6 +62,7 @@ public class TestCaseTest {
         when(caseResult.isPassed()).thenReturn(false);
         TestCase result = TestCase.fromCaseResult(caseResult);
         assertFalse(result.isPassed());
+        assertNull(result.getResult());
     }
 
     @Test
@@ -68,6 +71,7 @@ public class TestCaseTest {
         when(caseResult.isSkipped()).thenReturn(true);
         TestCase result = TestCase.fromCaseResult(caseResult);
         assertTrue(result.isSkipped());
+        assertEquals(result.getResult(), TestCase.TestCaseResult.Skipped);
     }
 
     @Test
@@ -76,6 +80,7 @@ public class TestCaseTest {
         when(caseResult.isSkipped()).thenReturn(false);
         TestCase result = TestCase.fromCaseResult(caseResult);
         assertFalse(result.isSkipped());
+        assertNull(result.getResult());
     }
 
     @Test
@@ -84,6 +89,7 @@ public class TestCaseTest {
         when(caseResult.isFailed()).thenReturn(true);
         TestCase result = TestCase.fromCaseResult(caseResult);
         assertTrue(result.isFailed());
+        assertEquals(result.getResult(), TestCase.TestCaseResult.Failed);
     }
 
     @Test
@@ -92,6 +98,7 @@ public class TestCaseTest {
         when(caseResult.isFailed()).thenReturn(false);
         TestCase result = TestCase.fromCaseResult(caseResult);
         assertFalse(result.isFailed());
+        assertNull(result.getResult());
     }
 
 }

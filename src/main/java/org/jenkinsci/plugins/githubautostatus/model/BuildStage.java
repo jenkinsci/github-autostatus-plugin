@@ -21,40 +21,58 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
  * THE SOFTWARE.
  */
-package org.jenkinsci.plugins.githubautostatus;
+package org.jenkinsci.plugins.githubautostatus.model;
 
+import com.google.gson.annotations.SerializedName;
 import hudson.model.Run;
+import org.eclipse.jgit.annotations.NonNull;
+import org.jenkinsci.plugins.githubautostatus.notifiers.BuildNotifierConstants;
+
 import java.util.HashMap;
 import java.util.Map;
-import org.jenkinsci.plugins.githubautostatus.notifiers.BuildState;
 
 /**
  *
  * @author jxpearce
  */
-public class BuildStageModel {
-    
+public class BuildStage {
+
     private String stageName;
-    private HashMap<String, Object> environment;
-    private BuildState buildState;
+    @SkipSerialisation
+    private Map<String, Object> environment;
+    private State buildState;
     private transient Run<?, ?> run;
+    @SkipSerialisation
     private boolean isStage = true;
-    
-    public BuildStageModel(String stageName) {
-        this(stageName, new HashMap<String, Object>());
+    private long duration;
+    private boolean passed;
+
+    public enum State {
+        Pending,
+        SkippedConditional,
+        SkippedUnstable,
+        SkippedFailure,
+        CompletedSuccess,
+        CompletedError
     }
 
-    public BuildStageModel(String stageName, Map<String, Object> environment) {
-        this(stageName, environment, BuildState.Pending);
+    public BuildStage(String stageName) {
+        this(stageName, new HashMap<>());
     }
 
-    public BuildStageModel(String stageName, 
-            Map<String, Object> environment,
-            BuildState buildState) {
+    public BuildStage(String stageName, Map<String, Object> environment) {
+        this(stageName, environment, State.Pending);
+    }
+
+    public BuildStage(String stageName,
+                      Map<String, Object> environment,
+                      State buildState) {
         this.stageName = stageName;
         this.environment = new HashMap(environment);
+        Object timingInfo = this.environment.get(BuildNotifierConstants.STAGE_DURATION);
+        this.duration = timingInfo == null ? 0 : (long)timingInfo;
         this.buildState = buildState;
-    
+        this.passed = buildState != State.CompletedError;
     }
     
     public String getStageName() {
@@ -65,24 +83,23 @@ public class BuildStageModel {
         this.stageName = stageName;
     }
 
-    public Map<String, Object> getEnvironment() {
-        return environment;
-    }
-
-    public void setEnvironment(Map<String, Object> environment) {
-        this.environment = new HashMap(environment);
+    public void addToEnvironment(String key, Object value) {
+        environment.put(key, value);
+        Object timingInfo = environment.get(BuildNotifierConstants.STAGE_DURATION);
+        duration = timingInfo == null ? 0 : (long)timingInfo;
     }
     
-    public void addToEnvironment(Map<String, Object> environment) {
-        this.environment.putAll(environment);        
+    public void addAllToEnvironment(Map<String, Object> environment) {
+        environment.forEach(this::addToEnvironment);
     }
 
-    public BuildState getBuildState() {
+    public State getBuildState() {
         return buildState;
     }
 
-    public void setBuildState(BuildState buildState) {
+    public void setBuildState(State buildState) {
         this.buildState = buildState;
+        passed = buildState != State.CompletedError;
     }
 
     public Run<?, ?> getRun() {
@@ -100,5 +117,12 @@ public class BuildStageModel {
     public void setIsStage(boolean isStage) {
         this.isStage = isStage;
     }
-    
+
+    public long getDuration() {
+        return duration;
+    }
+
+    public boolean isPassed() {
+        return passed;
+    }
 }

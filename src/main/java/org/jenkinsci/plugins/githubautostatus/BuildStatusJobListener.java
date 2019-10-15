@@ -23,26 +23,31 @@
  */
 package org.jenkinsci.plugins.githubautostatus;
 
-import java.util.logging.Level;
-import java.util.logging.Logger;
 import hudson.Extension;
 import hudson.model.*;
 import hudson.model.listeners.RunListener;
 import hudson.plugins.cobertura.CoberturaBuildAction;
 import hudson.plugins.jacoco.JacocoBuildAction;
 import hudson.tasks.junit.TestResultAction;
-import java.util.HashMap;
-import java.util.Map;
+import org.jenkinsci.plugins.githubautostatus.config.HttpNotifierConfig;
+import org.jenkinsci.plugins.githubautostatus.config.InfluxDbNotifierConfig;
+import org.jenkinsci.plugins.githubautostatus.model.BuildState;
 import org.jenkinsci.plugins.githubautostatus.model.CodeCoverage;
 import org.jenkinsci.plugins.githubautostatus.model.TestResults;
 import org.jenkinsci.plugins.githubautostatus.notifiers.BuildNotifierConstants;
-import org.jenkinsci.plugins.githubautostatus.notifiers.BuildState;
+
+import javax.annotation.Nonnull;
+import java.util.Collections;
+import java.util.HashMap;
+import java.util.Map;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 
 /**
  * Implements {@link hudson.model.listeners.RunListener} extension point to
  * provide job status information to subscribers as jobs complete.
  *
- * @author Jeff Pearce (jxpearce@godaddy.com)
+ * @author Jeff Pearce (GitHub jeffpearce)
  */
 @Extension
 public class BuildStatusJobListener extends RunListener<Run<?, ?>> {
@@ -54,10 +59,13 @@ public class BuildStatusJobListener extends RunListener<Run<?, ?>> {
      * @param listener listener
      */
     @Override
-    public void onCompleted(Run<?, ?> build, TaskListener listener) {
+    public void onCompleted(Run<?, ?> build, @Nonnull TaskListener listener) {
 
+        if (build instanceof FreeStyleBuild) {
+            enableFreeStyleBuild((FreeStyleBuild)build);
+
+        }
         BuildStatusAction statusAction = build.getAction(BuildStatusAction.class);
-        log(Level.INFO, "Build Completed");
         if (statusAction != null) {
             Map<String, Object> parameters = getParameters(build);
             parameters.put(BuildNotifierConstants.BUILD_OBJECT, build);
@@ -70,11 +78,38 @@ public class BuildStatusJobListener extends RunListener<Run<?, ?>> {
             parameters.put(BuildNotifierConstants.BRANCH_NAME, statusAction.getBranchName());
 
             Result result = build.getResult();
-            statusAction.updateBuildStatusForJob(result == Result.SUCCESS
-                    ? BuildState.CompletedSuccess
-                    : BuildState.CompletedError,
-                    parameters);
+            if (result == null) {
+                log(Level.WARNING, String.format("Could not get result of build \"%s\". Notifications are ignored.", statusAction.getRepoName()));
+                return;
+            }
+            statusAction.updateBuildStatusForJob(BuildState.fromResult(result), parameters);
         }
+    }
+
+    @Override
+    public void onStarted(Run<?, ?> run, TaskListener listener) {
+        super.onStarted(run, listener);
+    }
+
+    /**
+     * Sets the build status action for a freestyle build, so we can send a few basic stats
+     * @param build the build.
+     */
+    private void enableFreeStyleBuild(FreeStyleBuild build) {
+        String repoOwner = "";
+        String repoName = build.getProject().getName();
+        String branchName = "";
+
+        BuildStatusAction buildStatusAction = new BuildStatusAction(build, null, Collections.emptyList());
+        build.addAction(buildStatusAction);
+
+        buildStatusAction.setRepoOwner(repoOwner);
+        buildStatusAction.setRepoName(repoName);
+        buildStatusAction.setBranchName(branchName);
+        buildStatusAction.addInfluxDbNotifier(
+                InfluxDbNotifierConfig.fromGlobalConfig(repoOwner, repoName, branchName));
+        buildStatusAction.addHttpNotifier(
+                HttpNotifierConfig.fromGlobalConfig(repoOwner, repoName, branchName));
     }
 
     /**

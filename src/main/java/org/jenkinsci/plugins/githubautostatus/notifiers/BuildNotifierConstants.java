@@ -23,6 +23,8 @@
  */
 package org.jenkinsci.plugins.githubautostatus.notifiers;
 
+import java.util.Map;
+
 /**
  *
  * @author jxpearce
@@ -39,4 +41,15 @@ public class BuildNotifierConstants {
     public static final String REPO_OWNER = "REPO_OWNER";
     public static final String STAGE_DURATION = "STAGE_DURATION";
     public static final String TEST_CASE_INFO = "TEST_CASE_INFO";
+    public static final String DEFAULT_STRING = "none";
+    public static final long DEFAULT_LONG = 0;
+
+    public static long getLong(Map<String, Object> map, String mapKey) {
+        Object mapValue = map.get(mapKey);
+
+        if (mapValue != null) {
+            return (long)mapValue;
+        }
+        return BuildNotifierConstants.DEFAULT_LONG;
+    }
 }

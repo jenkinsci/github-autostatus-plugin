@@ -24,48 +24,36 @@
 package org.jenkinsci.plugins.githubautostatus;
 
 import hudson.Extension;
-import hudson.ExtensionList;
 import hudson.model.Queue;
 import hudson.model.Run;
+import net.sf.json.JSONObject;
+import org.jenkinsci.plugins.displayurlapi.DisplayURLProvider;
+import org.jenkinsci.plugins.githubautostatus.model.BuildStage;
+import org.jenkinsci.plugins.pipeline.StageStatus;
+import org.jenkinsci.plugins.pipeline.modeldefinition.actions.ExecutionModelAction;
+import org.jenkinsci.plugins.pipeline.modeldefinition.ast.*;
+import org.jenkinsci.plugins.workflow.actions.*;
+import org.jenkinsci.plugins.workflow.cps.nodes.StepAtomNode;
+import org.jenkinsci.plugins.workflow.cps.nodes.StepEndNode;
+import org.jenkinsci.plugins.workflow.cps.nodes.StepStartNode;
+import org.jenkinsci.plugins.workflow.flow.FlowExecution;
+import org.jenkinsci.plugins.workflow.flow.GraphListener;
+import org.jenkinsci.plugins.workflow.graph.FlowNode;
+
+import javax.annotation.CheckForNull;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.logging.Level;
 import java.util.logging.Logger;
-import javax.annotation.CheckForNull;
-import net.sf.json.JSONObject;
-import org.jenkinsci.plugins.displayurlapi.DisplayURLProvider;
-import org.jenkinsci.plugins.githubautostatus.notifiers.BuildNotifier;
-import org.jenkinsci.plugins.githubautostatus.notifiers.BuildState;
-import org.jenkinsci.plugins.pipeline.StageStatus;
-import org.jenkinsci.plugins.pipeline.modeldefinition.actions.ExecutionModelAction;
-import org.jenkinsci.plugins.pipeline.modeldefinition.ast.ModelASTEnvironment;
-import org.jenkinsci.plugins.pipeline.modeldefinition.ast.ModelASTKeyValueOrMethodCallPair;
-import org.jenkinsci.plugins.pipeline.modeldefinition.ast.ModelASTMethodArg;
-import org.jenkinsci.plugins.pipeline.modeldefinition.ast.ModelASTOption;
-import org.jenkinsci.plugins.pipeline.modeldefinition.ast.ModelASTOptions;
-import org.jenkinsci.plugins.pipeline.modeldefinition.ast.ModelASTStage;
-import org.jenkinsci.plugins.pipeline.modeldefinition.ast.ModelASTStages;
-import org.jenkinsci.plugins.workflow.actions.ErrorAction;
-import org.jenkinsci.plugins.workflow.flow.GraphListener;
-import org.jenkinsci.plugins.workflow.graph.FlowNode;
-import org.jenkinsci.plugins.workflow.actions.LabelAction;
-import org.jenkinsci.plugins.workflow.actions.StageAction;
-import org.jenkinsci.plugins.workflow.actions.TagsAction;
-import org.jenkinsci.plugins.workflow.actions.ThreadNameAction;
-import org.jenkinsci.plugins.workflow.actions.TimingAction;
-import org.jenkinsci.plugins.workflow.cps.nodes.StepAtomNode;
-import org.jenkinsci.plugins.workflow.cps.nodes.StepEndNode;
-import org.jenkinsci.plugins.workflow.cps.nodes.StepStartNode;
-import org.jenkinsci.plugins.workflow.flow.FlowExecution;
-import org.jenkinsci.plugins.workflow.job.WorkflowRun;
+
 
 /**
  * GraphListener implementation which provides status (pending, error or
  * success) and timing information for each stage in a build.
  *
- * @author Jeff Pearce (jxpearce@godaddy.com)
+ * @author Jeff Pearce (GitHub jeffpeare)
  */
 @Extension
 public class GithubBuildStatusGraphListener implements GraphListener {
@@ -145,7 +133,7 @@ public class GithubBuildStatusGraphListener implements GraphListener {
                 }
 
                 if (nodeName != null) {
-                    BuildState buildState = buildStateForStage(startNode, errorAction);
+                    BuildStage.State buildState = buildStateForStage(startNode, errorAction);
                     buildStatusAction.updateBuildStatusForStage(nodeName, buildState, time);
                 }
             }
@@ -161,22 +149,21 @@ public class GithubBuildStatusGraphListener implements GraphListener {
      * @param errorAction The error action from the stage end node
      * @return Stage state
      */
-    static BuildState buildStateForStage(FlowNode flowNode, ErrorAction errorAction) {
-        BuildState buildState = errorAction == null ? BuildState.CompletedSuccess : BuildState.CompletedError;
+    static BuildStage.State buildStateForStage(FlowNode flowNode, ErrorAction errorAction) {
+        BuildStage.State buildState = errorAction == null ? BuildStage.State.CompletedSuccess : BuildStage.State.CompletedError;
         TagsAction tags = flowNode.getAction(TagsAction.class);
         if (tags != null) {
             String status = tags.getTagValue(StageStatus.TAG_NAME);
             if (status != null) {
                 if (status.equals(StageStatus.getSkippedForFailure())) {
-                    return BuildState.SkippedFailure;
+                    return BuildStage.State.SkippedFailure;
                 } else if (status.equals(StageStatus.getSkippedForUnstable())) {
-                    return BuildState.SkippedUnstable;
+                    return BuildStage.State.SkippedUnstable;
                 } else if (status.equals(StageStatus.getSkippedForConditional())) {
-                    return BuildState.SkippedConditional;
+                    return BuildStage.State.SkippedConditional;
                 } else if (status.equals(StageStatus.getFailedAndContinued())) {
-                    return BuildState.CompletedError;
+                    return BuildStage.State.CompletedError;
                 }
-
             }
         }
         return buildState;
@@ -227,24 +214,16 @@ public class GithubBuildStatusGraphListener implements GraphListener {
             if (null == run) {
                 log(Level.INFO, "Could not find Run - status will not be provided for this build");
                 return;
+            } else {
+                log(Level.INFO, "Processing build %s", run.getFullDisplayName());
             }
-            log(Level.INFO, "Processing build %s", run.getFullDisplayName());
 
             // Declarative pipeline jobs come with a nice execution model, which allows you
-            // to get all of the stages at once at the beginning of the kob. 
+            // to get all of the stages at once at the beginning of the job.
             // Older scripted pipeline jobs do not, so we have to add them one at a 
             // time as we discover them.
-            List<BuildStageModel> stageNames = getDeclarativeStages(run);
+            List<BuildStage> stageNames = getDeclarativeStages(run);
             boolean isDeclarativePipeline = stageNames != null;
-
-            if (isDeclarativePipeline && buildStatusAction != null) {
-                return;
-            }
-            if (stageNames == null) {
-                ArrayList<BuildStageModel> stageNameList = new ArrayList<>();
-                stageNameList.add(new BuildStageModel(flowNode.getDisplayName()));
-                stageNames = stageNameList;
-            }
 
             String targetUrl;
             try {
@@ -253,44 +232,25 @@ public class GithubBuildStatusGraphListener implements GraphListener {
                 targetUrl = "";
             }
 
+            if (isDeclarativePipeline && buildStatusAction != null) {
+                buildStatusAction.connectNotifiers(run, targetUrl);
+                return;
+            }
+            if (stageNames == null) {
+                ArrayList<BuildStage> stageNameList = new ArrayList<>();
+                stageNameList.add(new BuildStage(flowNode.getDisplayName()));
+                stageNames = stageNameList;
+            }
+
             if (buildStatusAction == null) {
                 buildStatusAction = new BuildStatusAction(run, targetUrl, stageNames);
                 buildStatusAction.setIsDeclarativePipeline(isDeclarativePipeline);
-
-                String repoOwner = "";
-                String repoName = "";
-                String branchName = "";
-                GithubNotificationConfig githubConfig = GithubNotificationConfig.fromRun(run, exec.getOwner().getListener());
-                if (githubConfig != null) {
-                    buildStatusAction.addGithubNotifier(githubConfig);
-                    repoOwner = githubConfig.getRepoOwner();
-                    repoName = githubConfig.getRepoName();
-                    branchName = githubConfig.getBranchName();
-                } else {
-                    if (run instanceof WorkflowRun) {
-                        repoName = run.getParent().getDisplayName();
-                        repoOwner = run.getParent().getParent().getFullName();
-                    }
-                }
-                buildStatusAction.setRepoOwner(repoOwner);
-                buildStatusAction.setRepoName(repoName);
-                buildStatusAction.setBranchName(branchName);
-                buildStatusAction.addInfluxDbNotifier(
-                        InfluxDbNotifierConfig.fromGlobalConfig(repoOwner, repoName, branchName));
-                StatsdNotifierConfig statsd = StatsdNotifierConfig.fromGlobalConfig(run.getExternalizableId());
-                if (statsd != null) {
-                    buildStatusAction.addStatsdNotifier(statsd);
-                }
-                ExtensionList<BuildNotifier> list = BuildNotifier.all();
-                for (BuildNotifier notifier : list) {
-                    buildStatusAction.addGenericNofifier(notifier);
-                }
 
                 run.addAction(buildStatusAction);
             } else {
                 buildStatusAction.addBuildStatus(flowNode.getDisplayName());
             }
-        } catch (IOException ex) {
+        } catch (Exception ex) {
             try {
                 exec.getOwner().getListener().getLogger().println(ex.toString());
             } catch (IOException ex1) {
@@ -321,7 +281,7 @@ public class GithubBuildStatusGraphListener implements GraphListener {
      * @param run a particular run of a job
      * @return a list of stage names
      */
-    protected static List<BuildStageModel> getDeclarativeStages(Run<?, ?> run) {
+    protected static List<BuildStage> getDeclarativeStages(Run<?, ?> run) {
         ExecutionModelAction executionModelAction = run.getAction(ExecutionModelAction.class);
         if (null == executionModelAction) {
             return null;
@@ -343,8 +303,8 @@ public class GithubBuildStatusGraphListener implements GraphListener {
      * @param modelList list to convert
      * @return list of stage names
      */
-    private static List<BuildStageModel> convertList(List<ModelASTStage> modelList) {
-        ArrayList<BuildStageModel> result = new ArrayList<>();
+    private static List<BuildStage> convertList(List<ModelASTStage> modelList) {
+        ArrayList<BuildStage> result = new ArrayList<>();
         for (ModelASTStage stage : modelList) {
             HashMap<String, Object> environmentVariables = new HashMap<String, Object>();
             ModelASTEnvironment modelEnvironment = stage.getEnvironment();
@@ -376,7 +336,7 @@ public class GithubBuildStatusGraphListener implements GraphListener {
             }
 
             for (String stageName : getAllStageNames(stage)) {
-                result.add(new BuildStageModel(stageName, environmentVariables));                
+                result.add(new BuildStage(stageName, environmentVariables));
             }
         }
         return result;
@@ -399,8 +359,10 @@ public class GithubBuildStatusGraphListener implements GraphListener {
         } else {
             stageList = stage.getParallelContent();
         }
-        for (ModelASTStage innerStage : stageList) {
-            stageNames.addAll(getAllStageNames(innerStage));
+        if (stageList != null) {
+            for (ModelASTStage innerStage : stageList) {
+                stageNames.addAll(getAllStageNames(innerStage));
+            }
         }
         return stageNames;
     }

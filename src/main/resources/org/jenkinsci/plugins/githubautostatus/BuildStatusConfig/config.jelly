@@ -15,6 +15,9 @@
             <f:entry title="InfluxDB Retention policy" field="influxDbRetentionPolicy" name="influxDbRetentionPolicy">
                 <f:textbox />
             </f:entry>
+            <f:entry name="dbVersion" title="Database Version" field="dbVersion">
+                <f:select />
+            </f:entry>
         </f:optionalBlock>
         <f:optionalBlock inline="true" name="enableStatsd" title="Send to statsd" checked="${instance.enableStatsd}">
             <f:entry title="StatsD Hostname" field="statsdHost" name="statsdHost">
@@ -26,8 +29,19 @@
             <f:entry title="StatsD Bucket" field="statsdBucket" name="statsdBucket">
                 <f:textbox />
             </f:entry>
-            <f:entry title="StatsD Maximum packet size" field="statsdMaxSize" name="statsdMaxSize">
+            <f:entry title="Maximum packet size" field="statsdMaxSize" name="statsdMaxSize">
                 <f:textbox default="1400" />
+            </f:entry>
+        </f:optionalBlock>
+        <f:optionalBlock inline="true" name="enableHttp" title="Send to an HTTP endpoint" checked="${instance.enableHttp}">
+            <f:entry title="HTTP endpoint" field="httpEndpoint" name="httpEndpoint">
+                <f:textbox />
+            </f:entry>
+            <f:entry title="Basic authentication" field="httpCredentialsId" name="httpCredentialsId">
+                <c:select/>
+            </f:entry>
+            <f:entry title="Verify SSL" field="httpVerifySSL" name="httpVerifySSL">
+                <f:checkbox checked="${instance.httpVerifySSL}" />
             </f:entry>
         </f:optionalBlock>
     </f:section>

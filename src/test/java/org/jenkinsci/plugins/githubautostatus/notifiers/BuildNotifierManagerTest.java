@@ -23,20 +23,21 @@
  */
 package org.jenkinsci.plugins.githubautostatus.notifiers;
 
+import org.jenkinsci.plugins.githubautostatus.StatsdNotifierConfig;
+import org.jenkinsci.plugins.githubautostatus.config.GithubNotificationConfig;
+import org.jenkinsci.plugins.githubautostatus.config.HttpNotifierConfig;
+import org.jenkinsci.plugins.githubautostatus.config.InfluxDbNotifierConfig;
+import org.jenkinsci.plugins.githubautostatus.model.BuildStage;
+import org.jenkinsci.plugins.githubautostatus.model.BuildState;
+import org.junit.*;
+import org.kohsuke.github.GHRepository;
+import org.mockito.Mock;
+import org.mockito.MockitoAnnotations;
+
 import java.util.Collections;
 import java.util.HashMap;
-import org.jenkinsci.plugins.githubautostatus.BuildStageModel;
-import org.jenkinsci.plugins.githubautostatus.GithubNotificationConfig;
-import org.jenkinsci.plugins.githubautostatus.InfluxDbNotifierConfig;
-import org.jenkinsci.plugins.githubautostatus.StatsdNotifierConfig;
-import org.junit.After;
-import org.junit.AfterClass;
-import org.junit.Before;
-import org.junit.BeforeClass;
-import org.junit.Test;
+
 import static org.junit.Assert.*;
-import org.kohsuke.github.GHRepository;
-import org.mockito.*;
 import static org.mockito.Mockito.*;
 
 /**
@@ -51,6 +52,8 @@ public class BuildNotifierManagerTest {
     private InfluxDbNotifierConfig influxDbNotificationConfig;
     @Mock
     private StatsdNotifierConfig statsdNotificationConfig;
+    @Mock
+    private HttpNotifierConfig httpNotifierConfig;
     @Mock
     private GHRepository repo;
     private BuildNotifierManager instance;
@@ -72,7 +75,7 @@ public class BuildNotifierManagerTest {
     @Before
     public void setUp() {
         MockitoAnnotations.initMocks(this);
-        instance = new BuildNotifierManager(mockJobName, mockTargetUrl);
+        instance = BuildNotifierManager.newInstance(mockJobName, mockTargetUrl);
     }
 
     @After
@@ -101,9 +104,30 @@ public class BuildNotifierManagerTest {
      * Verifies InfluxDB notifier is not added when disabled.
      */
     @Test
-    public void testAddInfluxDbNofifierDisabled() {
+    public void testAddInfluxDbNotifierDisabled() {
         when(influxDbNotificationConfig.getInfluxDbUrlString()).thenReturn("");
         BuildNotifier result = instance.addInfluxDbNotifier(influxDbNotificationConfig);
+        assertNull(result);
+    }
+
+    /**
+     * Verifies HTTP notifier is not added when enabled.
+     */
+    @Test
+    public void testAddHttpNotifier() {
+        when(httpNotifierConfig.getHttpEndpoint()).thenReturn("http://example.com");
+        BuildNotifier result = instance.addHttpNotifier(httpNotifierConfig);
+        assertNotNull(result);
+        assertTrue(instance.notifiers.contains(result));
+    }
+
+    /**
+     * Verifies HTTP notifier is not added when disabled.
+     */
+    @Test
+    public void testAddHttpNotifierDisabled() {
+        when(httpNotifierConfig.getHttpEndpoint()).thenReturn("");
+        BuildNotifier result = instance.addHttpNotifier(httpNotifierConfig);
         assertNull(result);
     }
 
@@ -115,8 +139,8 @@ public class BuildNotifierManagerTest {
         GithubBuildNotifier notifier = mock(GithubBuildNotifier.class);
         instance.notifiers.add(notifier);
         
-        BuildStageModel stageItem = new BuildStageModel(stageName);
-        stageItem.setBuildState(BuildState.CompletedSuccess);
+        BuildStage stageItem = new BuildStage(stageName);
+        stageItem.setBuildState(BuildStage.State.CompletedSuccess);
         
         instance.notifyBuildStageStatus(stageItem);
 
@@ -144,22 +168,22 @@ public class BuildNotifierManagerTest {
         GithubBuildNotifier notifier = mock(GithubBuildNotifier.class);
         instance.notifiers.add(notifier);
 
-        BuildStageModel stageItem = new BuildStageModel(stageName,
+        BuildStage stageItem = new BuildStage(stageName,
                 new HashMap<>(),
-                BuildState.CompletedError);
+                BuildStage.State.CompletedError);
         stageItem.setIsStage(false);
 
 
         instance.sendNonStageError(stageItem);
 
-        verify(notifier).notifyBuildStageStatus(eq(mockJobName), any(BuildStageModel.class));
+        verify(notifier).notifyBuildStageStatus(eq(mockJobName), any(BuildStage.class));
     }
 
     /**
      * Verifies addBuildNotifier adds enabled notifiers
      */
     @Test
-    public void testaddBuildNotifierEnabled() {
+    public void testAddBuildNotifierEnabled() {
         GithubBuildNotifier notifier = mock(GithubBuildNotifier.class);
         when(notifier.isEnabled()).thenReturn(true);
         instance.addBuildNotifier(notifier);
@@ -171,7 +195,7 @@ public class BuildNotifierManagerTest {
      * Verifies addBuildNotifier does not add disabled notifiers
      */
     @Test
-    public void testaddBuildNotifierDisabled() {
+    public void testAddBuildNotifierDisabled() {
         GithubBuildNotifier notifier = mock(GithubBuildNotifier.class);
         when(notifier.isEnabled()).thenReturn(false);
         instance.addBuildNotifier(notifier);

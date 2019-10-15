@@ -68,6 +68,7 @@ public class CodeCoverageTest {
     assertEquals(40, coverage.getLines(), 0);
     assertEquals(50, coverage.getMethods(), 0);
     assertEquals(60, coverage.getPackages(), 0);
+    assertEquals(-1f, coverage.getInstructions(), 0);
 
   }
 
@@ -91,23 +92,27 @@ public class CodeCoverageTest {
     // 75% class
     Coverage clazz = new Coverage(5, 15);
     clazz.setType(CoverageElement.Type.CLASS);
+    // 70.5% instruction
+    Coverage instruction = new Coverage(50, 120);
+    instruction.setType(CoverageElement.Type.INSTRUCTION);
 
     Map<Coverage, Boolean> jacocoRatios = new HashMap<>();
     jacocoRatios.put(branch, true);
     jacocoRatios.put(line, true);
     jacocoRatios.put(method, true);
     jacocoRatios.put(clazz, true);
+    jacocoRatios.put(instruction, true);
 
     JacocoBuildAction action = PowerMockito.mock(JacocoBuildAction.class);
     when(action.getCoverageRatios()).thenReturn(jacocoRatios);
 
     CodeCoverage coverage = CodeCoverage.fromJacoco(action);
-    assertEquals(0.0, coverage.getFiles(), 0.001);
-    assertEquals(0.0, coverage.getPackages(), 0.001);
+    assertEquals(-1f, coverage.getFiles(), 0.001);
+    assertEquals(-1f, coverage.getPackages(), 0.001);
     assertEquals(100.0, coverage.getConditionals(), 0.001);
     assertEquals(66.667, coverage.getLines(), 0.001);
     assertEquals(50.000, coverage.getMethods(), 0.001);
     assertEquals(75.000, coverage.getClasses(), 0.001);
-
+    assertEquals(70.588, coverage.getInstructions(), 0.001);
   }
 }

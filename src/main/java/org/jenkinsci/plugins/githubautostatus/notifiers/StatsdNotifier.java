@@ -27,10 +27,11 @@ import java.io.UnsupportedEncodingException;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import java.util.Map;
-import org.jenkinsci.plugins.githubautostatus.BuildStageModel;
 import org.jenkinsci.plugins.githubautostatus.StatsdWrapper;
 import org.jenkinsci.plugins.githubautostatus.StatsdClient;
 import org.jenkinsci.plugins.githubautostatus.StatsdNotifierConfig;
+import org.jenkinsci.plugins.githubautostatus.model.BuildStage;
+import org.jenkinsci.plugins.githubautostatus.model.BuildState;
 
 
 /**
@@ -80,15 +81,15 @@ public class StatsdNotifier extends BuildNotifier {
      * @param stageItem stage item describing the new state
      */
 
-    public void notifyBuildStageStatus(String jobName, BuildStageModel stageItem) {
+    public void notifyBuildStageStatus(String jobName, BuildStage stageItem) {
 
-        BuildState buildState = stageItem.getBuildState();
+        BuildStage.State buildState = stageItem.getBuildState();
 
-        if (buildState == BuildState.Pending) {
+        if (buildState == BuildStage.State.Pending) {
             return;
         }
 
-        Object timingInfo = stageItem.getEnvironment().get(BuildNotifierConstants.STAGE_DURATION);
+        Object timingInfo = stageItem.getDuration();
         String nodeName = stageItem.getStageName();
         long nodeDuration;
         try {
