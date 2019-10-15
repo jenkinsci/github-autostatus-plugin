@@ -75,7 +75,7 @@ public class BuildNotifierManagerTest {
     @Before
     public void setUp() {
         MockitoAnnotations.initMocks(this);
-        instance = new BuildNotifierManager(mockJobName, mockTargetUrl);
+        instance = BuildNotifierManager.newInstance(mockJobName, mockTargetUrl);
     }
 
     @After

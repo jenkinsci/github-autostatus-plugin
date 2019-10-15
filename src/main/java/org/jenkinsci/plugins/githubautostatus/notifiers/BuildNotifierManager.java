@@ -37,7 +37,7 @@ import java.util.Map;
 /**
  * Manages send build notifications to one or more notifiers
  *
- * @author Jeff Pearce (jxpearce@godaddy.com)
+ * @author Jeff Pearce (GitHub jeffpearce)
  */
 public class BuildNotifierManager {
 
@@ -46,13 +46,17 @@ public class BuildNotifierManager {
 
     List<BuildNotifier> notifiers = new ArrayList<>();
 
+    public static BuildNotifierManager newInstance(String jobName, String targetUrl) {
+        return new BuildNotifierManager(jobName, targetUrl);
+    }
+
     /**
      * Constructs a BuildNotifierManager
      *
      * @param jobName the job notifications are for
      * @param targetUrl link back to Jenkins
      */
-    public BuildNotifierManager(String jobName, String targetUrl) {
+    private BuildNotifierManager(String jobName, String targetUrl) {
         this.jobName = jobName;
         this.targetUrl = targetUrl;
     }

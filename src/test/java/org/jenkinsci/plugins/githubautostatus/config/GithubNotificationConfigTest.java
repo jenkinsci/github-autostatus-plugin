@@ -62,7 +62,7 @@ import static org.mockito.Mockito.when;
 
 /**
  *
- * @author jxpearce
+ * @author Jeff Pearce (GitHub jeffpearce)
  */
 @RunWith(PowerMockRunner.class)
 @PrepareForTest({CredentialsMatchers.class, SCMRevision.class, PullRequestSCMRevision.class, BuildStatusConfig.class})
@@ -127,7 +127,7 @@ public class GithubNotificationConfigTest {
         PowerMockito.when(builder.build()).thenReturn(github);
         PowerMockito.when(builder.withEndpoint(any())).thenReturn(builder);
 
-        GithubNotificationConfig instance = GithubNotificationConfig.fromRun((Run<WorkflowJob, ?>) build, null, builder);
+        GithubNotificationConfig instance = GithubNotificationConfig.fromRun((Run<WorkflowJob, ?>) build,  builder);
         assertEquals("what-the-hash", instance.getShaString());
         assertEquals("test-branch", instance.getBranchName());
     }
@@ -142,7 +142,7 @@ public class GithubNotificationConfigTest {
 //    public void testConfigPullRequest() throws Exception {
 //        AbstractBuild build = Mockito.mock(AbstractBuild.class);
 //        SCMRevisionAction mockSCMRevisionAction = mock(SCMRevisionAction.class);
-//        when(build.getAction(SCMRevisionAction.class)).thenReturn(mockSCMRevisionAction);   
+//        when(build.getAction(SCMRevisionAction.class)).thenReturn(mockSCMRevisionAction);
 //
 //        GitHubSCMSource source = mock(GitHubSCMSource.class);
 //        when(source.getCredentialsId()).thenReturn("git-user");
@@ -150,7 +150,7 @@ public class GithubNotificationConfigTest {
 //        when(source.getRepository()).thenReturn("repo");
 //        PullRequestSCMHead head = mock(PullRequestSCMHead.class);
 //        PullRequestSCMRevision revision = mock(PullRequestSCMRevision.class);
-//        
+//
 //        when(revision.getPullHash()).thenReturn("what-the-hash");
 //        when(revision.getHead()).thenReturn(head);
 //
@@ -167,8 +167,8 @@ public class GithubNotificationConfigTest {
 //        PowerMockito.when(builder.withOAuthToken(anyString(), anyString())).thenReturn(builder);
 //        PowerMockito.when(builder.build()).thenReturn(github);
 //        PowerMockito.when(builder.withEndpoint(any())).thenReturn(builder);
-//        
-//        
+//
+//
 //        GithubNotificationConfig instance = GithubNotificationConfig.fromRun(build, null, builder);
 //    }
 }

@@ -25,20 +25,12 @@ package org.jenkinsci.plugins.githubautostatus.config;
 
 import com.cloudbees.plugins.credentials.Credentials;
 import com.cloudbees.plugins.credentials.CredentialsMatchers;
-import static com.cloudbees.plugins.credentials.CredentialsProvider.lookupCredentials;
 import com.cloudbees.plugins.credentials.common.UsernamePasswordCredentials;
 import com.cloudbees.plugins.credentials.domains.DomainRequirement;
 import hudson.model.Item;
 import hudson.model.ItemGroup;
 import hudson.model.Run;
-import hudson.model.TaskListener;
 import hudson.security.ACL;
-import java.io.IOException;
-import java.util.Collections;
-import java.util.logging.Level;
-import java.util.logging.Logger;
-import javax.annotation.Nonnull;
-import javax.annotation.Nullable;
 import jenkins.plugins.git.AbstractGitSCMSource;
 import jenkins.scm.api.SCMRevision;
 import jenkins.scm.api.SCMRevisionAction;
@@ -52,6 +44,15 @@ import org.jenkinsci.plugins.workflow.multibranch.WorkflowMultiBranchProject;
 import org.kohsuke.github.GHRepository;
 import org.kohsuke.github.GitHub;
 import org.kohsuke.github.GitHubBuilder;
+
+import javax.annotation.Nonnull;
+import javax.annotation.Nullable;
+import java.io.IOException;
+import java.util.Collections;
+import java.util.logging.Level;
+import java.util.logging.Logger;
+
+import static com.cloudbees.plugins.credentials.CredentialsProvider.lookupCredentials;
 
 /**
  * Encapsulates the logic of determining GitHub configuration for a build.
@@ -112,23 +113,21 @@ public class GithubNotificationConfig {
     /**
      * Constructs a config object from a Run object.
      * @param run The build.
-     * @param listener Task listener (for logging to the build).
      * @return The GitHub config object
      */
     public static @Nullable
-    GithubNotificationConfig fromRun(Run<?, ?> run, TaskListener listener) {
-        return GithubNotificationConfig.fromRun(run, listener, new GitHubBuilder());
+    GithubNotificationConfig fromRun(Run<?, ?> run) {
+        return GithubNotificationConfig.fromRun(run, new GitHubBuilder());
     }
 
     /**
      * Constructs a config object from a Run object and GitHub builder.
      * @param run The build.
-     * @param listener Task listener (for logging to the build).
      * @param githubBuilder GitHub builder.
      * @return The constructed config object.
      */
     public static @Nullable
-    GithubNotificationConfig fromRun(Run<?, ?> run, TaskListener listener, GitHubBuilder githubBuilder) {
+    GithubNotificationConfig fromRun(Run<?, ?> run, GitHubBuilder githubBuilder) {
         BuildStatusConfig buildStatusConfig = BuildStatusConfig.get();
         if (buildStatusConfig.getEnableGithub()) {
             try {

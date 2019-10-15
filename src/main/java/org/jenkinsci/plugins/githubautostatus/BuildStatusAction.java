@@ -23,6 +23,7 @@
  */
 package org.jenkinsci.plugins.githubautostatus;
 
+import hudson.ExtensionList;
 import hudson.model.InvisibleAction;
 import hudson.model.JobProperty;
 import hudson.model.Run;
@@ -46,10 +47,10 @@ import java.util.Map;
  * mechanisms for notifying various subscribers as stages and jobs are
  * completed.
  *
- * @author Jeff Pearce (jxpearce@godaddy.com)
+ * @author Jeff Pearce (GitHub jeffpearce)
  */
 public class BuildStatusAction extends InvisibleAction {
-    
+
     private final String jobName;
     private boolean isDeclarativePipeline;
     private String repoOwner;
@@ -57,35 +58,35 @@ public class BuildStatusAction extends InvisibleAction {
     private String branchName;
     private Run<?, ?> run;
     private HashMap<String, Object> jobParameters;
-    
+
     private final HashMap<String, BuildStage> buildStatuses;
-    
-    private final transient BuildNotifierManager buildNotifierManager;
-    
+
+    protected transient BuildNotifierManager buildNotifierManager;
+
     public String getJobName() {
         return jobName;
     }
-    
+
     public String getRepoOwner() {
         return repoOwner;
     }
-    
+
     public void setRepoOwner(String repoOwner) {
         this.repoOwner = repoOwner;
     }
-    
+
     public String getRepoName() {
         return repoName;
     }
-    
+
     public void setRepoName(String repoName) {
         this.repoName = repoName;
     }
-    
+
     public String getBranchName() {
         return branchName;
     }
-    
+
     public void setBranchName(String branchName) {
         this.branchName = branchName;
     }
@@ -93,7 +94,7 @@ public class BuildStatusAction extends InvisibleAction {
     /**
      * Construct a BuildStatusAction
      *
-     * @param run the build
+     * @param run       the build
      * @param targetUrl link back to Jenkins
      * @param stageList list of stages if known
      */
@@ -103,21 +104,70 @@ public class BuildStatusAction extends InvisibleAction {
         this.buildStatuses = new HashMap<>();
         this.jobParameters = new HashMap<>();
         addGlobalProperties();
-        buildNotifierManager = new BuildNotifierManager(jobName, targetUrl);
         stageList.forEach((stageItem) -> {
             stageItem.setRun(run);
             stageItem.addAllToEnvironment(jobParameters);
             buildStatuses.put(stageItem.getStageName(), stageItem);
         });
+        connectNotifiers(run, targetUrl);
     }
-    
+
+    /**
+     * Determines whether the notifiers need to be reconnected. This is necessary because the GitHub notifier
+     * can't be serialized because of the JEP-200 security improvements. In the event the build is interrupted and
+     *  the buildAction is loaded from disk, the notifiers need to be added again.
+     * @return
+     */
+
+    /**
+     * Determines whether the notifiers need to be reconnected. This is necessary because the GitHub notifier
+     * can't be serialized because of the JEP-200 security improvements. In the event the build is interrupted and
+     * the buildAction is loaded from disk, the notifiers need to be added again.
+     *
+     * @param run       the current build
+     * @param targetUrl link back to Jenkins
+     */
+    public void connectNotifiers(Run<?, ?> run, String targetUrl) {
+        if (buildNotifierManager != null) {
+            return;
+        }
+        buildNotifierManager = BuildNotifierManager.newInstance(jobName, targetUrl);
+
+        GithubNotificationConfig githubConfig = GithubNotificationConfig.fromRun(run);
+        if (githubConfig != null) {
+            addGithubNotifier(githubConfig);
+            repoOwner = githubConfig.getRepoOwner();
+            repoName = githubConfig.getRepoName();
+            branchName = githubConfig.getBranchName();
+        } else {
+            if (run instanceof WorkflowRun) {
+                repoName = run.getParent().getDisplayName();
+                repoOwner = run.getParent().getParent().getFullName();
+            }
+        }
+
+        addInfluxDbNotifier(
+                InfluxDbNotifierConfig.fromGlobalConfig(repoOwner, repoName, branchName));
+        StatsdNotifierConfig statsd = StatsdNotifierConfig.fromGlobalConfig(run.getExternalizableId());
+        if (statsd != null) {
+            addStatsdNotifier(statsd);
+        }
+        addHttpNotifier(
+                HttpNotifierConfig.fromGlobalConfig(repoOwner, repoName, branchName));
+
+        ExtensionList<BuildNotifier> list = BuildNotifier.all();
+        for (BuildNotifier notifier : list) {
+            addGenericNotifier(notifier);
+        }
+    }
+
     private void addGlobalProperties() {
         if (run instanceof WorkflowRun) {
-            WorkflowRun workflowRun = (WorkflowRun)run;
-            List<JobProperty<? super WorkflowJob>> properties = 
+            WorkflowRun workflowRun = (WorkflowRun) run;
+            List<JobProperty<? super WorkflowJob>> properties =
                     workflowRun.getParent().getAllProperties();
             for (JobProperty property : properties) {
-                jobParameters.put(property.getClass().getSimpleName(), property);                
+                jobParameters.put(property.getClass().getSimpleName(), property);
             }
         }
     }
@@ -142,7 +192,7 @@ public class BuildStatusAction extends InvisibleAction {
     public boolean isIsDeclarativePipeline() {
         return isDeclarativePipeline;
     }
-    
+
     public void setIsDeclarativePipeline(boolean isDeclarativePipeline) {
         this.isDeclarativePipeline = isDeclarativePipeline;
     }
@@ -176,11 +226,11 @@ public class BuildStatusAction extends InvisibleAction {
         BuildNotifier build = buildNotifierManager.addStatsdBuildNotifier(statsdNotifierConfig);
         sendNotifications(build);
     }
-    
+
     public void addHttpNotifier(HttpNotifierConfig httpNotifierConfig) {
         sendNotifications(buildNotifierManager.addHttpNotifier(httpNotifierConfig));
     }
-    
+
     public void addGenericNotifier(BuildNotifier notifier) {
         sendNotifications(buildNotifierManager.addGenericNotifier(notifier));
     }
@@ -214,9 +264,9 @@ public class BuildStatusAction extends InvisibleAction {
     /**
      * Sends notifications for a completed stage
      *
-     * @param nodeName node name
+     * @param nodeName   node name
      * @param buildState build state
-     * @param time stage time
+     * @param time       stage time
      */
     public void updateBuildStatusForStage(String nodeName, BuildStage.State buildState, long time) {
         BuildStage stageItem = buildStatuses.get(nodeName);
@@ -233,7 +283,7 @@ public class BuildStatusAction extends InvisibleAction {
     /**
      * Sends notifications for a completed stage
      *
-     * @param nodeName node name
+     * @param nodeName   node name
      * @param buildState build state
      */
     public void updateBuildStatusForStage(String nodeName, BuildStage.State buildState) {
