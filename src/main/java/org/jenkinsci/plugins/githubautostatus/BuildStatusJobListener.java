@@ -47,7 +47,7 @@ import java.util.logging.Logger;
  * Implements {@link hudson.model.listeners.RunListener} extension point to
  * provide job status information to subscribers as jobs complete.
  *
- * @author Jeff Pearce (jxpearce@godaddy.com)
+ * @author Jeff Pearce (GitHub jeffpearce)
  */
 @Extension
 public class BuildStatusJobListener extends RunListener<Run<?, ?>> {
@@ -61,14 +61,11 @@ public class BuildStatusJobListener extends RunListener<Run<?, ?>> {
     @Override
     public void onCompleted(Run<?, ?> build, @Nonnull TaskListener listener) {
 
-        log(Level.INFO,"BuildStatusJobListener.onCompleted %s", build.getClass().getName());
-
         if (build instanceof FreeStyleBuild) {
             enableFreeStyleBuild((FreeStyleBuild)build);
 
         }
         BuildStatusAction statusAction = build.getAction(BuildStatusAction.class);
-        log(Level.INFO, "Build Completed");
         if (statusAction != null) {
             Map<String, Object> parameters = getParameters(build);
             parameters.put(BuildNotifierConstants.BUILD_OBJECT, build);
