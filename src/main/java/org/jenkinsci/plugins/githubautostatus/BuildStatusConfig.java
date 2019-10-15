@@ -87,6 +87,7 @@ public class BuildStatusConfig extends GlobalConfiguration {
     private String httpCredentialsId;
     private boolean httpVerifySSL;
     private Integer dbVersion;
+    private Integer configVersion = 2;
 
 
     /**
@@ -569,8 +570,12 @@ public class BuildStatusConfig extends GlobalConfiguration {
             influxDbPassword = null;
             save();
         }
-        if (dbVersion == null) {
-            dbVersion = 2;
+        if (configVersion == null && dbVersion == null) {
+            if (influxDbUrl == null && influxDbDatabase == null) {
+                dbVersion = 2;
+            } else {
+                dbVersion = 1;
+            }
             save();
         }
         return this;
