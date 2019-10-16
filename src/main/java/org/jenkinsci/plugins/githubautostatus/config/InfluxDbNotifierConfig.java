@@ -52,6 +52,7 @@ public class InfluxDbNotifierConfig extends AbstractNotifierConfig {
     private String influxDbDatabase;
     private String influxDbCredentialsId;
     private String influxDbRetentionPolicy;
+    private boolean ignoreSendingTestsResultsToInflux;
     private Integer schemaVersion;
 
     /**
@@ -165,6 +166,15 @@ public class InfluxDbNotifierConfig extends AbstractNotifierConfig {
     }
 
     /**
+     * Gets whether to ignore sending test results to InfluxDB.
+     *
+     * @return Wwhether to ignore sending test results to InfluxDB
+     */
+    public boolean getIgnoreSendingTestsResultsToInflux() {
+        return ignoreSendingTestsResultsToInflux;
+    }
+
+    /**
      * Creates an InfluxDB notification config based on the global settings.
      *
      * @param repoOwner  repo owner.
@@ -186,6 +196,7 @@ public class InfluxDbNotifierConfig extends AbstractNotifierConfig {
             influxDbNotifierConfig.influxDbDatabase = config.getInfluxDbDatabase();
             influxDbNotifierConfig.influxDbCredentialsId = config.getCredentialsId();
             influxDbNotifierConfig.influxDbRetentionPolicy = config.getInfluxDbRetentionPolicy();
+            influxDbNotifierConfig.ignoreSendingTestsResultsToInflux = config.getIgnoreSendingTestsResultsToInflux();
             influxDbNotifierConfig.schemaVersion = config.getDbVersion();
         }
 

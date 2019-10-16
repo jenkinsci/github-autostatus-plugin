@@ -260,6 +260,15 @@ public class BuildStatusConfigTest {
     }
 
     @Test
+    public void testIgnoreSendingTestsResultsToInfluxDb() {
+        BuildStatusConfig instance = new BuildStatusConfig();
+        boolean expectedIgnoreSendingTestsResultsToInflux = false;
+        instance.setIgnoreSendingTestsResultsToInflux(expectedIgnoreSendingTestsResultsToInflux);
+        boolean result = instance.getIgnoreSendingTestsResultsToInflux();
+        assertEquals(expectedIgnoreSendingTestsResultsToInflux, result);
+    }
+
+    @Test
     public void testGetEnableStatsd() throws IOException {
         BuildStatusConfig instance = new BuildStatusConfig();
         instance.setEnableStatsd(false);
