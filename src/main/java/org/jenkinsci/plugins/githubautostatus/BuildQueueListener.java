@@ -43,7 +43,7 @@ public class BuildQueueListener extends QueueListener {
 
     /**
      * {@inheritDoc}
-     * Adds @{link BuildBlockedAction} action to blocked pipeline builds to keep
+     * Adds {@link BuildBlockedAction} action to blocked pipeline builds to keep
      * track of the time spent blocked.
      */
     @Override

@@ -35,21 +35,21 @@ import java.util.logging.Logger;
 
 /**
  * Wraps regular UDP based StatsD client with concurrent hostname refreshing logic.
- * 
+ *
  * @author Tom Hadlaw (thomas.hadlaw@hootsuite.com)
  */
 public interface StatsdWrapper {
     /**
      * Runs a StatsD increment in a safe way.
-     * 
-     * @param key    the bucket key
+     *
+     * @param key the bucket key
      * @param amount amount to increment
      */
     void increment(String key, int amount);
 
     /**
      * Runs a StatsD timer state in a safe way.
-     * 
+     *
      * @param key the bucket key
      * @param duration the duration
      */

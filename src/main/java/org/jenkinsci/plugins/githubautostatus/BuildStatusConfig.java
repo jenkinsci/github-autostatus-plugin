@@ -92,7 +92,7 @@ public class BuildStatusConfig extends GlobalConfiguration {
 
 
     /**
-     * Adds compatibility aliases to prevent "old data" warnings
+     * Adds compatibility aliases to prevent "old data" warnings.
      */
     @Initializer(before = InitMilestone.PLUGINS_STARTED)
     public static void addCompatilityAliases() {
@@ -117,7 +117,7 @@ public class BuildStatusConfig extends GlobalConfiguration {
     }
 
     /**
-     * Gets human readable name
+     * Gets human readable name.
      *
      * @return human readable name
      */
@@ -141,10 +141,10 @@ public class BuildStatusConfig extends GlobalConfiguration {
     }
 
     /**
-     * Gets whether sending status to GitHub is enabled. For compatibility reasons
-     * the flag is stored as the inverse (disableGithub) so that GitHub is
-     * enabled by default for users who upgrade from a version prior to the
-     * flag.
+     * Gets whether sending status to GitHub is enabled.
+     *
+     * For compatibility reasons the flag is stored as the inverse (disableGithub) so that
+     * GitHub is enabled by default for users who upgrade from a version prior to the flag.
      *
      * @return true if writing to GitHub is enabled
      */
@@ -164,7 +164,7 @@ public class BuildStatusConfig extends GlobalConfiguration {
     }
 
     /**
-     * Get a flag indicating whether to enable HTTP publisher
+     * Gets whether sending status to HTTP endpoint is enabled.
      *
      * @return true if writing to HTTP is enabled
      */
@@ -173,7 +173,7 @@ public class BuildStatusConfig extends GlobalConfiguration {
     }
 
     /**
-     * Set whether sending status to HTTP endpoint is enabled
+     * Sets whether sending status to HTTP endpoint is enabled.
      *
      * @param enableHttp true to enable sending status to HTTP endpoint
      */
@@ -184,7 +184,7 @@ public class BuildStatusConfig extends GlobalConfiguration {
     }
 
     /**
-     * Gets whether SSL verify is enabled
+     * Gets whether SSL verify is enabled.
      *
      * @return true if verify SSL is enabled
      */
@@ -193,7 +193,7 @@ public class BuildStatusConfig extends GlobalConfiguration {
     }
 
     /**
-     * Set whether to enable SSL verify
+     * Sets whether SSL verify is enabled.
      *
      * @param httpVerifySSL true to verify SSL
      */
@@ -204,7 +204,7 @@ public class BuildStatusConfig extends GlobalConfiguration {
     }
 
     /**
-     * Get the credentials Id
+     * Gets the credentials id.
      *
      * @return the credentials id
      */
@@ -224,18 +224,18 @@ public class BuildStatusConfig extends GlobalConfiguration {
     }
 
     /**
-     * Get HTTP credentials ID
+     * Gets the HTTP credentials id.
      *
-     * @return the HTTP credentials
+     * @return the credentials id
      */
     public String getHttpCredentialsId() {
         return httpCredentialsId;
     }
 
     /**
-     * Sets the HTTP credentials Id
+     * Sets the HTTP credentials id.
      *
-     * @param httpCredentialsId the credentials Id
+     * @param httpCredentialsId the credentials id
      */
     @DataBoundSetter
     public void setHttpCredentialsId(String httpCredentialsId) {
@@ -244,18 +244,18 @@ public class BuildStatusConfig extends GlobalConfiguration {
     }
 
     /**
-     * Get HTTP URL endpoint
+     * Gets the HTTP endpoint URL.
      *
-     * @return http endpoint URL
+     * @return the endpoint URL
      */
     public String getHttpEndpoint() {
         return httpEndpoint;
     }
 
     /**
-     * Set HTTP endpoint URL
+     * Sets the HTTP endpoint URL.
      *
-     * @param httpEndpoint the HTTP URL
+     * @param httpEndpoint the endpoint URL
      */
     @DataBoundSetter
     public void setHttpEndpoint(String httpEndpoint) {
@@ -264,7 +264,6 @@ public class BuildStatusConfig extends GlobalConfiguration {
     }
 
     /**
-     * Get flag determining whether writing to influxdb is enabled
      * Gets whether writing to InfluxDB is enabled.
      *
      * @return true if writing to InfluxDB is enabled
@@ -287,7 +286,7 @@ public class BuildStatusConfig extends GlobalConfiguration {
     /**
      * Gets the InfluxDB URL.
      *
-     * @return the value of influxDbUrl
+     * @return the URL
      */
     public String getInfluxDbUrl() {
         return influxDbUrl;
@@ -296,7 +295,7 @@ public class BuildStatusConfig extends GlobalConfiguration {
     /**
      * Sets the InfluxDB URL.
      *
-     * @param influxDbUrl new value of influxDbUrl
+     * @param influxDbUrl the URL
      */
     @DataBoundSetter
     public void setInfluxDbUrl(String influxDbUrl) {
@@ -307,7 +306,7 @@ public class BuildStatusConfig extends GlobalConfiguration {
     /**
      * Gets the InfluxDB database.
      *
-     * @return the value of influxDbDatabase
+     * @return the database
      */
     public String getInfluxDbDatabase() {
         return influxDbDatabase;
@@ -323,7 +322,7 @@ public class BuildStatusConfig extends GlobalConfiguration {
     }
 
     /**
-     * 2ets whether to ignore sending test results.
+     * Sets whether to ignore sending test results.
      *
      * @param ignoreSendingTestsResultsToInflux whether to ignore sending test results
      */
@@ -347,7 +346,7 @@ public class BuildStatusConfig extends GlobalConfiguration {
     /**
      * Gets the InfluxDB retention policy.
      *
-     * @return the value of influxDbRetentionPolicy
+     * @return the retention policy
      */
     public String getInfluxDbRetentionPolicy() {
         return influxDbRetentionPolicy;
@@ -356,7 +355,7 @@ public class BuildStatusConfig extends GlobalConfiguration {
     /**
      * Sets the InfluxDB retention policy.
      *
-     * @param influxDbRetentionPolicy new value of influxDbRetentionPolicy
+     * @param influxDbRetentionPolicy the retention policy
      */
     @DataBoundSetter
     public void setInfluxDbRetentionPolicy(String influxDbRetentionPolicy) {
@@ -365,16 +364,16 @@ public class BuildStatusConfig extends GlobalConfiguration {
     }
 
     /**
-     * Get the InfluxDB database version.
+     * Gets the InfluxDB database version.
      *
-     * @return the InfluxDB database version
+     * @return the database version
      */
     public Integer getDbVersion() { return dbVersion; }
 
     /**
-     * Set the value of dbVersion
+     * Sets the InfluxDB database version.
      *
-     * @param dbVersion new value of dbVersion
+     * @param dbVersion the database version
      */
     @DataBoundSetter
     public void setDbVersion(String dbVersion) {
@@ -382,6 +381,9 @@ public class BuildStatusConfig extends GlobalConfiguration {
         save();
     }
 
+    /**
+     * Fills the list box in the settings page with valid database versions.
+     */
     public ListBoxModel doFillDbVersionItems() {
         ListBoxModel items = new ListBoxModel();
         items.add("Version 1 (legacy)", "1");
@@ -412,7 +414,7 @@ public class BuildStatusConfig extends GlobalConfiguration {
     /**
      * Gets the StatsD host.
      *
-     * @return the value of statsdHost
+     * @return the host
      */
     public String getStatsdHost() {
         return statsdHost;
@@ -421,7 +423,7 @@ public class BuildStatusConfig extends GlobalConfiguration {
     /**
      * Sets the StatsD host.
      *
-     * @param statsdHost new value of statsdHost
+     * @param statsdHost the host
      */
     @DataBoundSetter
     public void setStatsdHost(String statsdHost) {
@@ -432,7 +434,7 @@ public class BuildStatusConfig extends GlobalConfiguration {
     /**
      * Gets the StatsD port.
      *
-     * @return the value of statsdPort
+     * @return the port
      */
     public String getStatsdPort() {
         return statsdPort;
@@ -441,7 +443,7 @@ public class BuildStatusConfig extends GlobalConfiguration {
     /**
      * Sets the StatsD port.
      *
-     * @param statsdPort new value of statsdPort
+     * @param statsdPort the port
      */
     @DataBoundSetter
     public void setStatsdPort(String statsdPort) {
@@ -452,7 +454,7 @@ public class BuildStatusConfig extends GlobalConfiguration {
     /**
      * Gets the StatsD bucket.
      *
-     * @return the value of statsdBucket
+     * @return the bucket
      */
     public String getStatsdBucket() {
         return statsdBucket;
@@ -461,7 +463,7 @@ public class BuildStatusConfig extends GlobalConfiguration {
     /**
      * Sets the StatsD bucket.
      *
-     * @param statsdBucket new value of statsdBucket
+     * @param statsdBucket the bucket
      */
     @DataBoundSetter
     public void setStatsdBucket(String statsdBucket) {
@@ -472,7 +474,7 @@ public class BuildStatusConfig extends GlobalConfiguration {
     /**
      * Gets the StatsD maximum packet size.
      *
-     * @return the value of statsdMaxSize
+     * @return the maximum packet size
      */
     public String getStatsdMaxSize() {
         return statsdMaxSize;
@@ -481,7 +483,7 @@ public class BuildStatusConfig extends GlobalConfiguration {
     /**
      * Sets the StatsD maximum packet size.
      *
-     * @param statsdMaxSize new value of statsdMaxSize
+     * @param statsdMaxSize the maximum packet size
      */
     @DataBoundSetter
     public void setStatsdMaxSize(String statsdMaxSize) {
@@ -490,9 +492,9 @@ public class BuildStatusConfig extends GlobalConfiguration {
     }
 
     /**
-     * Fill the list box in the settings page with valid credentials
+     * Fills the list box in the settings page with valid credentials.
      *
-     * @param credentialsId the current credentials Id
+     * @param credentialsId the current credentials id
      * @return ListBoxModel containing credentials to show
      */
     public ListBoxModel doFillCredentialsIdItems(
@@ -512,9 +514,9 @@ public class BuildStatusConfig extends GlobalConfiguration {
     }
 
     /**
-     * Fill the list box in the settings page with valid credentials
+     * Fills the list box in the settings page with valid HTTP credentials.
      *
-     * @param credentialsId the current credentials Id
+     * @param credentialsId the current credentials id
      * @return ListBoxModel containing credentials to show
      */
     public ListBoxModel doFillHttpCredentialsIdItems(
@@ -523,7 +525,7 @@ public class BuildStatusConfig extends GlobalConfiguration {
     }
 
     /**
-     * Validates the credentialsId
+     * Validates the credentials id.
      *
      * @param item context for validation
      * @param value to validate
@@ -552,7 +554,7 @@ public class BuildStatusConfig extends GlobalConfiguration {
     }
 
     /**
-     * Validates the credentialsId
+     * Validates the HTTP credentials id.
      *
      * @param item context for validation
      * @param value to validate

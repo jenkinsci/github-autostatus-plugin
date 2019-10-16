@@ -41,6 +41,7 @@ import org.jenkinsci.plugins.githubautostatus.notifiers.InfluxDbNotifierSchemas;
 
 /**
  * Encapsulates the logic of determining InfluxDB configuration for a build.
+ *
  * @author Jeff Pearce (GitHub jeffpearce)
  */
 public class InfluxDbNotifierConfig extends AbstractNotifierConfig {
@@ -58,7 +59,7 @@ public class InfluxDbNotifierConfig extends AbstractNotifierConfig {
     /**
      * Gets the repo owner.
      *
-     * @return repo owner.
+     * @return the repo owner
      */
     public String getRepoOwner() {
         return repoOwner;
@@ -67,7 +68,7 @@ public class InfluxDbNotifierConfig extends AbstractNotifierConfig {
     /**
      * Gets the repo name.
      *
-     * @return repo name.
+     * @return the repo name
      */
     public String getRepoName() {
         return repoName;
@@ -76,16 +77,16 @@ public class InfluxDbNotifierConfig extends AbstractNotifierConfig {
     /**
      * Gets the branch name.
      *
-     * @return branch name.
+     * @return the branch name
      */
     public String getBranchName() {
         return branchName;
     }
 
     /**
-     * Gets InfluxDB URL.
+     * Gets the InfluxDB URL.
      *
-     * @return InfluxDB URL.
+     * @return the InfluxDB URL
      */
     public String getInfluxDbUrlString() {
         return influxDbUrlString;
@@ -101,7 +102,7 @@ public class InfluxDbNotifierConfig extends AbstractNotifierConfig {
     /**
      * Determines if InfluxDB is reachable.
      *
-     * @return true if URL is reachable; false otherwise.
+     * @return true if URL is reachable; false otherwise
      */
     public Boolean influxDbIsReachable() {
         try {
@@ -123,9 +124,9 @@ public class InfluxDbNotifierConfig extends AbstractNotifierConfig {
     }
 
     /**
-     * Gets an http client that can be used to make requests.
+     * Gets an HTTP client that can be used to make requests.
      *
-     * @return http client.
+     * @return the HTTP client
      */
     public CloseableHttpClient getHttpClient() {
         return HttpClients.createDefault();
@@ -134,15 +135,16 @@ public class InfluxDbNotifierConfig extends AbstractNotifierConfig {
     /**
      * Gets the InfluxDB database to write to.
      *
-     * @return InfluxDB database.
+     * @return the InfluxDB database
      */
     public String getInfluxDbDatabase() {
         return influxDbDatabase;
     }
 
     /**
-     * Returns credentials for calling InfluxDB if they are configured.
-     * @return credentials; null if not provided.
+     * Returns the credentials for calling InfluxDB if they are configured.
+     *
+     * @return the credentials; null if not provided.
      */
     @CheckForNull
     public UsernamePasswordCredentials getCredentials() {
@@ -155,7 +157,7 @@ public class InfluxDbNotifierConfig extends AbstractNotifierConfig {
     /**
      * Gets the optional retention policy.
      *
-     * @return retention policy.
+     * @return the retention policy
      */
     public String getInfluxDbRetentionPolicy() {
         return influxDbRetentionPolicy;
@@ -168,7 +170,7 @@ public class InfluxDbNotifierConfig extends AbstractNotifierConfig {
     /**
      * Gets whether to ignore sending test results to InfluxDB.
      *
-     * @return Wwhether to ignore sending test results to InfluxDB
+     * @return whether to ignore sending test results to InfluxDB
      */
     public boolean getIgnoreSendingTestsResultsToInflux() {
         return ignoreSendingTestsResultsToInflux;
@@ -177,10 +179,10 @@ public class InfluxDbNotifierConfig extends AbstractNotifierConfig {
     /**
      * Creates an InfluxDB notification config based on the global settings.
      *
-     * @param repoOwner  repo owner.
-     * @param repoName   repo name.
-     * @param branchName branch name.
-     * @return config.
+     * @param repoOwner  repo owner
+     * @param repoName   repo name
+     * @param branchName branch name
+     * @return config
      */
     public static InfluxDbNotifierConfig fromGlobalConfig(String repoOwner, String repoName, String branchName) {
         BuildStatusConfig config = BuildStatusConfig.get();

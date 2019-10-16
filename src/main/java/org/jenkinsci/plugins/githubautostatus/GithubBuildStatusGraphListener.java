@@ -59,8 +59,8 @@ import java.util.logging.Logger;
 public class GithubBuildStatusGraphListener implements GraphListener {
 
     /**
-     * Evaluate if we can provide stats on a node.
-     * 
+     * Evaluates if we can provide stats on a node.
+     *
      * @param fn a node in workflow
      */
     @Override
@@ -170,8 +170,8 @@ public class GithubBuildStatusGraphListener implements GraphListener {
     }
 
     /**
-     * Get the execution time of a block defined by startNode and endNode
-     * 
+     * Gets the execution time of a block defined by startNode and endNode.
+     *
      * @param startNode startNode of a block
      * @param endNode endNode of a block
      * @return Execution time of the block
@@ -187,7 +187,7 @@ public class GithubBuildStatusGraphListener implements GraphListener {
     }
 
     /**
-     * Determines if a FlowNode describes a stage
+     * Determines if a {@link FlowNode} describes a stage.
      *
      * Note: this check is copied from PipelineNodeUtil.java in blueocean-plugin
      *
@@ -220,7 +220,7 @@ public class GithubBuildStatusGraphListener implements GraphListener {
 
             // Declarative pipeline jobs come with a nice execution model, which allows you
             // to get all of the stages at once at the beginning of the job.
-            // Older scripted pipeline jobs do not, so we have to add them one at a 
+            // Older scripted pipeline jobs do not, so we have to add them one at a
             // time as we discover them.
             List<BuildStage> stageNames = getDeclarativeStages(run);
             boolean isDeclarativePipeline = stageNames != null;
@@ -261,8 +261,8 @@ public class GithubBuildStatusGraphListener implements GraphListener {
     }
 
     /**
-     * Determines if the node belongs to a declarative pipeline
-     * 
+     * Determines if the node belongs to a declarative pipeline.
+     *
      * @param fn node of a workflow
      * @return true/false
      */
@@ -276,8 +276,8 @@ public class GithubBuildStatusGraphListener implements GraphListener {
     }
 
     /**
-     * Get a list of stages in a declarative pipeline
-     * 
+     * Gets a list of stages in a declarative pipeline.
+     *
      * @param run a particular run of a job
      * @return a list of stage names
      */
@@ -298,7 +298,7 @@ public class GithubBuildStatusGraphListener implements GraphListener {
     }
 
     /**
-     * Converts a list of ModelAStage objects to a list of stage names
+     * Converts a list of {@link ModelASTStage} objects to a list of stage names.
      *
      * @param modelList list to convert
      * @return list of stage names
@@ -343,7 +343,7 @@ public class GithubBuildStatusGraphListener implements GraphListener {
     }
 
     /**
-     * Get the BuildStatusAction object for the specified executing workflow
+     * Gets the BuildStatusAction object for the specified executing workflow.
      *
      * Returns a list containing the stage name and names of all nested stages.
      *
@@ -378,8 +378,8 @@ public class GithubBuildStatusGraphListener implements GraphListener {
     }
 
     /**
-     * Get the jenkins run object of the specified executing workflow
-     * 
+     * Gets the jenkins run object of the specified executing workflow.
+     *
      * @param exec execution of a workflow
      * @return jenkins run object of a job
      */
@@ -400,8 +400,8 @@ public class GithubBuildStatusGraphListener implements GraphListener {
     }
 
     /**
-     * Print to stdout or stderr
-     * 
+     * Prints to stdout or stderr.
+     *
      * @param level INFO/WARNING/ERROR
      * @param format String that formats the log
      * @param args arguments for the formated log string
@@ -411,8 +411,8 @@ public class GithubBuildStatusGraphListener implements GraphListener {
     }
 
     /**
-     * Get the logger for the listener
-     * 
+     * Gets the logger for the listener.
+     *
      * @return logger object
      */
     private static Logger getLogger() {

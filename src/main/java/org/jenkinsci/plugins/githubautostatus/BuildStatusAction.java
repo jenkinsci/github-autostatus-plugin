@@ -115,13 +115,6 @@ public class BuildStatusAction extends InvisibleAction {
     /**
      * Determines whether the notifiers need to be reconnected. This is necessary because the GitHub notifier
      * can't be serialized because of the JEP-200 security improvements. In the event the build is interrupted and
-     *  the buildAction is loaded from disk, the notifiers need to be added again.
-     * @return
-     */
-
-    /**
-     * Determines whether the notifiers need to be reconnected. This is necessary because the GitHub notifier
-     * can't be serialized because of the JEP-200 security improvements. In the event the build is interrupted and
      * the buildAction is loaded from disk, the notifiers need to be added again.
      *
      * @param run       the current build
@@ -198,7 +191,7 @@ public class BuildStatusAction extends InvisibleAction {
     }
 
     /**
-     * Attempts to add a GitHub notifier
+     * Attempts to add a GitHub notifier.
      *
      * @param config GitHub notifier config
      */
@@ -209,7 +202,7 @@ public class BuildStatusAction extends InvisibleAction {
     }
 
     /**
-     * Attempts to add an InfluxDB notifier
+     * Attempts to add an InfluxDB notifier.
      *
      * @param influxDbNotifierConfig InfluxDB notifier config
      */
@@ -218,7 +211,7 @@ public class BuildStatusAction extends InvisibleAction {
     }
 
     /**
-     * Attempts to add a StatsD notifier
+     * Attempts to add a StatsD notifier.
      *
      * @param statsdNotifierConfig StatsD notifier config
      */
@@ -227,6 +220,11 @@ public class BuildStatusAction extends InvisibleAction {
         sendNotifications(build);
     }
 
+    /**
+     * Attempts to add an HTTP notifier.
+     *
+     * @param httpNotifierConfig HTTP notifier config
+     */
     public void addHttpNotifier(HttpNotifierConfig httpNotifierConfig) {
         sendNotifications(buildNotifierManager.addHttpNotifier(httpNotifierConfig));
     }
@@ -236,7 +234,7 @@ public class BuildStatusAction extends InvisibleAction {
     }
 
     /**
-     * Sends all saved notifications to a notifier
+     * Sends all saved notifications to a notifier.
      *
      * @param notifier notifier to send to
      */
@@ -250,7 +248,7 @@ public class BuildStatusAction extends InvisibleAction {
     }
 
     /**
-     * Sends pending notifications for the start of a stage
+     * Sends pending notifications for the start of a stage.
      *
      * @param stageName stage name
      */
@@ -262,7 +260,7 @@ public class BuildStatusAction extends InvisibleAction {
     }
 
     /**
-     * Sends notifications for a completed stage
+     * Sends notifications for a completed stage.
      *
      * @param nodeName   node name
      * @param buildState build state
@@ -281,7 +279,7 @@ public class BuildStatusAction extends InvisibleAction {
     }
 
     /**
-     * Sends notifications for a completed stage
+     * Sends notifications for a completed stage.
      *
      * @param nodeName   node name
      * @param buildState build state
@@ -291,7 +289,7 @@ public class BuildStatusAction extends InvisibleAction {
     }
 
     /**
-     * Sends notifications for final build status
+     * Sends notifications for final build status.
      *
      * @param buildState final build state
      * @param parameters build parameters
@@ -302,7 +300,7 @@ public class BuildStatusAction extends InvisibleAction {
     }
 
     /**
-     * Sends notifications for an error that happens outside of a stage
+     * Sends notifications for an error that happens outside of a stage.
      *
      * @param nodeName name of node that failed
      */

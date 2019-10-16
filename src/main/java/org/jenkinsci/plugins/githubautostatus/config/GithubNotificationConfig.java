@@ -56,6 +56,7 @@ import static com.cloudbees.plugins.credentials.CredentialsProvider.lookupCreden
 
 /**
  * Encapsulates the logic of determining GitHub configuration for a build.
+ *
  * @author Jeff Pearce (jxpearce@godaddy.com)
  */
 public class GithubNotificationConfig {
@@ -70,7 +71,7 @@ public class GithubNotificationConfig {
 
     /**
      * Gets the SHA for the build
-     * 
+     *
      * @return the SHA for the build
      */
     public String getShaString() {
@@ -80,7 +81,7 @@ public class GithubNotificationConfig {
     /**
      * Gets the repo owner.
      * 
-     * @return The repo owner.
+     * @return the repo owner
      */
     public String getRepoOwner() {
         return repoOwner;
@@ -88,7 +89,8 @@ public class GithubNotificationConfig {
 
     /**
      * Gets the name of the branch for the build.
-     * @return Name of the branch for the build.
+     *
+     * @return the name of the branch for the build
      */
     public String getBranchName() {
         return branchName;
@@ -96,7 +98,8 @@ public class GithubNotificationConfig {
 
     /**
      * Gets the GitHub repo for the build.
-     * @return GitHub repo for the build.
+     *
+     * @return the GitHub repo for the build
      */
     public GHRepository getRepo() {
         return repo;
@@ -104,7 +107,8 @@ public class GithubNotificationConfig {
 
     /**
      * Gets the name of the repo for the build.
-     * @return Name of the repo for the build.
+     *
+     * @return the name of the repo for the build
      */
     public String getRepoName() {
         return repoName;
@@ -112,8 +116,9 @@ public class GithubNotificationConfig {
 
     /**
      * Constructs a config object from a Run object.
-     * @param run The build.
-     * @return The GitHub config object
+     *
+     * @param run the build
+     * @return the GitHub config object
      */
     public static @Nullable
     GithubNotificationConfig fromRun(Run<?, ?> run) {
@@ -121,10 +126,11 @@ public class GithubNotificationConfig {
     }
 
     /**
-     * Constructs a config object from a Run object and GitHub builder.
-     * @param run The build.
-     * @param githubBuilder GitHub builder.
-     * @return The constructed config object.
+     * Constructs a config object from a {@link Run} object and GitHub builder.
+     *
+     * @param run the build
+     * @param githubBuilder the GitHub builder
+     * @return the constructed config object
      */
     public static @Nullable
     GithubNotificationConfig fromRun(Run<?, ?> run, GitHubBuilder githubBuilder) {
@@ -151,9 +157,10 @@ public class GithubNotificationConfig {
     }
 
     /**
-     * Extract the SHA for the build.
-     * @param build the build.
-     * @return true if SHA was extracted; false if it could not be extracted.
+     * Extracts the SHA for the build.
+     *
+     * @param build the build
+     * @return true if SHA was extracted; false if it could not be extracted
      */
     private Boolean extractCommitSha(Run<?, ?> build) {
         SCMRevisionAction scmRevisionAction = build.getAction(SCMRevisionAction.class);
@@ -171,9 +178,10 @@ public class GithubNotificationConfig {
     }
 
     /**
-     * Extract the branch info from a build.
-     * @param build The build.
-     * @return true if branch info was extracted; false otherwise.
+     * Extracts the branch info from a build.
+     *
+     * @param build the build
+     * @return true if branch info was extracted; false otherwise
      */
     private Boolean extractBranchInfo(Run<?, ?> build) {
         SCMRevisionAction scmRevisionAction = build.getAction(SCMRevisionAction.class);
@@ -192,10 +200,11 @@ public class GithubNotificationConfig {
     }
 
     /**
-     * Extract the GHRepository from a build.
-     * @param build The build.
-     * @return true if the GHRepository was extracted; false otherwise.
-     * @throws IOException 
+     * Extracts the GHRepository from a build.
+     *
+     * @param build the build
+     * @return true if the GHRepository was extracted; false otherwise
+     * @throws IOException
      */
     private Boolean extractGHRepositoryInfo(Run<?, ?> build) throws IOException {
         ItemGroup parent = build.getParent().getParent();

@@ -66,11 +66,11 @@ public class CodeCoverage {
     }
 
     /**
-     * Loads code coverage from Jacoco.
+     * Loads code coverage from JaCoCo.
      *
-     * NOTE: Currently doesn't look like Jacoco is returning package and file specific numbers
+     * NOTE: Currently it doesn't look like JaCoCo is returning package and file specific numbers.
      *
-     * @param jacocoAction Jacoco plugin action
+     * @param jacocoAction JaCoCo plugin action
      * @return CodeCoverage instance with values populated from the action
      */
     public static CodeCoverage fromJacoco(@Nullable JacocoBuildAction jacocoAction) {
