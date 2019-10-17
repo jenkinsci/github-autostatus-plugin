@@ -28,6 +28,7 @@ import hudson.model.Queue;
 import hudson.model.Run;
 import net.sf.json.JSONObject;
 import org.jenkinsci.plugins.displayurlapi.DisplayURLProvider;
+import org.jenkinsci.plugins.github.status.sources.BuildDataRevisionShaSource;
 import org.jenkinsci.plugins.githubautostatus.model.BuildStage;
 import org.jenkinsci.plugins.pipeline.StageStatus;
 import org.jenkinsci.plugins.pipeline.modeldefinition.actions.ExecutionModelAction;
@@ -109,6 +110,7 @@ public class GithubBuildStatusGraphListener implements GraphListener {
                 buildStatusAction.sendNonStageError(fn.getDisplayName());
 
             } else if (fn instanceof StepEndNode) {
+                checkEnableBuildStatus(fn);
                 BuildStatusAction buildStatusAction = buildStatusActionFor(fn.getExecution());
                 if (buildStatusAction == null) {
                     return;
