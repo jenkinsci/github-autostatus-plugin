@@ -60,7 +60,8 @@ public class InfluxDbNotifierConfigTest {
     private final String influxDbUser = "mock-user";
     private final String influxDbPassword = "mock-password";
     private final String influxDbRetention = "mock-retention-policy";
-    private final boolean ignoreSendingTestsResultsToInflux = false;
+    private final boolean ignoreSendingTestCoverageToInflux = false;
+    private final boolean ignoreSendingTestResultsToInflux = false;
 
     public InfluxDbNotifierConfigTest() {
     }
@@ -76,7 +77,8 @@ public class InfluxDbNotifierConfigTest {
         when(config.getInfluxDbDatabase()).thenReturn(influxDatabase);
         when(config.getCredentialsId()).thenReturn(influxDbCredentialsId);
         when(config.getInfluxDbRetentionPolicy()).thenReturn(influxDbRetention);
-        when(config.getIgnoreSendingTestsResultsToInflux()).thenReturn(ignoreSendingTestsResultsToInflux);
+        when(config.getIgnoreSendingTestCoverageToInflux()).thenReturn(ignoreSendingTestCoverageToInflux);
+        when(config.getIgnoreSendingTestResultsToInflux()).thenReturn(ignoreSendingTestResultsToInflux);
     }
 
     @Test
@@ -149,10 +151,17 @@ public class InfluxDbNotifierConfigTest {
     }
 
     @Test
-    public void testGetIgnoreSendingTestsResultsToInflux() {
+    public void testGetIgnoreSendingTestCoverageToInflux() {
         InfluxDbNotifierConfig instance
                 = InfluxDbNotifierConfig.fromGlobalConfig("", "", branch);
-        assertEquals(ignoreSendingTestsResultsToInflux, instance.getIgnoreSendingTestsResultsToInflux());
+        assertEquals(ignoreSendingTestResultsToInflux, instance.getIgnoreSendingTestCoverageToInflux());
+    }
+
+    @Test
+    public void testGetIgnoreSendingTestResultsToInflux() {
+        InfluxDbNotifierConfig instance
+                = InfluxDbNotifierConfig.fromGlobalConfig("", "", branch);
+        assertEquals(ignoreSendingTestResultsToInflux, instance.getIgnoreSendingTestResultsToInflux());
     }
 
     @Test

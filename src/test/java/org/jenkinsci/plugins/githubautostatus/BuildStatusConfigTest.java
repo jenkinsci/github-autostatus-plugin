@@ -260,12 +260,39 @@ public class BuildStatusConfigTest {
     }
 
     @Test
-    public void testIgnoreSendingTestsResultsToInfluxDb() {
+    public void testIgnoreSendingTestCoverageToInfluxDbFalse() {
         BuildStatusConfig instance = new BuildStatusConfig();
-        boolean expectedIgnoreSendingTestsResultsToInflux = false;
-        instance.setIgnoreSendingTestsResultsToInflux(expectedIgnoreSendingTestsResultsToInflux);
-        boolean result = instance.getIgnoreSendingTestsResultsToInflux();
-        assertEquals(expectedIgnoreSendingTestsResultsToInflux, result);
+        boolean expectedIgnoreSendingTestCoverageToInflux = false;
+        instance.setIgnoreSendingTestResultsToInflux(expectedIgnoreSendingTestCoverageToInflux);
+        boolean result = instance.getIgnoreSendingTestCoverageToInflux();
+        assertEquals(expectedIgnoreSendingTestCoverageToInflux, result);
+    }
+
+    @Test
+    public void testIgnoreSendingTestResultsToInfluxDbFalse() {
+        BuildStatusConfig instance = new BuildStatusConfig();
+        boolean expectedIgnoreSendingTestResultsToInflux = false;
+        instance.setIgnoreSendingTestResultsToInflux(expectedIgnoreSendingTestResultsToInflux);
+        boolean result = instance.getIgnoreSendingTestResultsToInflux();
+        assertEquals(expectedIgnoreSendingTestResultsToInflux, result);
+    }
+
+    @Test
+    public void testIgnoreSendingTestCoverageToInfluxDbTrue() {
+        BuildStatusConfig instance = new BuildStatusConfig();
+        boolean expectedIgnoreSendingTestCoverageToInflux = true;
+        instance.setIgnoreSendingTestCoverageToInflux(expectedIgnoreSendingTestCoverageToInflux);
+        boolean result = instance.getIgnoreSendingTestCoverageToInflux();
+        assertEquals(expectedIgnoreSendingTestCoverageToInflux, result);
+    }
+
+    @Test
+    public void testIgnoreSendingTestResultsToInfluxDbTrue() {
+        BuildStatusConfig instance = new BuildStatusConfig();
+        boolean expectedIgnoreSendingTestResultsToInflux = true;
+        instance.setIgnoreSendingTestCoverageToInflux(expectedIgnoreSendingTestResultsToInflux);
+        boolean result = instance.getIgnoreSendingTestResultsToInflux();
+        assertEquals(expectedIgnoreSendingTestResultsToInflux, result);
     }
 
     @Test

@@ -70,7 +70,8 @@ public class BuildStatusConfig extends GlobalConfiguration {
     private String credentialsId;
     private String influxDbUrl;
     private String influxDbDatabase;
-    private boolean ignoreSendingTestsResultsToInflux;
+    private boolean ignoreSendingTestCoverageToInflux;
+    private boolean ignoreSendingTestResultsToInflux = true;
     @Deprecated
     private transient String influxDbUser;
     @Deprecated
@@ -114,6 +115,14 @@ public class BuildStatusConfig extends GlobalConfiguration {
      */
     public BuildStatusConfig() {
         load();
+        if (dbVersion == null) {
+            if (influxDbUrl == null && influxDbDatabase == null) {
+                dbVersion = 2;
+            } else {
+                dbVersion = 1;
+            }
+            save();
+        }
     }
 
     /**
@@ -318,18 +327,39 @@ public class BuildStatusConfig extends GlobalConfiguration {
      *
      * @return whether to ignore sending test results
      */
-    public boolean getIgnoreSendingTestsResultsToInflux() {
-        return ignoreSendingTestsResultsToInflux;
+    public boolean getIgnoreSendingTestResultsToInflux() {
+        return ignoreSendingTestResultsToInflux;
     }
 
     /**
      * 2ets whether to ignore sending test results.
      *
-     * @param ignoreSendingTestsResultsToInflux whether to ignore sending test results
+     * @param ignoreSendingTestResultsToInflux whether to ignore sending test results
      */
     @DataBoundSetter
-    public void setIgnoreSendingTestsResultsToInflux(boolean ignoreSendingTestsResultsToInflux) {
-        this.ignoreSendingTestsResultsToInflux = ignoreSendingTestsResultsToInflux;
+    public void setIgnoreSendingTestResultsToInflux(boolean ignoreSendingTestResultsToInflux) {
+        this.ignoreSendingTestResultsToInflux = ignoreSendingTestResultsToInflux;
+        save();
+    }
+
+
+    /**
+     * Gets whether to ignore sending test coverage.
+     *
+     * @return whether to ignore sending test coverage
+     */
+    public boolean getIgnoreSendingTestCoverageToInflux() {
+        return ignoreSendingTestCoverageToInflux;
+    }
+
+    /**
+     * 2ets whether to ignore sending test results.
+     *
+     * @param ignoreSendingTestCoverageToInflux whether to ignore sending test results
+     */
+    @DataBoundSetter
+    public void setIgnoreSendingTestCoverageToInflux(boolean ignoreSendingTestCoverageToInflux) {
+        this.ignoreSendingTestCoverageToInflux = ignoreSendingTestCoverageToInflux;
         save();
     }
 
@@ -591,7 +621,9 @@ public class BuildStatusConfig extends GlobalConfiguration {
             influxDbPassword = null;
             save();
         }
-        if (configVersion == null && dbVersion == null) {
+        if (dbVersion == null) {
+            // If required InfluxDB fields aren't set, assume this is a new install, or the user hasn't tried to
+            // enable InfluxDB in the past.
             if (influxDbUrl == null && influxDbDatabase == null) {
                 dbVersion = 2;
             } else {

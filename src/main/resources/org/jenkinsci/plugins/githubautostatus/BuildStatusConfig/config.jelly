@@ -15,8 +15,11 @@
             <f:entry title="InfluxDB Retention policy" field="influxDbRetentionPolicy" name="influxDbRetentionPolicy">
                 <f:textbox />
             </f:entry>
-            <f:entry title="Ignore notify of TestResults and Coverage" field="ignoreSendingTestsResultsToInflux">
-                <f:checkbox default="false" checked="${instance.ignoreSendingTestsResultsToInflux}"/>
+            <f:entry title="Ignore sending coverage" field="ignoreSendingTestCoverageToInflux">
+                <f:checkbox default="true" checked="${instance.ignoreSendingTestCoverageToInflux}"/>
+            </f:entry>
+            <f:entry title="Ignore sending test results" field="ignoreSendingTestResultsToInflux">
+                <f:checkbox default="false" checked="${instance.ignoreSendingTestResultsToInflux}"/>
             </f:entry>
             <f:entry name="dbVersion" title="Database Version" field="dbVersion">
                 <f:select />
