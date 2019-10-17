@@ -223,7 +223,7 @@ public class GithubBuildStatusGraphListenerTest {
 
         GithubBuildStatusGraphListener instance = new GithubBuildStatusGraphListener();
         instance.onNewHead(stageEndNode);
-        verify(stageStartNode).getStepName();
+        verify(stageStartNode, atLeast(1)).getStepName();
     }
 
     @Test
