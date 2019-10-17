@@ -23,16 +23,6 @@
  */
 package org.jenkinsci.plugins.githubautostatus;
 
-import com.timgroup.statsd.NonBlockingStatsDClient;
-import com.timgroup.statsd.StatsDClient;
-import com.timgroup.statsd.StatsDClientException;
-import java.util.concurrent.Executors;
-import java.util.concurrent.ScheduledExecutorService;
-import java.util.concurrent.TimeUnit;
-import java.util.concurrent.locks.Lock;
-import java.util.concurrent.locks.ReentrantReadWriteLock;
-import java.util.logging.Logger;
-
 /**
  * Wraps regular UDP based StatsD client with concurrent hostname refreshing logic.
  *

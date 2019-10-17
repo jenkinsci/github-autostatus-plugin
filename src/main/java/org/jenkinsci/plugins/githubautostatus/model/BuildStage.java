@@ -23,9 +23,7 @@
  */
 package org.jenkinsci.plugins.githubautostatus.model;
 
-import com.google.gson.annotations.SerializedName;
 import hudson.model.Run;
-import org.eclipse.jgit.annotations.NonNull;
 import org.jenkinsci.plugins.githubautostatus.notifiers.BuildNotifierConstants;
 
 import java.util.HashMap;

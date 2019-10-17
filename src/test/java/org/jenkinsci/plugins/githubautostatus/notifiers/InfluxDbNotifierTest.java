@@ -44,7 +44,6 @@ import org.apache.http.util.EntityUtils;
 import org.jenkinsci.plugins.githubautostatus.model.BuildStage;
 import org.jenkinsci.plugins.githubautostatus.model.BuildState;
 import org.jenkinsci.plugins.githubautostatus.config.InfluxDbNotifierConfig;
-import org.junit.After;
 import org.junit.AfterClass;
 import org.junit.Before;
 import org.junit.BeforeClass;

@@ -27,9 +27,9 @@ import java.io.UnsupportedEncodingException;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import java.util.Map;
-import org.jenkinsci.plugins.githubautostatus.StatsdWrapper;
 import org.jenkinsci.plugins.githubautostatus.StatsdClient;
 import org.jenkinsci.plugins.githubautostatus.StatsdNotifierConfig;
+import org.jenkinsci.plugins.githubautostatus.StatsdWrapper;
 import org.jenkinsci.plugins.githubautostatus.model.BuildStage;
 import org.jenkinsci.plugins.githubautostatus.model.BuildState;
 
