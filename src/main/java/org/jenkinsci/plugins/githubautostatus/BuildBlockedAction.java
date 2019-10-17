@@ -28,7 +28,7 @@ import hudson.model.InvisibleAction;
 /**
  * Keeps track of time a job was spent in the blocked state.
  *
- * @author Jeff Pearce (jxpearce@godaddy.com)
+ * @author Jeff Pearce (GitHub jeffpearce)
  */
 public class BuildBlockedAction extends InvisibleAction {
     

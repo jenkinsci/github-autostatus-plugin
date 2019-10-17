@@ -58,7 +58,7 @@ import static org.mockito.Mockito.*;
 
 /**
  *
- * @author jxpearce
+ * @author Jeff Pearce (GitHub jeffpearce)
  */
 @RunWith(PowerMockRunner.class)
 @PrepareForTest({BuildStatusConfig.class, GithubNotificationConfig.class})

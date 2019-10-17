@@ -32,7 +32,7 @@ import static org.junit.Assert.*;
 
 /**
  *
- * @author jxpearce
+ * @author Jeff Pearce (GitHub jeffpearce)
  */
 public class BuildNotifierConstantsTest {
     

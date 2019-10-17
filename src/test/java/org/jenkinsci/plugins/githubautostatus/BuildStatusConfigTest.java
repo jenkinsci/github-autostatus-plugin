@@ -50,7 +50,7 @@ import org.powermock.modules.junit4.PowerMockRunner;
 
 /**
  *
- * @author jxpearce
+ * @author Jeff Pearce (GitHub jeffpearce)
  */
 @RunWith(PowerMockRunner.class)
 @PrepareForTest({GlobalConfiguration.class})

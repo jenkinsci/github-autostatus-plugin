@@ -32,7 +32,7 @@ import org.jenkinsci.plugins.workflow.support.steps.ExecutorStepExecution;
 /**
  * Implementation of {@link hudson.model.queue.QueueListener} which keeps track
  * of time a pipeline build spent blocked.
- * @author Jeff Pearce (jxpearce@godaddy.com)
+ * @author Jeff Pearce (GitHub jeffpearce)
  */
 @Extension
 public class BuildQueueListener extends QueueListener {

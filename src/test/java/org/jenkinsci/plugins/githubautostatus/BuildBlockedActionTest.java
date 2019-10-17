@@ -28,7 +28,7 @@ import org.junit.Test;
 
 /**
  *
- * @author jxpearce
+ * @author Jeff Pearce (GitHub jeffpearce)
  */
 public class BuildBlockedActionTest {
 

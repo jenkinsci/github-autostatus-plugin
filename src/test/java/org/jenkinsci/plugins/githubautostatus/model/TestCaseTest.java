@@ -30,7 +30,7 @@ import hudson.tasks.junit.CaseResult;
 
 /**
  *
- * @author jxpearce
+ * @author Jeff Pearce (GitHub jeffpearce)
  */
 public class TestCaseTest {
 

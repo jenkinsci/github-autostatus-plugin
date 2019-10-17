@@ -57,7 +57,7 @@ import static com.cloudbees.plugins.credentials.CredentialsProvider.lookupCreden
 /**
  * Encapsulates the logic of determining GitHub configuration for a build.
  *
- * @author Jeff Pearce (jxpearce@godaddy.com)
+ * @author Jeff Pearce (GitHub jeffpearce)
  */
 public class GithubNotificationConfig {
 

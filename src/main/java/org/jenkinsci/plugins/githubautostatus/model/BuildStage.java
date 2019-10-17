@@ -33,7 +33,7 @@ import java.util.Map;
 
 /**
  *
- * @author jxpearce
+ * @author Jeff Pearce (GitHub jeffpearce)
  */
 public class BuildStage {
 

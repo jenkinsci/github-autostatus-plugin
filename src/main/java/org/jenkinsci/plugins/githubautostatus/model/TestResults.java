@@ -33,7 +33,7 @@ import javax.annotation.Nullable;
 
 /**
  *
- * @author jxpearce
+ * @author Jeff Pearce (GitHub jeffpearce)
  */
 public class TestResults {
 

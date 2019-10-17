@@ -27,7 +27,7 @@ package org.jenkinsci.plugins.githubautostatus.notifiers;
 /**
  * Encapsulates the logic of determining influxdb configuration for a build.
  *
- * @author Jeff Pearce (jeffpearce)
+ * @author Jeff Pearce (GitHub jeffpearce)
  */
 public class InfluxDbNotifierSchemas {
     private static final SchemaInfo[] schemas = {

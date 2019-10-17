@@ -43,7 +43,7 @@ import static org.mockito.Mockito.when;
 
 /**
  *
- * @author jxpearce
+ * @author Jeff Pearce (GitHub jeffpearce)
  */
 @RunWith(PowerMockRunner.class)
 @PrepareForTest({BuildStatusConfig.class})

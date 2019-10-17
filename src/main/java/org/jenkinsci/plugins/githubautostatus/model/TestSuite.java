@@ -30,7 +30,7 @@ import java.util.Objects;
 
 /**
  *
- * @author jxpearce
+ * @author Jeff Pearce (GitHub jeffpearce)
  */
 public class TestSuite {
 

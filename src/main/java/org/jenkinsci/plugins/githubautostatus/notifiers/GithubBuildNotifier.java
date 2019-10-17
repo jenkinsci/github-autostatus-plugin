@@ -34,7 +34,7 @@ import org.kohsuke.github.GHRepository;
 
 /**
  * Sets the GitHub commit status for stages based on build notifications.
- * @author Jeff Pearce (jxpearce@godaddy.com)
+ * @author Jeff Pearce (GitHub jeffpearce)
  */
 public class GithubBuildNotifier extends BuildNotifier {
 

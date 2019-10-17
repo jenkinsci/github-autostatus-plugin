@@ -32,7 +32,7 @@ import java.util.Map;
 
 /**
  * A notification subscriber which can send build stats to a particular sink.
- * @author Jeff Pearce (jxpearce@godaddy.com)
+ * @author Jeff Pearce (GitHub jeffpearce)
  */
 public abstract class BuildNotifier implements ExtensionPoint {
 

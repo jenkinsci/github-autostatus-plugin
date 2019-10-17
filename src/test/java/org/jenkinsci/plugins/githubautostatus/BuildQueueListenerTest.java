@@ -38,7 +38,7 @@ import org.powermock.modules.junit4.PowerMockRunner;
 
 /**
  *
- * @author jxpearce
+ * @author Jeff Pearce (GitHub jeffpearce)
  */
 @RunWith(PowerMockRunner.class)
 @PrepareForTest({BlockedItem.class, ExecutorStepExecution.PlaceholderTask.class})

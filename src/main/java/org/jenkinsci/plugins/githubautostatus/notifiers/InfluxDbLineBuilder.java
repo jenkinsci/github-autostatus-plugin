@@ -9,7 +9,7 @@ import java.util.ArrayList;
 /**
  * Builds a single line for the Influxdb line protocol.
  *
- * @author Jeff Pearce (jeffpearce)
+ * @author Jeff Pearce (GitHub jeffpearce)
  */
 public class InfluxDbLineBuilder {
 

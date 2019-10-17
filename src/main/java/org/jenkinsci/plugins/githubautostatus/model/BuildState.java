@@ -30,7 +30,7 @@ import javax.annotation.Nonnull;
 /**
  * Possible build states for notification
  *
- * @author Jeff Pearce (jxpearce@godaddy.com)
+ * @author Jeff Pearce (GitHub jeffpearce)
  */
 public enum BuildState {
 

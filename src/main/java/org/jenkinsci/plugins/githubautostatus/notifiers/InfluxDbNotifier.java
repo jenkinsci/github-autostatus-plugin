@@ -50,7 +50,7 @@ import java.util.logging.Logger;
 
 /**
  * Writes job and stage measurements to an InfluxDB REST API.
- * @author Jeff Pearce (jeffpearce)
+ * @author Jeff Pearce (GitHub jeffpearce)
  */
 public class InfluxDbNotifier extends BuildNotifier {
 

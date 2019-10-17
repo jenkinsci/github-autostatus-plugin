@@ -42,7 +42,7 @@ import static org.mockito.Mockito.*;
 
 /**
  *
- * @author jxpearce
+ * @author Jeff Pearce (GitHub jeffpearce)
  */
 public class BuildNotifierManagerTest {
 
