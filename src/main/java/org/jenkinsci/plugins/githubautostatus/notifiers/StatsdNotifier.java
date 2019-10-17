@@ -23,7 +23,7 @@
  */
 package org.jenkinsci.plugins.githubautostatus.notifiers;
 
-import java.io.UnsupportedEncodingException;
+import java.nio.charset.StandardCharsets;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import java.util.Map;
@@ -102,27 +102,17 @@ public class StatsdNotifier extends BuildNotifier {
 
         String stageStatus = String.format("%s.stage.%s.status.%s", getBranchPath(), sanitizeAll(nodeName), sanitizeAll(result));
         byte[] stageStatusSize;
-        try {
-            stageStatusSize = stageStatus.getBytes("UTF-16");
-            if (stageStatusSize.length > statsDMaxSize) {
-                log(Level.INFO, "StatsD notify exceeds maxPaketSize for stageStatus");
-            }
-        } catch (UnsupportedEncodingException e) {
-            log(Level.WARNING, "Unable to find byte size of stageStatus");
-            e.printStackTrace();
+        stageStatusSize = stageStatus.getBytes(StandardCharsets.UTF_16);
+        if (stageStatusSize.length > statsDMaxSize) {
+            log(Level.INFO, "StatsD notify exceeds maxPaketSize for stageStatus");
         }
         client.increment(stageStatus, 1);
 
         String stageDuration = String.format("%s.stage.%s.duration", getBranchPath(), sanitizeAll(nodeName));
         byte[] stageDurationSize;
-        try {
-            stageDurationSize = stageDuration.getBytes("UTF-16");
-            if (stageDurationSize.length > statsDMaxSize) {
-                log(Level.WARNING, "StatsD notify exceeds maxPaketSize for stageDuration");
-            }
-        } catch (UnsupportedEncodingException e) {
-            log(Level.WARNING, "Unable to find byte size of stageDuration");
-            e.printStackTrace();
+        stageDurationSize = stageDuration.getBytes(StandardCharsets.UTF_16);
+        if (stageDurationSize.length > statsDMaxSize) {
+            log(Level.WARNING, "StatsD notify exceeds maxPaketSize for stageDuration");
         }
         client.time(stageDuration, nodeDuration);
     }
@@ -141,40 +131,25 @@ public class StatsdNotifier extends BuildNotifier {
         int statsDMaxSize = Integer.parseInt(config.getStatsdMaxSize().trim());
 
         String fqp = String.format("%s.job.status.%s", getBranchPath(), result);
-        try {
-            fqpSize = fqp.getBytes("UTF-16");
-            if (fqpSize.length > statsDMaxSize) {
-                log(Level.WARNING, "StatsD notify exceeds maxPaketSize for jobStatus");
-            }
-        } catch (UnsupportedEncodingException e) {
-            log(Level.WARNING, "Unable to find byte size of jobStatus");
-            e.printStackTrace();
+        fqpSize = fqp.getBytes(StandardCharsets.UTF_16);
+        if (fqpSize.length > statsDMaxSize) {
+            log(Level.WARNING, "StatsD notify exceeds maxPaketSize for jobStatus");
         }
         client.increment(fqp, 1);
 
 
         fqp = String.format("%s.job.duration", getBranchPath());
-        try {
-            fqpSize = fqp.getBytes("UTF-16");
-            if (fqpSize.length > statsDMaxSize) {
-                log(Level.WARNING, "StatsD notify exceeds maxPaketSize for duration");
-            }
-        } catch (UnsupportedEncodingException e) {
-            log(Level.WARNING, "Unable to find byte size of duration");
-            e.printStackTrace();
+        fqpSize = fqp.getBytes(StandardCharsets.UTF_16);
+        if (fqpSize.length > statsDMaxSize) {
+            log(Level.WARNING, "StatsD notify exceeds maxPaketSize for duration");
         }
         client.time(fqp, buildDuration);
 
 
         fqp = String.format("%s.job.blocked_duration", getBranchPath());
-        try {
-            fqpSize = fqp.getBytes("UTF-16");
-            if (fqpSize.length > statsDMaxSize) {
-                log(Level.WARNING, "StatsD notify exceeds maxPaketSize for blockedDuration");
-            }
-        } catch (UnsupportedEncodingException e) {
-            log(Level.WARNING, "Unable to find byte size of blockedDuration");
-            e.printStackTrace();
+        fqpSize = fqp.getBytes(StandardCharsets.UTF_16);
+        if (fqpSize.length > statsDMaxSize) {
+            log(Level.WARNING, "StatsD notify exceeds maxPaketSize for blockedDuration");
         }
         client.time(fqp, blockedDuration);
     }
@@ -190,14 +165,9 @@ public class StatsdNotifier extends BuildNotifier {
 
         String fqp = String.format("%s.stage.%s.non_stage_error", getBranchPath(), sanitizeAll(nodeName));
         byte[] fqpSize;
-        try {
-            fqpSize = fqp.getBytes("UTF-16");
-            if (fqpSize.length > statsDMaxSize) {
-                log(Level.WARNING, "StatsD notify exceeds maxPaketSize for nonStageError");
-            }
-        } catch (UnsupportedEncodingException e) {
-            log(Level.WARNING, "Unable to find byte size of nonStageError");
-            e.printStackTrace();
+        fqpSize = fqp.getBytes(StandardCharsets.UTF_16);
+        if (fqpSize.length > statsDMaxSize) {
+            log(Level.WARNING, "StatsD notify exceeds maxPaketSize for nonStageError");
         }
         client.increment(fqp, 1);
     }

@@ -42,7 +42,7 @@ import org.jenkinsci.plugins.githubautostatus.config.HttpNotifierConfig;
 import org.jenkinsci.plugins.githubautostatus.model.*;
 
 import java.io.IOException;
-import java.io.UnsupportedEncodingException;
+import java.nio.charset.StandardCharsets;
 import java.security.KeyManagementException;
 import java.security.KeyStoreException;
 import java.security.NoSuchAlgorithmException;
@@ -73,18 +73,13 @@ public class HttpNotifier extends BuildNotifier {
         this.branchName = config.getBranchName();
         this.config = config;
         this.stageMap = new HashMap<>();
-        try {
-            UsernamePasswordCredentials credentials = config.getCredentials();
-            if (credentials != null) {
-                String username = credentials.getUsername();
-                String password = credentials.getPassword().getPlainText();
+        UsernamePasswordCredentials credentials = config.getCredentials();
+        if (credentials != null) {
+            String username = credentials.getUsername();
+            String password = credentials.getPassword().getPlainText();
 
-                authorization = Base64.getEncoder().encodeToString(
-                        String.format("%s:%s", username, password)
-                                .getBytes("UTF-8"));
-            }
-        } catch (UnsupportedEncodingException ex) {
-            Logger.getLogger(InfluxDbNotifier.class.getName()).log(Level.SEVERE, null, ex);
+            authorization = Base64.getEncoder().encodeToString(
+                    String.format("%s:%s", username, password).getBytes(StandardCharsets.UTF_8));
         }
         gson = new GsonBuilder()
                 .addSerializationExclusionStrategy(new ExclusionStrategy() {
@@ -180,7 +175,7 @@ public class HttpNotifier extends BuildNotifier {
 
                     HttpEntity entity = response.getEntity();
                     if (entity != null) {
-                        String reason = EntityUtils.toString(entity, "UTF-8");
+                        String reason = EntityUtils.toString(entity, StandardCharsets.UTF_8);
                         log(Level.WARNING, "%s", reason);
                     }
                 } else {
