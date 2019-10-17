@@ -74,7 +74,7 @@ public class TestResultsTest {
     @Test
     public void testGetSetTestSuites() {
         TestResults testSuite = new TestResults();
-        ArrayList<TestSuite> testSuites = new ArrayList();
+        ArrayList<TestSuite> testSuites = new ArrayList<>();
         testSuite.setTestSuites(testSuites);
         assertEquals(testSuites, testSuite.getTestSuites());
     }

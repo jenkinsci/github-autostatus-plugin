@@ -66,7 +66,7 @@ public class BuildStage {
                       Map<String, Object> environment,
                       State buildState) {
         this.stageName = stageName;
-        this.environment = new HashMap(environment);
+        this.environment = new HashMap<>(environment);
         Object timingInfo = this.environment.get(BuildNotifierConstants.STAGE_DURATION);
         this.duration = timingInfo == null ? 0 : (long) timingInfo;
         this.buildState = buildState;
