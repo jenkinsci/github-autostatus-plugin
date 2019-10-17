@@ -32,6 +32,7 @@ import java.util.Map;
 
 /**
  * A notification subscriber which can send build stats to a particular sink.
+ *
  * @author Jeff Pearce (GitHub jeffpearce)
  */
 public abstract class BuildNotifier implements ExtensionPoint {
@@ -42,30 +43,30 @@ public abstract class BuildNotifier implements ExtensionPoint {
      protected final long DEFAULT_LONG = 0;
  
      /**
-     * Establishing a default string for use in Notifiers.
+     * Establishing a default string for use in notifiers.
      */
      protected final String DEFAULT_STRING = "none";
 
     /**
-     * Determine whether notifier is enabled.
+     * Determines whether this notifier is enabled.
      *
-     * @return true if enabled; false otherwise.
+     * @return true if enabled; false otherwise
      */
     abstract public boolean isEnabled();
 
     /**
-     * Send a state change with timing info
+     * Sends a state change with timing info.
      *
-     * @param jobName      the name of the job
-     * @param stageItem    stage item
+     * @param jobName the name of the job
+     * @param stageItem stage item
      */
     abstract public void notifyBuildStageStatus(String jobName, BuildStage stageItem);
 
     /**
-     * Send a notification when the job is complete
+     * Sends a notification when a job is complete.
      *
-     * @param buildState      state indicating success or failure
-     * @param parameters      build parameters
+     * @param buildState state indicating success or failure
+     * @param parameters build parameters
      */
     abstract public void notifyFinalBuildStatus(BuildState buildState, Map<String, Object> parameters);
 

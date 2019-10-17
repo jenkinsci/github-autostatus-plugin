@@ -35,7 +35,7 @@ import java.util.List;
 import java.util.Map;
 
 /**
- * Manages send build notifications to one or more notifiers
+ * Manages send build notifications to one or more notifiers.
  *
  * @author Jeff Pearce (GitHub jeffpearce)
  */
@@ -51,7 +51,7 @@ public class BuildNotifierManager {
     }
 
     /**
-     * Constructs a BuildNotifierManager
+     * Constructs a {@link BuildNotifierManager}.
      *
      * @param jobName the job notifications are for
      * @param targetUrl link back to Jenkins
@@ -62,7 +62,7 @@ public class BuildNotifierManager {
     }
 
     /**
-     * Adds a GitHub repository for notifications
+     * Adds a GitHub repository for notifications.
      *
      * @param config GitHub notification configuration
      * @return the notifier which was added
@@ -73,7 +73,7 @@ public class BuildNotifierManager {
     }
 
     /**
-     * Adds an InfluxDB notifier
+     * Adds an InfluxDB notifier.
      *
      * @param influxDbNotifierConfig InfluxDB notification configuration
      * @return the notifier which was added
@@ -83,6 +83,12 @@ public class BuildNotifierManager {
         return addBuildNotifier(buildNotifier);
     }
 
+    /**
+     * Adds an HTTP notifier.
+     *
+     * @param httpNotifierConfig HTTP notification configuration
+     * @return the notifier which was added
+     */
     public BuildNotifier addHttpNotifier(HttpNotifierConfig httpNotifierConfig) {
         return addBuildNotifier(new HttpNotifier((httpNotifierConfig)));
     }
@@ -93,7 +99,7 @@ public class BuildNotifierManager {
     }
 
     /**
-     * Adds a StatsD notifier
+     * Adds a StatsD notifier.
      *
      * @param statsdNotifierConfig StatsD notification configuration
      * @return the notifier which was added
@@ -104,7 +110,7 @@ public class BuildNotifierManager {
     }
 
     /**
-     * Adds a notifier if it's enabled
+     * Adds a notifier if it's enabled.
      *
      * @param notifier notifier to add
      * @return notifier if added; null if not
@@ -118,7 +124,7 @@ public class BuildNotifierManager {
     }
 
     /**
-     * Send stage status notification
+     * Sends stage status notification.
      *
      * @param stageItem stage item
      */
@@ -129,7 +135,7 @@ public class BuildNotifierManager {
     }
 
     /**
-     * Send overall build status notification
+     * Sends overall build status notification.
      *
      * @param buildState the build status
      * @param parameters build parameters

@@ -50,6 +50,7 @@ import java.util.logging.Logger;
 
 /**
  * Writes job and stage measurements to an InfluxDB REST API.
+ *
  * @author Jeff Pearce (GitHub jeffpearce)
  */
 public class InfluxDbNotifier extends BuildNotifier {
@@ -111,7 +112,7 @@ public class InfluxDbNotifier extends BuildNotifier {
     }
 
     /**
-     * Determine whether notifier is enabled
+     * Determines whether this notifier is enabled.
      *
      * @return true if enabled; false otherwise
      */
@@ -121,9 +122,9 @@ public class InfluxDbNotifier extends BuildNotifier {
     }
 
     /**
-     * Send a state change to InfluxDB
+     * Sends a state change to InfluxDB.
      *
-     * @param jobName   the name of the job
+     * @param jobName the name of the job
      * @param stageItem stage item describing the new state
      */
     @Override
@@ -153,7 +154,7 @@ public class InfluxDbNotifier extends BuildNotifier {
     }
 
     /**
-     * Send final build status to InfluxDB
+     * Sends the final build status to InfluxDB.
      *
      * @param buildState the new state
      * @param parameters build parameters
@@ -296,7 +297,7 @@ public class InfluxDbNotifier extends BuildNotifier {
     }
 
     /**
-     * Posts a new series data point
+     * Posts a new series data point.
      *
      * @param seriesInfo the data point
      */

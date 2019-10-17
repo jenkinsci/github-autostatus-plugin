@@ -365,7 +365,7 @@ public class BuildStatusConfig extends GlobalConfiguration {
     /**
      * Sets the InfluxDB database.
      *
-     * @param influxDbDatabase new value of influxDbDatabase
+     * @param influxDbDatabase the database
      */
     @DataBoundSetter
     public void setInfluxDbDatabase(String influxDbDatabase) {
