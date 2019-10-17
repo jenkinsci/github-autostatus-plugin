@@ -44,7 +44,7 @@ import java.util.logging.Level;
 import java.util.logging.Logger;
 
 /**
- * Implements {@link hudson.model.listeners.RunListener} extension point to
+ * Implements {@link RunListener} extension point to
  * provide job status information to subscribers as jobs complete.
  *
  * @author Jeff Pearce (GitHub jeffpearce)
@@ -53,7 +53,7 @@ import java.util.logging.Logger;
 public class BuildStatusJobListener extends RunListener<Run<?, ?>> {
 
     /**
-     * Sends final build status notification
+     * Sends final build status notification.
      *
      * @param build the build
      * @param listener listener
@@ -92,8 +92,9 @@ public class BuildStatusJobListener extends RunListener<Run<?, ?>> {
     }
 
     /**
-     * Sets the build status action for a freestyle build, so we can send a few basic stats
-     * @param build the build.
+     * Sets the build status action for a freestyle build, so we can send a few basic stats.
+     *
+     * @param build the build
      */
     private void enableFreeStyleBuild(FreeStyleBuild build) {
         String repoOwner = "";
@@ -113,10 +114,10 @@ public class BuildStatusJobListener extends RunListener<Run<?, ?>> {
     }
 
     /**
-     * Gets Creates a map containing all job parameters.
+     * Creates a map containing all job parameters.
      *
-     * @param build the build.
-     * @return map containing parameters.
+     * @param build the build
+     * @return map containing parameters
      */
     private Map<String, Object> getParameters(Run<?, ?> build) {
         HashMap<String, Object> result = new HashMap<String, Object>();
@@ -135,10 +136,10 @@ public class BuildStatusJobListener extends RunListener<Run<?, ?>> {
     /**
      * Gets code coverage from the build, if present.
      *
-     * If both cobertura and jacoco results are available, jacoco will take precedence
+     * If both Cobertura and JaCoCo results are available, JaCoCo will take precedence.
      *
-     * @param build the build.
-     * @return code coverage information.
+     * @param build the build
+     * @return code coverage information
      */
     private CodeCoverage getCoverageData(Run<?, ?> build) {
 
@@ -158,8 +159,8 @@ public class BuildStatusJobListener extends RunListener<Run<?, ?>> {
     /**
      * Gets test results from the build, if present.
      *
-     * @param build the build.
-     * @return test results.
+     * @param build the build
+     * @return test results
      */
     private TestResults getTestData(Run<?, ?> build) {
         TestResultAction testResultAction = build.getAction(TestResultAction.class);
@@ -170,8 +171,8 @@ public class BuildStatusJobListener extends RunListener<Run<?, ?>> {
     /**
      * Determines the amount of time a build spent in the blocked state.
      *
-     * @param build The build to check.
-     * @return Time spent in the blocked state, in milliseconds.
+     * @param build the build
+     * @return time spent in the blocked state, in milliseconds
      */
     private long getBlockedTime(Run<?, ?> build) {
         BuildBlockedAction action = build.getAction(BuildBlockedAction.class);

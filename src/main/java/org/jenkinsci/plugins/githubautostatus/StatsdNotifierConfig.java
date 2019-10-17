@@ -28,6 +28,7 @@ import org.apache.commons.lang.StringUtils;
 
 /**
  * Class for StatsD configuration notifier.
+ *
  * @author Shane Gearon (shane.gearon@hootsuite.com)
  */
 public class StatsdNotifierConfig {
@@ -40,45 +41,45 @@ public class StatsdNotifierConfig {
     private static final Logger LOGGER = Logger.getLogger(StatsdWrapper.class.getName());
 
     /**
-     * Gets the externalizedID.
+     * Gets the externalized id.
      *
-     * @return repo externalizedID.
+     * @return the externalized id
      */
     public String getExternalizedID() {
         return externalizedID;
     }
 
     /**
-     * Gets StatsD URL.
+     * Gets the StatsD URL.
      *
-     * @return StatsD URL.
+     * @return the StatsD URL
      */
     public String getStatsdHost() {
         return statsdHost;
     }
 
     /**
-     * Gets StatsD port.
+     * Gets the StatsD port.
      *
-     * @return StatsD port.
+     * @return the StatsD port
      */
     public int getStatsdPort() {
         return statsdPort;
     }
 
     /**
-     * Gets StatsD bucket.
+     * Gets the StatsD bucket.
      *
-     * @return StatsD bucket.
+     * @return the StatsD bucket
      */
     public String getStatsdBucket() {
         return statsdBucket;
     }
 
     /**
-     * Gets StatsD maximum packet size.
+     * Gets the StatsD maximum packet size.
      *
-     * @return StatsD maximum packet size.
+     * @return the StatsD maximum packet size
      */
     public String getStatsdMaxSize() {
         return statsdMaxSize;
@@ -87,8 +88,8 @@ public class StatsdNotifierConfig {
     /**
      * Creates a StatsD notification config based on the global settings.
      *
-     * @param externalizedID externalized ID.
-     * @return config.
+     * @param externalizedID externalized id
+     * @return the config
      */
     public static StatsdNotifierConfig fromGlobalConfig(String externalizedID) {
         BuildStatusConfig config = BuildStatusConfig.get();

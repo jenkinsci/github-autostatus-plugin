@@ -8,6 +8,7 @@ import javax.annotation.CheckForNull;
 
 /**
  * Encapsulates the logic of determining HTTP notifier configuration for a build.
+ *
  * @author An Nguyen (nthienan.it@gmail.com)
  */
 public class HttpNotifierConfig extends AbstractNotifierConfig {
@@ -22,7 +23,7 @@ public class HttpNotifierConfig extends AbstractNotifierConfig {
   /**
    * Gets the repo owner.
    *
-   * @return repo owner.
+   * @return the repo owner
    */
   public String getRepoOwner() {
     return repoOwner;
@@ -31,7 +32,7 @@ public class HttpNotifierConfig extends AbstractNotifierConfig {
   /**
    * Gets the repo name.
    *
-   * @return repo name.
+   * @return the repo name
    */
   public String getRepoName() {
     return repoName;
@@ -40,32 +41,32 @@ public class HttpNotifierConfig extends AbstractNotifierConfig {
   /**
    * Gets the branch name.
    *
-   * @return branch name.
+   * @return the branch name
    */
   public String getBranchName() {
     return branchName;
   }
 
   /**
-   * Get HTTP endpoint URL
+   * Gets the HTTP endpoint URL.
    *
-   * @return http endpoint URL
+   * @return the HTTP endpoint URL
    */
   public String getHttpEndpoint() {
     return httpEndpoint;
   }
 
   /**
-   * Get HTTP credentials Id
+   * Gets the HTTP credentials id.
    *
-   * @return the HTTP credentials
+   * @return the credentials id
    */
   public String getHttpCredentialsId() {
     return httpCredentialsId;
   }
 
   /**
-   * Get a flag indicating whether to enable SSL verify
+   * Gets whether to enable SSL verify.
    *
    * @return true if verify SSL is enabled
    */
@@ -74,8 +75,9 @@ public class HttpNotifierConfig extends AbstractNotifierConfig {
   }
 
   /**
-   * Returns credentials for calling influxdb if they are configured.
-   * @return credentials; null if not provided.
+   * Returns credentials for accessing the HTTP endpoint if they are configured.
+   *
+   * @return credentials; null if not provided
    */
   @CheckForNull
   public UsernamePasswordCredentials getCredentials() {

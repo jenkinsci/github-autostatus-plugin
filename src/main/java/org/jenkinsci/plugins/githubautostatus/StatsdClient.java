@@ -34,7 +34,7 @@ import java.util.logging.Logger;
 
 /**
  * Wraps regular UDP based StatsD client with concurrent hostname refreshing logic.
- * 
+ *
  * @author Tom Hadlaw (thomas.hadlaw@hootsuite.com)
  */
 public class StatsdClient implements StatsdWrapper {
@@ -50,10 +50,10 @@ public class StatsdClient implements StatsdWrapper {
     private static volatile StatsdClient statsDClient;
 
     /**
-     * Attempts to create a new StatsD client instance, if succesful then
+     * Attempts to create a new StatsD client instance, if successful then
      * the active client is safely swapped out.
-     * 
-     * @throws StatsDClientException throws an exceltopn if unable to refresh client
+     *
+     * @throws StatsDClientException if unable to refresh client
      */
     public void newClient() throws StatsDClientException {
         Lock wl = lock.writeLock();
@@ -70,7 +70,7 @@ public class StatsdClient implements StatsdWrapper {
             return;
         }
 
-        // only aquire write lock if hostname resolution succeeded.
+        // only acquire write lock if hostname resolution succeeded.
         wl.lock();
         try {
             if (this.client != null) {
@@ -90,7 +90,7 @@ public class StatsdClient implements StatsdWrapper {
 
     /**
      * Constructs a new StatsD client.
-     * 
+     *
      * @param prefix   StatsD prefix
      * @param hostname StatsD collector hostname (default localhost)
      * @param port     StatsD collector listener port (default 8125)
@@ -131,7 +131,7 @@ public class StatsdClient implements StatsdWrapper {
 
     /**
      * Execute Invokes runnable surrounded in the objects readlock.
-     * 
+     *
      * @param l Runnable to be invoked.
      */
     private void execLocked(Runnable l) {
@@ -148,7 +148,7 @@ public class StatsdClient implements StatsdWrapper {
 
     /**
      * Runs a StatsD increment in a safe way.
-     * 
+     *
      * @param key    the bucket key
      * @param amount amount to increment
      */
@@ -165,7 +165,7 @@ public class StatsdClient implements StatsdWrapper {
 
     /**
      * Runs a StatsD timer state in a safe way.
-     * 
+     *
      * @param key the bucket key
      * @param duration the duration
      */
