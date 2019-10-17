@@ -272,8 +272,8 @@ public class GithubBuildStatusGraphListenerTest {
     private static ModelASTStages createStages(String... names) {
         ModelASTStages stages = new ModelASTStages(null);
         List<ModelASTStage> stageList = new ArrayList<ModelASTStage>();
-        for (int i = 0; i < names.length; i++) {
-            ModelASTStage stage = createStage(names[i]);
+        for (String name : names) {
+            ModelASTStage stage = createStage(name);
             stageList.add(stage);
         }
         stages.setStages(stageList);
