@@ -28,13 +28,13 @@ import org.jenkinsci.plugins.workflow.job.WorkflowRun
 
 // check plugin installed and version for github-autostatus
 
-def pluginGighubAutostatus = Jenkins.instance.pluginManager.activePlugins.find{ it.getShortName() == 'github-autostatus' }
-if(!pluginGighubAutostatus){
+def pluginGitHubAutostatus = Jenkins.instance.pluginManager.activePlugins.find{ it.getShortName() == 'github-autostatus' }
+if(!pluginGitHubAutostatus){
   println "You do not have the [github-autostatus] plugin and so does not seem to be vulnerable, if you had installed it, please comment this check"
   return
 }
 
-def pluginVersion = pluginGighubAutostatus?.getVersionNumber()
+def pluginVersion = pluginGitHubAutostatus?.getVersionNumber()
 if(pluginVersion && pluginVersion.isOlderThan(new hudson.util.VersionNumber("3.0.0"))){
   println "The plugin [ghprb:${pluginVersion}] is vulnerable, please upgrade at least to [3.0.0] and re-run this script."
   return

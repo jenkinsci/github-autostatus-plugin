@@ -51,7 +51,7 @@ import static org.mockito.Mockito.when;
 public class InfluxDbNotifierConfigTest {
 
     private BuildStatusConfig config;
-    private final String repositoryOwner = "mock-pwner";
+    private final String repositoryOwner = "mock-owner";
     private final String repository = "mock-repo";
     private final String branch = "mock-branch";
     private final String influxUrl = "http://qwerqwerqwerqwrqwerqwrwqrqwqwer";

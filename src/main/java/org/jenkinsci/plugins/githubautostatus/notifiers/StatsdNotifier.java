@@ -104,7 +104,7 @@ public class StatsdNotifier extends BuildNotifier {
         byte[] stageStatusSize;
         stageStatusSize = stageStatus.getBytes(StandardCharsets.UTF_16);
         if (stageStatusSize.length > statsDMaxSize) {
-            log(Level.INFO, "StatsD notify exceeds maxPaketSize for stageStatus");
+            log(Level.INFO, "StatsD notify exceeds max. packet size for stageStatus");
         }
         client.increment(stageStatus, 1);
 
@@ -112,7 +112,7 @@ public class StatsdNotifier extends BuildNotifier {
         byte[] stageDurationSize;
         stageDurationSize = stageDuration.getBytes(StandardCharsets.UTF_16);
         if (stageDurationSize.length > statsDMaxSize) {
-            log(Level.WARNING, "StatsD notify exceeds maxPaketSize for stageDuration");
+            log(Level.WARNING, "StatsD notify exceeds max. packet size for stageDuration");
         }
         client.time(stageDuration, nodeDuration);
     }
@@ -133,7 +133,7 @@ public class StatsdNotifier extends BuildNotifier {
         String fqp = String.format("%s.job.status.%s", getBranchPath(), result);
         fqpSize = fqp.getBytes(StandardCharsets.UTF_16);
         if (fqpSize.length > statsDMaxSize) {
-            log(Level.WARNING, "StatsD notify exceeds maxPaketSize for jobStatus");
+            log(Level.WARNING, "StatsD notify exceeds max. packet size for jobStatus");
         }
         client.increment(fqp, 1);
 
@@ -141,7 +141,7 @@ public class StatsdNotifier extends BuildNotifier {
         fqp = String.format("%s.job.duration", getBranchPath());
         fqpSize = fqp.getBytes(StandardCharsets.UTF_16);
         if (fqpSize.length > statsDMaxSize) {
-            log(Level.WARNING, "StatsD notify exceeds maxPaketSize for duration");
+            log(Level.WARNING, "StatsD notify exceeds max. packet size for duration");
         }
         client.time(fqp, buildDuration);
 
@@ -149,7 +149,7 @@ public class StatsdNotifier extends BuildNotifier {
         fqp = String.format("%s.job.blocked_duration", getBranchPath());
         fqpSize = fqp.getBytes(StandardCharsets.UTF_16);
         if (fqpSize.length > statsDMaxSize) {
-            log(Level.WARNING, "StatsD notify exceeds maxPaketSize for blockedDuration");
+            log(Level.WARNING, "StatsD notify exceeds max. packet size for blockedDuration");
         }
         client.time(fqp, blockedDuration);
     }
@@ -167,7 +167,7 @@ public class StatsdNotifier extends BuildNotifier {
         byte[] fqpSize;
         fqpSize = fqp.getBytes(StandardCharsets.UTF_16);
         if (fqpSize.length > statsDMaxSize) {
-            log(Level.WARNING, "StatsD notify exceeds maxPaketSize for nonStageError");
+            log(Level.WARNING, "StatsD notify exceeds max. packet size for nonStageError");
         }
         client.increment(fqp, 1);
     }

@@ -87,8 +87,8 @@ public class GithubBuildStatusGraphListener implements GraphListener {
                 List<? extends FlowNode> enclosingBlocks = fn.getEnclosingBlocks();
                 boolean isInStage = false;
 
-                for (FlowNode encosingNode : enclosingBlocks) {
-                    if (isStage(encosingNode)) {
+                for (FlowNode enclosingNode : enclosingBlocks) {
+                    if (isStage(enclosingNode)) {
                         isInStage = true;
                     }
                 }
@@ -99,7 +99,7 @@ public class GithubBuildStatusGraphListener implements GraphListener {
 
                 // We have a non-declarative atom that isn't in a stage, which has failed.
                 // Since normal processing is via stages, we'd normally miss this failure;
-                // send an out of band error notification to make sure it's recordded by any
+                // send an out of band error notification to make sure it's recorded by any
                 // interested notifiers
                 checkEnableBuildStatus(fn);
                 BuildStatusAction buildStatusAction = buildStatusActionFor(fn.getExecution());
@@ -404,7 +404,7 @@ public class GithubBuildStatusGraphListener implements GraphListener {
      *
      * @param level INFO/WARNING/ERROR
      * @param format String that formats the log
-     * @param args arguments for the formated log string
+     * @param args arguments for the formatted log string
      */
     private static void log(Level level, String format, Object... args) {
         getLogger().log(level, String.format(format, args));
