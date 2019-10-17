@@ -53,7 +53,8 @@ public class InfluxDbNotifierConfig extends AbstractNotifierConfig {
     private String influxDbDatabase;
     private String influxDbCredentialsId;
     private String influxDbRetentionPolicy;
-    private boolean ignoreSendingTestsResultsToInflux;
+    private boolean ignoreSendingTestCoverageToInflux;
+    private boolean ignoreSendingTestResultsToInflux;
     private Integer schemaVersion;
 
     /**
@@ -168,12 +169,21 @@ public class InfluxDbNotifierConfig extends AbstractNotifierConfig {
     }
 
     /**
+     * Gets whether to ignore sending test coverage to InfluxDB.
+     *
+     * @return Whether to ignore sending test coverage to InfluxDB
+     */
+    public boolean getIgnoreSendingTestCoverageToInflux() {
+        return ignoreSendingTestCoverageToInflux;
+    }
+
+    /**
      * Gets whether to ignore sending test results to InfluxDB.
      *
      * @return whether to ignore sending test results to InfluxDB
      */
-    public boolean getIgnoreSendingTestsResultsToInflux() {
-        return ignoreSendingTestsResultsToInflux;
+    public boolean getIgnoreSendingTestResultsToInflux() {
+        return ignoreSendingTestResultsToInflux;
     }
 
     /**
@@ -198,7 +208,8 @@ public class InfluxDbNotifierConfig extends AbstractNotifierConfig {
             influxDbNotifierConfig.influxDbDatabase = config.getInfluxDbDatabase();
             influxDbNotifierConfig.influxDbCredentialsId = config.getCredentialsId();
             influxDbNotifierConfig.influxDbRetentionPolicy = config.getInfluxDbRetentionPolicy();
-            influxDbNotifierConfig.ignoreSendingTestsResultsToInflux = config.getIgnoreSendingTestsResultsToInflux();
+            influxDbNotifierConfig.ignoreSendingTestCoverageToInflux = config.getIgnoreSendingTestCoverageToInflux();
+            influxDbNotifierConfig.ignoreSendingTestResultsToInflux = config.getIgnoreSendingTestResultsToInflux();
             influxDbNotifierConfig.schemaVersion = config.getDbVersion();
         }
 

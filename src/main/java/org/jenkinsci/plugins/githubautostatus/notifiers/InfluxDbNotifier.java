@@ -186,8 +186,10 @@ public class InfluxDbNotifier extends BuildNotifier {
         postData(data);
 
 
-        if(!this.config.getIgnoreSendingTestsResultsToInflux()) {
+        if(!this.config.getIgnoreSendingTestResultsToInflux()) {
             notifyTestResults(jobName, (TestResults) parameters.get(BuildNotifierConstants.TEST_CASE_INFO), run);
+        }
+        if(!this.config.getIgnoreSendingTestCoverageToInflux()) {
             notifyCoverage(jobName, (CodeCoverage) parameters.get(BuildNotifierConstants.COVERAGE_INFO), run);
         }
     }
