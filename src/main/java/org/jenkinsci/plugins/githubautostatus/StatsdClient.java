@@ -140,8 +140,6 @@ public class StatsdClient implements StatsdWrapper {
         rl.lock();
         try {
             l.run();
-        } catch (Exception e) {
-            throw e;
         } finally {
             rl.unlock();
         }
