@@ -67,8 +67,7 @@ public class InfluxDbNotifier extends BuildNotifier {
      *
      * @param config InfluxDB configuration info
      */
-    public InfluxDbNotifier(
-            InfluxDbNotifierConfig config) {
+    public InfluxDbNotifier(InfluxDbNotifierConfig config) {
         if (StringUtils.isEmpty(config.getInfluxDbUrlString()) || StringUtils.isEmpty(config.getInfluxDbDatabase())) {
             return;
         }
@@ -186,11 +185,10 @@ public class InfluxDbNotifier extends BuildNotifier {
 
         postData(data);
 
-
-        if(!this.config.getIgnoreSendingTestResultsToInflux()) {
+        if (!this.config.getIgnoreSendingTestResultsToInflux()) {
             notifyTestResults(jobName, (TestResults) parameters.get(BuildNotifierConstants.TEST_CASE_INFO), run);
         }
-        if(!this.config.getIgnoreSendingTestCoverageToInflux()) {
+        if (!this.config.getIgnoreSendingTestCoverageToInflux()) {
             notifyCoverage(jobName, (CodeCoverage) parameters.get(BuildNotifierConstants.COVERAGE_INFO), run);
         }
     }
@@ -222,7 +220,6 @@ public class InfluxDbNotifier extends BuildNotifier {
     }
 
     private void notifyTestResults(String jobName, @Nullable TestResults testResults, Run<?, ?> run) {
-
         if (testResults != null) {
             String buildUrl = run.getUrl();
             int buildNumber = run.getNumber();

@@ -38,6 +38,7 @@ import java.util.logging.Logger;
  * @author Tom Hadlaw (thomas.hadlaw@hootsuite.com)
  */
 public class StatsdClient implements StatsdWrapper {
+
     private final int CLIENT_TTL = 300;
     private static final Logger LOGGER = Logger.getLogger(StatsdClient.class.getName());
 

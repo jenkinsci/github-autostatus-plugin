@@ -91,12 +91,11 @@ public class BuildStatusConfig extends GlobalConfiguration {
     private Integer dbVersion;
     private Integer configVersion = 2;
 
-
     /**
      * Adds compatibility aliases to prevent "old data" warnings.
      */
     @Initializer(before = InitMilestone.PLUGINS_STARTED)
-    public static void addCompatilityAliases() {
+    public static void addCompatibilityAliases() {
         XSTREAM2.addCompatibilityAlias("org.jenkinsci.plugins.githubautostatus.BuildStageModel", BuildStage.class);
         XSTREAM2.addCompatibilityAlias("org.jenkinsci.plugins.githubautostatus.notifiers.BuildState", BuildState.class);
     }
@@ -322,6 +321,17 @@ public class BuildStatusConfig extends GlobalConfiguration {
     }
 
     /**
+     * Sets the InfluxDB database.
+     *
+     * @param influxDbDatabase the database
+     */
+    @DataBoundSetter
+    public void setInfluxDbDatabase(String influxDbDatabase) {
+        this.influxDbDatabase = influxDbDatabase;
+        save();
+    }
+
+    /**
      * Gets whether to ignore sending test results.
      *
      * @return whether to ignore sending test results
@@ -359,17 +369,6 @@ public class BuildStatusConfig extends GlobalConfiguration {
     @DataBoundSetter
     public void setIgnoreSendingTestCoverageToInflux(boolean ignoreSendingTestCoverageToInflux) {
         this.ignoreSendingTestCoverageToInflux = ignoreSendingTestCoverageToInflux;
-        save();
-    }
-
-    /**
-     * Sets the InfluxDB database.
-     *
-     * @param influxDbDatabase the database
-     */
-    @DataBoundSetter
-    public void setInfluxDbDatabase(String influxDbDatabase) {
-        this.influxDbDatabase = influxDbDatabase;
         save();
     }
 
@@ -527,8 +526,7 @@ public class BuildStatusConfig extends GlobalConfiguration {
      * @param credentialsId the current credentials id
      * @return ListBoxModel containing credentials to show
      */
-    public ListBoxModel doFillCredentialsIdItems(
-            @QueryParameter String credentialsId) {
+    public ListBoxModel doFillCredentialsIdItems(@QueryParameter String credentialsId) {
         if (!Jenkins.getInstance().hasPermission(Jenkins.ADMINISTER)) {
             return new StandardListBoxModel().includeCurrentValue(credentialsId);
         }
@@ -549,8 +547,7 @@ public class BuildStatusConfig extends GlobalConfiguration {
      * @param credentialsId the current credentials id
      * @return ListBoxModel containing credentials to show
      */
-    public ListBoxModel doFillHttpCredentialsIdItems(
-            @QueryParameter String credentialsId) {
+    public ListBoxModel doFillHttpCredentialsIdItems(@QueryParameter String credentialsId) {
         return doFillCredentialsIdItems(credentialsId);
     }
 
@@ -561,9 +558,7 @@ public class BuildStatusConfig extends GlobalConfiguration {
      * @param value to validate
      * @return FormValidation
      */
-    public FormValidation doCheckCredentialsId(
-            @AncestorInPath Item item,
-            @QueryParameter String value) {
+    public FormValidation doCheckCredentialsId(@AncestorInPath Item item, @QueryParameter String value) {
         if (item == null) {
             if (!Jenkins.getInstance().hasPermission(Jenkins.ADMINISTER)) {
                 return FormValidation.ok();
@@ -590,9 +585,7 @@ public class BuildStatusConfig extends GlobalConfiguration {
      * @param value to validate
      * @return FormValidation
      */
-    public FormValidation doCheckHttpCredentialsId(
-            @AncestorInPath Item item,
-            @QueryParameter String value) {
+    public FormValidation doCheckHttpCredentialsId(@AncestorInPath Item item, @QueryParameter String value) {
         return doCheckCredentialsId(item, value);
     }
 

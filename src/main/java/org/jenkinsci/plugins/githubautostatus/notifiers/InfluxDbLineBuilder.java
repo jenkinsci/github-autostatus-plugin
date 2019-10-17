@@ -13,7 +13,6 @@ import java.util.ArrayList;
  */
 public class InfluxDbLineBuilder {
 
-
     private String measurement;
     private ArrayList<Pair<String, Object>> fields = new ArrayList<>();
     private ArrayList<Pair<String, Object>> tags = new ArrayList<>();
@@ -35,15 +34,15 @@ public class InfluxDbLineBuilder {
     public String build() {
         StringBuilder builder = new StringBuilder(measurement);
 
-        for (Pair<String, Object> tag: this.tags) {
+        for (Pair<String, Object> tag : this.tags) {
             if (tag.getRight() instanceof String) {
-                builder.append(String.format(",%s=%s", tag.getLeft(), escapeTagValue((String)tag.getRight())));
+                builder.append(String.format(",%s=%s", tag.getLeft(), escapeTagValue((String) tag.getRight())));
             } else {
                 builder.append(String.format(",%s=%s", tag.getLeft(), tag.getRight()));
             }
         }
         boolean firstField = true;
-        for (Pair<String, Object> field: this.fields) {
+        for (Pair<String, Object> field : this.fields) {
             if (firstField) {
                 builder.append(" ");
                 firstField = false;
@@ -51,7 +50,7 @@ public class InfluxDbLineBuilder {
                 builder.append(",");
             }
             if (field.getRight() instanceof String) {
-                builder.append(String.format("%s=\"%s\"", field.getLeft(), escapeFieldValue((String)field.getRight())));
+                builder.append(String.format("%s=\"%s\"", field.getLeft(), escapeFieldValue((String) field.getRight())));
             } else if (field.getRight() instanceof Float || field.getRight() instanceof Double) {
                 builder.append(String.format("%s=%.4f", field.getLeft(), field.getRight()));
             } else {
@@ -67,6 +66,7 @@ public class InfluxDbLineBuilder {
                 .replace(",", "\\,")
                 .replace("=", "\\=");
     }
+
     private static String escapeFieldValue(String stringValue) {
         return stringValue.replace("\"", "\\\" ");
     }

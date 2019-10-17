@@ -120,8 +120,7 @@ public class GithubNotificationConfig {
      * @param run the build
      * @return the GitHub config object
      */
-    public static @Nullable
-    GithubNotificationConfig fromRun(Run<?, ?> run) {
+    public static @Nullable GithubNotificationConfig fromRun(Run<?, ?> run) {
         return GithubNotificationConfig.fromRun(run, new GitHubBuilder());
     }
 
@@ -132,8 +131,7 @@ public class GithubNotificationConfig {
      * @param githubBuilder the GitHub builder
      * @return the constructed config object
      */
-    public static @Nullable
-    GithubNotificationConfig fromRun(Run<?, ?> run, GitHubBuilder githubBuilder) {
+    public static @Nullable GithubNotificationConfig fromRun(Run<?, ?> run, GitHubBuilder githubBuilder) {
         BuildStatusConfig buildStatusConfig = BuildStatusConfig.get();
         if (buildStatusConfig.getEnableGithub()) {
             try {
@@ -246,11 +244,11 @@ public class GithubNotificationConfig {
             if (stringCredentials != null) {
                 userName = stringCredentials.getId();
                 password = stringCredentials.getSecret().getPlainText();
-            } 
+            }
         }
         if (userName == null) {
             log(Level.INFO, "Could not resolve credentials - status will not be provided for this build");
-            return false;        
+            return false;
         }
 
         githubBuilder = githubBuilder.withEndpoint(url);

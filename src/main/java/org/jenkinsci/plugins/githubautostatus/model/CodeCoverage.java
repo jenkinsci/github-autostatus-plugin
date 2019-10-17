@@ -74,7 +74,6 @@ public class CodeCoverage {
      * @return CodeCoverage instance with values populated from the action
      */
     public static CodeCoverage fromJacoco(@Nullable JacocoBuildAction jacocoAction) {
-
         if (jacocoAction == null) {
             return null;
         }
@@ -83,8 +82,8 @@ public class CodeCoverage {
         codeCoverage.setFiles(-1f);
         codeCoverage.setPackages(-1f);
 
-        for(Coverage c : jacocoAction.getCoverageRatios().keySet()){
-            switch(c.getType()){
+        for (Coverage c : jacocoAction.getCoverageRatios().keySet()) {
+            switch (c.getType()) {
                 case BRANCH:
                     codeCoverage.setConditionals(c.getPercentageFloat());
                     break;

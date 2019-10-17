@@ -48,7 +48,7 @@ public class BuildNotifierConstants {
         Object mapValue = map.get(mapKey);
 
         if (mapValue != null) {
-            return (long)mapValue;
+            return (long) mapValue;
         }
         return BuildNotifierConstants.DEFAULT_LONG;
     }

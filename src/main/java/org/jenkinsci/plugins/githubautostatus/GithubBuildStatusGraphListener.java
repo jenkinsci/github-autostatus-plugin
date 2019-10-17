@@ -369,8 +369,7 @@ public class GithubBuildStatusGraphListener implements GraphListener {
         return stageNames;
     }
 
-    private static @CheckForNull
-    BuildStatusAction buildStatusActionFor(FlowExecution exec) {
+    private static @CheckForNull BuildStatusAction buildStatusActionFor(FlowExecution exec) {
         BuildStatusAction buildStatusAction = null;
         Run<?, ?> run = runFor(exec);
         if (run != null) {
@@ -385,8 +384,7 @@ public class GithubBuildStatusGraphListener implements GraphListener {
      * @param exec execution of a workflow
      * @return jenkins run object of a job
      */
-    private static @CheckForNull
-    Run<?, ?> runFor(FlowExecution exec) {
+    private static @CheckForNull Run<?, ?> runFor(FlowExecution exec) {
         Queue.Executable executable;
         try {
             executable = exec.getOwner().getExecutable();

@@ -44,7 +44,7 @@ public class TestCase {
     private boolean passed;
     private boolean skipped;
 
-  private TestCaseResult result;
+    private TestCaseResult result;
 
     public static TestCase fromCaseResult(CaseResult caseResult) {
         TestCase testCase = new TestCase();
@@ -89,7 +89,7 @@ public class TestCase {
     public void setFailed(boolean failed) {
         this.failed = failed;
         if (this.failed) {
-          result = TestCaseResult.Failed;
+            result = TestCaseResult.Failed;
         }
     }
 
@@ -100,7 +100,7 @@ public class TestCase {
     public void setSkipped(boolean skipped) {
         this.skipped = skipped;
         if (this.skipped) {
-          result = TestCaseResult.Skipped;
+            result = TestCaseResult.Skipped;
         }
     }
 
@@ -117,23 +117,23 @@ public class TestCase {
     }
 
     public TestCaseResult getResult() {
-      return result;
+        return result;
     }
 
-  @Override
-  public boolean equals(Object o) {
-    if (this == o) return true;
-    if (!(o instanceof TestCase)) return false;
-    TestCase testCase = (TestCase) o;
-    return isFailed() == testCase.isFailed() &&
-            isPassed() == testCase.isPassed() &&
-            isSkipped() == testCase.isSkipped() &&
-            Objects.equals(getName(), testCase.getName()) &&
-            getResult() == testCase.getResult();
-  }
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (!(o instanceof TestCase)) return false;
+        TestCase testCase = (TestCase) o;
+        return isFailed() == testCase.isFailed() &&
+                isPassed() == testCase.isPassed() &&
+                isSkipped() == testCase.isSkipped() &&
+                Objects.equals(getName(), testCase.getName()) &&
+                getResult() == testCase.getResult();
+    }
 
-  @Override
-  public int hashCode() {
-    return Objects.hash(getName(), isFailed(), isPassed(), isSkipped(), getResult());
-  }
+    @Override
+    public int hashCode() {
+        return Objects.hash(getName(), isFailed(), isPassed(), isSkipped(), getResult());
+    }
 }

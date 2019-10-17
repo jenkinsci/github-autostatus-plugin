@@ -31,14 +31,14 @@ import hudson.model.InvisibleAction;
  * @author Jeff Pearce (GitHub jeffpearce)
  */
 public class BuildBlockedAction extends InvisibleAction {
-    
+
     private long timeStartBlocked;
     private long timeReleased;
 
     public BuildBlockedAction() {
         this.timeStartBlocked = System.currentTimeMillis();
     }
-    
+
     public BuildBlockedAction(long timeStartBlocked) {
         this.timeStartBlocked = timeStartBlocked;
     }

@@ -69,7 +69,6 @@ public class BuildQueueListener extends QueueListener {
         Run run = ((ExecutorStepExecution.PlaceholderTask) item.task).run();
 
         if (run != null) {
-
             BuildBlockedAction action = run.getAction(BuildBlockedAction.class);
             if (action != null) {
                 action.setTimeReleased(System.currentTimeMillis());

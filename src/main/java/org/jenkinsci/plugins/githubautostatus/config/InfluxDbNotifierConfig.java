@@ -94,7 +94,7 @@ public class InfluxDbNotifierConfig extends AbstractNotifierConfig {
     }
 
     public Integer getDbVersion() {
-        if (schemaVersion == null || schemaVersion <= 0 || schemaVersion > InfluxDbNotifierSchemas.getSchemaCount() ) {
+        if (schemaVersion == null || schemaVersion <= 0 || schemaVersion > InfluxDbNotifierSchemas.getSchemaCount()) {
             return InfluxDbNotifierSchemas.getSchemaCount();
         }
         return schemaVersion;

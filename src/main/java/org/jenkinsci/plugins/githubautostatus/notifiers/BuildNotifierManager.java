@@ -93,7 +93,6 @@ public class BuildNotifierManager {
         return addBuildNotifier(new HttpNotifier((httpNotifierConfig)));
     }
 
-
     public BuildNotifier addGenericNotifier(BuildNotifier buildNotifier) {
         return addBuildNotifier(buildNotifier);
     }

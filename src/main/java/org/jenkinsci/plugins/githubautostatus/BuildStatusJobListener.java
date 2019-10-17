@@ -60,10 +60,8 @@ public class BuildStatusJobListener extends RunListener<Run<?, ?>> {
      */
     @Override
     public void onCompleted(Run<?, ?> build, @Nonnull TaskListener listener) {
-
         if (build instanceof FreeStyleBuild) {
-            enableFreeStyleBuild((FreeStyleBuild)build);
-
+            enableFreeStyleBuild((FreeStyleBuild) build);
         }
         BuildStatusAction statusAction = build.getAction(BuildStatusAction.class);
         if (statusAction != null) {
@@ -107,10 +105,8 @@ public class BuildStatusJobListener extends RunListener<Run<?, ?>> {
         buildStatusAction.setRepoOwner(repoOwner);
         buildStatusAction.setRepoName(repoName);
         buildStatusAction.setBranchName(branchName);
-        buildStatusAction.addInfluxDbNotifier(
-                InfluxDbNotifierConfig.fromGlobalConfig(repoOwner, repoName, branchName));
-        buildStatusAction.addHttpNotifier(
-                HttpNotifierConfig.fromGlobalConfig(repoOwner, repoName, branchName));
+        buildStatusAction.addInfluxDbNotifier(InfluxDbNotifierConfig.fromGlobalConfig(repoOwner, repoName, branchName));
+        buildStatusAction.addHttpNotifier(HttpNotifierConfig.fromGlobalConfig(repoOwner, repoName, branchName));
     }
 
     /**
@@ -142,14 +138,13 @@ public class BuildStatusJobListener extends RunListener<Run<?, ?>> {
      * @return code coverage information
      */
     private CodeCoverage getCoverageData(Run<?, ?> build) {
-
         CodeCoverage results = null;
         CoberturaBuildAction coberturaAction = build.getAction(CoberturaBuildAction.class);
         JacocoBuildAction jacocoBuildAction = build.getAction(JacocoBuildAction.class);
 
         if (coberturaAction != null) {
             results = CodeCoverage.fromCobertura(coberturaAction);
-        } else if(jacocoBuildAction != null){
+        } else if (jacocoBuildAction != null) {
             results = CodeCoverage.fromJacoco(jacocoBuildAction);
         }
 

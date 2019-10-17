@@ -33,7 +33,6 @@ import org.jenkinsci.plugins.githubautostatus.StatsdNotifierConfig;
 import org.jenkinsci.plugins.githubautostatus.model.BuildStage;
 import org.jenkinsci.plugins.githubautostatus.model.BuildState;
 
-
 /**
  * Sends job and stage metrics to a StatsD collector server over UDP.
  *
@@ -82,7 +81,6 @@ public class StatsdNotifier extends BuildNotifier {
      * @param stageItem stage item describing the new state
      */
     public void notifyBuildStageStatus(String jobName, BuildStage stageItem) {
-
         BuildStage.State buildState = stageItem.getBuildState();
 
         if (buildState == BuildStage.State.Pending) {
@@ -97,7 +95,7 @@ public class StatsdNotifier extends BuildNotifier {
         } catch (NullPointerException e) {
             nodeDuration = 0;
         }
-    // public void notifyBuildStageStatus(String jobName, String nodeName, BuildState buildState, long nodeDuration) {
+        // public void notifyBuildStageStatus(String jobName, String nodeName, BuildState buildState, long nodeDuration) {
 
         String result = buildState.toString();
         int statsDMaxSize = Integer.parseInt(config.getStatsdMaxSize().trim());
@@ -106,7 +104,7 @@ public class StatsdNotifier extends BuildNotifier {
         byte[] stageStatusSize;
         try {
             stageStatusSize = stageStatus.getBytes("UTF-16");
-            if (stageStatusSize.length > statsDMaxSize){
+            if (stageStatusSize.length > statsDMaxSize) {
                 log(Level.INFO, "StatsD notify exceeds maxPaketSize for stageStatus");
             }
         } catch (UnsupportedEncodingException e) {
@@ -119,7 +117,7 @@ public class StatsdNotifier extends BuildNotifier {
         byte[] stageDurationSize;
         try {
             stageDurationSize = stageDuration.getBytes("UTF-16");
-            if (stageDurationSize.length > statsDMaxSize){
+            if (stageDurationSize.length > statsDMaxSize) {
                 log(Level.WARNING, "StatsD notify exceeds maxPaketSize for stageDuration");
             }
         } catch (UnsupportedEncodingException e) {
@@ -136,7 +134,6 @@ public class StatsdNotifier extends BuildNotifier {
      * @param parameters build parameters
      */
     public void notifyFinalBuildStatus(BuildState buildState, Map<String, Object> parameters) {
-
         long blockedDuration = getLong(parameters, BuildNotifierConstants.BLOCKED_DURATION);
         long buildDuration = getLong(parameters, BuildNotifierConstants.JOB_DURATION) - blockedDuration;
         byte[] fqpSize;
@@ -146,7 +143,7 @@ public class StatsdNotifier extends BuildNotifier {
         String fqp = String.format("%s.job.status.%s", getBranchPath(), result);
         try {
             fqpSize = fqp.getBytes("UTF-16");
-            if (fqpSize.length > statsDMaxSize){
+            if (fqpSize.length > statsDMaxSize) {
                 log(Level.WARNING, "StatsD notify exceeds maxPaketSize for jobStatus");
             }
         } catch (UnsupportedEncodingException e) {
@@ -154,12 +151,12 @@ public class StatsdNotifier extends BuildNotifier {
             e.printStackTrace();
         }
         client.increment(fqp, 1);
-        
+
 
         fqp = String.format("%s.job.duration", getBranchPath());
         try {
             fqpSize = fqp.getBytes("UTF-16");
-            if (fqpSize.length > statsDMaxSize){
+            if (fqpSize.length > statsDMaxSize) {
                 log(Level.WARNING, "StatsD notify exceeds maxPaketSize for duration");
             }
         } catch (UnsupportedEncodingException e) {
@@ -172,7 +169,7 @@ public class StatsdNotifier extends BuildNotifier {
         fqp = String.format("%s.job.blocked_duration", getBranchPath());
         try {
             fqpSize = fqp.getBytes("UTF-16");
-            if (fqpSize.length > statsDMaxSize){
+            if (fqpSize.length > statsDMaxSize) {
                 log(Level.WARNING, "StatsD notify exceeds maxPaketSize for blockedDuration");
             }
         } catch (UnsupportedEncodingException e) {
@@ -195,7 +192,7 @@ public class StatsdNotifier extends BuildNotifier {
         byte[] fqpSize;
         try {
             fqpSize = fqp.getBytes("UTF-16");
-            if (fqpSize.length > statsDMaxSize){
+            if (fqpSize.length > statsDMaxSize) {
                 log(Level.WARNING, "StatsD notify exceeds maxPaketSize for nonStageError");
             }
         } catch (UnsupportedEncodingException e) {
@@ -236,15 +233,14 @@ public class StatsdNotifier extends BuildNotifier {
         return key.replaceAll("\\.", "");
     }
 
-
     /**
      * Gets rid of # and trailing characters at the end of the string.
      *
      * @param key key to sanitize
      * @return sanitized key
      */
-    private String saninitizeBuildNumber(String key) {
-        if (key.indexOf('#') != -1){
+    private String sanitizeBuildNumber(String key) {
+        if (key.indexOf('#') != -1) {
             return key.split("#")[0];
         }
         return key;
@@ -259,7 +255,7 @@ public class StatsdNotifier extends BuildNotifier {
      * @return sanitized key
      */
     public String sanitizeAll(String key) {
-        return collapseEmptyBuckets(statsdSanitizeKey(sanitizeKey(saninitizeBuildNumber(key.toLowerCase()))));
+        return collapseEmptyBuckets(statsdSanitizeKey(sanitizeKey(sanitizeBuildNumber(key.toLowerCase()))));
     }
 
     private static void log(Level level, String format, Object... args) {
