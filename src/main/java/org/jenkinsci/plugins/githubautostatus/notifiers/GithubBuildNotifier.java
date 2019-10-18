@@ -34,6 +34,7 @@ import org.kohsuke.github.GHRepository;
 
 /**
  * Sets the GitHub commit status for stages based on build notifications.
+ *
  * @author Jeff Pearce (GitHub jeffpearce)
  */
 public class GithubBuildNotifier extends BuildNotifier {
@@ -74,7 +75,7 @@ public class GithubBuildNotifier extends BuildNotifier {
     }
 
     /**
-     * Determine whether notifier is enabled
+     * Determines whether this notifier is enabled.
      *
      * @return true if enabled; false otherwise
      */
@@ -84,7 +85,7 @@ public class GithubBuildNotifier extends BuildNotifier {
     }
 
     /**
-     * Send stage status notification to GitHub
+     * Sends stage status notification to GitHub.
      *
      * @param jobName the job  name
      * @param stageItem stage item describing the new state
@@ -109,7 +110,7 @@ public class GithubBuildNotifier extends BuildNotifier {
     }
 
     /**
-     * Send a notification when the job is complete
+     * Sends a notification when the job is complete.
      *
      * @param buildState state indicating success or failure
      * @param parameters build parameters

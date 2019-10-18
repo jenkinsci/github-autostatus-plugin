@@ -7,7 +7,7 @@ import org.apache.commons.lang3.tuple.Pair;
 import java.util.ArrayList;
 
 /**
- * Builds a single line for the Influxdb line protocol.
+ * Builds a single line for the InfluxDB line protocol.
  *
  * @author Jeff Pearce (GitHub jeffpearce)
  */

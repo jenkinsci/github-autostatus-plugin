@@ -19,9 +19,9 @@ import java.security.NoSuchAlgorithmException;
 public abstract class AbstractNotifierConfig {
 
   /**
-   * Gets an http client that can be used to make requests.
+   * Gets an HTTP client that can be used to make requests.
    *
-   * @return http client.
+   * @return HTTP client
    */
   public CloseableHttpClient getHttpClient(boolean ignoreSSL) throws KeyStoreException, NoSuchAlgorithmException, KeyManagementException {
     if (ignoreSSL) {

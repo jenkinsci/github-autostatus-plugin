@@ -36,6 +36,7 @@ import org.jenkinsci.plugins.githubautostatus.model.BuildState;
 
 /**
  * Sends job and stage metrics to a StatsD collector server over UDP.
+ *
  * @author Tom Hadlaw (thomas.hadlaw@hootsuite.com)
  */
 public class StatsdNotifier extends BuildNotifier {
@@ -56,7 +57,7 @@ public class StatsdNotifier extends BuildNotifier {
     }
 
     /**
-     * Determine whether notifier is enabled
+     * Determines whether this notifier is enabled.
      *
      * @return true if enabled; false otherwise
      */
@@ -65,8 +66,8 @@ public class StatsdNotifier extends BuildNotifier {
     }
 
     /**
-     * Returns the StatsD including the global prefix up to the branch bucket
-     * 
+     * Returns the StatsD including the global prefix up to the branch bucket.
+     *
      * @return string of path up to branch bucket
      */
     public String getBranchPath() {
@@ -75,12 +76,11 @@ public class StatsdNotifier extends BuildNotifier {
     }
 
     /**
-     * Sends duration metric to StatsD by doing a timer metric
-     * 
+     * Sends duration metric to StatsD by doing a timer metric.
+     *
      * @param jobName   the name of the job
      * @param stageItem stage item describing the new state
      */
-
     public void notifyBuildStageStatus(String jobName, BuildStage stageItem) {
 
         BuildStage.State buildState = stageItem.getBuildState();
@@ -130,8 +130,8 @@ public class StatsdNotifier extends BuildNotifier {
     }
 
     /**
-     * Sends final build status metric by doing a timer metric for blocked and unblocked job time 
-     * 
+     * Sends final build status metric by doing a timer metric for blocked and unblocked job time.
+     *
      * @param buildState the reported state
      * @param parameters build parameters
      */
@@ -183,8 +183,8 @@ public class StatsdNotifier extends BuildNotifier {
     }
 
     /**
-     * Sends build status metric to StatsD by doing an increment on the buildState categories
-     * 
+     * Sends build status metric to StatsD by doing an increment on the buildState categories.
+     *
      * @param jobName name of the job
      * @param nodeName the stage of the status on which to report on
      */
@@ -208,9 +208,9 @@ public class StatsdNotifier extends BuildNotifier {
     /**
      * Does the same sanitization as StatsD would do if sanitization is on.
      * See: https://github.com/statsd/statsd/blob/master/stats.js#L168
-     * 
+     *
      * @param key key to sanitize
-     * @return santized key
+     * @return sanitized key
      */
     private String statsdSanitizeKey(String key) {
         return key.replaceAll("\\s+", "_").replaceAll("/", ".").replaceAll("[^a-z_\\-0-9\\.]", "");
@@ -218,7 +218,7 @@ public class StatsdNotifier extends BuildNotifier {
 
     /**
      * Collapses empty buckets into dot.
-     * 
+     *
      * @param key key to sanitize
      * @return sanitized key
      */
@@ -228,7 +228,7 @@ public class StatsdNotifier extends BuildNotifier {
 
     /**
      * Does Jenkins specific key sanitization.
-     * 
+     *
      * @param key key to sanitize
      * @return sanitized key
      */
@@ -238,8 +238,8 @@ public class StatsdNotifier extends BuildNotifier {
 
 
     /**
-     * Gets rid of # and trailing characters at the end of the string
-     * 
+     * Gets rid of # and trailing characters at the end of the string.
+     *
      * @param key key to sanitize
      * @return sanitized key
      */
@@ -251,10 +251,10 @@ public class StatsdNotifier extends BuildNotifier {
     }
 
     /**
-     * Applies all sanitizations to a key, folders are expanded into seperate StatsD buckets.
-     * It firest applies bucket sanitization (removing periods to prevent them being interprested as 
-     * seperate buckets). It the applies the StatsD bucket key sanitization.
-     * 
+     * Applies all sanitizations to a key, folders are expanded into separate StatsD buckets.
+     * It first applies bucket sanitization (removing periods to prevent them being interpreted as
+     * separate buckets). It then applies the StatsD bucket key sanitization.
+     *
      * @param key key to sanitize
      * @return sanitized key
      */

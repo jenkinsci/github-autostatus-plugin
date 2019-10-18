@@ -80,7 +80,7 @@ public class GithubNotificationConfig {
 
     /**
      * Gets the repo owner.
-     * 
+     *
      * @return the repo owner
      */
     public String getRepoOwner() {
