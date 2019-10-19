@@ -527,14 +527,14 @@ public class BuildStatusConfig extends GlobalConfiguration {
      * @return ListBoxModel containing credentials to show
      */
     public ListBoxModel doFillCredentialsIdItems(@QueryParameter String credentialsId) {
-        if (!Jenkins.getInstance().hasPermission(Jenkins.ADMINISTER)) {
+        if (!Jenkins.get().hasPermission(Jenkins.ADMINISTER)) {
             return new StandardListBoxModel().includeCurrentValue(credentialsId);
         }
         return new StandardListBoxModel()
                 .includeEmptyValue()
                 .includeMatchingAs(
                         ACL.SYSTEM,
-                        Jenkins.getInstance(),
+                        Jenkins.get(),
                         StandardCredentials.class,
                         Collections.<DomainRequirement>emptyList(),
                         CredentialsMatchers.anyOf(CredentialsMatchers.instanceOf(StandardUsernamePasswordCredentials.class)))
@@ -560,7 +560,7 @@ public class BuildStatusConfig extends GlobalConfiguration {
      */
     public FormValidation doCheckCredentialsId(@AncestorInPath Item item, @QueryParameter String value) {
         if (item == null) {
-            if (!Jenkins.getInstance().hasPermission(Jenkins.ADMINISTER)) {
+            if (!Jenkins.get().hasPermission(Jenkins.ADMINISTER)) {
                 return FormValidation.ok();
             }
         } else {
@@ -600,7 +600,7 @@ public class BuildStatusConfig extends GlobalConfiguration {
 
     public static <T extends Credentials> T getCredentials(@Nonnull Class<T> type, @Nonnull String credentialsId) {
         return CredentialsMatchers.firstOrNull(lookupCredentials(
-                type, Jenkins.getInstance(), ACL.SYSTEM,
+                type, Jenkins.get(), ACL.SYSTEM,
                 Collections.<DomainRequirement>emptyList()), CredentialsMatchers.allOf(
                 CredentialsMatchers.withId(credentialsId),
                 CredentialsMatchers.instanceOf(type)));
