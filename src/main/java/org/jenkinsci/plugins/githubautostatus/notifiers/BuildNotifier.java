@@ -37,15 +37,15 @@ import java.util.Map;
  */
 public abstract class BuildNotifier implements ExtensionPoint {
 
-     /**
+    /**
      * Establishing a default long for use in getLong.
      */
-     protected final long DEFAULT_LONG = 0;
- 
-     /**
+    protected final long DEFAULT_LONG = 0;
+
+    /**
      * Establishing a default string for use in notifiers.
      */
-     protected final String DEFAULT_STRING = "none";
+    protected final String DEFAULT_STRING = "none";
 
     /**
      * Determines whether this notifier is enabled.
@@ -75,11 +75,11 @@ public abstract class BuildNotifier implements ExtensionPoint {
     }
 
     public long getLong(Map<String, Object> map, String mapKey) {
-     Object mapValue = map.get(mapKey);
-     
-     if (mapValue != null) {
-         return (long)mapValue;
-     }
-     return DEFAULT_LONG;
- }
+        Object mapValue = map.get(mapKey);
+
+        if (mapValue != null) {
+            return (long) mapValue;
+        }
+        return DEFAULT_LONG;
+    }
 }

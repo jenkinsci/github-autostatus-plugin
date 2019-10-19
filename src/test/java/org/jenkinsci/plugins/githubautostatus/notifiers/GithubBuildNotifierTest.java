@@ -146,7 +146,7 @@ public class GithubBuildNotifierTest {
     @Test
     public void testNotifyFinalBuildStatus() throws IOException {
         GithubBuildNotifier notifier = new GithubBuildNotifier(repository, sha, targetUrl);
-        notifier.notifyFinalBuildStatus(BuildState.CompletedSuccess, Collections.EMPTY_MAP);
+        notifier.notifyFinalBuildStatus(BuildState.CompletedSuccess, Collections.emptyMap());
         verify(repository, never()).createCommitStatus(any(), any(), any(), any());
     }
     

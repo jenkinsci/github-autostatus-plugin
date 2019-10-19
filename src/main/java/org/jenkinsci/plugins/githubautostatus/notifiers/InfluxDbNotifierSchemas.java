@@ -30,6 +30,7 @@ package org.jenkinsci.plugins.githubautostatus.notifiers;
  * @author Jeff Pearce (GitHub jeffpearce)
  */
 public class InfluxDbNotifierSchemas {
+
     private static final SchemaInfo[] schemas = {
             new SchemaInfo.V1(),
             new SchemaInfo.V2()
@@ -38,6 +39,7 @@ public class InfluxDbNotifierSchemas {
     public static int getSchemaCount() {
         return schemas.length;
     }
+
     public static SchemaInfo getSchema(int schemaIndex) {
         return schemas[schemaIndex];
     }
@@ -87,6 +89,7 @@ public class InfluxDbNotifierSchemas {
             private static final String Skipped = "skipped";
             private static final String Failed = "failed";
         }
+
         private static class TestSuite {
             private static final String Suite = "suite";
         }
@@ -94,6 +97,7 @@ public class InfluxDbNotifierSchemas {
         private static class TestCase {
             private static final String TestCase = "testcase";
         }
+
         private static final String JobName = "jobname";
         private static final String JobTime = "jobtime";
         private static final String Passed = "passed";

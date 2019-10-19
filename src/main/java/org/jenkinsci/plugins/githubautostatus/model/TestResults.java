@@ -64,7 +64,7 @@ public class TestResults {
         for (SuiteResult suiteResult : testResultAction.getResult().getSuites()) {
             TestSuite testSuite = new TestSuite();
             testSuite.setName(suiteResult.getName());
-            
+
             for (CaseResult caseResult : suiteResult.getCases()) {
 
                 TestCase testCase = TestCase.fromCaseResult(caseResult);

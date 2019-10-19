@@ -23,9 +23,7 @@
  */
 package org.jenkinsci.plugins.githubautostatus.model;
 
-import com.google.gson.annotations.SerializedName;
 import hudson.model.Run;
-import org.eclipse.jgit.annotations.NonNull;
 import org.jenkinsci.plugins.githubautostatus.notifiers.BuildNotifierConstants;
 
 import java.util.HashMap;
@@ -68,13 +66,13 @@ public class BuildStage {
                       Map<String, Object> environment,
                       State buildState) {
         this.stageName = stageName;
-        this.environment = new HashMap(environment);
+        this.environment = new HashMap<>(environment);
         Object timingInfo = this.environment.get(BuildNotifierConstants.STAGE_DURATION);
-        this.duration = timingInfo == null ? 0 : (long)timingInfo;
+        this.duration = timingInfo == null ? 0 : (long) timingInfo;
         this.buildState = buildState;
         this.passed = buildState != State.CompletedError;
     }
-    
+
     public String getStageName() {
         return stageName;
     }
@@ -86,9 +84,9 @@ public class BuildStage {
     public void addToEnvironment(String key, Object value) {
         environment.put(key, value);
         Object timingInfo = environment.get(BuildNotifierConstants.STAGE_DURATION);
-        duration = timingInfo == null ? 0 : (long)timingInfo;
+        duration = timingInfo == null ? 0 : (long) timingInfo;
     }
-    
+
     public void addAllToEnvironment(Map<String, Object> environment) {
         environment.forEach(this::addToEnvironment);
     }
@@ -109,11 +107,11 @@ public class BuildStage {
     public void setRun(Run<?, ?> run) {
         this.run = run;
     }
-    
+
     public boolean isStage() {
         return this.isStage;
     }
-    
+
     public void setIsStage(boolean isStage) {
         this.isStage = isStage;
     }

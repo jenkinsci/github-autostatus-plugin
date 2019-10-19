@@ -130,5 +130,4 @@ public class GithubBuildNotifier extends BuildNotifier {
     private static Logger getLogger() {
         return Logger.getLogger(InfluxDbNotifier.class.getName());
     }
-
 }

@@ -40,6 +40,7 @@ import javax.annotation.Nullable;
 import java.io.IOException;
 import java.io.UnsupportedEncodingException;
 import java.net.URLEncoder;
+import java.nio.charset.StandardCharsets;
 import java.security.KeyManagementException;
 import java.security.KeyStoreException;
 import java.security.NoSuchAlgorithmException;
@@ -67,8 +68,7 @@ public class InfluxDbNotifier extends BuildNotifier {
      *
      * @param config InfluxDB configuration info
      */
-    public InfluxDbNotifier(
-            InfluxDbNotifierConfig config) {
+    public InfluxDbNotifier(InfluxDbNotifierConfig config) {
         if (StringUtils.isEmpty(config.getInfluxDbUrlString()) || StringUtils.isEmpty(config.getInfluxDbDatabase())) {
             return;
         }
@@ -80,14 +80,11 @@ public class InfluxDbNotifier extends BuildNotifier {
                 String influxDbPassword = credentials.getPassword().getPlainText();
 
                 authorization = Base64.getEncoder().encodeToString(
-                        String.format("%s:%s",
-                                influxDbUser,
-                                influxDbPassword).getBytes("UTF-8"));
+                        String.format("%s:%s", influxDbUser, influxDbPassword).getBytes(StandardCharsets.UTF_8));
             }
             if (!StringUtils.isEmpty(config.getInfluxDbRetentionPolicy())) {
                 urlString = urlString.concat(
-                        String.format("&rp=%s",
-                                URLEncoder.encode(config.getInfluxDbRetentionPolicy(), "UTF-8")));
+                        String.format("&rp=%s", URLEncoder.encode(config.getInfluxDbRetentionPolicy(), "UTF-8")));
             }
         } catch (UnsupportedEncodingException ex) {
             Logger.getLogger(InfluxDbNotifier.class.getName()).log(Level.SEVERE, null, ex);
@@ -186,11 +183,10 @@ public class InfluxDbNotifier extends BuildNotifier {
 
         postData(data);
 
-
-        if(!this.config.getIgnoreSendingTestResultsToInflux()) {
+        if (!this.config.getIgnoreSendingTestResultsToInflux()) {
             notifyTestResults(jobName, (TestResults) parameters.get(BuildNotifierConstants.TEST_CASE_INFO), run);
         }
-        if(!this.config.getIgnoreSendingTestCoverageToInflux()) {
+        if (!this.config.getIgnoreSendingTestCoverageToInflux()) {
             notifyCoverage(jobName, (CodeCoverage) parameters.get(BuildNotifierConstants.COVERAGE_INFO), run);
         }
     }
@@ -222,7 +218,6 @@ public class InfluxDbNotifier extends BuildNotifier {
     }
 
     private void notifyTestResults(String jobName, @Nullable TestResults testResults, Run<?, ?> run) {
-
         if (testResults != null) {
             String buildUrl = run.getUrl();
             int buildNumber = run.getNumber();
@@ -322,7 +317,7 @@ public class InfluxDbNotifier extends BuildNotifier {
 
                     HttpEntity entity = response.getEntity();
                     if (entity != null) {
-                        String reason = EntityUtils.toString(entity, "UTF-8");
+                        String reason = EntityUtils.toString(entity, StandardCharsets.UTF_8);
                         log(Level.WARNING, "%s", reason);
                     }
 

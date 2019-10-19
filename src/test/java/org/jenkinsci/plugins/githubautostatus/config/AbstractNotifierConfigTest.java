@@ -1,7 +1,6 @@
 package org.jenkinsci.plugins.githubautostatus.config;
 
 import org.apache.http.impl.client.CloseableHttpClient;
-import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;

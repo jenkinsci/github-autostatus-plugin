@@ -24,9 +24,6 @@
  */
 package org.jenkinsci.plugins.githubautostatus;
 
-import com.cloudbees.plugins.credentials.CredentialsScope;
-import com.cloudbees.plugins.credentials.common.StandardUsernameCredentials;
-import com.cloudbees.plugins.credentials.impl.UsernamePasswordCredentialsImpl;
 import org.junit.After;
 import org.junit.AfterClass;
 import org.junit.Before;
@@ -34,8 +31,7 @@ import org.junit.BeforeClass;
 import org.junit.Test;
 import static org.junit.Assert.*;
 import org.junit.runner.RunWith;
-import static org.mockito.Matchers.any;
-import static org.mockito.Matchers.eq;
+
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 import org.powermock.api.mockito.PowerMockito;

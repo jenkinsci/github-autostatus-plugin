@@ -139,14 +139,12 @@ public class BuildStatusAction extends InvisibleAction {
             }
         }
 
-        addInfluxDbNotifier(
-                InfluxDbNotifierConfig.fromGlobalConfig(repoOwner, repoName, branchName));
+        addInfluxDbNotifier(InfluxDbNotifierConfig.fromGlobalConfig(repoOwner, repoName, branchName));
         StatsdNotifierConfig statsd = StatsdNotifierConfig.fromGlobalConfig(run.getExternalizableId());
         if (statsd != null) {
             addStatsdNotifier(statsd);
         }
-        addHttpNotifier(
-                HttpNotifierConfig.fromGlobalConfig(repoOwner, repoName, branchName));
+        addHttpNotifier(HttpNotifierConfig.fromGlobalConfig(repoOwner, repoName, branchName));
 
         ExtensionList<BuildNotifier> list = BuildNotifier.all();
         for (BuildNotifier notifier : list) {
@@ -157,8 +155,7 @@ public class BuildStatusAction extends InvisibleAction {
     private void addGlobalProperties() {
         if (run instanceof WorkflowRun) {
             WorkflowRun workflowRun = (WorkflowRun) run;
-            List<JobProperty<? super WorkflowJob>> properties =
-                    workflowRun.getParent().getAllProperties();
+            List<JobProperty<? super WorkflowJob>> properties = workflowRun.getParent().getAllProperties();
             for (JobProperty property : properties) {
                 jobParameters.put(property.getClass().getSimpleName(), property);
             }
@@ -305,9 +302,7 @@ public class BuildStatusAction extends InvisibleAction {
      * @param nodeName name of node that failed
      */
     public void sendNonStageError(String nodeName) {
-        BuildStage stageItem = new BuildStage(nodeName,
-                new HashMap<>(),
-                BuildStage.State.CompletedError);
+        BuildStage stageItem = new BuildStage(nodeName, new HashMap<>(), BuildStage.State.CompletedError);
         stageItem.setRun(run);
         stageItem.addAllToEnvironment(jobParameters);
         stageItem.setIsStage(false);

@@ -42,7 +42,7 @@ import org.jenkinsci.plugins.githubautostatus.config.HttpNotifierConfig;
 import org.jenkinsci.plugins.githubautostatus.model.*;
 
 import java.io.IOException;
-import java.io.UnsupportedEncodingException;
+import java.nio.charset.StandardCharsets;
 import java.security.KeyManagementException;
 import java.security.KeyStoreException;
 import java.security.NoSuchAlgorithmException;
@@ -56,151 +56,146 @@ import java.util.logging.Logger;
 
 public class HttpNotifier extends BuildNotifier {
 
-  protected String repoOwner;
-  protected String repoName;
-  protected String branchName;
-  protected HttpNotifierConfig config;
-  protected String authorization;
-  protected Map<String, BuildStage> stageMap;
-  protected Gson gson;
+    protected String repoOwner;
+    protected String repoName;
+    protected String branchName;
+    protected HttpNotifierConfig config;
+    protected String authorization;
+    protected Map<String, BuildStage> stageMap;
+    protected Gson gson;
 
-  public HttpNotifier(HttpNotifierConfig config) {
-    if (null == config || Strings.isNullOrEmpty(config.getHttpEndpoint())) {
-      return;
-    }
-    this.repoOwner = config.getRepoOwner();
-    this.repoName = config.getRepoName();
-    this.branchName = config.getBranchName();
-    this.config = config;
-    this.stageMap = new HashMap<>();
-    try {
-      UsernamePasswordCredentials credentials = config.getCredentials();
-      if (credentials != null) {
-        String username = credentials.getUsername();
-        String password = credentials.getPassword().getPlainText();
-
-        authorization = Base64.getEncoder().encodeToString(
-                String.format("%s:%s", username, password)
-                        .getBytes("UTF-8"));
-      }
-    } catch (UnsupportedEncodingException ex) {
-      Logger.getLogger(InfluxDbNotifier.class.getName()).log(Level.SEVERE, null, ex);
-    }
-    gson = new GsonBuilder()
-            .addSerializationExclusionStrategy(new ExclusionStrategy() {
-              @Override
-              public boolean shouldSkipField(FieldAttributes f) {
-                return f.getAnnotation(SkipSerialisation.class) != null;
-              }
-
-              @Override
-              public boolean shouldSkipClass(Class<?> clazz) {
-                return false;
-              }
-            })
-            .create();
-  }
-
-  @Override
-  public boolean isEnabled() {
-    return (null != config && !Strings.isNullOrEmpty(config.getHttpEndpoint()));
-  }
-
-  @Override
-  public void notifyBuildStageStatus(String jobName, BuildStage stageItem) {
-    BuildStage.State buildState = stageItem.getBuildState();
-    if (buildState == BuildStage.State.Pending) {
-      return;
-    }
-    stageMap.put(stageItem.getStageName(), stageItem);
-  }
-
-  @Override
-  public void notifyFinalBuildStatus(BuildState buildState, Map<String, Object> parameters) {
-    BuildStatus buildStatus = constructBuildStatus(buildState, parameters);
-    TestResults testResults = (TestResults) parameters.get(BuildNotifierConstants.TEST_CASE_INFO);
-    if (testResults != null) {
-      buildStatus.setTestResult(testResults);
-    }
-    CodeCoverage coverage = (CodeCoverage) parameters.get(BuildNotifierConstants.COVERAGE_INFO);
-    if (null != coverage) {
-      buildStatus.setCoverage(coverage);
-    }
-    stageMap.forEach((name, stage) -> buildStatus.addStage(stage));
-
-    log(Level.FINE, "Final build status: %s", gson.toJson(buildStatus));
-    sendData(gson.toJson(buildStatus));
-  }
-
-  private BuildStatus constructBuildStatus(BuildState buildState, Map<String, Object> parameters) {
-    Run<?, ?> run = (Run<?, ?>) parameters.get(BuildNotifierConstants.BUILD_OBJECT);
-    String jobName = (String) parameters.getOrDefault(BuildNotifierConstants.JOB_NAME, BuildNotifierConstants.DEFAULT_STRING);
-    long blockedDuration = BuildNotifierConstants.getLong(parameters, BuildNotifierConstants.BLOCKED_DURATION);
-    String buildUrl = run.getUrl();
-    int buildNumber = run.getNumber();
-    long buildDuration = BuildNotifierConstants.getLong(parameters, BuildNotifierConstants.JOB_DURATION) - blockedDuration;
-    Cause cause = run.getCause(Cause.class);
-    String buildCause = cause == null ? BuildNotifierConstants.DEFAULT_STRING : cause.getShortDescription();
-    BuildStatus result = new org.jenkinsci.plugins.githubautostatus.model.BuildStatus();
-    result.setRepoOwner(repoOwner);
-    result.setRepoName(repoName);
-    result.setJobName(jobName);
-    result.setBranch(branchName);
-    result.setBuildUrl(buildUrl);
-    result.setBuildNumber(buildNumber);
-    result.setTrigger(buildCause);
-    result.setBlocked(blockedDuration > 0);
-    result.setBlockedTime(blockedDuration);
-    result.setDuration(buildDuration);
-    result.setPassed(buildState == BuildState.CompletedSuccess);
-    result.setResult(buildState);
-    result.setTimestamp(Clock.system(TimeZone.getTimeZone("UTC").toZoneId()).millis() / 1000);
-    return result;
-  }
-
-  private void sendData(String jsonData) {
-    try (CloseableHttpClient httpclient = config.getHttpClient(!config.getHttpVerifySSL())) {
-      HttpPost httppost = new HttpPost(config.getHttpEndpoint());
-
-      httppost.setEntity(new StringEntity(jsonData));
-      httppost.setHeader("Content-Type", "application/json");
-      httppost.setHeader("Referer", Jenkins.get().getRootUrl());
-      if (!Strings.isNullOrEmpty(authorization)) {
-        httppost.setHeader("Authorization", String.format("Basic %s", authorization));
-      }
-
-      try (CloseableHttpResponse response = httpclient.execute(httppost)) {
-        int statusCode = response.getStatusLine().getStatusCode();
-
-        if (statusCode > 299) {
-          String statusLine = response.getStatusLine().toString();
-          log(Level.WARNING, "Could not send data to HTTP endpoint - %s", statusLine);
-          log(Level.WARNING, "HTTP endpoint - %s", config.getHttpEndpoint());
-          log(Level.WARNING, "Data - %s", jsonData);
-
-          HttpEntity entity = response.getEntity();
-          if (entity != null) {
-            String reason = EntityUtils.toString(entity, "UTF-8");
-            log(Level.WARNING, "%s", reason);
-          }
-        } else {
-          log(Level.INFO, "Successfully sent data to %s", config.getHttpEndpoint());
+    public HttpNotifier(HttpNotifierConfig config) {
+        if (null == config || Strings.isNullOrEmpty(config.getHttpEndpoint())) {
+            return;
         }
-      }
-    } catch (IOException | KeyStoreException | NoSuchAlgorithmException | KeyManagementException ex) {
-      log(Level.SEVERE, ex);
+        this.repoOwner = config.getRepoOwner();
+        this.repoName = config.getRepoName();
+        this.branchName = config.getBranchName();
+        this.config = config;
+        this.stageMap = new HashMap<>();
+        UsernamePasswordCredentials credentials = config.getCredentials();
+        if (credentials != null) {
+            String username = credentials.getUsername();
+            String password = credentials.getPassword().getPlainText();
+
+            authorization = Base64.getEncoder().encodeToString(
+                    String.format("%s:%s", username, password).getBytes(StandardCharsets.UTF_8));
+        }
+        gson = new GsonBuilder()
+                .addSerializationExclusionStrategy(new ExclusionStrategy() {
+                    @Override
+                    public boolean shouldSkipField(FieldAttributes f) {
+                        return f.getAnnotation(SkipSerialisation.class) != null;
+                    }
+
+                    @Override
+                    public boolean shouldSkipClass(Class<?> clazz) {
+                        return false;
+                    }
+                })
+                .create();
     }
-  }
 
-  private static void log(Level level, Throwable exception) {
-    getLogger().log(level, null, exception);
-  }
+    @Override
+    public boolean isEnabled() {
+        return (null != config && !Strings.isNullOrEmpty(config.getHttpEndpoint()));
+    }
 
-  private static void log(Level level, String format, Object... args) {
-    getLogger().log(level, String.format(format, args));
-  }
+    @Override
+    public void notifyBuildStageStatus(String jobName, BuildStage stageItem) {
+        BuildStage.State buildState = stageItem.getBuildState();
+        if (buildState == BuildStage.State.Pending) {
+            return;
+        }
+        stageMap.put(stageItem.getStageName(), stageItem);
+    }
 
-  private static Logger getLogger() {
-    return Logger.getLogger(InfluxDbNotifier.class.getName());
-  }
+    @Override
+    public void notifyFinalBuildStatus(BuildState buildState, Map<String, Object> parameters) {
+        BuildStatus buildStatus = constructBuildStatus(buildState, parameters);
+        TestResults testResults = (TestResults) parameters.get(BuildNotifierConstants.TEST_CASE_INFO);
+        if (testResults != null) {
+            buildStatus.setTestResult(testResults);
+        }
+        CodeCoverage coverage = (CodeCoverage) parameters.get(BuildNotifierConstants.COVERAGE_INFO);
+        if (null != coverage) {
+            buildStatus.setCoverage(coverage);
+        }
+        stageMap.forEach((name, stage) -> buildStatus.addStage(stage));
+
+        log(Level.FINE, "Final build status: %s", gson.toJson(buildStatus));
+        sendData(gson.toJson(buildStatus));
+    }
+
+    private BuildStatus constructBuildStatus(BuildState buildState, Map<String, Object> parameters) {
+        Run<?, ?> run = (Run<?, ?>) parameters.get(BuildNotifierConstants.BUILD_OBJECT);
+        String jobName = (String) parameters.getOrDefault(BuildNotifierConstants.JOB_NAME, BuildNotifierConstants.DEFAULT_STRING);
+        long blockedDuration = BuildNotifierConstants.getLong(parameters, BuildNotifierConstants.BLOCKED_DURATION);
+        String buildUrl = run.getUrl();
+        int buildNumber = run.getNumber();
+        long buildDuration = BuildNotifierConstants.getLong(parameters, BuildNotifierConstants.JOB_DURATION) - blockedDuration;
+        Cause cause = run.getCause(Cause.class);
+        String buildCause = cause == null ? BuildNotifierConstants.DEFAULT_STRING : cause.getShortDescription();
+        BuildStatus result = new org.jenkinsci.plugins.githubautostatus.model.BuildStatus();
+        result.setRepoOwner(repoOwner);
+        result.setRepoName(repoName);
+        result.setJobName(jobName);
+        result.setBranch(branchName);
+        result.setBuildUrl(buildUrl);
+        result.setBuildNumber(buildNumber);
+        result.setTrigger(buildCause);
+        result.setBlocked(blockedDuration > 0);
+        result.setBlockedTime(blockedDuration);
+        result.setDuration(buildDuration);
+        result.setPassed(buildState == BuildState.CompletedSuccess);
+        result.setResult(buildState);
+        result.setTimestamp(Clock.system(TimeZone.getTimeZone("UTC").toZoneId()).millis() / 1000);
+        return result;
+    }
+
+    private void sendData(String jsonData) {
+        try (CloseableHttpClient httpclient = config.getHttpClient(!config.getHttpVerifySSL())) {
+            HttpPost httppost = new HttpPost(config.getHttpEndpoint());
+
+            httppost.setEntity(new StringEntity(jsonData));
+            httppost.setHeader("Content-Type", "application/json");
+            httppost.setHeader("Referer", Jenkins.get().getRootUrl());
+            if (!Strings.isNullOrEmpty(authorization)) {
+                httppost.setHeader("Authorization", String.format("Basic %s", authorization));
+            }
+
+            try (CloseableHttpResponse response = httpclient.execute(httppost)) {
+                int statusCode = response.getStatusLine().getStatusCode();
+
+                if (statusCode > 299) {
+                    String statusLine = response.getStatusLine().toString();
+                    log(Level.WARNING, "Could not send data to HTTP endpoint - %s", statusLine);
+                    log(Level.WARNING, "HTTP endpoint - %s", config.getHttpEndpoint());
+                    log(Level.WARNING, "Data - %s", jsonData);
+
+                    HttpEntity entity = response.getEntity();
+                    if (entity != null) {
+                        String reason = EntityUtils.toString(entity, StandardCharsets.UTF_8);
+                        log(Level.WARNING, "%s", reason);
+                    }
+                } else {
+                    log(Level.INFO, "Successfully sent data to %s", config.getHttpEndpoint());
+                }
+            }
+        } catch (IOException | KeyStoreException | NoSuchAlgorithmException | KeyManagementException ex) {
+            log(Level.SEVERE, ex);
+        }
+    }
+
+    private static void log(Level level, Throwable exception) {
+        getLogger().log(level, null, exception);
+    }
+
+    private static void log(Level level, String format, Object... args) {
+        getLogger().log(level, String.format(format, args));
+    }
+
+    private static Logger getLogger() {
+        return Logger.getLogger(InfluxDbNotifier.class.getName());
+    }
 }

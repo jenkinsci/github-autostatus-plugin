@@ -47,7 +47,7 @@ public class TestSuite {
     public TestSuite() {
         testCases = new ArrayList<>();
     }
-    
+
     public String getName() {
         return name;
     }

@@ -94,7 +94,7 @@ public class BuildStatusJobListenerTest {
         HashMap<String, Object> jobParams = new HashMap<String, Object>();
 
         instance.onCompleted(build, listener);
-        verify(action).updateBuildStatusForJob(eq(BuildState.CompletedSuccess), any(Map.class));
+        verify(action).updateBuildStatusForJob(eq(BuildState.CompletedSuccess), anyMapOf(String.class, Object.class));
     }
 
     @Test
@@ -110,6 +110,6 @@ public class BuildStatusJobListenerTest {
         BuildStatusJobListener instance = new BuildStatusJobListener();
 
         instance.onCompleted(build, listener);
-        verify(action).updateBuildStatusForJob(eq(BuildState.CompletedError), any(Map.class));
+        verify(action).updateBuildStatusForJob(eq(BuildState.CompletedError), anyMapOf(String.class, Object.class));
     }
 }
