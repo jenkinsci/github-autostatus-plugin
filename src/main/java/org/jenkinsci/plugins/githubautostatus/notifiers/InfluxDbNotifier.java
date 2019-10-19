@@ -108,6 +108,7 @@ public class InfluxDbNotifier extends BuildNotifier {
         }
     }
 
+
     /**
      * Determines whether this notifier is enabled.
      *
@@ -116,6 +117,17 @@ public class InfluxDbNotifier extends BuildNotifier {
     @Override
     public boolean isEnabled() {
         return this.config != null;
+    }
+
+
+    /**
+     * Get whether the notifier wants to know about errors that happen outside of a stage.
+     *
+     * @return true; since this notifier reports these errors.
+     */
+    @Override
+    public boolean wantsOutOfStageErrors() {
+        return true;
     }
 
     /**

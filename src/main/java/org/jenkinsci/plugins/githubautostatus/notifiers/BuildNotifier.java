@@ -70,6 +70,15 @@ public abstract class BuildNotifier implements ExtensionPoint {
      */
     abstract public void notifyFinalBuildStatus(BuildState buildState, Map<String, Object> parameters);
 
+    /**
+     * Get whether the notifier wants to know about errors that happen outside of a stage.
+     *
+     * @return whether the notifier wants to know about errors that happen outside of a stage
+     */
+    public boolean wantsOutOfStageErrors() {
+        return false;
+    }
+
     public static ExtensionList<BuildNotifier> all() {
         return ExtensionList.lookup(BuildNotifier.class);
     }
