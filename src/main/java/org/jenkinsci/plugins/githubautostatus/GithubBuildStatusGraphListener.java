@@ -122,7 +122,7 @@ public class GithubBuildStatusGraphListener implements GraphListener {
                     return;
                 }
 
-                ErrorAction errorAction = fn.getError();
+                ErrorAction errorAction = getErrorActionOrNull(fn, startNode);
                 String nodeName = null;
 
                 long time = getTime(startNode, fn);
@@ -169,6 +169,22 @@ public class GithubBuildStatusGraphListener implements GraphListener {
             }
         }
         return buildState;
+    }
+
+    private ErrorAction getErrorActionOrNull(FlowNode fn, FlowNode startNode) {
+        if (fn == startNode) {
+            return null;
+        }
+        ErrorAction errorAction = fn.getError();
+        if (errorAction == null) {
+            for (FlowNode parent:fn.getParents()) {
+                errorAction = getErrorActionOrNull(parent, startNode);
+                if (errorAction != null) {
+                    return errorAction;
+                }
+            }
+        }
+        return errorAction;
     }
 
     /**
