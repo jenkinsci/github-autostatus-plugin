@@ -161,12 +161,13 @@ public class BuildNotifierManagerTest {
     }
 
     /**
-     * Verifies sendNonStageError calls notifiers
+     * Verifies sendNonStageError calls notifiers that want them
      */
     @Test
-    public void testSendNonStageError() {
+    public void testSendNonStageErrorWantsTrue() {
         GithubBuildNotifier notifier = mock(GithubBuildNotifier.class);
         instance.notifiers.add(notifier);
+        when(notifier.wantsOutOfStageErrors()).thenReturn(true);
 
         BuildStage stageItem = new BuildStage(stageName,
                 new HashMap<>(),
@@ -177,6 +178,26 @@ public class BuildNotifierManagerTest {
         instance.sendNonStageError(stageItem);
 
         verify(notifier).notifyBuildStageStatus(eq(mockJobName), any(BuildStage.class));
+    }
+
+    /**
+     * Verifies sendNonStageError doeesn't call notifiers that don' want them
+     */
+    @Test
+    public void testSendNonStageErrorWantsFalse() {
+        GithubBuildNotifier notifier = mock(GithubBuildNotifier.class);
+        instance.notifiers.add(notifier);
+        when(notifier.wantsOutOfStageErrors()).thenReturn(false);
+
+        BuildStage stageItem = new BuildStage(stageName,
+                new HashMap<>(),
+                BuildStage.State.CompletedError);
+        stageItem.setIsStage(false);
+
+
+        instance.sendNonStageError(stageItem);
+
+        verify(notifier, never()).notifyBuildStageStatus(any(), any());
     }
 
     /**

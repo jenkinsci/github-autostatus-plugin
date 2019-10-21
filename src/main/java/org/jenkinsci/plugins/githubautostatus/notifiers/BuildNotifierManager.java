@@ -154,7 +154,9 @@ public class BuildNotifierManager {
      */
     public void sendNonStageError(BuildStage stageItem) {
         notifiers.forEach((notifier) -> {
-            notifier.notifyBuildStageStatus(jobName, stageItem);
+            if (notifier.wantsOutOfStageErrors()) {
+                notifier.notifyBuildStageStatus(jobName, stageItem);
+            }
         });
     }
 }
