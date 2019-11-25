@@ -36,6 +36,7 @@ public class TestSuite {
 
     private String name;
     private ArrayList<TestCase> testCases;
+    private float duration;
 
     @SerializedName("passed")
     private int passedTestCaseCount;
@@ -54,6 +55,14 @@ public class TestSuite {
 
     public void setName(String name) {
         this.name = name;
+    }
+
+    public float getDuration() {
+        return duration;
+    }
+
+    public void setDuration(float duration) {
+        this.duration = duration;
     }
 
     public ArrayList<TestCase> getTestCases() {
@@ -100,11 +109,12 @@ public class TestSuite {
                 getSkippedTestCaseCount() == suite.getSkippedTestCaseCount() &&
                 getFailedTestCaseCount() == suite.getFailedTestCaseCount() &&
                 Objects.equals(getName(), suite.getName()) &&
-                Objects.equals(getTestCases(), suite.getTestCases());
+                Objects.equals(getTestCases(), suite.getTestCases()) &&
+                Objects.equals(getDuration(), suite.getDuration());
     }
 
     @Override
     public int hashCode() {
-        return Objects.hash(getName(), getTestCases(), getPassedTestCaseCount(), getSkippedTestCaseCount(), getFailedTestCaseCount());
+        return Objects.hash(getName(), getTestCases(), getDuration(), getPassedTestCaseCount(), getSkippedTestCaseCount(), getFailedTestCaseCount());
     }
 }

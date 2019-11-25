@@ -267,6 +267,7 @@ public class InfluxDbNotifier extends BuildNotifier {
                 repoName,
                 branchName,
                 suiteName,
+                testSuite.getDuration(),
                 testSuite.getPassedTestCaseCount(),
                 testSuite.getSkippedTestCaseCount(),
                 testSuite.getFailedTestCaseCount(),
