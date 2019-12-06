@@ -311,8 +311,8 @@ public class InfluxDbNotifier extends BuildNotifier {
     private void postData(String seriesInfo) {
         try (CloseableHttpClient httpclient = config.getHttpClient(false)) {
             HttpPost httppost = new HttpPost(influxDbUrlString);
-
-            httppost.setEntity(new StringEntity(seriesInfo));
+            
+            httppost.setEntity(new StringEntity(seriesInfo,"UTF-8"));
 
             if (!StringUtils.isEmpty(authorization)) {
                 httppost.setHeader("Authorization", String.format("Basic %s", authorization));
