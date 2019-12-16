@@ -61,7 +61,9 @@ public class InfluxDbNotifierSchemas {
         private static final String Result = "result";
         private static final String Blocked = "blocked"; // This is for v1 compat; don't use as a tag going forward
         private static final String StageName = "stagename";
+        @Deprecated
         private static final String Suite = "suite";
+        private static final String SuiteName = "suitename";
 
         private static class Test {
             private static final String Suite = "suite";
@@ -91,6 +93,7 @@ public class InfluxDbNotifierSchemas {
         }
 
         private static class TestSuite {
+            @Deprecated
             private static final String Suite = "suite";
             private static final String Duration = "duration";
         }
@@ -487,6 +490,7 @@ public class InfluxDbNotifierSchemas {
                 return new InfluxDbLineBuilder(SeriesNames.TestSuite)
                         .appendTagValue(TagNames.Owner, owner)
                         .appendTagValue(TagNames.Repo, repo)
+                        .appendTagValue(TagNames.SuiteName, suite)
 
 
                         .appendFieldValue(FieldNames.JobName, jobName)
@@ -518,6 +522,7 @@ public class InfluxDbNotifierSchemas {
                 return new InfluxDbLineBuilder(SeriesNames.TestCase)
                         .appendTagValue(TagNames.Owner, owner)
                         .appendTagValue(TagNames.Repo, repo)
+                        .appendTagValue(TagNames.SuiteName, suite)
 
                         .appendFieldValue(FieldNames.JobName, jobName)
                         .appendFieldValue(FieldNames.Branch, branch)
