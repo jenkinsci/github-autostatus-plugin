@@ -92,6 +92,7 @@ public class InfluxDbNotifierSchemas {
 
         private static class TestSuite {
             private static final String Suite = "suite";
+            private static final String Duration = "duration";
         }
 
         private static class TestCase {
@@ -164,6 +165,7 @@ public class InfluxDbNotifierSchemas {
                                       String repo,
                                       String branch,
                                       String suite,
+                                      float duration,
                                       int passed,
                                       int skipped,
                                       int failed,
@@ -300,6 +302,7 @@ public class InfluxDbNotifierSchemas {
                                           String repo,
                                           String branch,
                                           String suite,
+                                          float duration,
                                           int passed,
                                           int skipped,
                                           int failed,
@@ -313,6 +316,7 @@ public class InfluxDbNotifierSchemas {
                         .appendTagValue(TagNames.Branch, branch)
                         .appendTagValue(TagNames.Test.Suite, suite)
 
+                        .appendFieldValue(FieldNames.TestSuite.Duration, duration)
                         .appendFieldValue(FieldNames.Test.Passed, passed)
                         .appendFieldValue(FieldNames.Test.Skipped, skipped)
                         .appendFieldValue(FieldNames.Test.Failed, failed)
@@ -473,6 +477,7 @@ public class InfluxDbNotifierSchemas {
                                           String repo,
                                           String branch,
                                           String suite,
+                                          float duration,
                                           int passed,
                                           int skipped,
                                           int failed,
@@ -483,9 +488,11 @@ public class InfluxDbNotifierSchemas {
                         .appendTagValue(TagNames.Owner, owner)
                         .appendTagValue(TagNames.Repo, repo)
 
+
                         .appendFieldValue(FieldNames.JobName, jobName)
                         .appendFieldValue(FieldNames.Branch, branch)
                         .appendFieldValue(FieldNames.TestSuite.Suite, suite)
+                        .appendFieldValue(FieldNames.TestSuite.Duration, duration)
                         .appendFieldValue(FieldNames.Test.Passed, passed)
                         .appendFieldValue(FieldNames.Test.Skipped, skipped)
                         .appendFieldValue(FieldNames.Test.Failed, failed)

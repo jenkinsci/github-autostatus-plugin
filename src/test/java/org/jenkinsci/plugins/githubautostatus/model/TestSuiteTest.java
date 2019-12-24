@@ -53,6 +53,15 @@ public class TestSuiteTest {
     }
 
     @Test
+    public void testGetSetDuration() {
+        float duration = 435;
+
+        TestSuite instance = new TestSuite();
+        instance.setDuration(duration);
+        assertEquals(duration, instance.getDuration(), 0);
+    }
+
+    @Test
     public void testGetTestCasesInitial() {
         TestSuite instance = new TestSuite();
         ArrayList<TestCase> result = instance.getTestCases();

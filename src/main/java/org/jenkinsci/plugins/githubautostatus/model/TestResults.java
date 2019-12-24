@@ -64,6 +64,7 @@ public class TestResults {
         for (SuiteResult suiteResult : testResultAction.getResult().getSuites()) {
             TestSuite testSuite = new TestSuite();
             testSuite.setName(suiteResult.getName());
+            testSuite.setDuration(suiteResult.getDuration());
 
             for (CaseResult caseResult : suiteResult.getCases()) {
 
