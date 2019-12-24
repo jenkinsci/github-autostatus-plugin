@@ -409,6 +409,12 @@ public class BuildStatusConfig extends GlobalConfiguration {
         this.dbVersion = Integer.parseInt(dbVersion);
         save();
     }
+    
+    @DataBoundSetter
+    public void setDbVersion(Integer dbVersion) {
+        this.dbVersion = dbVersion;
+        save();
+    }
 
     /**
      * Fills the list box in the settings page with valid database versions.

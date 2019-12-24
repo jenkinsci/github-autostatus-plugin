@@ -157,7 +157,7 @@ public class HttpNotifier extends BuildNotifier {
         try (CloseableHttpClient httpclient = config.getHttpClient(!config.getHttpVerifySSL())) {
             HttpPost httppost = new HttpPost(config.getHttpEndpoint());
 
-            httppost.setEntity(new StringEntity(jsonData));
+            httppost.setEntity(new StringEntity(jsonData,"UTF-8"));
             httppost.setHeader("Content-Type", "application/json");
             httppost.setHeader("Referer", Jenkins.get().getRootUrl());
             if (!Strings.isNullOrEmpty(authorization)) {
