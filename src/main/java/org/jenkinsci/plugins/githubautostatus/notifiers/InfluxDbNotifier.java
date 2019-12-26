@@ -309,7 +309,7 @@ public class InfluxDbNotifier extends BuildNotifier {
      *
      * @param seriesInfo the data point
      */
-    private void postData(String seriesInfo) {
+    private synchronized void postData(String seriesInfo) {
         try (CloseableHttpClient httpclient = config.getHttpClient(false)) {
             HttpPost httppost = new HttpPost(influxDbUrlString);
             
