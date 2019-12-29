@@ -1,0 +1,17 @@
+credentialsId: "test-creds"
+dbVersion: 2
+enableGithub: true
+enableHttp: true
+enableInfluxDb: true
+enableStatsd: true
+httpCredentialsId: "test-http-creds"
+httpEndpoint: "http://localhost:8088"
+httpVerifySSL: true
+ignoreSendingTestCoverageToInflux: true
+ignoreSendingTestResultsToInflux: true
+influxDbDatabase: "jenkins"
+influxDbUrl: "http://localhost:8086"
+statsdBucket: "bucket"
+statsdHost: "http://localhost:8087"
+statsdMaxSize: "1400"
+statsdPort: "8125"
