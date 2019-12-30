@@ -76,7 +76,7 @@ public class InfluxDbNotifierSchemasTest {
     }
     @Test
     public void testV2TestSuite() {
-        assertEquals("testsuite,owner=mockowner,repo=mockrepo jobname=\"mockjobname\",branch=\"mockbranch\",suite=\"mocksuite\",duration=1.0000,passed=2,skipped=3,failed=4,buildurl=\"buildurl\",buildnumber=5,trigger=\"cause\"",
+        assertEquals("testsuite,owner=mockowner,repo=mockrepo,suitename=mocksuite jobname=\"mockjobname\",branch=\"mockbranch\",suite=\"mocksuite\",duration=1.0000,passed=2,skipped=3,failed=4,buildurl=\"buildurl\",buildnumber=5,trigger=\"cause\"",
                 v2Schema.formatTestSuite("mockjobname", "mockowner", "mockrepo", "mockbranch", "mocksuite", 1, 2, 3, 4, "buildurl", 5, "cause"  ));
     }
     @Test
@@ -87,7 +87,7 @@ public class InfluxDbNotifierSchemasTest {
     }
     @Test
     public void testV2TestCase() {
-        assertEquals("testcase,owner=mockowner,repo=mockrepo jobname=\"mockjobname\",branch=\"mockbranch\",suite=\"mocksuite\",testcase=\"mocktestcase\",passed=1,skipped=2,failed=3,buildurl=\"buildurl\",buildnumber=4,trigger=\"cause\"",
+        assertEquals("testcase,owner=mockowner,repo=mockrepo,suitename=mocksuite jobname=\"mockjobname\",branch=\"mockbranch\",suite=\"mocksuite\",testcase=\"mocktestcase\",passed=1,skipped=2,failed=3,buildurl=\"buildurl\",buildnumber=4,trigger=\"cause\"",
                 v2Schema.formatTestCase("mockjobname", "mockowner", "mockrepo", "mockbranch", "mocksuite","mocktestcase", 1, 2, 3, "buildurl", 4, "cause"  ));
 
     }
