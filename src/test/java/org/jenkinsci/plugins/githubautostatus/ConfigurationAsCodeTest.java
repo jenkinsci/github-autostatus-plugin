@@ -23,8 +23,9 @@ public class ConfigurationAsCodeTest {
     public void should_support_configuration_as_code() {
         BuildStatusConfig config = ExtensionList.lookupSingleton(BuildStatusConfig.class);
         assertNotNull(config);
-        assertEquals(2, config.getDbVersion().intValue());
+
         assertEquals("test-creds", config.getCredentialsId());
+        assertEquals(2, config.getDbVersion().intValue());
         assertTrue(config.getEnableGithub());
         assertTrue(config.getEnableHttp());
         assertTrue(config.getEnableInfluxDb());
@@ -46,9 +47,9 @@ public class ConfigurationAsCodeTest {
     public void should_support_configuration_export() throws Exception {
         ConfiguratorRegistry registry = ConfiguratorRegistry.get();
         ConfigurationContext context = new ConfigurationContext(registry);
-        CNode yourAttribute = getUnclassifiedRoot(context).get("buildStatusConfig");
+        CNode buildStatusConfigAttribute = getUnclassifiedRoot(context).get("buildStatusConfig");
 
-        String exported = toYamlString(yourAttribute);
+        String exported = toYamlString(buildStatusConfigAttribute);
 
         String expected = toStringFromYamlFile(this, "configuration-as-code-expected.yml");
 
