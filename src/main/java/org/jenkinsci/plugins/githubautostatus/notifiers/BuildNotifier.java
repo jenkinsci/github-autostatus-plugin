@@ -26,7 +26,6 @@ package org.jenkinsci.plugins.githubautostatus.notifiers;
 import hudson.ExtensionList;
 import hudson.ExtensionPoint;
 import org.jenkinsci.plugins.githubautostatus.model.BuildStage;
-import org.jenkinsci.plugins.githubautostatus.model.BuildState;
 
 import java.util.Map;
 
@@ -68,7 +67,7 @@ public abstract class BuildNotifier implements ExtensionPoint {
      * @param buildState state indicating success or failure
      * @param parameters build parameters
      */
-    abstract public void notifyFinalBuildStatus(BuildState buildState, Map<String, Object> parameters);
+    abstract public void notifyFinalBuildStatus(BuildStage.State buildState, Map<String, Object> parameters);
 
     /**
      * Get whether the notifier wants to know about errors that happen outside of a stage.

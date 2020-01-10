@@ -28,7 +28,6 @@ import java.util.Map;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import org.jenkinsci.plugins.githubautostatus.model.BuildStage;
-import org.jenkinsci.plugins.githubautostatus.model.BuildState;
 import org.kohsuke.github.GHCommitState;
 import org.kohsuke.github.GHRepository;
 
@@ -116,7 +115,7 @@ public class GithubBuildNotifier extends BuildNotifier {
      * @param parameters build parameters
      */
     @Override
-    public void notifyFinalBuildStatus(BuildState buildState, Map<String, Object> parameters) {
+    public void notifyFinalBuildStatus(BuildStage.State buildState, Map<String, Object> parameters) {
     }
 
     private static void log(Level level, Throwable exception) {

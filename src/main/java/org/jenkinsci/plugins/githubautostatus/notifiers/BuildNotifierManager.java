@@ -28,7 +28,6 @@ import org.jenkinsci.plugins.githubautostatus.config.GithubNotificationConfig;
 import org.jenkinsci.plugins.githubautostatus.config.HttpNotifierConfig;
 import org.jenkinsci.plugins.githubautostatus.config.InfluxDbNotifierConfig;
 import org.jenkinsci.plugins.githubautostatus.model.BuildStage;
-import org.jenkinsci.plugins.githubautostatus.model.BuildState;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -139,7 +138,7 @@ public class BuildNotifierManager {
      * @param buildState the build status
      * @param parameters build parameters
      */
-    public void notifyFinalBuildStatus(BuildState buildState, Map<String, Object> parameters) {
+    public void notifyFinalBuildStatus(BuildStage.State buildState, Map<String, Object> parameters) {
         notifiers.forEach((notifier) -> {
             notifier.notifyFinalBuildStatus(buildState, parameters);
         });

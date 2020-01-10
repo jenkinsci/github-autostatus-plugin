@@ -111,7 +111,7 @@ public class HttpNotifier extends BuildNotifier {
     }
 
     @Override
-    public void notifyFinalBuildStatus(BuildState buildState, Map<String, Object> parameters) {
+    public void notifyFinalBuildStatus(BuildStage.State buildState, Map<String, Object> parameters) {
         BuildStatus buildStatus = constructBuildStatus(buildState, parameters);
         TestResults testResults = (TestResults) parameters.get(BuildNotifierConstants.TEST_CASE_INFO);
         if (testResults != null) {
@@ -127,7 +127,7 @@ public class HttpNotifier extends BuildNotifier {
         sendData(gson.toJson(buildStatus));
     }
 
-    private BuildStatus constructBuildStatus(BuildState buildState, Map<String, Object> parameters) {
+    private BuildStatus constructBuildStatus(BuildStage.State buildState, Map<String, Object> parameters) {
         Run<?, ?> run = (Run<?, ?>) parameters.get(BuildNotifierConstants.BUILD_OBJECT);
         String jobName = (String) parameters.getOrDefault(BuildNotifierConstants.JOB_NAME, BuildNotifierConstants.DEFAULT_STRING);
         long blockedDuration = BuildNotifierConstants.getLong(parameters, BuildNotifierConstants.BLOCKED_DURATION);
@@ -147,7 +147,7 @@ public class HttpNotifier extends BuildNotifier {
         result.setBlocked(blockedDuration > 0);
         result.setBlockedTime(blockedDuration);
         result.setDuration(buildDuration);
-        result.setPassed(buildState == BuildState.CompletedSuccess);
+        result.setPassed(buildState == BuildStage.State.CompletedSuccess);
         result.setResult(buildState);
         result.setTimestamp(Clock.system(TimeZone.getTimeZone("UTC").toZoneId()).millis() / 1000);
         return result;

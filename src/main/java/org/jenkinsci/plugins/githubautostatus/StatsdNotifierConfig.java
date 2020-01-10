@@ -93,6 +93,9 @@ public class StatsdNotifierConfig {
      */
     public static StatsdNotifierConfig fromGlobalConfig(String externalizedID) {
         BuildStatusConfig config = BuildStatusConfig.get();
+        if (!config.getEnableStatsd()) {
+            return null;
+        }
         StatsdNotifierConfig statsdNotifierConfig = new StatsdNotifierConfig();
 
         System.out.println(config.getStatsdHost());

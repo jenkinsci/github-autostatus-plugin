@@ -25,10 +25,10 @@ package org.jenkinsci.plugins.githubautostatus;
 
 import hudson.Extension;
 import hudson.model.Queue;
+import hudson.model.Result;
 import hudson.model.Run;
 import net.sf.json.JSONObject;
 import org.jenkinsci.plugins.displayurlapi.DisplayURLProvider;
-import org.jenkinsci.plugins.github.status.sources.BuildDataRevisionShaSource;
 import org.jenkinsci.plugins.githubautostatus.model.BuildStage;
 import org.jenkinsci.plugins.pipeline.StageStatus;
 import org.jenkinsci.plugins.pipeline.modeldefinition.actions.ExecutionModelAction;
@@ -36,18 +36,18 @@ import org.jenkinsci.plugins.pipeline.modeldefinition.ast.*;
 import org.jenkinsci.plugins.workflow.actions.*;
 import org.jenkinsci.plugins.workflow.cps.nodes.StepAtomNode;
 import org.jenkinsci.plugins.workflow.cps.nodes.StepEndNode;
-import org.jenkinsci.plugins.workflow.cps.nodes.StepStartNode;
 import org.jenkinsci.plugins.workflow.flow.FlowExecution;
 import org.jenkinsci.plugins.workflow.flow.GraphListener;
 import org.jenkinsci.plugins.workflow.graph.FlowNode;
+import org.jenkinsci.plugins.workflow.graphanalysis.DepthFirstScanner;
+import org.jenkinsci.plugins.workflow.steps.FlowInterruptedException;
 
 import javax.annotation.CheckForNull;
 import java.io.IOException;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
+import java.util.*;
 import java.util.logging.Level;
 import java.util.logging.Logger;
+import java.util.stream.StreamSupport;
 
 
 /**
@@ -66,95 +66,112 @@ public class GithubBuildStatusGraphListener implements GraphListener {
      */
     @Override
     public void onNewHead(FlowNode fn) {
-        try {
-            if (isStage(fn)) {
-                checkEnableBuildStatus(fn);
-            } else if (fn instanceof StepAtomNode) {
+        if (isStage(fn)) {
+            checkEnableBuildStatus(fn);
+        } else if (fn instanceof StepAtomNode && !isDeclarativePipelineJob(fn)) {
+            // We don't need to look at atom nodes for declarative pipeline jobs, because
+            // they have a nice model containing all the stages
 
-                // We don't need to look at atom nodes for declarative pipeline jobs, because
-                // they have a nice model containing all the stages
-                if (isDeclarativePipelineJob(fn)) {
-                    return;
-                }
+            ErrorAction errorAction = fn.getError();
+            String nodeName = null;
 
-                ErrorAction errorAction = fn.getError();
-                String nodeName = null;
+            if (errorAction == null) {
+                return;
+            }
 
-                if (errorAction == null) {
-                    return;
-                }
+            List<? extends FlowNode> enclosingBlocks = fn.getEnclosingBlocks();
+            boolean isInStage = false;
 
-                List<? extends FlowNode> enclosingBlocks = fn.getEnclosingBlocks();
-                boolean isInStage = false;
-
-                for (FlowNode enclosingNode : enclosingBlocks) {
-                    if (isStage(enclosingNode)) {
-                        isInStage = true;
-                    }
-                }
-
-                if (isInStage) {
-                    return;
-                }
-
-                // We have a non-declarative atom that isn't in a stage, which has failed.
-                // Since normal processing is via stages, we'd normally miss this failure;
-                // send an out of band error notification to make sure it's recorded by any
-                // interested notifiers
-                checkEnableBuildStatus(fn);
-                BuildStatusAction buildStatusAction = buildStatusActionFor(fn.getExecution());
-                if (buildStatusAction == null) {
-                    return;
-                }
-
-                buildStatusAction.sendNonStageError(fn.getDisplayName());
-
-            } else if (fn instanceof StepEndNode) {
-                checkEnableBuildStatus(fn);
-                BuildStatusAction buildStatusAction = buildStatusActionFor(fn.getExecution());
-                if (buildStatusAction == null) {
-                    return;
-                }
-
-                String startId = ((StepEndNode) fn).getStartNode().getId();
-                FlowNode startNode = fn.getExecution().getNode(startId);
-                if (null == startNode) {
-                    return;
-                }
-
-                ErrorAction errorAction = getErrorActionOrNull(fn, startNode);
-                String nodeName = null;
-
-                long time = getTime(startNode, fn);
-                LabelAction label = startNode.getAction(LabelAction.class);
-
-                if (label != null) {
-                    nodeName = label.getDisplayName();
-                } else if (null != errorAction && startNode instanceof StepStartNode) {
-                    nodeName = ((StepStartNode) startNode).getStepName();
-                }
-
-                if (nodeName != null) {
-                    BuildStage.State buildState = buildStateForStage(startNode, errorAction);
-                    buildStatusAction.updateBuildStatusForStage(nodeName, buildState, time);
+            for (FlowNode enclosingNode : enclosingBlocks) {
+                if (isStage(enclosingNode)) {
+                    isInStage = true;
                 }
             }
-        } catch (IOException ex) {
-            getLogger().log(Level.SEVERE, null, ex);
+
+            if (isInStage) {
+                return;
+            }
+
+            // We have a non-declarative atom that isn't in a stage, which has failed.
+            // Since normal processing is via stages, we'd normally miss this failure;
+            // send an out of band error notification to make sure it's recorded by any
+            // interested notifiers
+            checkEnableBuildStatus(fn);
+            BuildStatusAction buildStatusAction = buildStatusActionFor(fn.getExecution());
+            if (buildStatusAction == null) {
+                return;
+            }
+
+            buildStatusAction.sendNonStageError(fn.getDisplayName());
+
+        } else if (fn instanceof StepEndNode) {
+            BuildStatusAction buildStatusAction = buildStatusActionFor(fn.getExecution());
+            if (buildStatusAction == null) {
+                return;
+            }
+
+            FlowNode startNode = ((StepEndNode) fn).getStartNode();
+
+            if (!isStage(startNode)) {
+                return;
+            }
+
+            String nodeName = null;
+
+            long time = getTime(startNode, fn);
+            LabelAction label = startNode.getAction(LabelAction.class);
+
+            if (label != null) {
+                nodeName = label.getDisplayName();
+                if (nodeName != null) {
+                    BuildStage.State buildState = buildStateForStage(startNode, fn);
+                    log(Level.INFO, "Logging status %s for %s", buildState.toString(), nodeName);
+                    buildStatusAction.updateBuildStatusForStage(nodeName, buildState, time);
+                } else {
+                    log(Level.WARNING, "Unexpected empty label for %s", startNode.getDisplayName());
+                }
+            }
         }
+   }
+
+    static Result resultForStage(FlowNode startNode, FlowNode endNode) {
+        Result errorResult = Result.SUCCESS;
+        DepthFirstScanner scanner = new DepthFirstScanner();
+        if (scanner.setup(endNode, Collections.singletonList(startNode))) {
+            WarningAction warningAction = StreamSupport.stream(scanner.spliterator(), false)
+                    .map(node -> node.getPersistentAction(WarningAction.class))
+                    .filter(Objects::nonNull)
+                    .max(Comparator.comparing(warning -> warning.getResult().ordinal))
+                    .orElse(null);
+            if (warningAction != null) {
+                errorResult = warningAction.getResult();
+            }
+        }
+        return errorResult;
     }
 
     /**
      * Determines the appropriate state for a stage
      *
-     * @param flowNode The stage start node
-     * @param errorAction The error action from the stage end node
+     * @param startNode The stage start node.
+     * @param endNode THe stage end node.
      * @return Stage state
      */
-    static BuildStage.State buildStateForStage(FlowNode flowNode, ErrorAction errorAction) {
-        BuildStage.State buildState = errorAction == null ? BuildStage.State.CompletedSuccess : BuildStage.State.CompletedError;
-        TagsAction tags = flowNode.getAction(TagsAction.class);
-        if (tags != null) {
+    static BuildStage.State buildStateForStage(FlowNode startNode, FlowNode endNode) {
+        BuildStage.State buildState = BuildStage.State.CompletedSuccess;
+        TagsAction tags = endNode.getAction(TagsAction.class);
+
+        ErrorAction errorAction = endNode.getError();
+        if (errorAction != null) {
+            Result result;
+            if (errorAction.getError() instanceof FlowInterruptedException) {
+                result = ((FlowInterruptedException) errorAction.getError()).getResult();
+            } else {
+                result = Result.FAILURE;
+            }
+            buildState = BuildStage.State.fromResult(result);
+        }
+        else if (tags != null) {
             String status = tags.getTagValue(StageStatus.TAG_NAME);
             if (status != null) {
                 if (status.equals(StageStatus.getSkippedForFailure())) {
@@ -167,24 +184,12 @@ public class GithubBuildStatusGraphListener implements GraphListener {
                     return BuildStage.State.CompletedError;
                 }
             }
+        } else {
+            Result result = resultForStage(startNode, endNode);
+            buildState = BuildStage.State.fromResult(result);
         }
         return buildState;
-    }
 
-    private ErrorAction getErrorActionOrNull(FlowNode fn, FlowNode startNode) {
-        if (fn == startNode) {
-            return null;
-        }
-        ErrorAction errorAction = fn.getError();
-        if (errorAction == null) {
-            for (FlowNode parent:fn.getParents()) {
-                errorAction = getErrorActionOrNull(parent, startNode);
-                if (errorAction != null) {
-                    return errorAction;
-                }
-            }
-        }
-        return errorAction;
     }
 
     /**
@@ -261,7 +266,7 @@ public class GithubBuildStatusGraphListener implements GraphListener {
             }
 
             if (buildStatusAction == null) {
-                buildStatusAction = new BuildStatusAction(run, targetUrl, stageNames);
+                buildStatusAction = BuildStatusAction.newAction(run, targetUrl, stageNames);
                 buildStatusAction.setIsDeclarativePipeline(isDeclarativePipeline);
 
                 run.addAction(buildStatusAction);

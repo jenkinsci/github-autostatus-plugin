@@ -31,7 +31,7 @@ import hudson.plugins.jacoco.JacocoBuildAction;
 import hudson.tasks.junit.TestResultAction;
 import org.jenkinsci.plugins.githubautostatus.config.HttpNotifierConfig;
 import org.jenkinsci.plugins.githubautostatus.config.InfluxDbNotifierConfig;
-import org.jenkinsci.plugins.githubautostatus.model.BuildState;
+import org.jenkinsci.plugins.githubautostatus.model.BuildStage;
 import org.jenkinsci.plugins.githubautostatus.model.CodeCoverage;
 import org.jenkinsci.plugins.githubautostatus.model.TestResults;
 import org.jenkinsci.plugins.githubautostatus.notifiers.BuildNotifierConstants;
@@ -60,6 +60,7 @@ public class BuildStatusJobListener extends RunListener<Run<?, ?>> {
      */
     @Override
     public void onCompleted(Run<?, ?> build, @Nonnull TaskListener listener) {
+        log(Level.WARNING, String.format("Sending completion status for %s", build.getDisplayName()));
         if (build instanceof FreeStyleBuild) {
             enableFreeStyleBuild((FreeStyleBuild) build);
         }
@@ -80,7 +81,7 @@ public class BuildStatusJobListener extends RunListener<Run<?, ?>> {
                 log(Level.WARNING, String.format("Could not get result of build \"%s\". Notifications are ignored.", statusAction.getRepoName()));
                 return;
             }
-            statusAction.updateBuildStatusForJob(BuildState.fromResult(result), parameters);
+            statusAction.updateBuildStatusForJob(BuildStage.State.fromResult(result), parameters);
         }
     }
 
@@ -99,7 +100,7 @@ public class BuildStatusJobListener extends RunListener<Run<?, ?>> {
         String repoName = build.getProject().getName();
         String branchName = "";
 
-        BuildStatusAction buildStatusAction = new BuildStatusAction(build, null, Collections.emptyList());
+        BuildStatusAction buildStatusAction = BuildStatusAction.newAction(build, null, Collections.emptyList());
         build.addAction(buildStatusAction);
 
         buildStatusAction.setRepoOwner(repoOwner);

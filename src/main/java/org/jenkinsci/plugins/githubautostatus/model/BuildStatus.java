@@ -18,7 +18,7 @@ public class BuildStatus {
     private long blockedTime;
     private long duration;
     private boolean passed;
-    private BuildState result;
+    private BuildStage.State result;
     private TestResults testResult;
     private CodeCoverage coverage;
     private List<BuildStage> stages;
@@ -116,11 +116,11 @@ public class BuildStatus {
         this.passed = passed;
     }
 
-    public BuildState getResult() {
+    public BuildStage.State getResult() {
         return result;
     }
 
-    public void setResult(BuildState result) {
+    public void setResult(BuildStage.State result) {
         this.result = result;
     }
 

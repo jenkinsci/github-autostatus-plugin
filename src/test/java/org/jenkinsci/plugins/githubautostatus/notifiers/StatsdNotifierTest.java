@@ -171,7 +171,7 @@ public class StatsdNotifierTest {
         jobParams.put(BuildNotifierConstants.JOB_NAME, "job_name");
         jobParams.put(BuildNotifierConstants.JOB_DURATION, 612L);
         jobParams.put(BuildNotifierConstants.BLOCKED_DURATION, 12L);
-        instance.notifyFinalBuildStatus(BuildState.CompletedError, jobParams);
+        instance.notifyFinalBuildStatus(BuildStage.State.CompletedError, jobParams);
 
         verify(client).increment("pipeline.main_folder.sub_folder.job_name.branch_name.job.status.completederror", 1);
         verify(client).time("pipeline.main_folder.sub_folder.job_name.branch_name.job.duration", buildDuration);
