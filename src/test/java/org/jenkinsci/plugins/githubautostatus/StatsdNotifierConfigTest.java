@@ -103,10 +103,7 @@ public class StatsdNotifierConfigTest {
         when(config.getEnableStatsd()).thenReturn(false);
         StatsdNotifierConfig instance
                 = StatsdNotifierConfig.fromGlobalConfig(externalizedID);
-        assertEquals(null, instance.getStatsdHost());
-        assertEquals(0, instance.getStatsdPort());
-        assertEquals(null, instance.getStatsdBucket());
-        assertEquals(null, instance.getStatsdMaxSize());
+        assertEquals(null, instance);
     }
 
     @Test

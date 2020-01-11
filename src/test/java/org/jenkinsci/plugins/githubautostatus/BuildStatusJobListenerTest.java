@@ -30,6 +30,7 @@ import hudson.model.TaskListener;
 import java.util.HashMap;
 import java.util.Map;
 
+import org.jenkinsci.plugins.githubautostatus.model.BuildStage;
 import org.jenkinsci.plugins.githubautostatus.model.BuildState;
 import org.junit.After;
 import org.junit.AfterClass;
@@ -94,7 +95,7 @@ public class BuildStatusJobListenerTest {
         HashMap<String, Object> jobParams = new HashMap<String, Object>();
 
         instance.onCompleted(build, listener);
-        verify(action).updateBuildStatusForJob(eq(BuildState.CompletedSuccess), anyMapOf(String.class, Object.class));
+        verify(action).updateBuildStatusForJob(eq(BuildStage.State.CompletedSuccess), anyMapOf(String.class, Object.class));
     }
 
     @Test
@@ -110,6 +111,6 @@ public class BuildStatusJobListenerTest {
         BuildStatusJobListener instance = new BuildStatusJobListener();
 
         instance.onCompleted(build, listener);
-        verify(action).updateBuildStatusForJob(eq(BuildState.CompletedError), anyMapOf(String.class, Object.class));
+        verify(action).updateBuildStatusForJob(eq(BuildStage.State.CompletedError), anyMapOf(String.class, Object.class));
     }
 }

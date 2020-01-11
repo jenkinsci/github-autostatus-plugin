@@ -28,7 +28,9 @@ import hudson.model.Result;
 import javax.annotation.Nonnull;
 
 /**
- * Possible build states for notification
+ * Possible build states for notification.
+ *
+ * @deprecated, replaced by {@link BuildStage.State}
  *
  * @author Jeff Pearce (GitHub jeffpearce)
  */

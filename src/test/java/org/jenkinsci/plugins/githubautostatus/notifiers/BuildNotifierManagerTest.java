@@ -155,9 +155,9 @@ public class BuildNotifierManagerTest {
         GithubBuildNotifier notifier = mock(GithubBuildNotifier.class);
         instance.notifiers.add(notifier);
 
-        instance.notifyFinalBuildStatus(BuildState.CompletedSuccess, Collections.emptyMap());
+        instance.notifyFinalBuildStatus(BuildStage.State.CompletedSuccess, Collections.emptyMap());
 
-        verify(notifier).notifyFinalBuildStatus(BuildState.CompletedSuccess, Collections.emptyMap());
+        verify(notifier).notifyFinalBuildStatus(BuildStage.State.CompletedSuccess, Collections.emptyMap());
     }
 
     /**

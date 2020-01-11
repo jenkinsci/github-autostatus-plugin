@@ -193,10 +193,10 @@ public class HttpNotifierTest {
     BuildStage stage = new BuildStage(stageName, new HashMap<>(), BuildStage.State.CompletedSuccess);
     notifier.stageMap = new HashMap<>();
     notifier.notifyBuildStageStatus(stageName, stage);
-    notifier.notifyFinalBuildStatus(BuildState.CompletedSuccess, createParameter());
+    notifier.notifyFinalBuildStatus(BuildStage.State.CompletedSuccess, createParameter());
     BuildStatus actualResult = notifier.gson.fromJson(bodyData, BuildStatus.class);
     assertCommonBuildStatusProperties(actualResult);
-    assertEquals(BuildState.CompletedSuccess, actualResult.getResult());
+    assertEquals(BuildStage.State.CompletedSuccess, actualResult.getResult());
     assertTrue(actualResult.isPassed());
     assertEquals(1, actualResult.getStages().size());
     assertNull(actualResult.getTestResult());
@@ -209,11 +209,11 @@ public class HttpNotifierTest {
             TestResults.class);
     Map<String, Object> parameter = createParameter();
     parameter.put(BuildNotifierConstants.TEST_CASE_INFO, testResults);
-    notifier.notifyFinalBuildStatus(BuildState.CompletedSuccess, parameter);
+    notifier.notifyFinalBuildStatus(BuildStage.State.CompletedSuccess, parameter);
     BuildStatus actualResult = notifier.gson.fromJson(bodyData, BuildStatus.class);
 
     assertCommonBuildStatusProperties(actualResult);
-    assertEquals(BuildState.CompletedSuccess, actualResult.getResult());
+    assertEquals(BuildStage.State.CompletedSuccess, actualResult.getResult());
     assertTrue(actualResult.isPassed());
     assertEquals(0, actualResult.getStages().size());
     assertEquals(testResults, actualResult.getTestResult());
@@ -226,11 +226,11 @@ public class HttpNotifierTest {
             CodeCoverage.class);
     Map<String, Object> parameter = createParameter();
     parameter.put(BuildNotifierConstants.COVERAGE_INFO, coverage);
-    notifier.notifyFinalBuildStatus(BuildState.CompletedError, parameter);
+    notifier.notifyFinalBuildStatus(BuildStage.State.CompletedError, parameter);
     BuildStatus actualResult = notifier.gson.fromJson(bodyData, BuildStatus.class);
 
     assertCommonBuildStatusProperties(actualResult);
-    assertEquals(BuildState.CompletedError, actualResult.getResult());
+    assertEquals(BuildStage.State.CompletedError, actualResult.getResult());
     assertFalse(actualResult.isPassed());
     assertEquals(0, actualResult.getStages().size());
     assertEquals(coverage, actualResult.getCoverage());
@@ -240,10 +240,10 @@ public class HttpNotifierTest {
   @Test
   public void testNotifyFinalBuildStatusError() throws IOException {
     when(mockStatusLine.getStatusCode()).thenReturn(400);
-    notifier.notifyFinalBuildStatus(BuildState.CompletedSuccess, createParameter());
+    notifier.notifyFinalBuildStatus(BuildStage.State.CompletedSuccess, createParameter());
     BuildStatus actualResult = notifier.gson.fromJson(bodyData, BuildStatus.class);
     assertCommonBuildStatusProperties(actualResult);
-    assertEquals(BuildState.CompletedSuccess, actualResult.getResult());
+    assertEquals(BuildStage.State.CompletedSuccess, actualResult.getResult());
     assertTrue(actualResult.isPassed());
     assertEquals(0, actualResult.getStages().size());
     assertNull(actualResult.getTestResult());
@@ -255,10 +255,10 @@ public class HttpNotifierTest {
     when(mockStatusLine.getStatusCode()).thenAnswer((InvocationOnMock invocation) -> {
       throw new IOException();
     });
-    notifier.notifyFinalBuildStatus(BuildState.CompletedSuccess, createParameter());
+    notifier.notifyFinalBuildStatus(BuildStage.State.CompletedSuccess, createParameter());
     BuildStatus actualResult = notifier.gson.fromJson(bodyData, BuildStatus.class);
     assertCommonBuildStatusProperties(actualResult);
-    assertEquals(BuildState.CompletedSuccess, actualResult.getResult());
+    assertEquals(BuildStage.State.CompletedSuccess, actualResult.getResult());
     assertTrue(actualResult.isPassed());
     assertEquals(0, actualResult.getStages().size());
     assertNull(actualResult.getTestResult());

@@ -269,7 +269,7 @@ public class InfluxDbNotifierTest {
         jobParams.put(BuildNotifierConstants.JOB_DURATION, 88L);
         jobParams.put(BuildNotifierConstants.BLOCKED_DURATION, 12L);
         jobParams.put(BuildNotifierConstants.BUILD_OBJECT, mockRun);
-        instance.notifyFinalBuildStatus(BuildState.CompletedSuccess, jobParams);
+        instance.notifyFinalBuildStatus(BuildStage.State.CompletedSuccess, jobParams);
 
         verify(mockHttpClient).execute(any());
         assertEquals(
@@ -289,7 +289,7 @@ public class InfluxDbNotifierTest {
         parameters.put(BuildNotifierConstants.JOB_DURATION, 1010L);
         parameters.put(BuildNotifierConstants.BLOCKED_DURATION, 0L);
         parameters.put(BuildNotifierConstants.BUILD_OBJECT, mockRun);
-        instance.notifyFinalBuildStatus(BuildState.CompletedError, parameters);
+        instance.notifyFinalBuildStatus(BuildStage.State.CompletedError, parameters);
 
         verify(mockHttpClient).execute(any());
         assertEquals("job,owner=mockowner,repo=mockrepo,result=CompletedError jobname=\"mockjobname\",branch=\"mockbranch\",blocked=0,jobtime=1010,blockedtime=0,passed=0,buildurl=\"https://jenkins.com/1\",buildnumber=1,trigger=\"user A\"",

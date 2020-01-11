@@ -169,10 +169,10 @@ public class InfluxDbNotifier extends BuildNotifier {
      * @param parameters build parameters
      */
     @Override
-    public void notifyFinalBuildStatus(BuildState buildState, Map<String, Object> parameters) {
+    public void notifyFinalBuildStatus(BuildStage.State buildState, Map<String, Object> parameters) {
         Run<?, ?> run = (Run<?, ?>) parameters.get(BuildNotifierConstants.BUILD_OBJECT);
         String jobName = (String) parameters.getOrDefault(BuildNotifierConstants.JOB_NAME, BuildNotifierConstants.DEFAULT_STRING);
-        int passed = buildState == BuildState.CompletedSuccess ? 1 : 0;
+        int passed = buildState == BuildStage.State.CompletedSuccess ? 1 : 0;
         long blockedDuration = BuildNotifierConstants.getLong(parameters, BuildNotifierConstants.BLOCKED_DURATION);
         int blocked = blockedDuration > 0 ? 1 : 0;
         String buildUrl = run.getUrl();

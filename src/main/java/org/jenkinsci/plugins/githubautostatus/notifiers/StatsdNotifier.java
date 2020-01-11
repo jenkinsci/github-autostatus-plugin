@@ -31,7 +31,6 @@ import org.jenkinsci.plugins.githubautostatus.StatsdClient;
 import org.jenkinsci.plugins.githubautostatus.StatsdNotifierConfig;
 import org.jenkinsci.plugins.githubautostatus.StatsdWrapper;
 import org.jenkinsci.plugins.githubautostatus.model.BuildStage;
-import org.jenkinsci.plugins.githubautostatus.model.BuildState;
 
 /**
  * Sends job and stage metrics to a StatsD collector server over UDP.
@@ -123,7 +122,7 @@ public class StatsdNotifier extends BuildNotifier {
      * @param buildState the reported state
      * @param parameters build parameters
      */
-    public void notifyFinalBuildStatus(BuildState buildState, Map<String, Object> parameters) {
+    public void notifyFinalBuildStatus(BuildStage.State buildState, Map<String, Object> parameters) {
         long blockedDuration = getLong(parameters, BuildNotifierConstants.BLOCKED_DURATION);
         long buildDuration = getLong(parameters, BuildNotifierConstants.JOB_DURATION) - blockedDuration;
         byte[] fqpSize;

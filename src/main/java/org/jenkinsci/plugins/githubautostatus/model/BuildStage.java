@@ -23,9 +23,11 @@
  */
 package org.jenkinsci.plugins.githubautostatus.model;
 
+import hudson.model.Result;
 import hudson.model.Run;
 import org.jenkinsci.plugins.githubautostatus.notifiers.BuildNotifierConstants;
 
+import javax.annotation.Nonnull;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -51,7 +53,29 @@ public class BuildStage {
         SkippedUnstable,
         SkippedFailure,
         CompletedSuccess,
-        CompletedError
+        CompletedError,
+        Unstable,
+        NotBuilt,
+        Aborted,
+        Unknown;
+
+        public static @Nonnull
+        State fromResult(Result result) {
+            switch (result.ordinal) {
+                case 0:
+                    return State.CompletedSuccess;
+                case 1:
+                    return Unstable;
+                case 2:
+                    return CompletedError;
+                case 3:
+                    return NotBuilt;
+                case 4:
+                    return Aborted;
+                default:
+                    return Unknown;
+            }
+        }
     }
 
     public BuildStage(String stageName) {

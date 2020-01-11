@@ -31,7 +31,6 @@ import org.jenkinsci.plugins.githubautostatus.config.GithubNotificationConfig;
 import org.jenkinsci.plugins.githubautostatus.config.HttpNotifierConfig;
 import org.jenkinsci.plugins.githubautostatus.config.InfluxDbNotifierConfig;
 import org.jenkinsci.plugins.githubautostatus.model.BuildStage;
-import org.jenkinsci.plugins.githubautostatus.model.BuildState;
 import org.jenkinsci.plugins.githubautostatus.notifiers.BuildNotifier;
 import org.jenkinsci.plugins.githubautostatus.notifiers.BuildNotifierConstants;
 import org.jenkinsci.plugins.githubautostatus.notifiers.BuildNotifierManager;
@@ -98,7 +97,11 @@ public class BuildStatusAction extends InvisibleAction {
      * @param targetUrl link back to Jenkins
      * @param stageList list of stages if known
      */
-    public BuildStatusAction(Run<?, ?> run, String targetUrl, List<BuildStage> stageList) {
+    public static BuildStatusAction newAction (Run<?, ?> run, String targetUrl, List<BuildStage> stageList) {
+        return new BuildStatusAction(run, targetUrl, stageList);
+    }
+
+    protected BuildStatusAction(Run<?, ?> run, String targetUrl, List<BuildStage> stageList) {
         this.run = run;
         this.jobName = run.getExternalizableId();
         this.buildStatuses = new HashMap<>();
@@ -291,7 +294,7 @@ public class BuildStatusAction extends InvisibleAction {
      * @param buildState final build state
      * @param parameters build parameters
      */
-    public void updateBuildStatusForJob(BuildState buildState, Map<String, Object> parameters) {
+    public void updateBuildStatusForJob(BuildStage.State buildState, Map<String, Object> parameters) {
         close();
         buildNotifierManager.notifyFinalBuildStatus(buildState, parameters);
     }
