@@ -234,7 +234,7 @@ public class GithubBuildStatusGraphListener implements GraphListener {
 
             Run<?, ?> run = runFor(exec);
             if (null == run) {
-                log(Level.WARNING, "Could not find Run - status will not be provided build %s", run.getFullDisplayName());
+                log(Level.WARNING, "Could not find Run - status will not be provided build");
                 return;
             }
 
