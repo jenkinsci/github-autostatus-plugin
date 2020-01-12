@@ -225,7 +225,7 @@ public class GithubNotificationConfig {
         }
         String credentialsId = gitHubScmSource.getCredentialsId();
         if (null == credentialsId) {
-            log(Level.INFO, "Could not find credentials - status will not be provided for this build");
+            log(Level.WARNING, "Could not find credentials - status will not be provided for this build");
             return false;
         }
         repoOwner = gitHubScmSource.getRepoOwner();
@@ -247,7 +247,7 @@ public class GithubNotificationConfig {
             }
         }
         if (userName == null) {
-            log(Level.INFO, "Could not resolve credentials - status will not be provided for this build");
+            log(Level.WARNING, "Could not resolve credentials - status will not be provided for this build");
             return false;
         }
 

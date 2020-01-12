@@ -125,7 +125,6 @@ public class GithubBuildStatusGraphListener implements GraphListener {
                 nodeName = label.getDisplayName();
                 if (nodeName != null) {
                     BuildStage.State buildState = buildStateForStage(startNode, fn);
-                    log(Level.INFO, "Logging status %s for %s", buildState.toString(), nodeName);
                     buildStatusAction.updateBuildStatusForStage(nodeName, buildState, time);
                 } else {
                     log(Level.WARNING, "Unexpected empty label for %s", startNode.getDisplayName());
@@ -235,10 +234,8 @@ public class GithubBuildStatusGraphListener implements GraphListener {
 
             Run<?, ?> run = runFor(exec);
             if (null == run) {
-                log(Level.INFO, "Could not find Run - status will not be provided for this build");
+                log(Level.WARNING, "Could not find Run - status will not be provided build %s", run.getFullDisplayName());
                 return;
-            } else {
-                log(Level.INFO, "Processing build %s", run.getFullDisplayName());
             }
 
             // Declarative pipeline jobs come with a nice execution model, which allows you

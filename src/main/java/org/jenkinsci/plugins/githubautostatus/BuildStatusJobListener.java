@@ -60,7 +60,6 @@ public class BuildStatusJobListener extends RunListener<Run<?, ?>> {
      */
     @Override
     public void onCompleted(Run<?, ?> build, @Nonnull TaskListener listener) {
-        log(Level.WARNING, String.format("Sending completion status for %s", build.getDisplayName()));
         if (build instanceof FreeStyleBuild) {
             enableFreeStyleBuild((FreeStyleBuild) build);
         }
