@@ -248,7 +248,7 @@ public class InfluxDbNotifier extends BuildNotifier {
                     buildCause);
 
             postData(data);
-
+	    
             for (TestSuite testSuite : testResults.getTestSuites()) {
                 notifyTestSuite(jobName, testSuite, run);
             }
@@ -261,6 +261,7 @@ public class InfluxDbNotifier extends BuildNotifier {
         int buildNumber = run.getNumber();
         Cause cause = run.getCause(Cause.class);
         String buildCause = cause == null ? BuildNotifierConstants.DEFAULT_STRING : cause.getShortDescription();
+	List<String> testSuiteQuery = new ArrayList<>();
 
         String data = config.getSchema().formatTestSuite(jobName,
                 repoOwner,
@@ -275,14 +276,15 @@ public class InfluxDbNotifier extends BuildNotifier {
                 buildNumber,
                 buildCause);
 
-        postData(data);
-
+	testSuiteQuery.add(data);
         for (TestCase testCase : testSuite.getTestCases()) {
-            notifyTestCase(jobName, suiteName, testCase, run);
+            testSuiteQuery.add(notifyTestCase(jobName, suiteName, testCase, run));
         }
+	postData(String.join("\\n", testSuiteQuery))
+	
     }
 
-    private void notifyTestCase(String jobName, String suiteName, TestCase testCase, Run<?, ?> run) {
+    private String notifyTestCase(String jobName, String suiteName, TestCase testCase, Run<?, ?> run) {
         String buildUrl = run.getUrl();
         int buildNumber = run.getNumber();
         Cause cause = run.getCause(Cause.class);
@@ -301,7 +303,7 @@ public class InfluxDbNotifier extends BuildNotifier {
                 buildNumber,
                 buildCause);
 
-        postData(data);
+	return data;
     }
 
     /**
