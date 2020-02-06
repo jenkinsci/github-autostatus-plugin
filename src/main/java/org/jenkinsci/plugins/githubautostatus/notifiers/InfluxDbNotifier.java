@@ -280,7 +280,7 @@ public class InfluxDbNotifier extends BuildNotifier {
         for (TestCase testCase : testSuite.getTestCases()) {
             testSuiteQuery.add(notifyTestCase(jobName, suiteName, testCase, run));
         }
-	postData(String.join("\\n", testSuiteQuery))
+	postData(String.join("\\n", testSuiteQuery));
 	
     }
 
