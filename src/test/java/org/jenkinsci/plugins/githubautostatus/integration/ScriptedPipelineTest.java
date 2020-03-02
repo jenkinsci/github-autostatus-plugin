@@ -127,11 +127,38 @@ public class ScriptedPipelineTest {
         Thread.sleep(500);
 
         verify(buildStatus, times(1)).updateBuildStatusForStage(eq("Stage 1"), eq(BuildStage.State.CompletedSuccess), anyLong());
-        verify(buildStatus, times(1)).sendNonStageError(eq("Shell Script"));
+        verify(buildStatus, atLeast(1)).sendNonStageError("script returned exit code 2");
         verify(buildStatus, times(0)).updateBuildStatusForStage(eq("Stage 2"), any(), anyLong());
         verify(buildStatus, times(1)).updateBuildStatusForJob(eq(BuildStage.State.CompletedError), any());
 
-        verify(buildStatus, times(1)).sendNonStageError(any());
+        verify(buildStatus, times(1)).updateBuildStatusForStage(any(), any(), anyLong());
+        verify(buildStatus, times(1)).updateBuildStatusForJob(any(), any());
+    }
+    /**
+     * Verifies a labelled step isn't reported as a stage
+     * @throws Exception
+     */
+    @Test
+    public void testLabel() throws Exception {
+
+        WorkflowJob p = r.jenkins.createProject(WorkflowJob.class, "p");
+        p.setDefinition(new CpsFlowDefinition(
+                "node {\n" +
+                        "    stage('The stage') {\n" +
+                        "          sh(script: \"echo 'hello'\", label: 'echo')\n" +
+                        "    }\n" +
+                        "}",
+                true));
+
+        WorkflowRun b = p.scheduleBuild2(0).waitForStart();
+        BuildStatusAction buildStatus = mock(BuildStatusAction.class);
+        b.addOrReplaceAction(buildStatus);
+        r.waitForCompletion(b);
+        Thread.sleep(500);
+
+        verify(buildStatus, times(1)).addBuildStatus(any());
+
+        verify(buildStatus, times(1)).updateBuildStatusForStage(eq("The stage"), eq(BuildStage.State.CompletedSuccess), anyLong());
         verify(buildStatus, times(1)).updateBuildStatusForStage(any(), any(), anyLong());
         verify(buildStatus, times(1)).updateBuildStatusForJob(any(), any());
     }

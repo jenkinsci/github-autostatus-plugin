@@ -1,5 +1,7 @@
 package org.jenkinsci.plugins.githubautostatus.model;
 
+import hudson.model.AbstractBuild;
+import hudson.model.Run;
 import hudson.plugins.cobertura.CoberturaBuildAction;
 import hudson.plugins.cobertura.Ratio;
 import hudson.plugins.cobertura.targets.CoverageMetric;
@@ -12,10 +14,12 @@ import org.powermock.api.mockito.PowerMockito;
 import org.powermock.core.classloader.annotations.PrepareForTest;
 import org.powermock.modules.junit4.PowerMockRunner;
 
+import java.io.File;
 import java.util.HashMap;
 import java.util.Map;
 
 import static org.junit.Assert.*;
+import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
 @RunWith(PowerMockRunner.class)
@@ -50,6 +54,10 @@ public class CodeCoverageTest {
   @Test
   public void testFromCobertura(){
     CoberturaBuildAction action = PowerMockito.mock(CoberturaBuildAction.class);
+    AbstractBuild build = mock(AbstractBuild.class);
+    when(action.getOwner()).thenReturn(build);
+    File file = mock(File.class);
+    when(build.getRootDir()).thenReturn(file);
     Map<CoverageMetric, Ratio> results = new HashMap<>();
     results.put(CoverageMetric.CONDITIONAL, Ratio.create(1, 10));
     results.put(CoverageMetric.CLASSES, Ratio.create(2, 10));

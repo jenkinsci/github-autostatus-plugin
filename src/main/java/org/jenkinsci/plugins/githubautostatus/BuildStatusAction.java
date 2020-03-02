@@ -1,7 +1,7 @@
 /*
  * The MIT License
  *
- * Copyright 2017 Jeff Pearce (jxpearce@godaddy.com).
+ * Copyright 2017 Jeff Pearce (jeffpea@gmail.com).
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to deal
@@ -305,6 +305,10 @@ public class BuildStatusAction extends InvisibleAction {
      * @param nodeName name of node that failed
      */
     public void sendNonStageError(String nodeName) {
+        if (buildStatuses.get(nodeName) != null) {
+            // We already reported this error
+            return;
+        }
         BuildStage stageItem = new BuildStage(nodeName, new HashMap<>(), BuildStage.State.CompletedError);
         stageItem.setRun(run);
         stageItem.addAllToEnvironment(jobParameters);
