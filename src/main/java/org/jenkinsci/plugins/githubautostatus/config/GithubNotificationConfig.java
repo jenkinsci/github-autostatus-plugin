@@ -30,7 +30,9 @@ import com.cloudbees.plugins.credentials.domains.DomainRequirement;
 import hudson.model.Item;
 import hudson.model.ItemGroup;
 import hudson.model.Run;
+import hudson.scm.SCM;
 import hudson.security.ACL;
+import hudson.triggers.SCMTrigger;
 import jenkins.plugins.git.AbstractGitSCMSource;
 import jenkins.scm.api.SCMRevision;
 import jenkins.scm.api.SCMRevisionAction;
@@ -40,6 +42,10 @@ import org.jenkinsci.plugins.github_branch_source.PullRequestSCMHead;
 import org.jenkinsci.plugins.github_branch_source.PullRequestSCMRevision;
 import org.jenkinsci.plugins.githubautostatus.BuildStatusConfig;
 import org.jenkinsci.plugins.plaincredentials.StringCredentials;
+import org.jenkinsci.plugins.workflow.cps.CpsScmFlowDefinition;
+import org.jenkinsci.plugins.workflow.flow.FlowDefinition;
+import org.jenkinsci.plugins.workflow.job.WorkflowJob;
+import org.jenkinsci.plugins.workflow.job.WorkflowRun;
 import org.jenkinsci.plugins.workflow.multibranch.WorkflowMultiBranchProject;
 import org.kohsuke.github.GHRepository;
 import org.kohsuke.github.GitHub;
@@ -161,9 +167,18 @@ public class GithubNotificationConfig {
      * @return true if SHA was extracted; false if it could not be extracted
      */
     private Boolean extractCommitSha(Run<?, ?> build) {
+//        if (build.getParent() instanceof WorkflowJob) {
+//            SCMTrigger trigger = ((WorkflowJob) build.getParent()).getSCMTrigger();
+//            FlowDefinition definition = ((WorkflowJob) build.getParent()).getDefinition();
+//            if (definition instanceof CpsScmFlowDefinition) {
+//                SCM scm = ((CpsScmFlowDefinition) definition).getScm();
+//                log(Level.INFO, "Got a scm");
+//            }
+//        }
+
         SCMRevisionAction scmRevisionAction = build.getAction(SCMRevisionAction.class);
         if (null == scmRevisionAction) {
-            log(Level.INFO, "Could not find commit sha - status will not be provided for this build");
+            log(Level.INFO, "Could not find commit sha - status will not be provided for %s", build.getFullDisplayName());
             return false;
         }
         SCMRevision revision = scmRevisionAction.getRevision();
