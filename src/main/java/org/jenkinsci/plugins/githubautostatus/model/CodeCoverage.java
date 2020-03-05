@@ -23,14 +23,24 @@
  */
 package org.jenkinsci.plugins.githubautostatus.model;
 
+import hudson.model.AbstractBuild;
 import hudson.plugins.cobertura.CoberturaBuildAction;
+import hudson.plugins.cobertura.CoberturaPublisher;
 import hudson.plugins.cobertura.Ratio;
 import hudson.plugins.cobertura.targets.CoverageMetric;
 import hudson.plugins.jacoco.JacocoBuildAction;
 import hudson.plugins.jacoco.model.Coverage;
+import hudson.util.DescribableList;
+
+import java.io.File;
+import java.io.FileInputStream;
+import java.io.FileNotFoundException;
+import java.io.IOException;
 import java.util.Map;
 import java.util.Objects;
 import javax.annotation.Nullable;
+
+import static hudson.plugins.cobertura.CoberturaPublisher.COBERTURA_FILENAME_FILTER;
 
 /**
  *
@@ -45,11 +55,13 @@ public class CodeCoverage {
     float methods;
     float packages;
     float instructions;
+    File[] reportFiles;
 
     public static CodeCoverage fromCobertura(@Nullable CoberturaBuildAction coberturaAction) {
         if (coberturaAction == null) {
             return null;
         }
+
         CodeCoverage codeCoverage = new CodeCoverage();
         Map<CoverageMetric, Ratio> results = coberturaAction.getResults();
         codeCoverage.setInstructions(-1f);
@@ -61,6 +73,8 @@ public class CodeCoverage {
             codeCoverage.setMethods(results.get(CoverageMetric.METHOD));
             codeCoverage.setPackages(results.get(CoverageMetric.PACKAGES));
         }
+        codeCoverage.reportFiles = coberturaAction.getOwner().getRootDir().listFiles(COBERTURA_FILENAME_FILTER);
+
 
         return codeCoverage;
     }
@@ -105,6 +119,13 @@ public class CodeCoverage {
         }
 
         return codeCoverage;
+    }
+
+    public File getReportFile() {
+        if (reportFiles != null && reportFiles.length > 0) {
+            return reportFiles[0];
+        }
+        return null;
     }
 
     public float getConditionals() {

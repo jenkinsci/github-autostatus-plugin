@@ -71,6 +71,50 @@ public class DeclarativePipelineTest {
     }
 
     /**
+     * Verifies notifications are sent for nested stages
+     * @throws Exception
+     */
+    @Test
+    public void testNested() throws Exception {
+
+        WorkflowJob p = r.jenkins.createProject(WorkflowJob.class, "p");
+        p.setDefinition(new CpsFlowDefinition(
+                "pipeline {\n" +
+                        "agent any\n" +
+                        "stages {\n" +
+                            "stage('Parallel') {\n" +
+                                "parallel {\n" +
+                                    "stage ('Stage A') {\n" +
+                                        "steps {\n" +
+                                            "sh 'echo hello'\n" +
+                                        "}\n" +
+                                    "}\n" +
+                                    "stage ('Stage B') {\n" +
+                                        "steps {\n" +
+                                            "sh 'echo hello'\n" +
+                                        "}\n" +
+                                    "}\n" +
+                                "}\n" +
+                            "}\n" +
+                        "}\n" +
+                    "}",
+                true));
+
+        WorkflowRun b = p.scheduleBuild2(0).waitForStart();
+        BuildStatusAction buildStatus = mock(BuildStatusAction.class);
+        b.addOrReplaceAction(buildStatus);
+        r.waitForCompletion(b);
+        Thread.sleep(500);
+
+        verify(buildStatus, times(1)).updateBuildStatusForStage(eq("Parallel"), eq(BuildStage.State.CompletedSuccess), anyLong());
+        verify(buildStatus, times(1)).updateBuildStatusForStage(eq("Stage A"), eq(BuildStage.State.CompletedSuccess), anyLong());
+        verify(buildStatus, times(1)).updateBuildStatusForStage(eq("Stage B"), eq(BuildStage.State.CompletedSuccess), anyLong());
+
+        verify(buildStatus, times(3)).updateBuildStatusForStage(any(), any(), anyLong());
+        verify(buildStatus, times(1)).updateBuildStatusForJob(any(), any());
+    }
+
+    /**
      * Verifies a simple pipeline that fails sends the correct notifications
      * @throws Exception
      */

@@ -1,7 +1,7 @@
 /*
  * The MIT License
  *
- * Copyright 2017 Jeff Pearce (jxpearce@godaddy.com).
+ * Copyright 2017 Jeff Pearce (jeffpea@gmail.com).
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to deal
@@ -102,7 +102,7 @@ public class GithubBuildStatusGraphListener implements GraphListener {
                 return;
             }
 
-            buildStatusAction.sendNonStageError(fn.getDisplayName());
+            buildStatusAction.sendNonStageError(errorAction.getDisplayName());
 
         } else if (fn instanceof StepEndNode) {
             BuildStatusAction buildStatusAction = buildStatusActionFor(fn.getExecution());
@@ -113,6 +113,10 @@ public class GithubBuildStatusGraphListener implements GraphListener {
             FlowNode startNode = ((StepEndNode) fn).getStartNode();
 
             if (!isStage(startNode)) {
+                ErrorAction error = fn.getError();
+                if (error != null) {
+                    buildStatusAction.sendNonStageError(error.getDisplayName());
+                }
                 return;
             }
 
@@ -217,6 +221,10 @@ public class GithubBuildStatusGraphListener implements GraphListener {
      * @return true if it's a stage node; false otherwise
      */
     private static boolean isStage(FlowNode node) {
+        if (node instanceof StepAtomNode) {
+            // This filters out labelled steps, such as `sh(script: "echo 'hello'", label: 'echo')`
+            return false;
+        }
         return node != null && ((node.getAction(StageAction.class) != null)
                 || (node.getAction(LabelAction.class) != null && node.getAction(ThreadNameAction.class) == null));
     }
@@ -377,7 +385,10 @@ public class GithubBuildStatusGraphListener implements GraphListener {
         if (stage.getStages() != null) {
             stageList = stage.getStages().getStages();
         } else {
-            stageList = stage.getParallelContent();
+            ModelASTParallel stageModel = stage.getParallel();
+            if (stageModel != null) {
+                stageList = stageModel.getStages();
+            }
         }
         if (stageList != null) {
             for (ModelASTStage innerStage : stageList) {
