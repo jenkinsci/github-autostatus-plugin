@@ -66,7 +66,7 @@ public class GithubBuildStatusGraphListener implements GraphListener {
      */
     @Override
     public void onNewHead(FlowNode fn) {
-        if (isStage(fn)) {
+        if (isStageNode(fn)) {
             checkEnableBuildStatus(fn);
         } else if (fn instanceof StepAtomNode && !isDeclarativePipelineJob(fn)) {
             // We don't need to look at atom nodes for declarative pipeline jobs, because
@@ -79,16 +79,7 @@ public class GithubBuildStatusGraphListener implements GraphListener {
                 return;
             }
 
-            List<? extends FlowNode> enclosingBlocks = fn.getEnclosingBlocks();
-            boolean isInStage = false;
-
-            for (FlowNode enclosingNode : enclosingBlocks) {
-                if (isStage(enclosingNode)) {
-                    isInStage = true;
-                }
-            }
-
-            if (isInStage) {
+            if (nodeIsInStage(fn)) {
                 return;
             }
 
@@ -112,11 +103,14 @@ public class GithubBuildStatusGraphListener implements GraphListener {
 
             FlowNode startNode = ((StepEndNode) fn).getStartNode();
 
-            if (!isStage(startNode)) {
+            if (!isDeclarativePipelineJob(fn) && !isStageNode(startNode) && !nodeIsInStage(startNode)) {
                 ErrorAction error = fn.getError();
                 if (error != null) {
                     buildStatusAction.sendNonStageError(error.getDisplayName());
                 }
+                return;
+            }
+            if (!isStageNode(startNode)) {
                 return;
             }
 
@@ -135,6 +129,18 @@ public class GithubBuildStatusGraphListener implements GraphListener {
                 }
             }
         }
+   }
+
+   boolean nodeIsInStage(FlowNode fn) {
+       List<? extends FlowNode> enclosingBlocks = fn.getEnclosingBlocks();
+       boolean isInStage = false;
+
+       for (FlowNode enclosingNode : enclosingBlocks) {
+           if (isStageNode(enclosingNode)) {
+               isInStage = true;
+           }
+       }
+       return isInStage;
    }
 
     static Result resultForStage(FlowNode startNode, FlowNode endNode) {
@@ -220,7 +226,7 @@ public class GithubBuildStatusGraphListener implements GraphListener {
      * @param node node of a workflow
      * @return true if it's a stage node; false otherwise
      */
-    private static boolean isStage(FlowNode node) {
+    private static boolean isStageNode(FlowNode node) {
         if (node instanceof StepAtomNode) {
             // This filters out labelled steps, such as `sh(script: "echo 'hello'", label: 'echo')`
             return false;
