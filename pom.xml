@@ -17,7 +17,7 @@
     </properties>
     <name>Job and Stage monitoring Plugin</name>
     <description>Automatically provides job and stage timing and pass/fail stats to GitHub and/or InfluxDB/Grafana.</description>
-    <url>https://wiki.jenkins.io/display/JENKINS/Job+and+Stage+Monitoring+Plugin</url>
+    <url>https:/github.com/jenkinsci/github-autostatus-plugin</url>
     <licenses>
         <license>
             <name>MIT License</name>
