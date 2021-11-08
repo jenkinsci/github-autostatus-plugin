@@ -1,5 +1,26 @@
 # Version History
 
+#### Version 3.6.3 (08-Nov-2021)
+
+-   Migrated docs to from Jenkins wiki to github
+
+#### Version 3.6.2 (05-Mar-2020)
+
+-   Batch influxdb requests for better perf
+-   Misc bug fixes
+
+#### Version 3.6.1 (12-Jan-2020)
+
+-   Handle pipeline exceptions correctly
+-   Minor influxdb schema changes
+-   Synchronize writes to influxdb
+
+#### Version 3.6.0 (22-Oct-2019)
+
+-   Better error handling
+-   Code cleanup
+-   Documentation cleanup
+
 #### Version 3.5.0 (20-June-2019)
 
 -   Added new feature to send metrics to StatsD collectors
