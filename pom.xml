@@ -195,7 +195,7 @@
         <dependency>
             <groupId>org.jenkins-ci.plugins.workflow</groupId>
             <artifactId>workflow-api</artifactId>
-            <version>2.34</version>
+            <version>1192.v2d0deb_19d212</version>
         </dependency>
         <dependency>
             <groupId>org.mockito</groupId>
