@@ -189,7 +189,7 @@
         <dependency>
             <groupId>org.jenkins-ci.plugins</groupId>
             <artifactId>support-core</artifactId>
-            <version>2.43</version>
+            <version>1229.v84a_e1b_3a_1d32</version>
             <scope>test</scope>
         </dependency>
         <dependency>
