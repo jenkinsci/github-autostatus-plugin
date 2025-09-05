@@ -4,6 +4,7 @@ enableGithub: true
 enableHttp: true
 enableInfluxDb: true
 enableStatsd: true
+githubCacheTtlMinutes: 55
 httpCredentialsId: "test-http-creds"
 httpEndpoint: "http://localhost:8088"
 httpVerifySSL: true

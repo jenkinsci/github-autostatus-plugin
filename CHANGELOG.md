@@ -4,6 +4,14 @@
 
 -   Migrated docs to from Jenkins wiki to github
 
+#### Unreleased (2025-09-05)
+
+-   Add automatic GitHub re-authentication when GitHub app tokens expire by
+    lazily resolving and rebuilding the GitHub client per-notification. This
+    prevents status notifications from failing after hourly token rotation.
+-   Add configurable `githubCacheTtlMinutes` global setting (default 55
+    minutes) to control how long rebuilt GitHub clients are cached.
+
 #### Version 3.6.2 (05-Mar-2020)
 
 -   Batch influxdb requests for better perf

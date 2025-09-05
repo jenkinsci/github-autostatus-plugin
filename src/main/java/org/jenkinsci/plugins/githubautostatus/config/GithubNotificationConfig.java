@@ -74,8 +74,21 @@ public class GithubNotificationConfig {
     // simple TTL cache to avoid rebuilding GitHub client on every notify
     private transient GHRepository cachedRepo;
     private transient long cachedAtMillis = 0;
-    // default TTL: 55 minutes (tokens expire once per hour)
-    private static final long CACHE_TTL_MS = 55L * 60L * 1000L;
+    // TTL is configurable via BuildStatusConfig.githubCacheTtlMinutes
+    private long getCacheTtlMs() {
+        // Safely obtain the configured TTL (minutes). If the global config is missing
+        // or returns null/zero (e.g. mocked in tests), fall back to the default of 55 minutes.
+        try {
+            Integer minutesObj = org.jenkinsci.plugins.githubautostatus.BuildStatusConfig.get().getGithubCacheTtlMinutes();
+            if (minutesObj == null || minutesObj <= 0) {
+                // default: 55 minutes
+                return 55L * 60L * 1000L;
+            }
+            return (long) minutesObj * 60L * 1000L;
+        } catch (Exception e) {
+            return 55L * 60L * 1000L;
+        }
+    }
 
     /**
      * Gets the SHA for the build
@@ -111,7 +124,8 @@ public class GithubNotificationConfig {
      */
     public GHRepository getRepo() {
         // Return cached repo if fresh
-        if (cachedRepo != null && (System.currentTimeMillis() - cachedAtMillis) < CACHE_TTL_MS) {
+    long ttl = getCacheTtlMs();
+    if (cachedRepo != null && ttl > 0 && (System.currentTimeMillis() - cachedAtMillis) < ttl) {
             return cachedRepo;
         }
         // Try to resolve repo if no fresh cache

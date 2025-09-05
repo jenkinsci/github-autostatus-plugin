@@ -90,6 +90,7 @@ public class BuildStatusConfig extends GlobalConfiguration {
     private boolean httpVerifySSL;
     private Integer dbVersion;
     private Integer configVersion = 2;
+    private Integer githubCacheTtlMinutes = 55;
 
     /**
      * Adds compatibility aliases to prevent "old data" warnings.
@@ -107,6 +108,23 @@ public class BuildStatusConfig extends GlobalConfiguration {
      */
     public static BuildStatusConfig get() {
         return GlobalConfiguration.all().get(BuildStatusConfig.class);
+    }
+
+    /**
+     * Gets the TTL (in minutes) used to cache rebuilt GitHub clients in GithubNotificationConfig.
+     * Default: 55 minutes (slightly under 1 hour token expiry).
+     */
+    public Integer getGithubCacheTtlMinutes() {
+        return githubCacheTtlMinutes == null ? 55 : githubCacheTtlMinutes;
+    }
+
+    /**
+     * Sets the TTL (in minutes) used to cache rebuilt GitHub clients.
+     */
+    @DataBoundSetter
+    public void setGithubCacheTtlMinutes(Integer minutes) {
+        this.githubCacheTtlMinutes = minutes;
+        save();
     }
 
     /**
