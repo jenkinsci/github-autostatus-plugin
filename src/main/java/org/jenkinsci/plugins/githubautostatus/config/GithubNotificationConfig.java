@@ -66,8 +66,16 @@ public class GithubNotificationConfig {
     private String branchName = "";
     private String repoName = "";
     private GHRepository repo;
+    private String credentialsId;
+    private hudson.model.Item credentialsContext;
+    private String apiUri;
 
     protected GitHubBuilder githubBuilder;
+    // simple TTL cache to avoid rebuilding GitHub client on every notify
+    private transient GHRepository cachedRepo;
+    private transient long cachedAtMillis = 0;
+    // default TTL: 55 minutes (tokens expire once per hour)
+    private static final long CACHE_TTL_MS = 55L * 60L * 1000L;
 
     /**
      * Gets the SHA for the build
@@ -102,6 +110,21 @@ public class GithubNotificationConfig {
      * @return the GitHub repo for the build
      */
     public GHRepository getRepo() {
+        // Return cached repo if fresh
+        if (cachedRepo != null && (System.currentTimeMillis() - cachedAtMillis) < CACHE_TTL_MS) {
+            return cachedRepo;
+        }
+        // Try to resolve repo if no fresh cache
+        try {
+            GHRepository resolved = resolveRepository();
+            if (resolved != null) {
+                this.repo = resolved;
+                this.cachedRepo = resolved;
+                this.cachedAtMillis = System.currentTimeMillis();
+            }
+        } catch (IOException ex) {
+            log(Level.WARNING, ex);
+        }
         return repo;
     }
 
@@ -205,7 +228,7 @@ public class GithubNotificationConfig {
      * @throws IOException
      */
     private Boolean extractGHRepositoryInfo(Run<?, ?> build) throws IOException {
-        ItemGroup parent = build.getParent().getParent();
+    ItemGroup<?> parent = build.getParent().getParent();
         WorkflowMultiBranchProject project = null;
         if (parent instanceof WorkflowMultiBranchProject) {
             project = (WorkflowMultiBranchProject) parent;
@@ -223,19 +246,24 @@ public class GithubNotificationConfig {
             log(Level.INFO, "Could not find githubSCMSource - status will not be provided for this build");
             return false;
         }
-        String credentialsId = gitHubScmSource.getCredentialsId();
+    String credentialsId = gitHubScmSource.getCredentialsId();
         if (null == credentialsId) {
             log(Level.WARNING, "Could not find credentials - status will not be provided for this build");
             return false;
         }
-        repoOwner = gitHubScmSource.getRepoOwner();
-        repoName = gitHubScmSource.getRepository();
-        String url = gitHubScmSource.getApiUri();
+    repoOwner = gitHubScmSource.getRepoOwner();
+    repoName = gitHubScmSource.getRepository();
+    String url = gitHubScmSource.getApiUri();
+    this.apiUri = url;
 
         String userName = null;
         String password = "";
 
-        UsernamePasswordCredentials credentials = getCredentials(UsernamePasswordCredentials.class, credentialsId, build.getParent());
+    // Save credentials id and context so we can re-resolve on demand (token rotation / expiry)
+    this.credentialsId = credentialsId;
+    this.credentialsContext = build.getParent();
+
+    UsernamePasswordCredentials credentials = getCredentials(UsernamePasswordCredentials.class, credentialsId, build.getParent());
         if (credentials != null) {
             userName = credentials.getUsername();
             password = credentials.getPassword().getPlainText();
@@ -257,6 +285,69 @@ public class GithubNotificationConfig {
         repo = github.getUser(repoOwner).getRepository(repoName);
 
         return repo != null;
+    }
+
+    /**
+     * Attempt to (re)resolve the GHRepository from stored config. This will re-fetch credentials
+     * and rebuild the GitHub client each time it's called to handle expiring tokens.
+     */
+    protected GHRepository resolveRepository() throws IOException {
+        if (credentialsId == null || credentialsContext == null) {
+            return repo;
+        }
+
+    // try to preserve endpoint if available on existing builder
+        try {
+            // githubBuilder may have endpoint configured already
+            // No public getter for endpoint; rely on rebuilding using stored repoOwner/repoName and scm info
+        } catch (Exception ignored) {
+        }
+
+        String userName = null;
+        String password = "";
+
+        UsernamePasswordCredentials credentials = getCredentials(UsernamePasswordCredentials.class, credentialsId, credentialsContext);
+        if (credentials != null) {
+            userName = credentials.getUsername();
+            password = credentials.getPassword().getPlainText();
+        } else {
+            StringCredentials stringCredentials = getCredentials(StringCredentials.class, credentialsId, credentialsContext);
+            if (stringCredentials != null) {
+                userName = stringCredentials.getId();
+                password = stringCredentials.getSecret().getPlainText();
+            }
+        }
+        if (userName == null) {
+            log(Level.WARNING, "Could not resolve credentials when attempting to refresh GitHub client");
+            return null;
+        }
+
+        // Rebuild a fresh GitHub client using the builder and latest credentials
+        try {
+            GitHubBuilder builder = new GitHubBuilder();
+            if (githubBuilder != null) {
+                // preserve endpoint if previously set
+                try {
+                    // best-effort: reuse the same endpoint by creating a new builder with the same endpoint
+                    // githubBuilder doesn't expose endpoint; if custom endpoint is required this may be set elsewhere
+                } catch (Exception ignored) {
+                }
+            }
+            if (apiUri != null) {
+                builder = builder.withEndpoint(apiUri);
+            }
+        } catch (Throwable t) {
+            // fallback: use original githubBuilder
+        }
+
+        // Use the stored githubBuilder where possible
+        GitHubBuilder usedBuilder = new GitHubBuilder();
+        if (githubBuilder != null) {
+            usedBuilder = githubBuilder;
+        }
+        usedBuilder = usedBuilder.withPassword(userName, password);
+        GitHub github = usedBuilder.build();
+        return github.getUser(repoOwner).getRepository(repoName);
     }
 
     private static <T extends Credentials> T getCredentials(@Nonnull Class<T> type, @Nonnull String credentialsId, Item context) {

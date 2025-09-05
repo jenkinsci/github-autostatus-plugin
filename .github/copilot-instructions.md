@@ -66,4 +66,11 @@ If you need clarification or a missing example, ask for one of:
 - a short description of the intended notifier/protocol (endpoint, auth, payload)
 - whether changing `pom.xml` (parent/plugin versions) is allowed
 
+**ALWAYS** follow the existing code style and patterns in this repo.
+**ALWAYS** run `mvn -DskipTests package` locally to ensure no build issues.
+**ALWAYS** add or update unit tests for any new or changed behavior.
+**ALWAYS** ensure compatibility with Java 8 and the current Jenkins plugin parent POM.
+**ALWAYS** use java.util.logging and existing log patterns for error handling.
+**ALWAYS** Test your changes with mvn test and mvn hpi:run if applicable.
+
 End of instructions.

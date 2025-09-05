@@ -167,4 +167,55 @@ public class GithubBuildNotifierTest {
 
         verify(repository, never()).createCommitStatus(any(), any(), any(), any());
     }
+
+    /**
+     * Verifies factory-based notifier uses GithubNotificationConfig.getRepo() and sends status
+     */
+    @Test
+    public void testFromConfigUsesConfigRepo() throws IOException {
+        org.jenkinsci.plugins.githubautostatus.config.GithubNotificationConfig config = new org.jenkinsci.plugins.githubautostatus.config.GithubNotificationConfig() {
+            @Override
+            public GHRepository getRepo() {
+                return repository;
+            }
+        };
+
+        GithubBuildNotifier notifier = GithubBuildNotifier.fromConfig(config, sha, targetUrl);
+
+        BuildStage stageItem = new BuildStage(stageName);
+
+        notifier.notifyBuildStageStatus(jobName, stageItem);
+        verify(repository).createCommitStatus(sha, GHCommitState.PENDING, targetUrl, "Building stage", stageName);
+    }
+
+    /**
+     * Verifies notifier tolerates a null repo initially and then re-auths (repo becomes available) on next notify.
+     */
+    @Test
+    public void testFromConfigReauthsWhenNull() throws IOException {
+        org.jenkinsci.plugins.githubautostatus.config.GithubNotificationConfig config = new org.jenkinsci.plugins.githubautostatus.config.GithubNotificationConfig() {
+            int calls = 0;
+
+            @Override
+            public GHRepository getRepo() {
+                calls++;
+                if (calls == 1) {
+                    return null;
+                }
+                return repository;
+            }
+        };
+
+        GithubBuildNotifier notifier = GithubBuildNotifier.fromConfig(config, sha, targetUrl);
+
+        BuildStage stageItem = new BuildStage(stageName);
+
+        // first notify: config returns null -> no status
+        notifier.notifyBuildStageStatus(jobName, stageItem);
+        verify(repository, never()).createCommitStatus(any(), any(), any(), any());
+
+        // second notify: config returns repo -> status should be sent
+        notifier.notifyBuildStageStatus(jobName, stageItem);
+        verify(repository).createCommitStatus(sha, GHCommitState.PENDING, targetUrl, "Building stage", stageName);
+    }
 }

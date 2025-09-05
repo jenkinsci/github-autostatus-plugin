@@ -41,8 +41,9 @@ public class GithubBuildNotifier extends BuildNotifier {
     private final GHRepository repository;
     private final String shaString;
     private final String targetUrl;
+    private final org.jenkinsci.plugins.githubautostatus.config.GithubNotificationConfig githubConfig;
 
-    static final ImmutableMap<BuildStage.State, GHCommitState> STATE_MAP = new ImmutableMap.Builder()
+    static final ImmutableMap<BuildStage.State, GHCommitState> STATE_MAP = new ImmutableMap.Builder<BuildStage.State, GHCommitState>()
             .put(BuildStage.State.Pending, GHCommitState.PENDING)
             .put(BuildStage.State.CompletedError, GHCommitState.ERROR)
             .put(BuildStage.State.CompletedSuccess, GHCommitState.SUCCESS)
@@ -51,12 +52,13 @@ public class GithubBuildNotifier extends BuildNotifier {
             .put(BuildStage.State.SkippedConditional, GHCommitState.SUCCESS)
             .build();
 
-    static final ImmutableMap<BuildStage.State, String> DESCRIPTION_MAP = new ImmutableMap.Builder()
+    static final ImmutableMap<BuildStage.State, String> DESCRIPTION_MAP = new ImmutableMap.Builder<BuildStage.State, String>()
             .put(BuildStage.State.Pending, "Building stage")
             .put(BuildStage.State.CompletedError, "Failed to build stage")
             .put(BuildStage.State.CompletedSuccess, "Stage built successfully")
             .put(BuildStage.State.SkippedFailure, "Stage did not run due to earlier failure(s)")
-            .put(BuildStage.State.SkippedUnstable, "Stage did not run due to earlier stage(s) marking the build as unstable")
+            .put(BuildStage.State.SkippedUnstable,
+                    "Stage did not run due to earlier stage(s) marking the build as unstable")
             .put(BuildStage.State.SkippedConditional, "Stage did not run due to when conditional")
             .build();
 
@@ -64,13 +66,36 @@ public class GithubBuildNotifier extends BuildNotifier {
      * Constructor
      *
      * @param repository the GitHub repository
-     * @param shaString the commit notifications are being provided for
-     * @param targetUrl target Url (link back to Jenkins)
+     * @param shaString  the commit notifications are being provided for
+     * @param targetUrl  target Url (link back to Jenkins)
      */
     public GithubBuildNotifier(GHRepository repository, String shaString, String targetUrl) {
         this.repository = repository;
         this.shaString = shaString;
         this.targetUrl = targetUrl;
+        this.githubConfig = null;
+    }
+
+    // Private constructor used by the static factory to avoid ambiguous overloads
+    // when callers pass null.
+    private GithubBuildNotifier(GHRepository repository,
+            org.jenkinsci.plugins.githubautostatus.config.GithubNotificationConfig githubConfig, String shaString,
+            String targetUrl) {
+        this.repository = repository;
+        this.shaString = shaString;
+        this.targetUrl = targetUrl;
+        this.githubConfig = githubConfig;
+    }
+
+    /**
+     * Static factory to create a notifier backed by a GithubNotificationConfig.
+     * Prefer this over a public
+     * constructor to avoid null-ambiguity in existing tests and call sites.
+     */
+    public static GithubBuildNotifier fromConfig(
+            org.jenkinsci.plugins.githubautostatus.config.GithubNotificationConfig config, String shaString,
+            String targetUrl) {
+        return new GithubBuildNotifier(null, config, shaString, targetUrl);
     }
 
     /**
@@ -80,13 +105,20 @@ public class GithubBuildNotifier extends BuildNotifier {
      */
     @Override
     public boolean isEnabled() {
+        if (githubConfig != null) {
+            try {
+                return githubConfig.getRepo() != null;
+            } catch (Exception e) {
+                return false;
+            }
+        }
         return repository != null;
     }
 
     /**
      * Sends stage status notification to GitHub.
      *
-     * @param jobName the job  name
+     * @param jobName   the job name
      * @param stageItem stage item describing the new state
      */
     @Override
@@ -96,7 +128,15 @@ public class GithubBuildNotifier extends BuildNotifier {
         }
         try {
             BuildStage.State buildState = stageItem.getBuildState();
-            repository.createCommitStatus(shaString, STATE_MAP.get(buildState), targetUrl, DESCRIPTION_MAP.get(buildState), stageItem.getStageName());
+            GHRepository repoToUse = repository;
+            if (githubConfig != null) {
+                repoToUse = githubConfig.getRepo();
+            }
+            if (repoToUse == null) {
+                return;
+            }
+            repoToUse.createCommitStatus(shaString, STATE_MAP.get(buildState), targetUrl,
+                    DESCRIPTION_MAP.get(buildState), stageItem.getStageName());
         } catch (org.kohsuke.github.HttpException ex) {
             if (ex.getResponseCode() < 200 || ex.getResponseCode() > 299) {
                 log(Level.SEVERE, "Exception while creating status for job %s", jobName);
@@ -127,6 +167,6 @@ public class GithubBuildNotifier extends BuildNotifier {
     }
 
     private static Logger getLogger() {
-        return Logger.getLogger(InfluxDbNotifier.class.getName());
+        return Logger.getLogger(GithubBuildNotifier.class.getName());
     }
 }
