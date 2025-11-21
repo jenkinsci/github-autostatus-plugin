@@ -56,9 +56,9 @@ public class BuildStatusAction extends InvisibleAction {
     private String repoOwner;
     private String repoName;
     private String branchName;
-    private Run<?, ?> run;
+    private final Run<?, ?> run;
     // Only modified from the constructor, so not synchronized in other code
-    private HashMap<String, Object> jobParameters;
+    private final HashMap<String, Object> jobParameters;
 
     @GuardedBy("buildStatuses")
     private final HashMap<String, BuildStage> buildStatuses;
