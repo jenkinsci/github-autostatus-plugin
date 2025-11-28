@@ -402,14 +402,26 @@ public class ScriptedPipelineTest {
         // Not printed if assertion above fails:
         LOGGER.info("All " + maxRuns + " builds are done successfully and did not report CME");
 
-        String stderrLog = systemErrTap.getText();
-        if (stderrLog != null && !(stderrLog.trim().isEmpty())) {
-            LOGGER.info("Check JVM stderr that CME related messages are absent");
-            for (String s : indicatorsCME) {
-                assertFalse(stderrLog.contains(s));
+        if (systemErrTap != null) {
+            String stderrLog = null;
+            try {
+                stderrLog = systemErrTap.getText();
+            } catch (NullPointerException npe) {
+                // FIXME: seems we can not always collect from systemErrTap...
+                //  Maybe due to mixing jupiter and junit4 implementations in
+                //  same test class? (consider another variant of system-stubs)
+                LOGGER.info("We tapped into JVM stderr but this collected nothing: could not systemErrTap.getText(): " + npe.getMessage());
+            }
+            if (stderrLog != null && !(stderrLog.trim().isEmpty())) {
+                LOGGER.info("Check JVM stderr that CME related messages are absent");
+                for (String s : indicatorsCME) {
+                    assertFalse(stderrLog.contains(s));
+                }
+            } else {
+                LOGGER.info("We tapped into JVM stderr but this collected nothing: stderrLog is null or blank");
             }
         } else {
-            LOGGER.info("We tapped into JVM stderr but this collected nothing");
+            LOGGER.info("We tapped into JVM stderr but this collected nothing: systemErrTap is null");
         }
 
         LOGGER.info("Check custom Jenkins logger that CME related messages are absent");
