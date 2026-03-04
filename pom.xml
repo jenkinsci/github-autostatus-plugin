@@ -13,7 +13,10 @@
     <packaging>hpi</packaging>
 
     <properties>
-        <jenkins.version>2.479.3</jenkins.version>
+        <!-- https://www.jenkins.io/doc/developer/plugin-development/choosing-jenkins-baseline/ -->
+        <jenkins.baseline>2.479</jenkins.baseline>
+        <jenkins.version>${jenkins.baseline}.3</jenkins.version>
+        <gitHubRepo>jenkinsci/${project.artifactId}-plugin</gitHubRepo>
         <java.level>17</java.level>
         <hpi.compatibleSinceVersion>3.0</hpi.compatibleSinceVersion>
         <jenkins.bom.version>5054.v620b_5d2b_d5e6</jenkins.bom.version>
@@ -25,7 +28,7 @@
 
     <name>Job and Stage monitoring Plugin</name>
     <description>Automatically provides job and stage timing and pass/fail stats to GitHub and/or InfluxDB/Grafana.</description>
-    <url>https://github.com/jenkinsci/github-autostatus-plugin</url>
+    <url>https://github.com/${gitHubRepo}</url>
 
     <licenses>
         <license>
@@ -35,9 +38,9 @@
     </licenses>
 
     <scm>
-        <connection>scm:git:git://github.com/jenkinsci/${project.artifactId}-plugin.git</connection>
-        <developerConnection>scm:git:git@github.com:jenkinsci/${project.artifactId}-plugin.git</developerConnection>
-        <url>https://github.com/jenkinsci/${project.artifactId}-plugin</url>
+        <connection>scm:git:https://github.com/${gitHubRepo}.git</connection>
+        <developerConnection>scm:git:git@github.com:${gitHubRepo}.git</developerConnection>
+        <url>https://github.com/${gitHubRepo}</url>
         <tag>github-autostatus-3.5.1-beta-1</tag>
     </scm>
 
