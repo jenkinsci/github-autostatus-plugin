@@ -26,108 +26,98 @@ package org.jenkinsci.plugins.githubautostatus;
 import hudson.model.Queue.BlockedItem;
 import hudson.model.Queue.NonBlockingTask;
 import hudson.model.Run;
+
 import java.lang.reflect.Field;
 import java.lang.reflect.Modifier;
-import org.junit.Test;
-import static org.mockito.Mockito.*;
+
 import org.jenkinsci.plugins.workflow.support.steps.ExecutorStepExecution;
-import org.junit.runner.RunWith;
-import org.powermock.core.classloader.annotations.PowerMockIgnore;
-import org.powermock.core.classloader.annotations.PrepareForTest;
-import org.powermock.modules.junit4.PowerMockRunner;
+import org.junit.jupiter.api.Test;
+
+import static org.mockito.Mockito.*;
 
 /**
  *
  * @author Jeff Pearce (GitHub jeffpearce)
  */
-@RunWith(PowerMockRunner.class)
-@PrepareForTest({BlockedItem.class, ExecutorStepExecution.PlaceholderTask.class})
-@PowerMockIgnore({"javax.crypto.*"})
-
 public class BuildQueueListenerTest {
-
-    public BuildQueueListenerTest() {
-    }
 
     @Test
     public void testEnterBlockedPlaceHolder() throws Exception {
-        
+
         Run run = mock(Run.class);
-        
+
         ExecutorStepExecution.PlaceholderTask task = mock(ExecutorStepExecution.PlaceholderTask.class);
         when(task.run()).thenReturn(run);
 
         BlockedItem item = mock(BlockedItem.class);
-        
+
         setFinal(item, BlockedItem.class.getField("task"), task);
 
         BuildQueueListener buildQueueListener = new BuildQueueListener();
-        
+
         buildQueueListener.onEnterBlocked(item);
-        verify(run).addOrReplaceAction(any());    
+        verify(run).addOrReplaceAction(any());
     }
 
     @Test
     public void testEnterBlockedNotPlaceHolder() throws Exception {
-        
+
         Run run = mock(Run.class);
 
         NonBlockingTask task = mock(NonBlockingTask.class);
 
         BlockedItem item = mock(BlockedItem.class);
-        
+
         setFinal(item, BlockedItem.class.getField("task"), task);
 
         BuildQueueListener buildQueueListener = new BuildQueueListener();
-        
+
         buildQueueListener.onEnterBlocked(item);
-        
+
         // No verification possible, other than not throwing an exception
     }
 
     @Test
     public void testLeaveBlockedNotPlaceholderTask() throws Exception {
-        
+
         NonBlockingTask task = mock(NonBlockingTask.class);
 
         BlockedItem item = mock(BlockedItem.class);
-        
+
         setFinal(item, BlockedItem.class.getField("task"), task);
 
         BuildQueueListener buildQueueListener = new BuildQueueListener();
-        
+
         buildQueueListener.onLeaveBlocked(item);
 
         // No verification possible, other than not throwing an exception
-   
     }
 
     @Test
     public void testLeaveBlockedUpdatesAction() throws Exception {
-        
+
         Run run = mock(Run.class);
         BuildBlockedAction buildBlockedAction = mock(BuildBlockedAction.class);
         when(run.getAction(BuildBlockedAction.class)).thenReturn(buildBlockedAction);
-        
+
         ExecutorStepExecution.PlaceholderTask task = mock(ExecutorStepExecution.PlaceholderTask.class);
         when(task.run()).thenReturn(run);
 
         BlockedItem item = mock(BlockedItem.class);
-        
+
         setFinal(item, BlockedItem.class.getField("task"), task);
 
         BuildQueueListener buildQueueListener = new BuildQueueListener();
-        
+
         buildQueueListener.onLeaveBlocked(item);
         verify(buildBlockedAction).setTimeReleased(anyLong());
     }
-    
+
     static void setFinal(Object object, Field field, Object newValue) throws Exception {
-        field.setAccessible(true);        
+        field.setAccessible(true);
         Field modifiersField = Field.class.getDeclaredField("modifiers");
         modifiersField.setAccessible(true);
         modifiersField.setInt(field, field.getModifiers() & ~Modifier.FINAL);
         field.set(object, newValue);
     }
-
 }

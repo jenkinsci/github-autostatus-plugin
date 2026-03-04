@@ -161,21 +161,17 @@
             <scope>test</scope>
         </dependency>
 
-        <!-- Keep existing test deps for now;
-             removing PowerMock requires test refactors -->
+        <!-- Needed for Mockito.mockStatic(...) -->
+        <dependency>
+            <groupId>org.mockito</groupId>
+            <artifactId>mockito-inline</artifactId>
+            <scope>test</scope>
+        </dependency>
+
+        <!-- Keep core mockito; BOM will manage versions -->
         <dependency>
             <groupId>org.mockito</groupId>
             <artifactId>mockito-core</artifactId>
-            <scope>test</scope>
-        </dependency>
-        <dependency>
-            <groupId>org.powermock</groupId>
-            <artifactId>powermock-module-junit4</artifactId>
-            <scope>test</scope>
-        </dependency>
-        <dependency>
-            <groupId>org.powermock</groupId>
-            <artifactId>powermock-api-mockito2</artifactId>
             <scope>test</scope>
         </dependency>
 

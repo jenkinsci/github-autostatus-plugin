@@ -31,58 +31,40 @@ import com.cloudbees.plugins.credentials.impl.UsernamePasswordCredentialsImpl;
 import hudson.util.FormValidation;
 import hudson.util.FormValidation.Kind;
 import hudson.util.ListBoxModel;
+
 import java.io.IOException;
-import jenkins.model.GlobalConfiguration;
-import org.junit.After;
-import org.junit.AfterClass;
-import org.junit.Before;
-import org.junit.BeforeClass;
-import org.junit.Test;
-import static org.junit.Assert.*;
-import org.junit.Rule;
-import org.junit.runner.RunWith;
+
 import org.jvnet.hudson.test.JenkinsRule;
-import static org.powermock.api.support.membermodification.MemberMatcher.method;
-import static org.powermock.api.support.membermodification.MemberModifier.suppress;
-import org.powermock.core.classloader.annotations.PowerMockIgnore;
-import org.powermock.core.classloader.annotations.PrepareForTest;
-import org.powermock.modules.junit4.PowerMockRunner;
+import org.jvnet.hudson.test.junit.jupiter.WithJenkins;
+import org.junit.jupiter.api.Test;
+
+import static org.junit.jupiter.api.Assertions.*;
 
 /**
  *
  * @author Jeff Pearce (GitHub jeffpearce)
  */
-@RunWith(PowerMockRunner.class)
-@PrepareForTest({GlobalConfiguration.class})
-@PowerMockIgnore({"javax.crypto.*"})
+@WithJenkins
 public class BuildStatusConfigTest {
 
-    @Rule
-    public JenkinsRule j = new JenkinsRule();
     private final String testCredentials = "super-secret-shhh!";
     private final String testInvalidCredentials = "i-dont-exist";
     private final String testCredentialsUser = "papa-jenkins";
     private final String testCredentialsPassword = "1234";
 
-    public BuildStatusConfigTest() {
-    }
+    /**
+     * Test subclass to avoid persistence calls during unit tests.
+     */
+    static class TestBuildStatusConfig extends BuildStatusConfig {
+        @Override
+        public synchronized void load() {
+            // no-op for tests
+        }
 
-    @BeforeClass
-    public static void setUpClass() {
-    }
-
-    @AfterClass
-    public static void tearDownClass() {
-    }
-
-    @Before
-    public void setUp() {
-        suppress(method(BuildStatusConfig.class, "load"));
-        suppress(method(BuildStatusConfig.class, "save"));
-    }
-
-    @After
-    public void tearDown() {
+        @Override
+        public synchronized void save() {
+            // no-op for tests
+        }
     }
 
     /**
@@ -90,15 +72,15 @@ public class BuildStatusConfigTest {
      */
     @Test
     public void testGetDisplayName() {
-        BuildStatusConfig instance = new BuildStatusConfig();
+        BuildStatusConfig instance = new TestBuildStatusConfig();
         String expResult = "Global configuration object for the autostatus plugin";
         String result = instance.getDisplayName();
         assertEquals(expResult, result);
     }
-    
+
     @Test
     public void testGetCredentialsId() {
-        BuildStatusConfig instance = new BuildStatusConfig();
+        BuildStatusConfig instance = new TestBuildStatusConfig();
         String expResult = "mock-value";
         instance.setCredentialsId(expResult);
         String result = instance.getCredentialsId();
@@ -110,7 +92,7 @@ public class BuildStatusConfigTest {
      */
     @Test
     public void testInfluxDbUrl() {
-        BuildStatusConfig instance = new BuildStatusConfig();
+        BuildStatusConfig instance = new TestBuildStatusConfig();
         String expResult = "mock-value";
         instance.setInfluxDbUrl(expResult);
         String result = instance.getInfluxDbUrl();
@@ -122,7 +104,7 @@ public class BuildStatusConfigTest {
      */
     @Test
     public void testInfluxDbDatabase() {
-        BuildStatusConfig instance = new BuildStatusConfig();
+        BuildStatusConfig instance = new TestBuildStatusConfig();
         String expResult = "mock-value";
         instance.setInfluxDbDatabase(expResult);
         String result = instance.getInfluxDbDatabase();
@@ -135,7 +117,7 @@ public class BuildStatusConfigTest {
      */
     @Test
     public void testInfluxDbRetentionPolicy() {
-        BuildStatusConfig instance = new BuildStatusConfig();
+        BuildStatusConfig instance = new TestBuildStatusConfig();
         String expResult = "mock-value";
         instance.setInfluxDbRetentionPolicy(expResult);
         String result = instance.getInfluxDbRetentionPolicy();
@@ -147,7 +129,7 @@ public class BuildStatusConfigTest {
      */
     @Test
     public void testSetEnableGithubTrue() {
-        BuildStatusConfig instance = new BuildStatusConfig();
+        BuildStatusConfig instance = new TestBuildStatusConfig();
         instance.setEnableGithub(true);
         assertTrue(instance.getEnableGithub());
     }
@@ -157,7 +139,7 @@ public class BuildStatusConfigTest {
      */
     @Test
     public void testSetEnableGithubFalse() {
-        BuildStatusConfig instance = new BuildStatusConfig();
+        BuildStatusConfig instance = new TestBuildStatusConfig();
         instance.setEnableGithub(false);
         assertFalse(instance.getEnableGithub());
     }
@@ -167,7 +149,7 @@ public class BuildStatusConfigTest {
      */
     @Test
     public void testSetEnableInfluxDbTrue() {
-        BuildStatusConfig instance = new BuildStatusConfig();
+        BuildStatusConfig instance = new TestBuildStatusConfig();
         instance.setEnableInfluxDb(true);
         assertTrue(instance.getEnableInfluxDb());
     }
@@ -177,7 +159,7 @@ public class BuildStatusConfigTest {
      */
     @Test
     public void testSetEnableInfluxDbFalse() {
-        BuildStatusConfig instance = new BuildStatusConfig();
+        BuildStatusConfig instance = new TestBuildStatusConfig();
         instance.setEnableInfluxDb(false);
         assertFalse(instance.getEnableInfluxDb());
     }
@@ -187,7 +169,7 @@ public class BuildStatusConfigTest {
      */
     @Test
     public void testDoCheckCredentialsIdEmpty() {
-        BuildStatusConfig instance = new BuildStatusConfig();
+        BuildStatusConfig instance = new TestBuildStatusConfig();
         assertEquals(Kind.OK, instance.doCheckCredentialsId(null, "").kind);
     }
 
@@ -196,11 +178,12 @@ public class BuildStatusConfigTest {
      * @throws IOException 
      */
     @Test
-    public void testDoCheckCredentialsFound() throws IOException {
-        StandardUsernameCredentials user = new UsernamePasswordCredentialsImpl(CredentialsScope.GLOBAL, testCredentials, "Description", testCredentialsUser, testCredentialsPassword);
+    public void testDoCheckCredentialsFound(JenkinsRule j) throws IOException {
+        StandardUsernameCredentials user = new UsernamePasswordCredentialsImpl(
+                CredentialsScope.GLOBAL, testCredentials, "Description", testCredentialsUser, testCredentialsPassword);
         CredentialsProvider.lookupStores(j.getInstance()).iterator().next().addCredentials(Domain.global(), user);
 
-        BuildStatusConfig instance = new BuildStatusConfig();
+        BuildStatusConfig instance = new TestBuildStatusConfig();
         assertEquals(Kind.OK, instance.doCheckCredentialsId(null, testCredentials).kind);
     }
 
@@ -209,11 +192,12 @@ public class BuildStatusConfigTest {
      * @throws IOException 
      */
     @Test
-    public void testDoCheckCredentialsNotFound() throws IOException {
-        StandardUsernameCredentials user = new UsernamePasswordCredentialsImpl(CredentialsScope.GLOBAL, testCredentials, "Description", testCredentialsUser, testCredentialsPassword);
+    public void testDoCheckCredentialsNotFound(JenkinsRule j) throws IOException {
+        StandardUsernameCredentials user = new UsernamePasswordCredentialsImpl(
+                CredentialsScope.GLOBAL, testCredentials, "Description", testCredentialsUser, testCredentialsPassword);
         CredentialsProvider.lookupStores(j.getInstance()).iterator().next().addCredentials(Domain.global(), user);
 
-        BuildStatusConfig instance = new BuildStatusConfig();
+        BuildStatusConfig instance = new TestBuildStatusConfig();
         assertEquals(Kind.ERROR, instance.doCheckCredentialsId(null, testInvalidCredentials).kind);
     }
 
@@ -222,11 +206,11 @@ public class BuildStatusConfigTest {
      */
     @Test
     public void testDoFillCredentialsIdItemsAddsCurrent() {
-        BuildStatusConfig instance = new BuildStatusConfig();
-        
+        BuildStatusConfig instance = new TestBuildStatusConfig();
+
         final String currentValue = "mock-id";
         ListBoxModel model = instance.doFillCredentialsIdItems(currentValue);
-        
+
         assertEquals(2, model.size());
         ListBoxModel.Option item1 = model.get(0);
         assertEquals("", item1.value);
@@ -235,6 +219,7 @@ public class BuildStatusConfigTest {
         ListBoxModel.Option item2 = model.get(1);
         assertEquals(currentValue, item2.value);
     }
+
 
     /**
      * Verifies doFillCredentialsIdItems adds values from the credentials store
@@ -245,7 +230,7 @@ public class BuildStatusConfigTest {
         StandardUsernameCredentials user = new UsernamePasswordCredentialsImpl(CredentialsScope.GLOBAL, testCredentials, "Description", testCredentialsUser, testCredentialsPassword);
         CredentialsProvider.lookupStores(j.getInstance()).iterator().next().addCredentials(Domain.global(), user);
 
-        BuildStatusConfig instance = new BuildStatusConfig();
+        BuildStatusConfig instance = new TestBuildStatusConfig();
         instance.setCredentialsId(testCredentials);
         
         ListBoxModel model = instance.doFillCredentialsIdItems(testCredentials);
@@ -261,7 +246,7 @@ public class BuildStatusConfigTest {
 
     @Test
     public void testIgnoreSendingTestCoverageToInfluxDbFalse() {
-        BuildStatusConfig instance = new BuildStatusConfig();
+        BuildStatusConfig instance = new TestBuildStatusConfig();
         boolean expectedIgnoreSendingTestCoverageToInflux = false;
         instance.setIgnoreSendingTestResultsToInflux(expectedIgnoreSendingTestCoverageToInflux);
         boolean result = instance.getIgnoreSendingTestCoverageToInflux();
@@ -270,7 +255,7 @@ public class BuildStatusConfigTest {
 
     @Test
     public void testIgnoreSendingTestResultsToInfluxDbFalse() {
-        BuildStatusConfig instance = new BuildStatusConfig();
+        BuildStatusConfig instance = new TestBuildStatusConfig();
         boolean expectedIgnoreSendingTestResultsToInflux = false;
         instance.setIgnoreSendingTestResultsToInflux(expectedIgnoreSendingTestResultsToInflux);
         boolean result = instance.getIgnoreSendingTestResultsToInflux();
@@ -279,7 +264,7 @@ public class BuildStatusConfigTest {
 
     @Test
     public void testIgnoreSendingTestCoverageToInfluxDbTrue() {
-        BuildStatusConfig instance = new BuildStatusConfig();
+        BuildStatusConfig instance = new TestBuildStatusConfig();
         boolean expectedIgnoreSendingTestCoverageToInflux = true;
         instance.setIgnoreSendingTestCoverageToInflux(expectedIgnoreSendingTestCoverageToInflux);
         boolean result = instance.getIgnoreSendingTestCoverageToInflux();
@@ -288,7 +273,7 @@ public class BuildStatusConfigTest {
 
     @Test
     public void testIgnoreSendingTestResultsToInfluxDbTrue() {
-        BuildStatusConfig instance = new BuildStatusConfig();
+        BuildStatusConfig instance = new TestBuildStatusConfig();
         boolean expectedIgnoreSendingTestResultsToInflux = true;
         instance.setIgnoreSendingTestCoverageToInflux(expectedIgnoreSendingTestResultsToInflux);
         boolean result = instance.getIgnoreSendingTestResultsToInflux();
@@ -297,14 +282,14 @@ public class BuildStatusConfigTest {
 
     @Test
     public void testGetEnableStatsd() throws IOException {
-        BuildStatusConfig instance = new BuildStatusConfig();
+        BuildStatusConfig instance = new TestBuildStatusConfig();
         instance.setEnableStatsd(false);
         assertFalse(instance.getEnableStatsd());
     }
 
     @Test
     public void testStatsdUrl() {
-        BuildStatusConfig instance = new BuildStatusConfig();
+        BuildStatusConfig instance = new TestBuildStatusConfig();
         String expResult = "mock-value";
         instance.setStatsdHost(expResult);
         String result = instance.getStatsdHost();
@@ -313,7 +298,7 @@ public class BuildStatusConfigTest {
 
     @Test
     public void testStatsdPort() {
-        BuildStatusConfig instance = new BuildStatusConfig();
+        BuildStatusConfig instance = new TestBuildStatusConfig();
         String expResult = "mock-value";
         instance.setStatsdPort(expResult);
         String result = instance.getStatsdPort();
@@ -322,7 +307,7 @@ public class BuildStatusConfigTest {
 
     @Test
     public void testStatsdBucket() {
-        BuildStatusConfig instance = new BuildStatusConfig();
+        BuildStatusConfig instance = new TestBuildStatusConfig();
         String expResult = "mock-value";
         instance.setStatsdBucket(expResult);
         String result = instance.getStatsdBucket();
@@ -331,7 +316,7 @@ public class BuildStatusConfigTest {
 
     @Test
     public void testStatsdMaxSize() {
-        BuildStatusConfig instance = new BuildStatusConfig();
+        BuildStatusConfig instance = new TestBuildStatusConfig();
         String expResult = "mock-value";
         instance.setStatsdMaxSize(expResult);
         String result = instance.getStatsdMaxSize();
@@ -343,7 +328,7 @@ public class BuildStatusConfigTest {
      */
     @Test
     public void testSetEnableHttpTrue() {
-        BuildStatusConfig instance = new BuildStatusConfig();
+        BuildStatusConfig instance = new TestBuildStatusConfig();
         instance.setEnableHttp(true);
         assertTrue(instance.getEnableHttp());
     }
@@ -353,7 +338,7 @@ public class BuildStatusConfigTest {
      */
     @Test
     public void testSetEnableHttpFalse() {
-        BuildStatusConfig instance = new BuildStatusConfig();
+        BuildStatusConfig instance = new TestBuildStatusConfig();
         instance.setEnableHttp(false);
         assertFalse(instance.getEnableHttp());
     }
@@ -363,7 +348,7 @@ public class BuildStatusConfigTest {
      */
     @Test
     public void testSetHttpVerifySSLTrue() {
-        BuildStatusConfig instance = new BuildStatusConfig();
+        BuildStatusConfig instance = new TestBuildStatusConfig();
         instance.setHttpVerifySSL(true);
         assertTrue(instance.getHttpVerifySSL());
     }
@@ -373,14 +358,14 @@ public class BuildStatusConfigTest {
      */
     @Test
     public void testSetHttpVerifySSLFalse() {
-        BuildStatusConfig instance = new BuildStatusConfig();
+        BuildStatusConfig instance = new TestBuildStatusConfig();
         instance.setHttpVerifySSL(false);
         assertFalse(instance.getEnableHttp());
     }
 
     @Test
     public void testHttpGetCredentialsId() {
-        BuildStatusConfig instance = new BuildStatusConfig();
+        BuildStatusConfig instance = new TestBuildStatusConfig();
         String expResult = "mock-value";
         instance.setHttpCredentialsId(expResult);
         String result = instance.getHttpCredentialsId();
@@ -392,7 +377,7 @@ public class BuildStatusConfigTest {
      */
     @Test
     public void testDoCheckHttpCredentialsIdEmpty() {
-        BuildStatusConfig instance = new BuildStatusConfig();
+        BuildStatusConfig instance = new TestBuildStatusConfig();
         assertEquals(Kind.OK, instance.doCheckHttpCredentialsId(null, "").kind);
     }
 
@@ -405,7 +390,7 @@ public class BuildStatusConfigTest {
         StandardUsernameCredentials user = new UsernamePasswordCredentialsImpl(CredentialsScope.GLOBAL, testCredentials, "Description", testCredentialsUser, testCredentialsPassword);
         CredentialsProvider.lookupStores(j.getInstance()).iterator().next().addCredentials(Domain.global(), user);
 
-        BuildStatusConfig instance = new BuildStatusConfig();
+        BuildStatusConfig instance = new TestBuildStatusConfig();
         assertEquals(Kind.OK, instance.doCheckHttpCredentialsId(null, testCredentials).kind);
     }
 
@@ -418,7 +403,7 @@ public class BuildStatusConfigTest {
         StandardUsernameCredentials user = new UsernamePasswordCredentialsImpl(CredentialsScope.GLOBAL, testCredentials, "Description", testCredentialsUser, testCredentialsPassword);
         CredentialsProvider.lookupStores(j.getInstance()).iterator().next().addCredentials(Domain.global(), user);
 
-        BuildStatusConfig instance = new BuildStatusConfig();
+        BuildStatusConfig instance = new TestBuildStatusConfig();
         assertEquals(Kind.ERROR, instance.doCheckHttpCredentialsId(null, testInvalidCredentials).kind);
     }
 
@@ -427,7 +412,7 @@ public class BuildStatusConfigTest {
      */
     @Test
     public void testDoFillHttpCredentialsIdItemsAddsCurrent() {
-        BuildStatusConfig instance = new BuildStatusConfig();
+        BuildStatusConfig instance = new TestBuildStatusConfig();
 
         final String currentValue = "mock-id";
         ListBoxModel model = instance.doFillHttpCredentialsIdItems(currentValue);
@@ -450,7 +435,7 @@ public class BuildStatusConfigTest {
         StandardUsernameCredentials user = new UsernamePasswordCredentialsImpl(CredentialsScope.GLOBAL, testCredentials, "Description", testCredentialsUser, testCredentialsPassword);
         CredentialsProvider.lookupStores(j.getInstance()).iterator().next().addCredentials(Domain.global(), user);
 
-        BuildStatusConfig instance = new BuildStatusConfig();
+        BuildStatusConfig instance = new TestBuildStatusConfig();
         instance.setCredentialsId(testCredentials);
 
         ListBoxModel model = instance.doFillHttpCredentialsIdItems(testCredentials);
@@ -465,11 +450,11 @@ public class BuildStatusConfigTest {
     }
 
     /**
-     * Test of get/set httpEndpoint  method, of class BuildStatusConfig.
+     * Test of get/set httpEndpoint method, of class BuildStatusConfig.
      */
     @Test
     public void testHttpEndpoint () {
-        BuildStatusConfig instance = new BuildStatusConfig();
+        BuildStatusConfig instance = new TestBuildStatusConfig();
         String expResult = "https://mock.com";
         instance.setHttpEndpoint(expResult);
         String result = instance.getHttpEndpoint();
@@ -477,22 +462,22 @@ public class BuildStatusConfigTest {
     }
 
     @Test
-    public void testDoCheckHttpEndpointEmpty(){
-        BuildStatusConfig instance = new BuildStatusConfig();
+    public void testDoCheckHttpEndpointEmpty() {
+        BuildStatusConfig instance = new TestBuildStatusConfig();
         FormValidation result = instance.doCheckHttpEndpoint(null, "");
         assertEquals(Kind.ERROR, result.kind);
     }
 
     @Test
-    public void testDoCheckHttpEndpointValid(){
-        BuildStatusConfig instance = new BuildStatusConfig();
+    public void testDoCheckHttpEndpointValid() {
+        BuildStatusConfig instance = new TestBuildStatusConfig();
         FormValidation result = instance.doCheckHttpEndpoint(null, "https://mock.com:8443/api?token=1q2w3e");
         assertEquals(Kind.OK, result.kind);
     }
 
     @Test
-    public void testDoCheckHttpEndpointInvalid(){
-        BuildStatusConfig instance = new BuildStatusConfig();
+    public void testDoCheckHttpEndpointInvalid() {
+        BuildStatusConfig instance = new TestBuildStatusConfig();
         FormValidation result = instance.doCheckHttpEndpoint(null, "mock.com/api?token=1q2w3e");
         assertEquals(Kind.ERROR, result.kind);
     }

@@ -40,27 +40,26 @@ import org.jenkinsci.plugins.workflow.flow.FlowExecution;
 import org.jenkinsci.plugins.workflow.flow.FlowExecutionOwner;
 import org.jenkinsci.plugins.workflow.graph.FlowNode;
 import org.jenkinsci.plugins.workflow.graph.FlowStartNode;
-import org.junit.*;
-import org.junit.runner.RunWith;
-import org.powermock.api.mockito.PowerMockito;
-import org.powermock.core.classloader.annotations.PrepareForTest;
-import org.powermock.modules.junit4.PowerMockRunner;
+
+import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+
+import org.mockito.MockedStatic;
 
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertTrue;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.mockito.Mockito.*;
 
 /**
  *
  * @author Jeff Pearce (GitHub jeffpearce)
  */
-@RunWith(PowerMockRunner.class)
-@PrepareForTest({BuildStatusConfig.class, GithubNotificationConfig.class})
 public class GithubBuildStatusGraphListenerTest {
 
     static String repoOwner = "repo-owner";
@@ -68,34 +67,30 @@ public class GithubBuildStatusGraphListenerTest {
     static String branchName = "test-branch";
     static BuildStatusConfig config;
 
-    public GithubBuildStatusGraphListenerTest() {
-    }
+    private MockedStatic<BuildStatusConfig> buildStatusConfigStatic;
+    private MockedStatic<GithubNotificationConfig> githubNotificationConfigStatic;
 
-    @BeforeClass
-    public static void setUpClass() {
-    }
-
-    @AfterClass
-    public static void tearDownClass() {
-    }
-
-    @Before
+    @BeforeEach
     public void setUp() {
-        PowerMockito.mockStatic(BuildStatusConfig.class);
         config = mock(BuildStatusConfig.class);
-        when(BuildStatusConfig.get()).thenReturn(config);
+
+        buildStatusConfigStatic = mockStatic(BuildStatusConfig.class);
+        buildStatusConfigStatic.when(BuildStatusConfig::get).thenReturn(config);
         when(config.getEnableStatsd()).thenReturn(false);
 
         GithubNotificationConfig githubConfig = mock(GithubNotificationConfig.class);
-        PowerMockito.mockStatic(GithubNotificationConfig.class);
-        when(GithubNotificationConfig.fromRun(any(), any())).thenReturn(githubConfig);
+        githubNotificationConfigStatic = mockStatic(GithubNotificationConfig.class);
+        githubNotificationConfigStatic.when(() -> GithubNotificationConfig.fromRun(any(), any())).thenReturn(githubConfig);
+
         when(githubConfig.getRepoOwner()).thenReturn(repoOwner);
         when(githubConfig.getRepoName()).thenReturn(repoName);
         when(githubConfig.getBranchName()).thenReturn(branchName);
     }
 
-    @After
+    @AfterEach
     public void tearDown() {
+        if (githubNotificationConfigStatic != null) githubNotificationConfigStatic.close();
+        if (buildStatusConfigStatic != null) buildStatusConfigStatic.close();
     }
 
     @Test
