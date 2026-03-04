@@ -1,35 +1,46 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
     <modelVersion>4.0.0</modelVersion>
+
     <parent>
         <groupId>org.jenkins-ci.plugins</groupId>
         <artifactId>plugin</artifactId>
-        <version>3.55</version>
+        <version>5.28</version>
     </parent>
+
     <artifactId>github-autostatus</artifactId>
     <version>3.6.3-SNAPSHOT</version>
     <packaging>hpi</packaging>
+
     <properties>
-        <jenkins.version>2.150.3</jenkins.version>
-        <java.level>8</java.level>
+        <jenkins.version>2.479.3</jenkins.version>
+        <java.level>17</java.level>
         <hpi.compatibleSinceVersion>3.0</hpi.compatibleSinceVersion>
+        <jenkins.bom.version>5054.v620b_5d2b_d5e6</jenkins.bom.version>
+        <!-- FIXME: Get this into parent BOM? -->
         <configuration-as-code.version>1.34</configuration-as-code.version>
+        <junit.jupiter.version>5.11.4</junit.jupiter.version>
+        <maven.surefire.plugin.version>3.5.2</maven.surefire.plugin.version>
     </properties>
+
     <name>Job and Stage monitoring Plugin</name>
     <description>Automatically provides job and stage timing and pass/fail stats to GitHub and/or InfluxDB/Grafana.</description>
     <url>https://github.com/jenkinsci/github-autostatus-plugin</url>
+
     <licenses>
         <license>
             <name>MIT License</name>
             <url>https://opensource.org/licenses/MIT</url>
         </license>
     </licenses>
+
     <scm>
         <connection>scm:git:git://github.com/jenkinsci/${project.artifactId}-plugin.git</connection>
         <developerConnection>scm:git:git@github.com:jenkinsci/${project.artifactId}-plugin.git</developerConnection>
         <url>https://github.com/jenkinsci/${project.artifactId}-plugin</url>
         <tag>github-autostatus-3.5.1-beta-1</tag>
     </scm>
+
     <developers>
         <developer>
             <id>jeffpearce</id>
@@ -37,6 +48,7 @@
             <email>jxpearce@godaddy.com</email>
         </developer>
     </developers>
+
     <repositories>
         <repository>
             <id>repo.jenkins-ci.org</id>
@@ -49,154 +61,101 @@
             <url>https://repo.jenkins-ci.org/public/</url>
         </pluginRepository>
     </pluginRepositories>
+
     <dependencyManagement>
         <dependencies>
             <dependency>
-                <groupId>org.jenkins-ci.plugins</groupId>
-                <artifactId>jackson2-api</artifactId>
-                <version>2.9.9.1</version>
-            </dependency>
-            <dependency>
-                <groupId>com.fasterxml.jackson.core</groupId>
-                <artifactId>jackson-databind</artifactId>
-                <version>[2.9.10,)</version>
-            </dependency>
-            <dependency>
-                <groupId>org.apache.commons</groupId>
-                <artifactId>commons-lang3</artifactId>
-                <version>3.7</version>
-            </dependency>
-            <dependency>
-                <groupId>org.jenkins-ci.plugins</groupId>
-                <artifactId>plain-credentials</artifactId>
-                <version>1.3</version>
-            </dependency>
-            <dependency>
-                <groupId>org.jenkins-ci.plugins</groupId>
-                <artifactId>structs</artifactId>
-                <version>1.20</version>
-            </dependency>
-            <dependency>
-                <groupId>org.apache.maven.reporting</groupId>
-                <artifactId>maven-reporting-api</artifactId>
-                <version>3.0</version>
-            </dependency>
-            <dependency>
-                <groupId>org.ow2.asm</groupId>
-                <artifactId>asm</artifactId>
-                <version>5.0.3</version>
-            </dependency>
-            <dependency>
-                <groupId>org.apache.httpcomponents</groupId>
-                <artifactId>httpcore</artifactId>
-                <version>4.4.9</version>
-            </dependency>
-            <dependency>
-                <groupId>org.apache.maven.doxia</groupId>
-                <artifactId>doxia-sink-api</artifactId>
-                <version>1.1.2</version>
-            </dependency>
-            <dependency>
-                <groupId>org.codehaus.plexus</groupId>
-                <artifactId>plexus-container-default</artifactId>
-                <version>1.0-alpha-30</version>
-            </dependency>
-            <dependency>
-                <groupId>org.jenkins-ci.plugins.workflow</groupId>
-                <artifactId>workflow-step-api</artifactId>
-                <version>2.22</version>
-            </dependency>
-            <dependency>
-                <groupId>org.jenkins-ci.plugins.workflow</groupId>
-                <artifactId>workflow-basic-steps</artifactId>
-                <version>2.18</version>
-                <scope>test</scope>
-            </dependency>
-            <dependency>
-                <groupId>org.jenkins-ci.plugins.workflow</groupId>
-                <artifactId>workflow-durable-task-step</artifactId>
-                <version>2.31</version>
-            </dependency>
-            <dependency>
-                <groupId>org.jenkins-ci.plugins.workflow</groupId>
-                <artifactId>workflow-support</artifactId>
-                <version>3.3</version>
-                <scope>test</scope>
-            </dependency>
-            <dependency>
-                <groupId>org.jenkins-ci.plugins</groupId>
-                <artifactId>script-security</artifactId>
-                <version>1.58</version>
-                <scope>test</scope>
-            </dependency>
-            <dependency>
-                <groupId>org.jenkins-ci.plugins</groupId>
-                <artifactId>token-macro</artifactId>
-                <version>1.12.1</version>
-                <scope>test</scope>
+                <groupId>io.jenkins.tools.bom</groupId>
+                <artifactId>bom-2.479.x</artifactId>
+                <version>${jenkins.bom.version}</version>
+                <type>pom</type>
+                <scope>import</scope>
             </dependency>
         </dependencies>
     </dependencyManagement>
+
     <dependencies>
         <dependency>
             <groupId>com.google.code.gson</groupId>
             <artifactId>gson</artifactId>
-            <version>2.8.5</version>
         </dependency>
+
         <dependency>
             <groupId>io.jenkins</groupId>
             <artifactId>configuration-as-code</artifactId>
+            <!-- FIXME: Get this into parent BOM? -->
             <version>${configuration-as-code.version}</version>
             <scope>test</scope>
         </dependency>
+
         <dependency>
             <groupId>io.jenkins</groupId>
             <artifactId>configuration-as-code</artifactId>
+            <!-- FIXME: Get this into parent BOM? -->
             <version>${configuration-as-code.version}</version>
             <classifier>tests</classifier>
             <scope>test</scope>
         </dependency>
+
         <dependency>
             <groupId>org.jenkins-ci.plugins</groupId>
             <artifactId>github-branch-source</artifactId>
-            <version>2.5.8</version>
         </dependency>
+
         <dependency>
             <groupId>org.jenkinsci.plugins</groupId>
             <artifactId>pipeline-model-api</artifactId>
-            <version>1.5.1</version>
         </dependency>
+
         <dependency>
             <groupId>org.jenkinsci.plugins</groupId>
             <artifactId>pipeline-model-definition</artifactId>
-            <version>1.5.1</version>
         </dependency>
+
         <dependency>
             <groupId>org.jenkins-ci.plugins</groupId>
             <artifactId>cobertura</artifactId>
-            <version>1.12.1</version>
         </dependency>
+
         <dependency>
             <groupId>org.jenkins-ci.plugins</groupId>
             <artifactId>jacoco</artifactId>
-            <version>2.2.1</version>
         </dependency>
+
         <dependency>
             <groupId>com.datadoghq</groupId>
             <artifactId>java-dogstatsd-client</artifactId>
-            <version>2.8.1</version>
         </dependency>
+
         <dependency>
             <groupId>org.jenkins-ci.plugins</groupId>
             <artifactId>support-core</artifactId>
-            <version>2.43</version>
             <scope>test</scope>
         </dependency>
+
         <dependency>
             <groupId>org.jenkins-ci.plugins.workflow</groupId>
             <artifactId>workflow-api</artifactId>
-            <version>2.34</version>
         </dependency>
+
+        <!-- JUnit 5 (Jupiter) -->
+        <dependency>
+            <groupId>org.junit.jupiter</groupId>
+            <artifactId>junit-jupiter</artifactId>
+            <!-- FIXME: Get this into parent BOM? -->
+            <version>${junit.jupiter.version}</version>
+            <scope>test</scope>
+        </dependency>
+
+        <!-- Mockito on JUnit 5 -->
+        <dependency>
+            <groupId>org.mockito</groupId>
+            <artifactId>mockito-junit-jupiter</artifactId>
+            <scope>test</scope>
+        </dependency>
+
+        <!-- Keep existing test deps for now;
+             removing PowerMock requires test refactors -->
         <dependency>
             <groupId>org.mockito</groupId>
             <artifactId>mockito-core</artifactId>
@@ -212,11 +171,26 @@
             <artifactId>powermock-api-mockito2</artifactId>
             <scope>test</scope>
         </dependency>
+
         <dependency>
             <groupId>org.hamcrest</groupId>
             <artifactId>hamcrest-core</artifactId>
-            <version>2.2</version>
             <scope>test</scope>
         </dependency>
     </dependencies>
+
+    <build>
+        <plugins>
+            <!-- Ensure JUnit 5 platform is used -->
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-surefire-plugin</artifactId>
+                <!-- FIXME: Get this into parent BOM? -->
+                <version>${maven.surefire.plugin.version}</version>
+                <configuration>
+                    <useModulePath>false</useModulePath>
+                </configuration>
+            </plugin>
+        </plugins>
+    </build>
 </project>
