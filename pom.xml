@@ -20,6 +20,10 @@
         <java.level>17</java.level>
         <hpi.compatibleSinceVersion>3.0</hpi.compatibleSinceVersion>
         <jenkins.bom.version>5054.v620b_5d2b_d5e6</jenkins.bom.version>
+        <spotbugs.effort>Max</spotbugs.effort>
+        <spotbugs.threshold>Low</spotbugs.threshold>
+        <spotless.check.skip>false</spotless.check.skip>
+        <ban-junit4-imports.skip>false</ban-junit4-imports.skip>
         <!-- FIXME: Get this into parent BOM? -->
         <configuration-as-code.version>1.34</configuration-as-code.version>
         <junit.jupiter.version>5.11.4</junit.jupiter.version>
