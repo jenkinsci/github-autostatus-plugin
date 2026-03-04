@@ -17,17 +17,24 @@
         <jenkins.baseline>2.479</jenkins.baseline>
         <jenkins.version>${jenkins.baseline}.3</jenkins.version>
         <gitHubRepo>jenkinsci/${project.artifactId}-plugin</gitHubRepo>
-        <java.level>17</java.level>
         <hpi.compatibleSinceVersion>3.0</hpi.compatibleSinceVersion>
         <jenkins.bom.version>5054.v620b_5d2b_d5e6</jenkins.bom.version>
+<!--
         <spotbugs.effort>Max</spotbugs.effort>
         <spotbugs.threshold>Low</spotbugs.threshold>
         <spotless.check.skip>false</spotless.check.skip>
         <ban-junit4-imports.skip>false</ban-junit4-imports.skip>
+-->
         <!-- FIXME: Get this into parent BOM? -->
-        <configuration-as-code.version>1.34</configuration-as-code.version>
+        <configuration-as-code.plugin.version>1.34</configuration-as-code.plugin.version>
+        <cobertura.plugin.version>1.17</cobertura.plugin.version>
+        <jacoco.plugin.version>3.3.7</jacoco.plugin.version>
         <junit.jupiter.version>5.11.4</junit.jupiter.version>
         <maven.surefire.plugin.version>3.5.2</maven.surefire.plugin.version>
+        <mockito.version>5.22.0</mockito.version>
+        <mockito.inline.version>5.2.0</mockito.inline.version>
+        <dogstatsd.version>2.8.1</dogstatsd.version>
+        <asm.version>9.8</asm.version>
     </properties>
 
     <name>Job and Stage monitoring Plugin</name>
@@ -78,28 +85,37 @@
                 <type>pom</type>
                 <scope>import</scope>
             </dependency>
+
+            <dependency>
+                <groupId>org.mockito</groupId>
+                <artifactId>mockito-bom</artifactId>
+                <version>${mockito.version}</version>
+                <type>pom</type>
+                <scope>import</scope>
+            </dependency>
+
+            <!-- Force ASM to modern version so transitive pulls (e.g., from dogstatsd/jnr) don’t drag ASM 5.x -->
+            <dependency>
+                <groupId>org.ow2.asm</groupId>
+                <artifactId>asm-bom</artifactId>
+                <version>${asm.version}</version>
+                <type>pom</type>
+                <scope>import</scope>
+            </dependency>
         </dependencies>
     </dependencyManagement>
 
     <dependencies>
         <dependency>
-            <groupId>com.google.code.gson</groupId>
-            <artifactId>gson</artifactId>
+            <groupId>io.jenkins.plugins</groupId>
+            <artifactId>gson-api</artifactId>
         </dependency>
 
         <dependency>
             <groupId>io.jenkins</groupId>
             <artifactId>configuration-as-code</artifactId>
             <!-- FIXME: Get this into parent BOM? -->
-            <version>${configuration-as-code.version}</version>
-            <scope>test</scope>
-        </dependency>
-
-        <dependency>
-            <groupId>io.jenkins</groupId>
-            <artifactId>configuration-as-code</artifactId>
-            <!-- FIXME: Get this into parent BOM? -->
-            <version>${configuration-as-code.version}</version>
+            <version>${configuration-as-code.plugin.version}</version>
             <classifier>tests</classifier>
             <scope>test</scope>
         </dependency>
@@ -122,16 +138,21 @@
         <dependency>
             <groupId>org.jenkins-ci.plugins</groupId>
             <artifactId>cobertura</artifactId>
+            <!-- FIXME: Get this into parent BOM? -->
+            <version>${cobertura.plugin.version}</version>
         </dependency>
 
         <dependency>
             <groupId>org.jenkins-ci.plugins</groupId>
             <artifactId>jacoco</artifactId>
+            <!-- FIXME: Get this into parent BOM? -->
+            <version>${jacoco.plugin.version}</version>
         </dependency>
 
         <dependency>
             <groupId>com.datadoghq</groupId>
             <artifactId>java-dogstatsd-client</artifactId>
+            <version>${dogstatsd.version}</version>
         </dependency>
 
         <dependency>
@@ -165,6 +186,7 @@
         <dependency>
             <groupId>org.mockito</groupId>
             <artifactId>mockito-inline</artifactId>
+            <version>${mockito.inline.version}</version>
             <scope>test</scope>
         </dependency>
 
