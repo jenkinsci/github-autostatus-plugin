@@ -51,6 +51,7 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
+import java.util.stream.Collectors;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertTrue;
@@ -148,7 +149,7 @@ public class GithubBuildStatusGraphListenerTest {
         instance.onNewHead(stageNode);
         verify(build).addAction(any(BuildStatusAction.class));
         // Check that the pipeline stages found match the list of expected stages
-        assertEquals(fullStageList, GithubBuildStatusGraphListener.getDeclarativeStages(build));
+        assertEquals(fullStageList, GithubBuildStatusGraphListener.getDeclarativeStages(build).stream().map(BuildStage::getStageName).collect(Collectors.toList()));
     }
 
     @Test
