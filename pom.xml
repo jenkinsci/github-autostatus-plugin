@@ -33,7 +33,6 @@
         <mockito.version>5.22.0</mockito.version>
         <mockito.inline.version>5.2.0</mockito.inline.version>
         <dogstatsd.version>2.8.1</dogstatsd.version>
-        <apache.httpclient.version>4.5.14</apache.httpclient.version>
         <asm.version>9.8</asm.version>
     </properties>
 
@@ -199,9 +198,8 @@
         </dependency>
 
         <dependency>
-            <groupId>org.apache.httpcomponents</groupId>
-            <artifactId>httpclient</artifactId>
-            <version>${apache.httpclient.version}</version>
+            <groupId>io.jenkins.plugins</groupId>
+            <artifactId>apache-httpcomponents-client-5-api</artifactId>
         </dependency>
 
         <!-- Note: this one is not just for tests, but also used in production
