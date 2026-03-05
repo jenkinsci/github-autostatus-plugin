@@ -248,7 +248,27 @@
     </dependencies>
 
     <build>
+        <pluginManagement>
+            <plugins>
+                <plugin>
+                    <groupId>org.jenkins-ci.tools</groupId>
+                    <artifactId>maven-hpi-plugin</artifactId>
+                </plugin>
+            </plugins>
+        </pluginManagement>
         <plugins>
+            <!-- https://jenkinsci.github.io/maven-hpi-plugin/plugin-info.html -->
+            <plugin>
+                <groupId>org.jenkins-ci.tools</groupId>
+                <artifactId>maven-hpi-plugin</artifactId>
+                <configuration>
+                    <loggers>
+                        <hudson.plugins.im>FINE</hudson.plugins.im>
+                    </loggers>
+                    <compatibleSinceVersion>2.0</compatibleSinceVersion>
+                </configuration>
+            </plugin>
+
             <!-- Ensure JUnit 5 platform is used -->
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
