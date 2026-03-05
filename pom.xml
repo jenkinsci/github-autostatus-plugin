@@ -31,7 +31,6 @@
         <junit.jupiter.version>5.11.4</junit.jupiter.version>
         <maven.surefire.plugin.version>3.5.2</maven.surefire.plugin.version>
         <mockito.version>5.22.0</mockito.version>
-        <mockito.inline.version>5.2.0</mockito.inline.version>
         <dogstatsd.version>2.8.1</dogstatsd.version>
     </properties>
 
@@ -209,7 +208,10 @@
             <scope>test</scope>
         </dependency>
 
-        <!-- Keep core mockito; BOM will manage versions -->
+        <!-- Keep core mockito; BOM will manage versions.
+             The 5.x versions absorbed mockito-inline so
+             can be used for static mocking on Java 17+
+          -->
         <dependency>
             <groupId>org.mockito</groupId>
             <artifactId>mockito-core</artifactId>
@@ -220,14 +222,6 @@
         <dependency>
             <groupId>org.mockito</groupId>
             <artifactId>mockito-junit-jupiter</artifactId>
-            <scope>test</scope>
-        </dependency>
-
-        <!-- For static mocking on Java 17+ -->
-        <dependency>
-            <groupId>org.mockito</groupId>
-            <artifactId>mockito-inline</artifactId>
-            <version>${mockito.inline.version}</version>
             <scope>test</scope>
         </dependency>
 
