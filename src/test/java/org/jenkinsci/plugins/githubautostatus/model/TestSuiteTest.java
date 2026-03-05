@@ -42,7 +42,7 @@ public class TestSuiteTest {
     @Test
     public void testGetNameInitial() {
         TestSuite instance = new TestSuite();
-        assertNull("", instance.getName());
+        assertNull(instance.getName());
     }
 
     @Test
