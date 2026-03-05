@@ -9,6 +9,8 @@ import org.jvnet.hudson.test.JenkinsRule;
 import org.jvnet.hudson.test.junit.jupiter.WithJenkins;
 import org.junit.jupiter.api.Test;
 
+import java.net.URL;
+
 import static io.jenkins.plugins.casc.misc.Util.*;
 import static org.hamcrest.core.Is.is;
 import static org.hamcrest.MatcherAssert.assertThat;
@@ -19,8 +21,9 @@ public class ConfigurationAsCodeTest {
 
     @Test
     public void should_support_configuration_as_code(JenkinsRule j) throws Exception {
-        String yaml = toStringFromYamlFile(this, "configuration-as-code.yml");
-        ConfigurationAsCode.get().configure(yaml);
+        URL resource = this.getClass().getResource("configuration-as-code.yml");
+        assertNotNull(resource);
+        ConfigurationAsCode.get().configure(resource.toString());
 
         BuildStatusConfig config = ExtensionList.lookupSingleton(BuildStatusConfig.class);
         assertNotNull(config);
@@ -46,8 +49,9 @@ public class ConfigurationAsCodeTest {
 
     @Test
     public void should_support_configuration_export(JenkinsRule j) throws Exception {
-        String yaml = toStringFromYamlFile(this, "configuration-as-code.yml");
-        ConfigurationAsCode.get().configure(yaml);
+        URL resource = this.getClass().getResource("configuration-as-code.yml");
+        assertNotNull(resource);
+        ConfigurationAsCode.get().configure(resource.toString());
 
         ConfiguratorRegistry registry = ConfiguratorRegistry.get();
         ConfigurationContext context = new ConfigurationContext(registry);
