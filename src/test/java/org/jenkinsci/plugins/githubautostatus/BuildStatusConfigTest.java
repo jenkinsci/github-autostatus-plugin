@@ -31,7 +31,7 @@ import com.cloudbees.plugins.credentials.impl.UsernamePasswordCredentialsImpl;
 import hudson.util.FormValidation;
 import hudson.util.FormValidation.Kind;
 import hudson.util.ListBoxModel;
-
+import hudson.model.Descriptor.FormException;
 import java.io.IOException;
 
 import org.jvnet.hudson.test.JenkinsRule;
@@ -178,7 +178,7 @@ public class BuildStatusConfigTest {
      * @throws IOException 
      */
     @Test
-    public void testDoCheckCredentialsFound(JenkinsRule j) throws IOException {
+    public void testDoCheckCredentialsFound(JenkinsRule j) throws IOException, FormException {
         StandardUsernameCredentials user = new UsernamePasswordCredentialsImpl(
                 CredentialsScope.GLOBAL, testCredentials, "Description", testCredentialsUser, testCredentialsPassword);
         CredentialsProvider.lookupStores(j.getInstance()).iterator().next().addCredentials(Domain.global(), user);
@@ -192,7 +192,7 @@ public class BuildStatusConfigTest {
      * @throws IOException 
      */
     @Test
-    public void testDoCheckCredentialsNotFound(JenkinsRule j) throws IOException {
+    public void testDoCheckCredentialsNotFound(JenkinsRule j) throws IOException, FormException {
         StandardUsernameCredentials user = new UsernamePasswordCredentialsImpl(
                 CredentialsScope.GLOBAL, testCredentials, "Description", testCredentialsUser, testCredentialsPassword);
         CredentialsProvider.lookupStores(j.getInstance()).iterator().next().addCredentials(Domain.global(), user);
@@ -226,7 +226,7 @@ public class BuildStatusConfigTest {
      * @throws IOException 
      */
     @Test
-    public void testDoFillCredentialsIdItemsAddsFromCredentialsStore() throws IOException {
+    public void testDoFillCredentialsIdItemsAddsFromCredentialsStore(JenkinsRule j) throws IOException, FormException {
         StandardUsernameCredentials user = new UsernamePasswordCredentialsImpl(CredentialsScope.GLOBAL, testCredentials, "Description", testCredentialsUser, testCredentialsPassword);
         CredentialsProvider.lookupStores(j.getInstance()).iterator().next().addCredentials(Domain.global(), user);
 
@@ -386,7 +386,7 @@ public class BuildStatusConfigTest {
      * @throws IOException
      */
     @Test
-    public void testDoCheckHttpCredentialsFound() throws IOException {
+    public void testDoCheckHttpCredentialsFound(JenkinsRule j) throws IOException, FormException {
         StandardUsernameCredentials user = new UsernamePasswordCredentialsImpl(CredentialsScope.GLOBAL, testCredentials, "Description", testCredentialsUser, testCredentialsPassword);
         CredentialsProvider.lookupStores(j.getInstance()).iterator().next().addCredentials(Domain.global(), user);
 
@@ -399,7 +399,7 @@ public class BuildStatusConfigTest {
      * @throws IOException
      */
     @Test
-    public void testDoCheckHttpCredentialsNotFound() throws IOException {
+    public void testDoCheckHttpCredentialsNotFound(JenkinsRule j) throws IOException, FormException {
         StandardUsernameCredentials user = new UsernamePasswordCredentialsImpl(CredentialsScope.GLOBAL, testCredentials, "Description", testCredentialsUser, testCredentialsPassword);
         CredentialsProvider.lookupStores(j.getInstance()).iterator().next().addCredentials(Domain.global(), user);
 
@@ -431,7 +431,7 @@ public class BuildStatusConfigTest {
      * @throws IOException
      */
     @Test
-    public void testDoFillHttpCredentialsIdItemsAddsFromCredentialsStore() throws IOException {
+    public void testDoFillHttpCredentialsIdItemsAddsFromCredentialsStore(JenkinsRule j) throws IOException, FormException {
         StandardUsernameCredentials user = new UsernamePasswordCredentialsImpl(CredentialsScope.GLOBAL, testCredentials, "Description", testCredentialsUser, testCredentialsPassword);
         CredentialsProvider.lookupStores(j.getInstance()).iterator().next().addCredentials(Domain.global(), user);
 

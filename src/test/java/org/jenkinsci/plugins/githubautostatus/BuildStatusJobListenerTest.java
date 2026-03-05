@@ -69,7 +69,8 @@ public class BuildStatusJobListenerTest {
         BuildStatusJobListener instance = new BuildStatusJobListener();
 
         instance.onCompleted(build, listener);
-        verify(action).updateBuildStatusForJob(eq(BuildStage.State.CompletedSuccess), ArgumentMatchers.<String.class, Object.class>anyMap());
+        /* FIXME: Convert into Mockito 5 that we wanted anyMapOf(String.class, Object.class) here */
+        verify(action).updateBuildStatusForJob(eq(BuildStage.State.CompletedSuccess), anyMap());
     }
 
     @Test
@@ -85,6 +86,7 @@ public class BuildStatusJobListenerTest {
         BuildStatusJobListener instance = new BuildStatusJobListener();
 
         instance.onCompleted(build, listener);
-        verify(action).updateBuildStatusForJob(eq(BuildStage.State.CompletedError), ArgumentMatchers.<String.class, Object.class>anyMap());
+        /* FIXME: Convert into Mockito 5 that we wanted anyMapOf(String.class, Object.class) here */
+        verify(action).updateBuildStatusForJob(eq(BuildStage.State.CompletedError), anyMap());
     }
 }

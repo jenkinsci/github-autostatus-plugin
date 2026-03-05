@@ -116,6 +116,7 @@ public class GithubBuildStatusGraphListenerTest {
         verify(build).addAction(any(BuildStatusAction.class));
     }
 
+    @Test
     public void testComplexPipeline() throws IOException {
         StepStartNode stageNode = mock(StepStartNode.class);
         StageAction stageAction = mock(StageAction.class);
@@ -147,7 +148,7 @@ public class GithubBuildStatusGraphListenerTest {
         instance.onNewHead(stageNode);
         verify(build).addAction(any(BuildStatusAction.class));
         // Check that the pipeline stages found match the list of expected stages
-        assertTrue(GithubBuildStatusGraphListener.getDeclarativeStages(build).equals(fullStageList));
+        assertEquals(fullStageList, GithubBuildStatusGraphListener.getDeclarativeStages(build));
     }
 
     @Test

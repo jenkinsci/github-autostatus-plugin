@@ -16,27 +16,22 @@ import org.apache.http.impl.client.CloseableHttpClient;
 import org.apache.http.util.EntityUtils;
 import org.jenkinsci.plugins.githubautostatus.config.HttpNotifierConfig;
 import org.jenkinsci.plugins.githubautostatus.model.*;
-import org.junit.Before;
-import org.junit.Test;
-import org.junit.runner.RunWith;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+import org.mockito.MockedStatic;
 import org.mockito.invocation.InvocationOnMock;
-import org.powermock.api.mockito.PowerMockito;
-import org.powermock.core.classloader.annotations.PrepareForTest;
-import org.powermock.modules.junit4.PowerMockRunner;
 
 import java.io.IOException;
 import java.util.Base64;
 import java.util.HashMap;
 import java.util.Map;
 
-import static org.junit.Assert.*;
+import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.Mockito.*;
 
 /**
  * @author nthienan
  */
-@RunWith(PowerMockRunner.class)
-@PrepareForTest({Jenkins.class})
 public class HttpNotifierTest {
 
   private HttpNotifierConfig mockConfig;
@@ -62,7 +57,7 @@ public class HttpNotifierTest {
   private final String jenkinsUrl = "https://mock-jenkins.com:8443/";
   private int buildNumber = 123123;
 
-  @Before
+  @BeforeEach
   public void setUp() throws Exception {
     mockConfig = mock(HttpNotifierConfig.class);
 
@@ -109,8 +104,9 @@ public class HttpNotifierTest {
 
     Jenkins jenkins = mock(Jenkins.class);
     when(jenkins.getRootUrl()).thenReturn(jenkinsUrl);
-    PowerMockito.mockStatic(Jenkins.class);
-    when(Jenkins.get()).thenReturn(jenkins);
+    try (MockedStatic<Jenkins> jenkinsStatic = mockStatic(Jenkins.class)) {
+        jenkinsStatic.when(Jenkins::get).thenReturn(jenkins);
+    }
   }
 
   @Test

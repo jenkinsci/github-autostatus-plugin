@@ -1,16 +1,16 @@
 package org.jenkinsci.plugins.githubautostatus.notifiers;
 
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 
-import static org.junit.Assert.*;
+import static org.junit.jupiter.api.Assertions.*;
 
 public class InfluxDbLineBuilderTest {
 
     private InfluxDbLineBuilder builder;
     private String measurement = "msr";
 
-    @Before
+    @BeforeEach
     public void setUp() throws Exception {
         builder = new InfluxDbLineBuilder(measurement);
     }
