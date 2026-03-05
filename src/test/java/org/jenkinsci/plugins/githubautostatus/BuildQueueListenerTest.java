@@ -115,9 +115,15 @@ public class BuildQueueListenerTest {
 
     static void setFinal(Object object, Field field, Object newValue) throws Exception {
         field.setAccessible(true);
-        Field modifiersField = Field.class.getDeclaredField("modifiers");
-        modifiersField.setAccessible(true);
-        modifiersField.setInt(field, field.getModifiers() & ~Modifier.FINAL);
+        try {
+            // This trickery was done with Java 8, but the field does not exist
+            // in modern Java (trick prohibited since Java 9)
+            Field modifiersField = Field.class.getDeclaredField("modifiers");
+            modifiersField.setAccessible(true);
+            modifiersField.setInt(field, field.getModifiers() & ~Modifier.FINAL);
+        } catch (NoSuchFieldException e) {
+            // no-op, just skip modifying it
+        }
         field.set(object, newValue);
     }
 }
