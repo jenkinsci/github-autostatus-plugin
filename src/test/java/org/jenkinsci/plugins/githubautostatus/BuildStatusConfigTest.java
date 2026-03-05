@@ -168,7 +168,7 @@ public class BuildStatusConfigTest {
      * Verifies doCheckCredentialsId returns OK if empty 
      */
     @Test
-    public void testDoCheckCredentialsIdEmpty() {
+    public void testDoCheckCredentialsIdEmpty(JenkinsRule j) {
         BuildStatusConfig instance = new TestBuildStatusConfig();
         assertEquals(Kind.OK, instance.doCheckCredentialsId(null, "").kind);
     }
@@ -205,7 +205,7 @@ public class BuildStatusConfigTest {
      * Verifies doFillCredentialsIdItems adds the passed in current value
      */
     @Test
-    public void testDoFillCredentialsIdItemsAddsCurrent() {
+    public void testDoFillCredentialsIdItemsAddsCurrent(JenkinsRule j) {
         BuildStatusConfig instance = new TestBuildStatusConfig();
 
         final String currentValue = "mock-id";
@@ -376,7 +376,7 @@ public class BuildStatusConfigTest {
      * Verifies doCheckHttpCredentialsId returns OK if empty
      */
     @Test
-    public void testDoCheckHttpCredentialsIdEmpty() {
+    public void testDoCheckHttpCredentialsIdEmpty(JenkinsRule j) {
         BuildStatusConfig instance = new TestBuildStatusConfig();
         assertEquals(Kind.OK, instance.doCheckHttpCredentialsId(null, "").kind);
     }
@@ -411,7 +411,7 @@ public class BuildStatusConfigTest {
      * Verifies doFillHttpCredentialsIdItems adds the passed in current value
      */
     @Test
-    public void testDoFillHttpCredentialsIdItemsAddsCurrent() {
+    public void testDoFillHttpCredentialsIdItemsAddsCurrent(JenkinsRule j) {
         BuildStatusConfig instance = new TestBuildStatusConfig();
 
         final String currentValue = "mock-id";

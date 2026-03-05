@@ -16,6 +16,7 @@ import org.apache.http.impl.client.CloseableHttpClient;
 import org.apache.http.util.EntityUtils;
 import org.jenkinsci.plugins.githubautostatus.config.HttpNotifierConfig;
 import org.jenkinsci.plugins.githubautostatus.model.*;
+import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.mockito.MockedStatic;
@@ -57,8 +58,15 @@ public class HttpNotifierTest {
   private final String jenkinsUrl = "https://mock-jenkins.com:8443/";
   private int buildNumber = 123123;
 
+  private MockedStatic<Jenkins> jenkinsStatic;
+
   @BeforeEach
   public void setUp() throws Exception {
+    jenkinsStatic = mockStatic(Jenkins.class);
+    Jenkins jenkins = mock(Jenkins.class);
+    when(jenkins.getRootUrl()).thenReturn(jenkinsUrl);
+    jenkinsStatic.when(Jenkins::get).thenReturn(jenkins);
+
     mockConfig = mock(HttpNotifierConfig.class);
 
     when(mockConfig.getHttpEndpoint()).thenReturn("https://mock.com/jenkins");
@@ -101,11 +109,12 @@ public class HttpNotifierTest {
     mockStageMap = mock(HashMap.class);
     notifier = new HttpNotifier(mockConfig);
     notifier.stageMap = mockStageMap;
+  }
 
-    Jenkins jenkins = mock(Jenkins.class);
-    when(jenkins.getRootUrl()).thenReturn(jenkinsUrl);
-    try (MockedStatic<Jenkins> jenkinsStatic = mockStatic(Jenkins.class)) {
-        jenkinsStatic.when(Jenkins::get).thenReturn(jenkins);
+  @AfterEach
+  public void tearDown() {
+    if (jenkinsStatic != null) {
+      jenkinsStatic.close();
     }
   }
 
