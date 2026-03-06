@@ -25,7 +25,8 @@
         <spotless.check.skip>false</spotless.check.skip>
 -->
         <ban-junit4-imports.skip>false</ban-junit4-imports.skip>
-        <!-- FIXME: Get this into parent BOM? -->
+        <!-- cobertura and jacoco plugins are now archived code,
+             not listed in parent pom, and version won't likely change -->
         <cobertura.plugin.version>1.17</cobertura.plugin.version>
         <jacoco.plugin.version>3.3.7</jacoco.plugin.version>
         <junit.jupiter.version>5.14.3</junit.jupiter.version>
@@ -133,14 +134,14 @@
         <dependency>
             <groupId>org.jenkins-ci.plugins</groupId>
             <artifactId>cobertura</artifactId>
-            <!-- FIXME: Get this into parent BOM? -->
+            <!-- Deprecated plugin, archived code, version won't likely change -->
             <version>${cobertura.plugin.version}</version>
         </dependency>
 
         <dependency>
             <groupId>org.jenkins-ci.plugins</groupId>
             <artifactId>jacoco</artifactId>
-            <!-- FIXME: Get this into parent BOM? -->
+            <!-- Deprecated plugin, archived code, version won't likely change -->
             <version>${jacoco.plugin.version}</version>
         </dependency>
 
