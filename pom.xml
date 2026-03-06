@@ -29,7 +29,6 @@
              not listed in parent pom, and version won't likely change -->
         <cobertura.plugin.version>1.17</cobertura.plugin.version>
         <jacoco.plugin.version>3.3.7</jacoco.plugin.version>
-        <maven.surefire.plugin.version>3.5.2</maven.surefire.plugin.version>
         <mockito.version>5.22.0</mockito.version>
         <dogstatsd.version>2.8.1</dogstatsd.version>
     </properties>
@@ -230,38 +229,7 @@
     </dependencies>
 
     <build>
-        <pluginManagement>
-            <plugins>
-                <plugin>
-                    <groupId>org.jenkins-ci.tools</groupId>
-                    <artifactId>maven-hpi-plugin</artifactId>
-                </plugin>
-            </plugins>
-        </pluginManagement>
         <plugins>
-            <!-- https://jenkinsci.github.io/maven-hpi-plugin/plugin-info.html -->
-            <plugin>
-                <groupId>org.jenkins-ci.tools</groupId>
-                <artifactId>maven-hpi-plugin</artifactId>
-                <configuration>
-                    <loggers>
-                        <hudson.plugins.im>FINE</hudson.plugins.im>
-                    </loggers>
-                    <compatibleSinceVersion>2.0</compatibleSinceVersion>
-                </configuration>
-            </plugin>
-
-            <!-- Ensure that the JUnit 5 platform is used -->
-            <plugin>
-                <groupId>org.apache.maven.plugins</groupId>
-                <artifactId>maven-surefire-plugin</artifactId>
-                <!-- FIXME: Get this into parent BOM? -->
-                <version>${maven.surefire.plugin.version}</version>
-                <configuration>
-                    <useModulePath>false</useModulePath>
-                </configuration>
-            </plugin>
-
 <!--
             <plugin>
                 <artifactId>maven-checkstyle-plugin</artifactId>
