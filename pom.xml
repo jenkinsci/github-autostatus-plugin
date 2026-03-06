@@ -145,6 +145,17 @@
             <version>${jacoco.plugin.version}</version>
         </dependency>
 
+        <!-- avoid that the datadog (java-dogstatsd-client) pulls in the JNR jars -->
+        <dependency>
+            <groupId>io.jenkins.plugins</groupId>
+            <artifactId>jnr-posix-api</artifactId>
+        </dependency>
+
+        <!-- TOTHINK: Use https://plugins.jenkins.io/datadog/ instead?
+             A quick shot at this failed: there are version conflicts
+             for its dependencies, and with exclusions it did compile,
+             but the tests quickly failed to start JenkinsRule instances.
+          -->
         <dependency>
             <groupId>com.datadoghq</groupId>
             <artifactId>java-dogstatsd-client</artifactId>
