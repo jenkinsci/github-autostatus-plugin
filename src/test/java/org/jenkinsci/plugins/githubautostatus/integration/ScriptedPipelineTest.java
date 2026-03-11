@@ -4,38 +4,28 @@
  */
 package org.jenkinsci.plugins.githubautostatus.integration;
 
-
-import hudson.model.Result;
-import jenkins.model.CauseOfInterruption;
 import org.jenkinsci.plugins.githubautostatus.BuildStatusAction;
 import org.jenkinsci.plugins.githubautostatus.model.BuildStage;
 import org.jenkinsci.plugins.workflow.cps.CpsFlowDefinition;
 import org.jenkinsci.plugins.workflow.job.WorkflowJob;
 import org.jenkinsci.plugins.workflow.job.WorkflowRun;
-import org.junit.Before;
-import org.junit.Rule;
-import org.junit.Test;
 import org.jvnet.hudson.test.JenkinsRule;
-import org.mockito.junit.MockitoJUnit;
-import org.mockito.junit.MockitoRule;
-import org.mockito.quality.Strictness;
+import org.jvnet.hudson.test.junit.jupiter.WithJenkins;
+
+import org.junit.jupiter.api.Test;
 
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.*;
 
+@WithJenkins
 public class ScriptedPipelineTest {
-    @Rule
-    public JenkinsRule r = new JenkinsRule();
-
-    @Rule
-    public MockitoRule rule = MockitoJUnit.rule().strictness(Strictness.STRICT_STUBS);
 
     /**
      * Verifies a simple scripted pipeline that succeeds sends the correct notifications
      * @throws Exception
      */
     @Test
-    public void testScriptedSuccess() throws Exception {
+    public void testScriptedSuccess(JenkinsRule r) throws Exception {
 
         WorkflowJob p = r.jenkins.createProject(WorkflowJob.class, "p");
         p.setDefinition(new CpsFlowDefinition(
@@ -68,7 +58,7 @@ public class ScriptedPipelineTest {
      * @throws Exception
      */
     @Test
-    public void testScriptedFail() throws Exception {
+    public void testScriptedFail(JenkinsRule r) throws Exception {
 
         WorkflowJob p = r.jenkins.createProject(WorkflowJob.class, "p");
         p.setDefinition(new CpsFlowDefinition(
@@ -105,7 +95,7 @@ public class ScriptedPipelineTest {
      * @throws Exception
      */
     @Test
-    public void testScriptedOutOfStageError() throws Exception {
+    public void testScriptedOutOfStageError(JenkinsRule r) throws Exception {
 
         WorkflowJob p = r.jenkins.createProject(WorkflowJob.class, "p");
         p.setDefinition(new CpsFlowDefinition(
@@ -134,12 +124,13 @@ public class ScriptedPipelineTest {
         verify(buildStatus, times(1)).updateBuildStatusForStage(any(), any(), anyLong());
         verify(buildStatus, times(1)).updateBuildStatusForJob(any(), any());
     }
+
     /**
      * Verifies a labelled step isn't reported as a stage
      * @throws Exception
      */
     @Test
-    public void testLabel() throws Exception {
+    public void testLabel(JenkinsRule r) throws Exception {
 
         WorkflowJob p = r.jenkins.createProject(WorkflowJob.class, "p");
         p.setDefinition(new CpsFlowDefinition(

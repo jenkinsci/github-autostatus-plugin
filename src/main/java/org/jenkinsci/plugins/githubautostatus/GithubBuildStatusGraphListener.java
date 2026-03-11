@@ -388,6 +388,9 @@ public class GithubBuildStatusGraphListener implements GraphListener {
             ModelASTParallel stageModel = stage.getParallel();
             if (stageModel != null) {
                 stageList = stageModel.getStages();
+            } else {
+                // Deprecated but possible (e.g. used in our tests)!
+                stageList = stage.getParallelContent();
             }
         }
         if (stageList != null) {

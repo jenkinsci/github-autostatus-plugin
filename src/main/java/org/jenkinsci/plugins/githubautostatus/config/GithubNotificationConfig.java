@@ -251,7 +251,16 @@ public class GithubNotificationConfig {
             return false;
         }
 
-        githubBuilder = githubBuilder.withEndpoint(url);
+        // I have no idea why, but we do get NPE in tests trying to
+        // use githubBuilder.*() below even though withEndpoint()
+        // returns "this" eventually and should never yield null.
+        // Yet here we are. Still, it also changes "this" so we do
+        // not really need the result of such assignments unless
+        // we chain ghb.withX().withY() etc.
+        GitHubBuilder ghbTmp = githubBuilder.withEndpoint(url);
+        if (ghbTmp != null) {
+            githubBuilder = ghbTmp;
+        }
         githubBuilder.withPassword(userName, password);
         GitHub github = githubBuilder.build();
         repo = github.getUser(repoOwner).getRepository(repoName);

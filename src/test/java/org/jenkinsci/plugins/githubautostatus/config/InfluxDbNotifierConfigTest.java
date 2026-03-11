@@ -26,28 +26,24 @@ package org.jenkinsci.plugins.githubautostatus.config;
 import com.cloudbees.plugins.credentials.CredentialsScope;
 import com.cloudbees.plugins.credentials.common.StandardUsernameCredentials;
 import com.cloudbees.plugins.credentials.impl.UsernamePasswordCredentialsImpl;
+import hudson.model.Descriptor.FormException;
 import org.jenkinsci.plugins.githubautostatus.BuildStatusConfig;
-import org.junit.Before;
-import org.junit.Test;
-import org.junit.runner.RunWith;
-import org.powermock.api.mockito.PowerMockito;
-import org.powermock.core.classloader.annotations.PowerMockIgnore;
-import org.powermock.core.classloader.annotations.PrepareForTest;
-import org.powermock.modules.junit4.PowerMockRunner;
+import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+import org.mockito.MockedStatic;
 
-import static org.junit.Assert.*;
-import static org.mockito.Matchers.any;
-import static org.mockito.Matchers.eq;
+import static org.junit.jupiter.api.Assertions.*;
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.mockStatic;
 import static org.mockito.Mockito.when;
 
 /**
  *
  * @author Jeff Pearce (GitHub jeffpearce)
  */
-@RunWith(PowerMockRunner.class)
-@PrepareForTest({BuildStatusConfig.class})
-@PowerMockIgnore("javax.*")
 public class InfluxDbNotifierConfigTest {
 
     private BuildStatusConfig config;
@@ -63,14 +59,13 @@ public class InfluxDbNotifierConfigTest {
     private final boolean ignoreSendingTestCoverageToInflux = false;
     private final boolean ignoreSendingTestResultsToInflux = false;
 
-    public InfluxDbNotifierConfigTest() {
-    }
+    private MockedStatic<BuildStatusConfig> buildStatusConfigStatic;
 
-    @Before
+    @BeforeEach
     public void setUp() {
-        PowerMockito.mockStatic(BuildStatusConfig.class);
+        buildStatusConfigStatic = mockStatic(BuildStatusConfig.class);
         config = mock(BuildStatusConfig.class);
-        when(BuildStatusConfig.get()).thenReturn(config);
+        buildStatusConfigStatic.when(BuildStatusConfig::get).thenReturn(config);
 
         when(config.getEnableInfluxDb()).thenReturn(true);
         when(config.getInfluxDbUrl()).thenReturn(influxUrl);
@@ -79,6 +74,13 @@ public class InfluxDbNotifierConfigTest {
         when(config.getInfluxDbRetentionPolicy()).thenReturn(influxDbRetention);
         when(config.getIgnoreSendingTestCoverageToInflux()).thenReturn(ignoreSendingTestCoverageToInflux);
         when(config.getIgnoreSendingTestResultsToInflux()).thenReturn(ignoreSendingTestResultsToInflux);
+    }
+
+    @AfterEach
+    public void tearDown() {
+        if (buildStatusConfigStatic != null) {
+            buildStatusConfigStatic.close();
+        }
     }
 
     @Test
@@ -120,34 +122,34 @@ public class InfluxDbNotifierConfigTest {
     }
 
     @Test
-    public void testGetCredentialsNotEmpty() {
+    public void testGetCredentialsNotEmpty() throws FormException {
         StandardUsernameCredentials credentials = 
                 new UsernamePasswordCredentialsImpl(CredentialsScope.GLOBAL, 
                         influxDbCredentialsId, 
                         "Description", 
                         influxDbUser, 
                         influxDbPassword);
-        when(BuildStatusConfig.getCredentials(any(), eq(influxDbCredentialsId)))
+        buildStatusConfigStatic.when(() -> BuildStatusConfig.getCredentials(any(), eq(influxDbCredentialsId)))
                 .thenReturn(credentials);
         when(config.getCredentialsId()).thenReturn("");
         InfluxDbNotifierConfig instance
                 = InfluxDbNotifierConfig.fromGlobalConfig("", "", branch);
-        assertNull(influxDbCredentialsId, instance.getCredentials());
+        assertNull(instance.getCredentials(), influxDbCredentialsId);
     }
 
     @Test
-    public void testGetCredentialsEmpty() {
+    public void testGetCredentialsEmpty() throws FormException {
         StandardUsernameCredentials credentials = 
                 new UsernamePasswordCredentialsImpl(CredentialsScope.GLOBAL, 
                         influxDbCredentialsId, 
                         "Description", 
                         influxDbUser, 
                         influxDbPassword);
-        when(BuildStatusConfig.getCredentials(any(), any()))
+        buildStatusConfigStatic.when(() -> BuildStatusConfig.getCredentials(any(), any()))
                 .thenReturn(credentials);
         InfluxDbNotifierConfig instance
                 = InfluxDbNotifierConfig.fromGlobalConfig("", "", branch);
-        assertNotNull(influxDbCredentialsId, instance.getCredentials());
+        assertNotNull(instance.getCredentials(), influxDbCredentialsId);
     }
 
     @Test
