@@ -4,8 +4,6 @@
  */
 package org.jenkinsci.plugins.githubautostatus.integration;
 
-import hudson.model.Result;
-import jenkins.model.CauseOfInterruption;
 import jenkins.model.Jenkins;
 
 import org.jenkinsci.plugins.githubautostatus.BuildStatusAction;
@@ -17,10 +15,6 @@ import org.jenkinsci.plugins.workflow.job.WorkflowRun;
 import org.jvnet.hudson.test.Issue;
 import org.jvnet.hudson.test.JenkinsRule;
 import org.jvnet.hudson.test.junit.jupiter.WithJenkins;
-
-import org.mockito.junit.MockitoJUnit;
-import org.mockito.junit.MockitoRule;
-import org.mockito.quality.Strictness;
 
 import uk.org.webcompere.systemstubs.jupiter.SystemStub;
 import uk.org.webcompere.systemstubs.stream.SystemErr;
