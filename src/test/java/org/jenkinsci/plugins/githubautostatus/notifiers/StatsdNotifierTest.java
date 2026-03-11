@@ -27,12 +27,13 @@ import org.jenkinsci.plugins.githubautostatus.StatsdClient;
 import org.jenkinsci.plugins.githubautostatus.StatsdNotifierConfig;
 import org.jenkinsci.plugins.githubautostatus.model.BuildStage;
 import org.jenkinsci.plugins.githubautostatus.model.BuildState;
-import org.junit.*;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 
 import java.io.IOException;
 import java.util.HashMap;
 
-import static org.junit.Assert.*;
+import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.Mockito.*;
 
 /**
@@ -48,15 +49,7 @@ public class StatsdNotifierTest {
     public StatsdNotifierTest() {
     }
 
-    @BeforeClass
-    public static void setUpClass() throws IOException {
-    }
-
-    @AfterClass
-    public static void tearDownClass() {
-    }
-
-    @Before
+    @BeforeEach
     public void setUp() throws Exception {
         config = mock(StatsdNotifierConfig.class);
         when(config.getExternalizedID()).thenReturn("folder0 / folder1 /     folder.2/ folder  3#123");
@@ -66,10 +59,6 @@ public class StatsdNotifierTest {
         when(config.getStatsdMaxSize()).thenReturn("1400");
         client = mock(StatsdClient.class);
         notifier = new StatsdNotifier(client, config);
-    }
-
-    @After
-    public void tearDown() {
     }
 
     @Test

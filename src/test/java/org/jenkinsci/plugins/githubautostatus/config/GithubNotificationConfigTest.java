@@ -28,68 +28,57 @@ import com.cloudbees.plugins.credentials.CredentialsScope;
 import com.cloudbees.plugins.credentials.impl.UsernamePasswordCredentialsImpl;
 import hudson.model.Run;
 import jenkins.plugins.git.AbstractGitSCMSource.SCMRevisionImpl;
-import jenkins.scm.api.SCMRevision;
 import jenkins.scm.api.SCMRevisionAction;
 import org.jenkinsci.plugins.github_branch_source.BranchSCMHead;
 import org.jenkinsci.plugins.github_branch_source.GitHubSCMSource;
-import org.jenkinsci.plugins.github_branch_source.PullRequestSCMRevision;
+//import org.jenkinsci.plugins.github_branch_source.PullRequestSCMRevision;
 import org.jenkinsci.plugins.githubautostatus.BuildStatusConfig;
 import org.jenkinsci.plugins.workflow.job.WorkflowJob;
 import org.jenkinsci.plugins.workflow.multibranch.WorkflowMultiBranchProject;
-import org.junit.*;
-import org.junit.runner.RunWith;
+import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+
 import org.kohsuke.github.GHRepository;
 import org.kohsuke.github.GHUser;
 import org.kohsuke.github.GitHub;
 import org.kohsuke.github.GitHubBuilder;
-import org.mockito.Matchers;
-import org.mockito.Mock;
+import org.mockito.MockedStatic;
 import org.mockito.Mockito;
-import org.powermock.api.mockito.PowerMockito;
-import org.powermock.core.classloader.annotations.PrepareForTest;
-import org.powermock.modules.junit4.PowerMockRunner;
 
 import java.net.Proxy;
 import java.util.Collections;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertNull;
-import static org.mockito.Matchers.any;
-import static org.mockito.Matchers.anyString;
-import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.when;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNull;
+import static org.mockito.ArgumentMatchers.*;
+import static org.mockito.Mockito.*;
 
 /**
  *
  * @author Jeff Pearce (GitHub jeffpearce)
  */
-@RunWith(PowerMockRunner.class)
-@PrepareForTest({CredentialsMatchers.class, SCMRevision.class, PullRequestSCMRevision.class, BuildStatusConfig.class})
 public class GithubNotificationConfigTest {
 
-    @Mock
     private BuildStatusConfig config;
 
-    public GithubNotificationConfigTest() {
-    }
+    private MockedStatic<BuildStatusConfig> buildStatusConfigStatic;
+    private MockedStatic<CredentialsMatchers> credentialsMatchersStatic;
 
-    @BeforeClass
-    public static void setUpClass() {
-    }
-
-    @AfterClass
-    public static void tearDownClass() {
-    }
-
-    @Before
+    @BeforeEach
     public void setUp() {
-        PowerMockito.mockStatic(BuildStatusConfig.class);
+        config = mock(BuildStatusConfig.class);
+
+        buildStatusConfigStatic = mockStatic(BuildStatusConfig.class);
+        buildStatusConfigStatic.when(BuildStatusConfig::get).thenReturn(config);
+
         when(config.getEnableGithub()).thenReturn(true);
-        when(BuildStatusConfig.get()).thenReturn(config);
     }
 
-    @After
+    @AfterEach
     public void tearDown() {
+        if (credentialsMatchersStatic != null) credentialsMatchersStatic.close();
+        if (buildStatusConfigStatic != null) buildStatusConfigStatic.close();
     }
 
     @Test
@@ -102,6 +91,7 @@ public class GithubNotificationConfigTest {
         when(source.getCredentialsId()).thenReturn("git-user");
         when(source.getRepoOwner()).thenReturn("repo-owner");
         when(source.getRepository()).thenReturn("repo");
+
         BranchSCMHead head = new BranchSCMHead("test-branch");
         SCMRevisionImpl revision = new SCMRevisionImpl(head, "what-the-hash");
         when(mockSCMRevisionAction.getRevision()).thenReturn(revision);
@@ -111,20 +101,27 @@ public class GithubNotificationConfigTest {
         when(build.getParent()).thenReturn(mockJob);
         when(mockProject.getSCMSources()).thenReturn(Collections.singletonList(source));
 
-        PowerMockito.mockStatic(CredentialsMatchers.class);
-        when(CredentialsMatchers.firstOrNull(any(), any())).thenReturn(new UsernamePasswordCredentialsImpl(CredentialsScope.GLOBAL, "user-pass", null, "git-user", "git-password"));
+        credentialsMatchersStatic = mockStatic(CredentialsMatchers.class);
+        credentialsMatchersStatic
+                .when(() -> CredentialsMatchers.firstOrNull(any(), any()))
+                .thenReturn(new UsernamePasswordCredentialsImpl(
+                        CredentialsScope.GLOBAL,
+                        "user-pass",
+                        null,
+                        "git-user",
+                        "git-password"));
 
         GitHub github = mock(GitHub.class);
         GHUser mockUser = mock(GHUser.class);
         GHRepository mockRepo = mock(GHRepository.class);
-        when(github.getUser(any())).thenReturn(mockUser);
-        when(mockUser.getRepository(any())).thenReturn(mockRepo);
-        GitHubBuilder builder = PowerMockito.mock(GitHubBuilder.class);
+        when(github.getUser(anyString())).thenReturn(mockUser);
+        when(mockUser.getRepository(anyString())).thenReturn(mockRepo);
 
-        PowerMockito.when(builder.withProxy(Matchers.<Proxy>anyObject())).thenReturn(builder);
-        PowerMockito.when(builder.withOAuthToken(anyString(), anyString())).thenReturn(builder);
-        PowerMockito.when(builder.build()).thenReturn(github);
-        PowerMockito.when(builder.withEndpoint(any())).thenReturn(builder);
+        GitHubBuilder builder = mock(GitHubBuilder.class);
+        when(builder.withProxy(any(Proxy.class))).thenReturn(builder);
+        when(builder.withOAuthToken(anyString(), anyString())).thenReturn(builder);
+        when(builder.withEndpoint(anyString())).thenReturn(builder);
+        when(builder.build()).thenReturn(github);
 
         GithubNotificationConfig instance = GithubNotificationConfig.fromRun(build, builder);
         assertEquals("what-the-hash", instance.getShaString());

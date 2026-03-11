@@ -23,17 +23,15 @@
  */
 package org.jenkinsci.plugins.githubautostatus;
 
-import static org.junit.Assert.*;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNotEquals;
 
 /**
  *
  * @author Jeff Pearce (GitHub jeffpearce)
  */
 public class BuildBlockedActionTest {
-
-    public BuildBlockedActionTest() {
-    }
 
     /**
      * Verifies default constructor sets blocked time
@@ -66,5 +64,4 @@ public class BuildBlockedActionTest {
 
         assertEquals(timeReleased, instance.getTimeReleased());
     }
-
 }

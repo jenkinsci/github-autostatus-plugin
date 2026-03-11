@@ -33,6 +33,7 @@ import java.util.Map;
 
 import hudson.model.AbstractBuild;
 import hudson.model.Cause;
+import hudson.model.Descriptor.FormException;
 
 import hudson.model.Run;
 import org.apache.http.HttpEntity;
@@ -44,12 +45,10 @@ import org.apache.http.util.EntityUtils;
 import org.jenkinsci.plugins.githubautostatus.model.BuildStage;
 import org.jenkinsci.plugins.githubautostatus.model.BuildState;
 import org.jenkinsci.plugins.githubautostatus.config.InfluxDbNotifierConfig;
-import org.junit.AfterClass;
-import org.junit.Before;
-import org.junit.BeforeClass;
-import org.junit.Test;
-import static org.junit.Assert.*;
-import static org.mockito.Matchers.any;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+import static org.junit.jupiter.api.Assertions.*;
+import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.verify;
@@ -75,15 +74,7 @@ public class InfluxDbNotifierTest {
     public InfluxDbNotifierTest() {
     }
 
-    @BeforeClass
-    public static void setUpClass() throws IOException {
-    }
-
-    @AfterClass
-    public static void tearDownClass() {
-    }
-
-    @Before
+    @BeforeEach
     public void setUp() throws Exception {
         statusLine = null;
         config = mock(InfluxDbNotifierConfig.class);
@@ -151,7 +142,7 @@ public class InfluxDbNotifierTest {
     }
 
     @Test
-    public void testBasicAuth() {
+    public void testBasicAuth() throws FormException {
         UsernamePasswordCredentials credentials
                 = new UsernamePasswordCredentialsImpl(CredentialsScope.GLOBAL,
                         influxDbCredentialsId,

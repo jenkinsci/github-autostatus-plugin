@@ -28,24 +28,17 @@ import hudson.tasks.junit.SuiteResult;
 import hudson.tasks.junit.TestResult;
 import hudson.tasks.junit.TestResultAction;
 import java.util.ArrayList;
-import static org.junit.Assert.*;
-import org.junit.Test;
-import org.junit.runner.RunWith;
+import java.util.Collections;
+
+import static org.junit.jupiter.api.Assertions.*;
+import org.junit.jupiter.api.Test;
 import static org.mockito.Mockito.*;
-import org.powermock.api.mockito.PowerMockito;
-import org.powermock.core.classloader.annotations.PrepareForTest;
-import org.powermock.modules.junit4.PowerMockRunner;
 
 /**
  *
  * @author Jeff Pearce (GitHub jeffpearce)
  */
-@RunWith(PowerMockRunner.class)
-@PrepareForTest({ SuiteResult.class,TestResult.class })
 public class TestResultsTest {
-
-    public TestResultsTest() {
-    }
 
     @Test
     public void testGetSetPassedTestCaseCount() {
@@ -89,7 +82,9 @@ public class TestResultsTest {
     @Test
     public void testfromJUnitTestResultsEmpty() {
         TestResultAction testResultAction = mock(TestResultAction.class);
-        when(testResultAction.getResult()).thenReturn(new TestResult());
+        TestResult testResult = mock(TestResult.class);
+        when(testResultAction.getResult()).thenReturn(testResult);
+        when(testResult.getSuites()).thenReturn(Collections.emptyList());
 
         TestResults instance = TestResults.fromJUnitTestResults(testResultAction);
         
@@ -102,8 +97,8 @@ public class TestResultsTest {
     @Test
     public void testfromJUnitTestResultsNotEmpty() {
         TestResultAction testResultAction = mock(TestResultAction.class);
-        TestResult testResult = PowerMockito.mock(TestResult.class);
-        SuiteResult suiteResult = PowerMockito.mock(SuiteResult.class);
+        TestResult testResult = mock(TestResult.class);
+        SuiteResult suiteResult = mock(SuiteResult.class);
         ArrayList<SuiteResult> suiteResults = new ArrayList<>();
         suiteResults.add(suiteResult);
         
@@ -126,5 +121,4 @@ public class TestResultsTest {
         assertEquals(0, instance.getSkippedTestCaseCount());
         assertEquals(0, instance.getFailedTestCaseCount());
     }
-    
 }

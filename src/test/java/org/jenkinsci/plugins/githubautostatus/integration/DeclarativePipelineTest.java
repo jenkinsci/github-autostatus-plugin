@@ -4,7 +4,6 @@
  */
 package org.jenkinsci.plugins.githubautostatus.integration;
 
-
 import hudson.model.Result;
 import jenkins.model.CauseOfInterruption;
 import org.jenkinsci.plugins.githubautostatus.BuildStatusAction;
@@ -12,35 +11,23 @@ import org.jenkinsci.plugins.githubautostatus.model.BuildStage;
 import org.jenkinsci.plugins.workflow.cps.CpsFlowDefinition;
 import org.jenkinsci.plugins.workflow.job.WorkflowJob;
 import org.jenkinsci.plugins.workflow.job.WorkflowRun;
-import org.junit.Before;
-import org.junit.Rule;
-import org.junit.Test;
 import org.jvnet.hudson.test.JenkinsRule;
-import org.mockito.junit.MockitoJUnit;
-import org.mockito.junit.MockitoRule;
-import org.mockito.quality.Strictness;
+import org.jvnet.hudson.test.junit.jupiter.WithJenkins;
+
+import org.junit.jupiter.api.Test;
 
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.*;
 
+@WithJenkins
 public class DeclarativePipelineTest {
-    @Rule
-    public JenkinsRule r = new JenkinsRule();
-
-    @Rule
-    public MockitoRule rule = MockitoJUnit.rule().strictness(Strictness.STRICT_STUBS);
-
-
-    @Before
-    public void setUp() {
-    }
 
     /**
      * Verifies a simple pipeline that succeeds sends the correct notifications
      * @throws Exception
      */
     @Test
-    public void testSuccess() throws Exception {
+    public void testSuccess(JenkinsRule r) throws Exception {
 
         WorkflowJob p = r.jenkins.createProject(WorkflowJob.class, "p");
         p.setDefinition(new CpsFlowDefinition(
@@ -75,7 +62,7 @@ public class DeclarativePipelineTest {
      * @throws Exception
      */
     @Test
-    public void testNested() throws Exception {
+    public void testNested(JenkinsRule r) throws Exception {
 
         WorkflowJob p = r.jenkins.createProject(WorkflowJob.class, "p");
         p.setDefinition(new CpsFlowDefinition(
@@ -119,7 +106,7 @@ public class DeclarativePipelineTest {
      * @throws Exception
      */
     @Test
-    public void testFail() throws Exception {
+    public void testFail(JenkinsRule r) throws Exception {
 
         WorkflowJob p = r.jenkins.createProject(WorkflowJob.class, "p");
         p.setDefinition(new CpsFlowDefinition(
@@ -154,7 +141,7 @@ public class DeclarativePipelineTest {
      * @throws Exception
      */
     @Test
-    public void testCaughtException() throws Exception {
+    public void testCaughtException(JenkinsRule r) throws Exception {
 
         WorkflowJob p = r.jenkins.createProject(WorkflowJob.class, "p");
         p.setDefinition(new CpsFlowDefinition(
@@ -191,7 +178,7 @@ public class DeclarativePipelineTest {
      * @throws Exception
      */
     @Test
-    public void testCaughtExceptionSetStageFail() throws Exception {
+    public void testCaughtExceptionSetStageFail(JenkinsRule r) throws Exception {
 
         WorkflowJob p = r.jenkins.createProject(WorkflowJob.class, "p");
         p.setDefinition(new CpsFlowDefinition(
@@ -241,7 +228,7 @@ public class DeclarativePipelineTest {
      * @throws Exception
      */
     @Test
-    public void testCaughtExceptionSetStageAbort() throws Exception {
+    public void testCaughtExceptionSetStageAbort(JenkinsRule r) throws Exception {
 
         WorkflowJob p = r.jenkins.createProject(WorkflowJob.class, "p");
         p.setDefinition(new CpsFlowDefinition(
@@ -277,7 +264,7 @@ public class DeclarativePipelineTest {
      * @throws Exception
      */
     @Test
-    public void testAbort() throws Exception {
+    public void testAbort(JenkinsRule r) throws Exception {
 
         WorkflowJob p = r.jenkins.createProject(WorkflowJob.class, "p");
         p.setDefinition(new CpsFlowDefinition(
