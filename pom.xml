@@ -55,6 +55,17 @@
             <id>jeffpearce</id>
             <name>Jeff Pearce</name>
             <email>jxpearce@godaddy.com</email>
+            <roles>
+                <role>original author</role>
+                <role>maintainer (retired)</role>
+            </roles>
+        </developer>
+        <developer>
+            <id>jimklimov</id>
+            <name>Jim Klimov</name>
+            <roles>
+                <role>maintainer</role>
+            </roles>
         </developer>
     </developers>
 
