@@ -30,33 +30,27 @@ import org.jenkinsci.plugins.githubautostatus.config.HttpNotifierConfig;
 import org.jenkinsci.plugins.githubautostatus.config.InfluxDbNotifierConfig;
 import org.jenkinsci.plugins.githubautostatus.model.BuildStage;
 import org.jenkinsci.plugins.githubautostatus.notifiers.BuildNotifierManager;
-import org.junit.AfterClass;
-import org.junit.Before;
-import org.junit.BeforeClass;
-import org.junit.Test;
-import org.junit.runner.RunWith;
+import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+
 import org.kohsuke.github.GHCommitState;
 import org.kohsuke.github.GHRepository;
-import org.powermock.api.mockito.PowerMockito;
-import org.powermock.core.classloader.annotations.PrepareForTest;
-import org.powermock.modules.junit4.PowerMockRunner;
+import org.mockito.MockedStatic;
 
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 
-import static org.junit.Assume.assumeFalse;
-import static org.junit.Assume.assumeTrue;
+import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.mockito.ArgumentMatchers.*;
 import static org.mockito.Mockito.*;
-import static org.powermock.api.support.membermodification.MemberMatcher.method;
-import static org.powermock.api.support.membermodification.MemberModifier.suppress;
 
 /**
  *
  * @author Jeff Pearce (GitHub jeffpearce)
  */
-@RunWith(PowerMockRunner.class)
-@PrepareForTest({GithubNotificationConfig.class, BuildNotifierManager.class, InfluxDbNotifierConfig.class, StatsdNotifierConfig.class, HttpNotifierConfig.class, StatsdClient.class})
 public class BuildStatusActionTest {
 
     static String jobName = "mock-job";
@@ -71,49 +65,53 @@ public class BuildStatusActionTest {
     static BuildNotifierManager buildNotifierManager;
     Run<?,?> mockRun;
 
-    public BuildStatusActionTest() {
-    }
+    private MockedStatic<GithubNotificationConfig> githubNotificationConfigStatic;
+    private MockedStatic<InfluxDbNotifierConfig> influxDbNotifierConfigStatic;
+    private MockedStatic<StatsdNotifierConfig> statsdNotifierConfigStatic;
+    private MockedStatic<StatsdClient> statsdClientStatic;
+    private MockedStatic<HttpNotifierConfig> httpNotifierConfigStatic;
 
-    @BeforeClass
-    public static void setUpClass() {
-    }
-
-    @AfterClass
-    public static void tearDownClass() {
-    }
-
-    @Before
+    @BeforeEach
     public void setUp() {
-        suppress(method(BuildStatusConfig.class, "load"));
-        suppress(method(BuildStatusConfig.class, "save"));
-
         repository = mock(GHRepository.class);
         when(repository.getName()).thenReturn(repoName);
 
-        PowerMockito.mockStatic(GithubNotificationConfig.class);
+        githubNotificationConfigStatic = mockStatic(GithubNotificationConfig.class);
         githubConfig = mock(GithubNotificationConfig.class);
         when(githubConfig.getRepo()).thenReturn(repository);
         when(githubConfig.getShaString()).thenReturn(sha);
         when(githubConfig.getBranchName()).thenReturn(branchName);
-        when(GithubNotificationConfig.fromRun(anyObject())).thenReturn(githubConfig);
+        githubNotificationConfigStatic.when(() -> GithubNotificationConfig.fromRun(any())).thenReturn(githubConfig);
 
-        PowerMockito.mockStatic(InfluxDbNotifierConfig.class);
-        when(InfluxDbNotifierConfig.fromGlobalConfig((String)isNull(), (String)isNull(), any())).thenReturn(mock(InfluxDbNotifierConfig.class));
+        influxDbNotifierConfigStatic = mockStatic(InfluxDbNotifierConfig.class);
+        influxDbNotifierConfigStatic
+                .when(() -> InfluxDbNotifierConfig.fromGlobalConfig((String) isNull(), (String) isNull(), any()))
+                .thenReturn(mock(InfluxDbNotifierConfig.class));
 
         statsdNotifierConfig = mock(StatsdNotifierConfig.class);
-        PowerMockito.mockStatic(StatsdNotifierConfig.class);
-        when(StatsdNotifierConfig.fromGlobalConfig(any())).thenReturn(statsdNotifierConfig);
+        statsdNotifierConfigStatic = mockStatic(StatsdNotifierConfig.class);
+        statsdNotifierConfigStatic.when(() -> StatsdNotifierConfig.fromGlobalConfig(any())).thenReturn(statsdNotifierConfig);
 
-        PowerMockito.mockStatic(StatsdClient.class);
-        when(StatsdClient.getInstance(any(), any(), anyInt())).thenReturn(null);
+        statsdClientStatic = mockStatic(StatsdClient.class);
+        statsdClientStatic.when(() -> StatsdClient.getInstance(any(), any(), anyInt())).thenReturn(null);
 
-        PowerMockito.mockStatic(HttpNotifierConfig.class);
-        when(HttpNotifierConfig.fromGlobalConfig((String)isNull(), (String)isNull(), any())).thenReturn(mock(HttpNotifierConfig.class));
+        httpNotifierConfigStatic = mockStatic(HttpNotifierConfig.class);
+        httpNotifierConfigStatic
+                .when(() -> HttpNotifierConfig.fromGlobalConfig((String) isNull(), (String) isNull(), any()))
+                .thenReturn(mock(HttpNotifierConfig.class));
 
         mockRun = mock(AbstractBuild.class);
         when(mockRun.getExternalizableId()).thenReturn(jobName);
     }
 
+    @AfterEach
+    public void tearDown() {
+        if (httpNotifierConfigStatic != null) httpNotifierConfigStatic.close();
+        if (statsdClientStatic != null) statsdClientStatic.close();
+        if (statsdNotifierConfigStatic != null) statsdNotifierConfigStatic.close();
+        if (influxDbNotifierConfigStatic != null) influxDbNotifierConfigStatic.close();
+        if (githubNotificationConfigStatic != null) githubNotificationConfigStatic.close();
+    }
 
     /**
      * Verifies status is sent for initial stages when notifier is added
@@ -220,15 +218,15 @@ public class BuildStatusActionTest {
     public void testIsDeclarativePipelineFalse() throws IOException {
         BuildStatusAction instance = new BuildStatusAction(mockRun, targetUrl, new ArrayList<>());
         instance.setIsDeclarativePipeline(false);
-        
-        assumeFalse(instance.isIsDeclarativePipeline());
+
+        assertFalse(instance.isIsDeclarativePipeline());
     }
 
     @Test
     public void testIsDeclarativePipelineTrue() throws IOException {
         BuildStatusAction instance = new BuildStatusAction(mockRun, targetUrl, new ArrayList<>());
         instance.setIsDeclarativePipeline(true);
-        
-        assumeTrue(instance.isIsDeclarativePipeline());
+
+        assertTrue(instance.isIsDeclarativePipeline());
     }
 }

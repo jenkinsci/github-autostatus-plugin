@@ -26,13 +26,9 @@ package org.jenkinsci.plugins.githubautostatus.notifiers;
 import java.io.IOException;
 import java.util.Collections;
 import org.jenkinsci.plugins.githubautostatus.model.BuildStage;
-import org.jenkinsci.plugins.githubautostatus.model.BuildState;
-import org.junit.After;
-import org.junit.AfterClass;
-import org.junit.Before;
-import org.junit.BeforeClass;
-import org.junit.Test;
-import static org.junit.Assert.*;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+import static org.junit.jupiter.api.Assertions.*;
 import org.kohsuke.github.GHCommitState;
 import org.kohsuke.github.GHRepository;
 import static org.mockito.Mockito.*;
@@ -51,25 +47,10 @@ public class GithubBuildNotifierTest {
     static String targetUrl = "http://mock-target";
     static GHRepository repository;
 
-    public GithubBuildNotifierTest() {
-    }
-
-    @BeforeClass
-    public static void setUpClass() {
-    }
-
-    @AfterClass
-    public static void tearDownClass() {
-    }
-
-    @Before
+    @BeforeEach
     public void setUp() {
         repository = mock(GHRepository.class);
         when(repository.getName()).thenReturn(repoName);
-    }
-
-    @After
-    public void tearDown() {
     }
 
     /**

@@ -4,20 +4,17 @@ import com.cloudbees.plugins.credentials.CredentialsScope;
 import com.cloudbees.plugins.credentials.common.StandardUsernamePasswordCredentials;
 import com.cloudbees.plugins.credentials.common.UsernamePasswordCredentials;
 import com.cloudbees.plugins.credentials.impl.UsernamePasswordCredentialsImpl;
+import hudson.model.Descriptor.FormException;
 import org.jenkinsci.plugins.githubautostatus.BuildStatusConfig;
-import org.junit.Before;
-import org.junit.Test;
-import org.junit.runner.RunWith;
+import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+import org.mockito.MockedStatic;
 import org.mockito.Mockito;
-import org.powermock.api.mockito.PowerMockito;
-import org.powermock.core.classloader.annotations.PrepareForTest;
-import org.powermock.modules.junit4.PowerMockRunner;
 
-import static org.junit.Assert.*;
+import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.Mockito.*;
 
-@RunWith(PowerMockRunner.class)
-@PrepareForTest({BuildStatusConfig.class})
 public class HttpNotifierConfigTest {
 
   private BuildStatusConfig config;
@@ -26,17 +23,25 @@ public class HttpNotifierConfigTest {
   private String httpUsername = "user-a";
   private String httpPassword = "something-secret";
   private boolean verifySSL = true;
+  private MockedStatic<BuildStatusConfig> buildStatusConfigStatic;
 
-  @Before
+  @BeforeEach
   public void setUp() {
-    PowerMockito.mockStatic(BuildStatusConfig.class);
+    buildStatusConfigStatic = mockStatic(BuildStatusConfig.class);
     config = Mockito.mock(BuildStatusConfig.class);
-    when(BuildStatusConfig.get()).thenReturn(config);
+    buildStatusConfigStatic.when(BuildStatusConfig::get).thenReturn(config);
 
     when(config.getEnableHttp()).thenReturn(true);
     when(config.getHttpEndpoint()).thenReturn(httpEndpoint);
     when(config.getHttpCredentialsId()).thenReturn(httpCredentialsId);
     when(config.getHttpVerifySSL()).thenReturn(verifySSL);
+  }
+
+  @AfterEach
+  public void tearDown() {
+    if (buildStatusConfigStatic != null) {
+      buildStatusConfigStatic.close();
+    }
   }
 
   @Test
@@ -79,12 +84,12 @@ public class HttpNotifierConfigTest {
   }
 
   @Test
-  public void testGetCredentialsNotEmpty() {
+  public void testGetCredentialsNotEmpty() throws FormException {
     HttpNotifierConfig instance = HttpNotifierConfig.fromGlobalConfig("", "", "");
     StandardUsernamePasswordCredentials credentials =
             new UsernamePasswordCredentialsImpl(CredentialsScope.GLOBAL, httpCredentialsId,
                     "description", httpUsername, httpPassword);
-    when(BuildStatusConfig.getCredentials(UsernamePasswordCredentials.class, httpCredentialsId)).thenReturn(credentials);
+    buildStatusConfigStatic.when(() -> BuildStatusConfig.getCredentials(UsernamePasswordCredentials.class, httpCredentialsId)).thenReturn(credentials);
     assertEquals(instance.getCredentials(), credentials);
     assertEquals(httpCredentialsId, credentials.getId());
     assertEquals(httpUsername, credentials.getUsername());
@@ -94,7 +99,7 @@ public class HttpNotifierConfigTest {
   @Test
   public void testGetCredentialsEmpty() {
     HttpNotifierConfig instance = HttpNotifierConfig.fromGlobalConfig("", "", "");
-    when(BuildStatusConfig.getCredentials(UsernamePasswordCredentials.class, "not-exist-credential")).thenReturn(null);
+    buildStatusConfigStatic.when(() -> BuildStatusConfig.getCredentials(UsernamePasswordCredentials.class, "not-exist-credential")).thenReturn(null);
     assertNull(instance.getCredentials());
   }
 }

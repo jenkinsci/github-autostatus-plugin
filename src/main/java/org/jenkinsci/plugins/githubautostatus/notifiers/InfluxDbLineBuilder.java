@@ -5,6 +5,7 @@ import org.apache.commons.lang3.tuple.ImmutablePair;
 import org.apache.commons.lang3.tuple.Pair;
 
 import java.util.ArrayList;
+import java.util.Locale;
 
 /**
  * Builds a single line for the InfluxDB line protocol.
@@ -52,7 +53,8 @@ public class InfluxDbLineBuilder {
             if (field.getRight() instanceof String) {
                 builder.append(String.format("%s=\"%s\"", field.getLeft(), escapeFieldValue((String) field.getRight())));
             } else if (field.getRight() instanceof Float || field.getRight() instanceof Double) {
-                builder.append(String.format("%s=%.4f", field.getLeft(), field.getRight()));
+                // Use Locale to bolt down the decimal separator:
+                builder.append(String.format(Locale.ROOT, "%s=%.4f", field.getLeft(), field.getRight()));
             } else {
                 builder.append(String.format("%s=%d", field.getLeft(), field.getRight()));
             }
