@@ -29,7 +29,7 @@
              not listed in parent pom, and version won't likely change -->
         <cobertura.plugin.version>1.17</cobertura.plugin.version>
         <jacoco.plugin.version>3.3.7</jacoco.plugin.version>
-        <dogstatsd.version>2.8.1</dogstatsd.version>
+        <dogstatsd.version>4.4.5</dogstatsd.version>
     </properties>
 
     <name>Job and Stage monitoring Plugin</name>
