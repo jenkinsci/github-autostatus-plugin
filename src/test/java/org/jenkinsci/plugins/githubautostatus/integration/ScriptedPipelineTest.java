@@ -4,28 +4,31 @@
  */
 package org.jenkinsci.plugins.githubautostatus.integration;
 
-
 import hudson.model.Result;
 import jenkins.model.CauseOfInterruption;
 import jenkins.model.Jenkins;
+
 import org.jenkinsci.plugins.githubautostatus.BuildStatusAction;
 import org.jenkinsci.plugins.githubautostatus.model.BuildStage;
 import org.jenkinsci.plugins.workflow.cps.CpsFlowDefinition;
 import org.jenkinsci.plugins.workflow.job.WorkflowJob;
 import org.jenkinsci.plugins.workflow.job.WorkflowRun;
-import org.junit.Before;
-import org.junit.Rule;
-import org.junit.Test;
+
 import org.jvnet.hudson.test.Issue;
 import org.jvnet.hudson.test.JenkinsRule;
+import org.jvnet.hudson.test.junit.jupiter.WithJenkins;
+
 import org.mockito.junit.MockitoJUnit;
 import org.mockito.junit.MockitoRule;
 import org.mockito.quality.Strictness;
+
 import uk.org.webcompere.systemstubs.jupiter.SystemStub;
 import uk.org.webcompere.systemstubs.stream.SystemErr;
 import uk.org.webcompere.systemstubs.stream.output.MultiplexOutput;
 import uk.org.webcompere.systemstubs.stream.output.Output;
 import uk.org.webcompere.systemstubs.stream.output.TapStream;
+
+import org.junit.jupiter.api.Test;
 
 import java.util.ArrayList;
 import java.util.ConcurrentModificationException;
@@ -35,16 +38,12 @@ import java.util.logging.Handler;
 import java.util.logging.LogRecord;
 import java.util.logging.Logger;
 
-import static org.junit.Assert.*;
+import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.*;
 
+@WithJenkins
 public class ScriptedPipelineTest {
-    @Rule
-    public JenkinsRule r = new JenkinsRule();
-
-    @Rule
-    public MockitoRule rule = MockitoJUnit.rule().strictness(Strictness.STRICT_STUBS);
 
     private static final Logger LOGGER = Logger.getLogger(ScriptedPipelineTest.class.getName());
 
@@ -64,7 +63,7 @@ public class ScriptedPipelineTest {
      * @throws Exception
      */
     @Test
-    public void testScriptedSuccess() throws Exception {
+    public void testScriptedSuccess(JenkinsRule r) throws Exception {
 
         WorkflowJob p = r.jenkins.createProject(WorkflowJob.class, "p");
         p.setDefinition(new CpsFlowDefinition(
@@ -97,7 +96,7 @@ public class ScriptedPipelineTest {
      * @throws Exception
      */
     @Test
-    public void testScriptedFail() throws Exception {
+    public void testScriptedFail(JenkinsRule r) throws Exception {
 
         WorkflowJob p = r.jenkins.createProject(WorkflowJob.class, "p");
         p.setDefinition(new CpsFlowDefinition(
@@ -134,7 +133,7 @@ public class ScriptedPipelineTest {
      * @throws Exception
      */
     @Test
-    public void testScriptedOutOfStageError() throws Exception {
+    public void testScriptedOutOfStageError(JenkinsRule r) throws Exception {
 
         WorkflowJob p = r.jenkins.createProject(WorkflowJob.class, "p");
         p.setDefinition(new CpsFlowDefinition(
@@ -163,12 +162,13 @@ public class ScriptedPipelineTest {
         verify(buildStatus, times(1)).updateBuildStatusForStage(any(), any(), anyLong());
         verify(buildStatus, times(1)).updateBuildStatusForJob(any(), any());
     }
+
     /**
      * Verifies a labelled step isn't reported as a stage
      * @throws Exception
      */
     @Test
-    public void testLabel() throws Exception {
+    public void testLabel(JenkinsRule r) throws Exception {
 
         WorkflowJob p = r.jenkins.createProject(WorkflowJob.class, "p");
         p.setDefinition(new CpsFlowDefinition(
@@ -225,7 +225,7 @@ public class ScriptedPipelineTest {
      */
     @Test
     @Issue("JENKINS-76294")
-    public void testNoCmeWhileSavingXStreamVsBuildStatusAction() throws Exception {
+    public void testNoCmeWhileSavingXStreamVsBuildStatusAction(JenkinsRule r) throws Exception {
         // How many parallel stages would we use before saving WorkflowRun
         // state inside the pipeline run, and overall?
         int preflood = 25, maxflood = 75;

@@ -1,4 +1,3 @@
-
 /*
  * The MIT License
  *
@@ -24,53 +23,35 @@
  */
 package org.jenkinsci.plugins.githubautostatus;
 
-import org.junit.After;
-import org.junit.AfterClass;
-import org.junit.Before;
-import org.junit.BeforeClass;
-import org.junit.Test;
-import static org.junit.Assert.*;
-import org.junit.runner.RunWith;
+import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+import org.mockito.MockedStatic;
 
-import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.when;
-import org.powermock.api.mockito.PowerMockito;
-import org.powermock.core.classloader.annotations.PowerMockIgnore;
-import org.powermock.core.classloader.annotations.PrepareForTest;
-import org.powermock.modules.junit4.PowerMockRunner;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.mockito.Mockito.*;
 
 /**
  *
  * @author shane.gearon@hootsuite.com
  */
-@RunWith(PowerMockRunner.class)
-@PrepareForTest({BuildStatusConfig.class})
-@PowerMockIgnore("javax.*")
 public class StatsdNotifierConfigTest {
 
     private BuildStatusConfig config;
+    private MockedStatic<BuildStatusConfig> buildStatusConfigStatic;
+
     private final String externalizedID = "mock-id/mock-path#test";
     private final String statsdURL = "statsd.url";
     private final String statsdPort = "9999";
     private final String statsdBucket = "metrics.jenkins.";
     private final String statsdMaxSize = "1000";
 
-    public StatsdNotifierConfigTest() {
-    }
-
-    @BeforeClass
-    public static void setUpClass() {
-    }
-
-    @AfterClass
-    public static void tearDownClass() {
-    }
-
-    @Before
+    @BeforeEach
     public void setUp() {
-        PowerMockito.mockStatic(BuildStatusConfig.class);
         config = mock(BuildStatusConfig.class);
-        when(BuildStatusConfig.get()).thenReturn(config);
+
+        buildStatusConfigStatic = mockStatic(BuildStatusConfig.class);
+        buildStatusConfigStatic.when(BuildStatusConfig::get).thenReturn(config);
 
         when(config.getEnableStatsd()).thenReturn(true);
         when(config.getStatsdHost()).thenReturn(statsdURL);
@@ -79,8 +60,11 @@ public class StatsdNotifierConfigTest {
         when(config.getStatsdMaxSize()).thenReturn(statsdMaxSize);
     }
 
-    @After
+    @AfterEach
     public void tearDown() {
+        if (buildStatusConfigStatic != null) {
+            buildStatusConfigStatic.close();
+        }
     }
 
     @Test
@@ -144,7 +128,6 @@ public class StatsdNotifierConfigTest {
                 = StatsdNotifierConfig.fromGlobalConfig(externalizedID);
         assertEquals(8125, instance.getStatsdPort());
     }
-
 
     @Test
     public void testGetStatsdBucket() {

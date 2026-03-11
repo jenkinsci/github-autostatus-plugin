@@ -24,8 +24,8 @@
 package org.jenkinsci.plugins.githubautostatus.model;
 
 import java.util.ArrayList;
-import static org.junit.Assert.*;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
+import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.Mockito.*;
 
 /**
@@ -42,7 +42,7 @@ public class TestSuiteTest {
     @Test
     public void testGetNameInitial() {
         TestSuite instance = new TestSuite();
-        assertNull("", instance.getName());
+        assertNull(instance.getName());
     }
 
     @Test

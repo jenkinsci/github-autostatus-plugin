@@ -24,6 +24,7 @@
 package org.jenkinsci.plugins.githubautostatus;
 
 import hudson.model.AbstractBuild;
+import hudson.model.Action;
 import hudson.model.Queue.Executable;
 import org.jenkinsci.plugins.githubautostatus.config.GithubNotificationConfig;
 import org.jenkinsci.plugins.githubautostatus.model.BuildStage;
@@ -40,27 +41,26 @@ import org.jenkinsci.plugins.workflow.flow.FlowExecution;
 import org.jenkinsci.plugins.workflow.flow.FlowExecutionOwner;
 import org.jenkinsci.plugins.workflow.graph.FlowNode;
 import org.jenkinsci.plugins.workflow.graph.FlowStartNode;
-import org.junit.*;
-import org.junit.runner.RunWith;
-import org.powermock.api.mockito.PowerMockito;
-import org.powermock.core.classloader.annotations.PrepareForTest;
-import org.powermock.modules.junit4.PowerMockRunner;
+
+import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+
+import org.mockito.MockedStatic;
 
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
+import java.util.stream.Collectors;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertTrue;
+import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.mockito.Mockito.*;
 
 /**
  *
  * @author Jeff Pearce (GitHub jeffpearce)
  */
-@RunWith(PowerMockRunner.class)
-@PrepareForTest({BuildStatusConfig.class, GithubNotificationConfig.class})
 public class GithubBuildStatusGraphListenerTest {
 
     static String repoOwner = "repo-owner";
@@ -68,34 +68,30 @@ public class GithubBuildStatusGraphListenerTest {
     static String branchName = "test-branch";
     static BuildStatusConfig config;
 
-    public GithubBuildStatusGraphListenerTest() {
-    }
+    private MockedStatic<BuildStatusConfig> buildStatusConfigStatic;
+    private MockedStatic<GithubNotificationConfig> githubNotificationConfigStatic;
 
-    @BeforeClass
-    public static void setUpClass() {
-    }
-
-    @AfterClass
-    public static void tearDownClass() {
-    }
-
-    @Before
+    @BeforeEach
     public void setUp() {
-        PowerMockito.mockStatic(BuildStatusConfig.class);
         config = mock(BuildStatusConfig.class);
-        when(BuildStatusConfig.get()).thenReturn(config);
+
+        buildStatusConfigStatic = mockStatic(BuildStatusConfig.class);
+        buildStatusConfigStatic.when(BuildStatusConfig::get).thenReturn(config);
         when(config.getEnableStatsd()).thenReturn(false);
 
         GithubNotificationConfig githubConfig = mock(GithubNotificationConfig.class);
-        PowerMockito.mockStatic(GithubNotificationConfig.class);
-        when(GithubNotificationConfig.fromRun(any(), any())).thenReturn(githubConfig);
+        githubNotificationConfigStatic = mockStatic(GithubNotificationConfig.class);
+        githubNotificationConfigStatic.when(() -> GithubNotificationConfig.fromRun(any(), any())).thenReturn(githubConfig);
+
         when(githubConfig.getRepoOwner()).thenReturn(repoOwner);
         when(githubConfig.getRepoName()).thenReturn(repoName);
         when(githubConfig.getBranchName()).thenReturn(branchName);
     }
 
-    @After
+    @AfterEach
     public void tearDown() {
+        if (githubNotificationConfigStatic != null) githubNotificationConfigStatic.close();
+        if (buildStatusConfigStatic != null) buildStatusConfigStatic.close();
     }
 
     @Test
@@ -121,6 +117,7 @@ public class GithubBuildStatusGraphListenerTest {
         verify(build).addAction(any(BuildStatusAction.class));
     }
 
+    @Test
     public void testComplexPipeline() throws IOException {
         StepStartNode stageNode = mock(StepStartNode.class);
         StageAction stageAction = mock(StageAction.class);
@@ -152,7 +149,7 @@ public class GithubBuildStatusGraphListenerTest {
         instance.onNewHead(stageNode);
         verify(build).addAction(any(BuildStatusAction.class));
         // Check that the pipeline stages found match the list of expected stages
-        assertTrue(GithubBuildStatusGraphListener.getDeclarativeStages(build).equals(fullStageList));
+        assertEquals(fullStageList, GithubBuildStatusGraphListener.getDeclarativeStages(build).stream().map(BuildStage::getStageName).collect(Collectors.toList()));
     }
 
     @Test
@@ -185,19 +182,35 @@ public class GithubBuildStatusGraphListenerTest {
     public void testStepEndNode() throws Exception {
         long time = 12345L;
 
+        TimingAction startTime = mock(TimingAction.class);
+        TimingAction endTime = mock(TimingAction.class);
+        when(startTime.getStartTime()).thenReturn(0L);
+        when(endTime.getStartTime()).thenReturn(time);
+
         // Mocked objects
         CpsFlowExecution execution = mock(CpsFlowExecution.class);
         StepStartNode stageStartNode = mock(StepStartNode.class);
-        StepEndNode stageEndNode = new StepEndNode(execution, stageStartNode, mock(FlowNode.class));
+
+        // Avoid talking to TransientActionFactory deep in getAction()
+        // implementation of FlowNode (used in getTime() below)
+        class StepEndNodeMock extends StepEndNode {
+            public StepEndNodeMock(CpsFlowExecution exec, StepStartNode stepStartNode, FlowNode... parents) {
+                super(exec, stepStartNode, parents);
+            }
+
+            @Override
+            public <T extends Action> T getAction(Class<T> type) {
+                if (type == TimingAction.class) {
+                    return (T) endTime;
+                }
+                return super.getAction(type);
+            }
+        }
+        StepEndNode stageEndNode = new StepEndNodeMock(execution, stageStartNode, mock(FlowNode.class));
 
         ErrorAction error = mock(ErrorAction.class);
         stageEndNode.addAction(error);
-
-        TimingAction startTime = mock(TimingAction.class);
-        TimingAction endTime = mock(TimingAction.class);
         stageEndNode.addAction(endTime);
-        when(startTime.getStartTime()).thenReturn(0L);
-        when(endTime.getStartTime()).thenReturn(time);
 
         BuildStatusAction buildStatus = mock(BuildStatusAction.class);
         FlowExecutionOwner owner = mock(FlowExecutionOwner.class);
