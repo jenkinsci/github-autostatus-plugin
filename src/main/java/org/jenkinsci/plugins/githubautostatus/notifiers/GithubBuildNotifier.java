@@ -116,7 +116,8 @@ public class GithubBuildNotifier extends BuildNotifier {
     }
 
     /**
-     * Sends a notification when the job is complete.
+     * Sends a notification when the job is complete
+     * (currently no-op in this class).
      *
      * @param buildState state indicating success or failure
      * @param parameters build parameters
