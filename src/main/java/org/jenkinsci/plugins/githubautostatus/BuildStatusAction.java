@@ -38,6 +38,7 @@ import org.jenkinsci.plugins.githubautostatus.notifiers.BuildNotifierManager;
 import org.jenkinsci.plugins.workflow.job.WorkflowJob;
 import org.jenkinsci.plugins.workflow.job.WorkflowRun;
 
+import java.io.Serializable;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -49,7 +50,9 @@ import java.util.Map;
  *
  * @author Jeff Pearce (GitHub jeffpearce)
  */
-public class BuildStatusAction extends InvisibleAction {
+public class BuildStatusAction extends InvisibleAction implements Serializable {
+
+    private static final long serialVersionUID = 1L;
 
     private final String jobName;
     private boolean isDeclarativePipeline;
