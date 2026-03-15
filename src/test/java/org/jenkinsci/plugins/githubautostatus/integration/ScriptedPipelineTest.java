@@ -288,6 +288,13 @@ public class ScriptedPipelineTest {
                 // (avoid them "waiting for available executors")
                 "sleep 3\n"
                 + "def parstages = [:]\n"
+                + "def repoDir = ''\n"
+                + "node(label: 'worker-' + env.JOB_NAME) {\n"
+                + "  dir('repo') {\n"
+                + "    sh ''' git init . && echo 'test' > test && git add test && git config --local user.name 'Jenkins Test' && git config --local user.email 'JenkinsTest@example.org' && git commit -m 'initial commit' '''\n"
+                + "    repoDir = pwd()\n"
+                + "  }\n"
+                + "}\n"
                 +
                 // flood with cucumber actions, including logging about them
                 "def preflood = " + preflood + "\n"
@@ -300,6 +307,9 @@ public class ScriptedPipelineTest {
                 + "  parstages[\"stage-${iStr}\".toString()] = {\n"
                 + "    node(label: 'worker-' + env.JOB_NAME) {\n"
                 + "      sleep 1\n"
+                + "      dir(\"subdir-${iStr}\".toString()) {\n"
+                + "        checkout scmGit(userRemoteConfigs: [[url: 'file://' + repoDir]])\n"
+                + "      }\n"
                 + "    }\n"
                 + "  }\n"
                 + "}\n"
@@ -327,6 +337,9 @@ public class ScriptedPipelineTest {
                 // Randomize which job/executor combo waits for which,
                 // so we do not have all builds sequentially completing:
                 "        sleep (time: 500 + Math.abs(new Random().nextInt(1000)), unit: 'MILLISECONDS')\n"
+                + "      dir(\"subdir-${iStr}\".toString()) {\n"
+                + "        git url: 'file://' + repoDir\n"
+                + "      }\n"
                 + "    }\n"
                 + "  }\n"
                 + "}\n"
