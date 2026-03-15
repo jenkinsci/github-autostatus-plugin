@@ -156,7 +156,7 @@ public class InfluxDbNotifierConfigTest {
     public void testGetIgnoreSendingTestCoverageToInflux() {
         InfluxDbNotifierConfig instance
                 = InfluxDbNotifierConfig.fromGlobalConfig("", "", branch);
-        assertEquals(ignoreSendingTestResultsToInflux, instance.getIgnoreSendingTestCoverageToInflux());
+        assertEquals(ignoreSendingTestCoverageToInflux, instance.getIgnoreSendingTestCoverageToInflux());
     }
 
     @Test

@@ -86,8 +86,15 @@ public class GithubBuildNotifier extends BuildNotifier {
     /**
      * Sends stage status notification to GitHub.
      *
-     * @param jobName the job  name
-     * @param stageItem stage item describing the new state
+     * @param jobName   the job name (used in failure logging,
+     *                  not in the {@code createCommitStatus} call)
+     * @param stageItem stage item describing the new state;
+     *                  its {@link BuildStage#getBuildState() name}
+     *                  is used as the optional {@link GHCommitState state},
+     *                  and its {@link BuildStage#getStageName() name}
+     *                  is used as the optional {@code context} for
+     *                  {@link GHRepository#createCommitStatus(String, GHCommitState, String, String, String)}
+     *                  ultimate call.
      */
     @Override
     public void notifyBuildStageStatus(String jobName, BuildStage stageItem) {
@@ -109,7 +116,8 @@ public class GithubBuildNotifier extends BuildNotifier {
     }
 
     /**
-     * Sends a notification when the job is complete.
+     * Sends a notification when the job is complete
+     * (currently no-op in this class).
      *
      * @param buildState state indicating success or failure
      * @param parameters build parameters
