@@ -248,7 +248,7 @@ public class BuildStatusConfigTest {
     public void testIgnoreSendingTestCoverageToInfluxDbFalse() {
         BuildStatusConfig instance = new TestBuildStatusConfig();
         boolean expectedIgnoreSendingTestCoverageToInflux = false;
-        instance.setIgnoreSendingTestResultsToInflux(expectedIgnoreSendingTestCoverageToInflux);
+        instance.setIgnoreSendingTestCoverageToInflux(expectedIgnoreSendingTestCoverageToInflux);
         boolean result = instance.getIgnoreSendingTestCoverageToInflux();
         assertEquals(expectedIgnoreSendingTestCoverageToInflux, result);
     }
@@ -275,7 +275,7 @@ public class BuildStatusConfigTest {
     public void testIgnoreSendingTestResultsToInfluxDbTrue() {
         BuildStatusConfig instance = new TestBuildStatusConfig();
         boolean expectedIgnoreSendingTestResultsToInflux = true;
-        instance.setIgnoreSendingTestCoverageToInflux(expectedIgnoreSendingTestResultsToInflux);
+        instance.setIgnoreSendingTestResultsToInflux(expectedIgnoreSendingTestResultsToInflux);
         boolean result = instance.getIgnoreSendingTestResultsToInflux();
         assertEquals(expectedIgnoreSendingTestResultsToInflux, result);
     }
