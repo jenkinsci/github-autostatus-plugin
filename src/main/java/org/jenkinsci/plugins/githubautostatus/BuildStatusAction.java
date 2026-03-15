@@ -27,6 +27,7 @@ import hudson.ExtensionList;
 import hudson.model.InvisibleAction;
 import hudson.model.JobProperty;
 import hudson.model.Run;
+import net.jcip.annotations.GuardedBy;
 import org.jenkinsci.plugins.githubautostatus.config.GithubNotificationConfig;
 import org.jenkinsci.plugins.githubautostatus.config.HttpNotifierConfig;
 import org.jenkinsci.plugins.githubautostatus.config.InfluxDbNotifierConfig;
@@ -55,10 +56,12 @@ public class BuildStatusAction extends InvisibleAction {
     private String repoOwner;
     private String repoName;
     private String branchName;
-    private Run<?, ?> run;
-    private HashMap<String, Object> jobParameters;
+    private transient Run<?, ?> run;
+    // Only modified from the constructor, so not synchronized in other code
+    private final Map<String, Object> jobParameters;
 
-    private final HashMap<String, BuildStage> buildStatuses;
+    @GuardedBy("buildStatuses")
+    private final Map<String, BuildStage> buildStatuses;
 
     protected transient BuildNotifierManager buildNotifierManager;
 
@@ -107,12 +110,45 @@ public class BuildStatusAction extends InvisibleAction {
         this.buildStatuses = new HashMap<>();
         this.jobParameters = new HashMap<>();
         addGlobalProperties();
-        stageList.forEach((stageItem) -> {
-            stageItem.setRun(run);
-            stageItem.addAllToEnvironment(jobParameters);
-            buildStatuses.put(stageItem.getStageName(), stageItem);
-        });
+        if (stageList != null) {
+            stageList.forEach((stageItem) -> {
+                stageItem.setRun(run);
+                stageItem.addAllToEnvironment(jobParameters);
+                buildStatuses.put(stageItem.getStageName(), stageItem);
+            });
+        }
         connectNotifiers(run, targetUrl);
+    }
+
+    /** Copy constructor, primarily for {@link #writeReplace} */
+    private BuildStatusAction(BuildStatusAction other) {
+        synchronized (other.buildStatuses) {
+            this.jobName = other.jobName;
+            this.isDeclarativePipeline = other.isDeclarativePipeline;
+            this.repoName = other.repoName;
+            this.repoOwner = other.repoOwner;
+            this.branchName = other.branchName;
+            this.run = other.run;
+
+            this.jobParameters = new HashMap<>(other.jobParameters);
+
+            this.buildStatuses = new HashMap<>(other.buildStatuses);
+        }
+    }
+
+    /**
+     * Ensure iteration during XStream marshalling is also synchronized,
+     * otherwise we tend to get {@link java.util.ConcurrentModificationException}.<br/>
+     *
+     * The recommended approach is to copy-on-write the properties so a
+     * snapshot can always be scraped consistently. But this can be costly
+     * at run-time, so we use the next-best option: produce a consistent
+     * replica of the current object for actual saving only on demand.<br/>
+     *
+     * This method is found by XStream via reflection.<br/>
+     */
+    protected synchronized Object writeReplace() {
+        return new BuildStatusAction(this);
     }
 
     /**
@@ -155,6 +191,7 @@ public class BuildStatusAction extends InvisibleAction {
         }
     }
 
+    /** Only called from the constructor, so not synchronized on jobParameters */
     private void addGlobalProperties() {
         if (run instanceof WorkflowRun) {
             WorkflowRun workflowRun = (WorkflowRun) run;
@@ -170,11 +207,13 @@ public class BuildStatusAction extends InvisibleAction {
      * pending. Needed because some complex jobs, particularly using down
      */
     public void close() {
-        this.buildStatuses.forEach((nodeName, stageItem) -> {
-            if (stageItem.getBuildState() == BuildStage.State.Pending) {
-                this.updateBuildStatusForStage(nodeName, BuildStage.State.CompletedSuccess);
-            }
-        });
+        synchronized (this.buildStatuses) {
+            this.buildStatuses.forEach((nodeName, stageItem) -> {
+                if (stageItem.getBuildState() == BuildStage.State.Pending) {
+                    this.updateBuildStatusForStage(nodeName, BuildStage.State.CompletedSuccess);
+                }
+            });
+        }
     }
 
     /**
@@ -240,10 +279,12 @@ public class BuildStatusAction extends InvisibleAction {
      */
     public void sendNotifications(BuildNotifier notifier) {
         if (notifier != null && notifier.isEnabled()) {
-            this.buildStatuses.forEach((nodeName, stageItem) -> {
-                stageItem.setRun(run);
-                notifier.notifyBuildStageStatus(jobName, stageItem);
-            });
+            synchronized (this.buildStatuses) {
+                this.buildStatuses.forEach((nodeName, stageItem) -> {
+                    stageItem.setRun(run);
+                    notifier.notifyBuildStageStatus(jobName, stageItem);
+                });
+            }
         }
     }
 
@@ -253,10 +294,12 @@ public class BuildStatusAction extends InvisibleAction {
      * @param stageName stage name
      */
     public void addBuildStatus(String stageName) {
-        BuildStage stageItem = new BuildStage(stageName);
-        stageItem.setRun(run);
-        buildStatuses.put(stageName, stageItem);
-        buildNotifierManager.notifyBuildStageStatus(stageItem);
+        synchronized (this.buildStatuses) {
+            BuildStage stageItem = new BuildStage(stageName);
+            stageItem.setRun(run);
+            buildStatuses.put(stageName, stageItem);
+            buildNotifierManager.notifyBuildStageStatus(stageItem);
+        }
     }
 
     /**
@@ -267,13 +310,15 @@ public class BuildStatusAction extends InvisibleAction {
      * @param time       stage time
      */
     public void updateBuildStatusForStage(String nodeName, BuildStage.State buildState, long time) {
-        BuildStage stageItem = buildStatuses.get(nodeName);
-        if (stageItem != null) {
-            stageItem.addToEnvironment(BuildNotifierConstants.STAGE_DURATION, time);
-            BuildStage.State currentStatus = stageItem.getBuildState();
-            if (currentStatus == BuildStage.State.Pending) {
-                stageItem.setBuildState(buildState);
-                buildNotifierManager.notifyBuildStageStatus(stageItem);
+        synchronized (this.buildStatuses) {
+            BuildStage stageItem = buildStatuses.get(nodeName);
+            if (stageItem != null) {
+                stageItem.addToEnvironment(BuildNotifierConstants.STAGE_DURATION, time);
+                BuildStage.State currentStatus = stageItem.getBuildState();
+                if (currentStatus == BuildStage.State.Pending) {
+                    stageItem.setBuildState(buildState);
+                    buildNotifierManager.notifyBuildStageStatus(stageItem);
+                }
             }
         }
     }
@@ -305,15 +350,17 @@ public class BuildStatusAction extends InvisibleAction {
      * @param nodeName name of node that failed
      */
     public void sendNonStageError(String nodeName) {
-        if (buildStatuses.get(nodeName) != null) {
-            // We already reported this error
-            return;
+        synchronized (this.buildStatuses) {
+            if (buildStatuses.get(nodeName) != null) {
+                // We already reported this error
+                return;
+            }
+            BuildStage stageItem = new BuildStage(nodeName, new HashMap<>(), BuildStage.State.CompletedError);
+            stageItem.setRun(run);
+            stageItem.addAllToEnvironment(jobParameters);
+            stageItem.setIsStage(false);
+            buildStatuses.put(nodeName, stageItem);
+            buildNotifierManager.sendNonStageError(stageItem);
         }
-        BuildStage stageItem = new BuildStage(nodeName, new HashMap<>(), BuildStage.State.CompletedError);
-        stageItem.setRun(run);
-        stageItem.addAllToEnvironment(jobParameters);
-        stageItem.setIsStage(false);
-        buildStatuses.put(nodeName, stageItem);
-        buildNotifierManager.sendNonStageError(stageItem);
     }
 }
