@@ -367,7 +367,10 @@ public class ScriptedPipelineTest {
             LOGGER.info("Execute test workflows");
             for (int i = 0; i < maxRuns; i++) {
                 WorkflowRun b = wfJobs.get(i).scheduleBuild2(0).waitForStart();
-                BuildStatusAction buildStatus = mock(BuildStatusAction.class);
+                // We use a real object here instead of a mock because:
+                // 1. We want to test the real synchronization inside BuildStatusAction.
+                // 2. XStream serialization (which we're testing for CME) works best with real objects.
+                BuildStatusAction buildStatus = BuildStatusAction.newAction(b, r.getURL().toString(), new ArrayList<>());
                 b.addOrReplaceAction(buildStatus);
                 wfRuns.add(b);
             }
