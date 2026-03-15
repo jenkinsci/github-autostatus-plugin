@@ -12,6 +12,7 @@ import org.jenkinsci.plugins.workflow.cps.CpsFlowDefinition;
 import org.jenkinsci.plugins.workflow.job.WorkflowJob;
 import org.jenkinsci.plugins.workflow.job.WorkflowRun;
 
+import org.junit.jupiter.api.Timeout;
 import org.jvnet.hudson.test.Issue;
 import org.jvnet.hudson.test.JenkinsRule;
 import org.jvnet.hudson.test.junit.jupiter.WithJenkins;
@@ -28,6 +29,7 @@ import java.util.ArrayList;
 import java.util.ConcurrentModificationException;
 import java.util.List;
 import java.util.Random;
+import java.util.concurrent.TimeUnit;
 import java.util.logging.Handler;
 import java.util.logging.LogRecord;
 import java.util.logging.Logger;
@@ -218,6 +220,7 @@ public class ScriptedPipelineTest {
      * @throws Exception  If test failed
      */
     @Test
+    @Timeout(value = 15, unit = TimeUnit.MINUTES)
     @Issue("JENKINS-76294")
     public void testNoCmeWhileSavingXStreamVsBuildStatusAction(JenkinsRule r) throws Exception {
         // How many parallel stages would we use before saving WorkflowRun
