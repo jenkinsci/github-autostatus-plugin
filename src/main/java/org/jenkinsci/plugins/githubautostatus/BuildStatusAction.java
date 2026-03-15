@@ -110,11 +110,13 @@ public class BuildStatusAction extends InvisibleAction {
         this.buildStatuses = new HashMap<>();
         this.jobParameters = new HashMap<>();
         addGlobalProperties();
-        stageList.forEach((stageItem) -> {
-            stageItem.setRun(run);
-            stageItem.addAllToEnvironment(jobParameters);
-            buildStatuses.put(stageItem.getStageName(), stageItem);
-        });
+        if (stageList != null) {
+            stageList.forEach((stageItem) -> {
+                stageItem.setRun(run);
+                stageItem.addAllToEnvironment(jobParameters);
+                buildStatuses.put(stageItem.getStageName(), stageItem);
+            });
+        }
         connectNotifiers(run, targetUrl);
     }
 
