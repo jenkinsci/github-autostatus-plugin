@@ -120,7 +120,7 @@ public class BuildStatusAction extends InvisibleAction {
         connectNotifiers(run, targetUrl);
     }
 
-    /** Copy constructor, primarily for {@link #writeReplace} */
+    /** Copy constructor */
     private BuildStatusAction(BuildStatusAction other) {
         synchronized (other.buildStatuses) {
             this.jobName = other.jobName;
@@ -134,21 +134,6 @@ public class BuildStatusAction extends InvisibleAction {
 
             this.buildStatuses = new HashMap<>(other.buildStatuses);
         }
-    }
-
-    /**
-     * Ensure iteration during XStream marshalling is also synchronized,
-     * otherwise we tend to get {@link java.util.ConcurrentModificationException}.<br/>
-     *
-     * The recommended approach is to copy-on-write the properties so a
-     * snapshot can always be scraped consistently. But this can be costly
-     * at run-time, so we use the next-best option: produce a consistent
-     * replica of the current object for actual saving only on demand.<br/>
-     *
-     * This method is found by XStream via reflection.<br/>
-     */
-    protected synchronized Object writeReplace() {
-        return new BuildStatusAction(this);
     }
 
     /**
