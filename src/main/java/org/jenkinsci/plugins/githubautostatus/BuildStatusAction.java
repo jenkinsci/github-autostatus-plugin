@@ -58,10 +58,10 @@ public class BuildStatusAction extends InvisibleAction {
     private String branchName;
     private final Run<?, ?> run;
     // Only modified from the constructor, so not synchronized in other code
-    private final HashMap<String, Object> jobParameters;
+    private final Map<String, Object> jobParameters;
 
     @GuardedBy("buildStatuses")
-    private final HashMap<String, BuildStage> buildStatuses;
+    private final Map<String, BuildStage> buildStatuses;
 
     protected transient BuildNotifierManager buildNotifierManager;
 
@@ -128,11 +128,9 @@ public class BuildStatusAction extends InvisibleAction {
             this.branchName = other.branchName;
             this.run = other.run;
 
-            this.jobParameters = new HashMap<>();
-            this.jobParameters.putAll(other.jobParameters);
+            this.jobParameters = new HashMap<>(other.jobParameters);
 
-            this.buildStatuses = new HashMap<>();
-            this.buildStatuses.putAll(other.buildStatuses);
+            this.buildStatuses = new HashMap<>(other.buildStatuses);
         }
     }
 
