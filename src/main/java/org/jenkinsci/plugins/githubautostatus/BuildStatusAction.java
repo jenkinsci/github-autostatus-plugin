@@ -56,7 +56,7 @@ public class BuildStatusAction extends InvisibleAction {
     private String repoOwner;
     private String repoName;
     private String branchName;
-    private final Run<?, ?> run;
+    private transient Run<?, ?> run;
     // Only modified from the constructor, so not synchronized in other code
     private final Map<String, Object> jobParameters;
 
