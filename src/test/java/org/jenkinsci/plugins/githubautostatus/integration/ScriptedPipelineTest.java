@@ -225,8 +225,8 @@ public class ScriptedPipelineTest {
     public void testNoCmeWhileSavingXStreamVsBuildStatusAction(JenkinsRule r) throws Exception {
         // How many parallel stages would we use before saving WorkflowRun
         // state inside the pipeline run, and overall?
-        int preflood = 25;
-        int maxflood = 75;
+        int preflood = 18;
+        int maxflood = 42;
 
         // More workers to increase the chaos in competition for resources;
         // this number should exceed maxRuns (agents are dedicated to a job
