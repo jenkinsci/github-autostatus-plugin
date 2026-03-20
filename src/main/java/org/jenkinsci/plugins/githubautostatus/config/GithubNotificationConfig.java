@@ -67,6 +67,8 @@ public class GithubNotificationConfig {
     private String repoName = "";
     private GHRepository repo;
 
+    private transient Run<?, ?> run;
+
     protected GitHubBuilder githubBuilder;
 
     /**
@@ -137,6 +139,7 @@ public class GithubNotificationConfig {
             try {
                 GithubNotificationConfig result = new GithubNotificationConfig();
                 result.githubBuilder = githubBuilder;
+                result.run = run;
                 if (!result.extractCommitSha(run)) {
                     return null;
                 }
@@ -152,6 +155,31 @@ public class GithubNotificationConfig {
             }
         }
         return null;
+    }
+
+    /**
+     * Creates a fresh GHRepository by re-resolving credentials from the Jenkins
+     * credentials store. This is necessary because GitHub App tokens have a
+     * non-configurable TTL of 60 minutes, and builds that run longer than that
+     * will fail to update commit statuses with the original token.
+     *
+     * @return a fresh GHRepository, or null if credentials could not be resolved
+     */
+    public @Nullable GHRepository createRepository() {
+        if (run == null) {
+            return repo;
+        }
+        try {
+            GitHubBuilder freshBuilder = new GitHubBuilder();
+            GHRepository freshRepo = buildGHRepository(run, freshBuilder);
+            if (freshRepo != null) {
+                repo = freshRepo;
+            }
+            return freshRepo;
+        } catch (IOException ex) {
+            log(Level.SEVERE, ex);
+            return null;
+        }
     }
 
     /**
@@ -230,7 +258,45 @@ public class GithubNotificationConfig {
         }
         repoOwner = gitHubScmSource.getRepoOwner();
         repoName = gitHubScmSource.getRepository();
+
+        repo = buildGHRepository(build, githubBuilder);
+
+        return repo != null;
+    }
+
+    /**
+     * Builds a GHRepository by resolving credentials from the Jenkins
+     * credentials store and connecting to the GitHub API.
+     *
+     * @param build the build to resolve credentials for
+     * @param builder the GitHubBuilder to use for building the connection
+     * @return the GHRepository, or null if credentials could not be resolved
+     * @throws IOException if there is a problem connecting to GitHub
+     */
+    private GHRepository buildGHRepository(Run<?, ?> build, GitHubBuilder builder) throws IOException {
+        ItemGroup parent = build.getParent().getParent();
+        WorkflowMultiBranchProject project = null;
+        if (parent instanceof WorkflowMultiBranchProject) {
+            project = (WorkflowMultiBranchProject) parent;
+        }
+        if (null == project) {
+            return null;
+        }
+        GitHubSCMSource gitHubScmSource = null;
+        SCMSource scmSource = project.getSCMSources().get(0);
+        if (scmSource != null && scmSource instanceof GitHubSCMSource) {
+            gitHubScmSource = (GitHubSCMSource) scmSource;
+        }
+        if (null == gitHubScmSource) {
+            return null;
+        }
+        String credentialsId = gitHubScmSource.getCredentialsId();
+        if (null == credentialsId) {
+            return null;
+        }
         String url = gitHubScmSource.getApiUri();
+        String owner = gitHubScmSource.getRepoOwner();
+        String name = gitHubScmSource.getRepository();
 
         String userName = null;
         String password = "";
@@ -248,7 +314,7 @@ public class GithubNotificationConfig {
         }
         if (userName == null) {
             log(Level.WARNING, "Could not resolve credentials - status will not be provided for this build");
-            return false;
+            return null;
         }
 
         // I have no idea why, but we do get NPE in tests trying to
@@ -257,15 +323,13 @@ public class GithubNotificationConfig {
         // Yet here we are. Still, it also changes "this" so we do
         // not really need the result of such assignments unless
         // we chain ghb.withX().withY() etc.
-        GitHubBuilder ghbTmp = githubBuilder.withEndpoint(url);
+        GitHubBuilder ghbTmp = builder.withEndpoint(url);
         if (ghbTmp != null) {
-            githubBuilder = ghbTmp;
+            builder = ghbTmp;
         }
-        githubBuilder.withPassword(userName, password);
-        GitHub github = githubBuilder.build();
-        repo = github.getUser(repoOwner).getRepository(repoName);
-
-        return repo != null;
+        builder.withPassword(userName, password);
+        GitHub github = builder.build();
+        return github.getUser(owner).getRepository(name);
     }
 
     private static <T extends Credentials> T getCredentials(@Nonnull Class<T> type, @Nonnull String credentialsId, Item context) {
