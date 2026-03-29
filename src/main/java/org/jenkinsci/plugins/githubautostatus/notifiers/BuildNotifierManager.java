@@ -67,7 +67,7 @@ public class BuildNotifierManager {
      * @return the notifier which was added
      */
     public BuildNotifier addGithubNotifier(GithubNotificationConfig config) {
-        GithubBuildNotifier buildNotifier = new GithubBuildNotifier(config.getRepo(), config.getShaString(), this.targetUrl);
+        GithubBuildNotifier buildNotifier = new GithubBuildNotifier(config.getRepo(), config.getShaString(), this.targetUrl, config);
         return addBuildNotifier(buildNotifier);
     }
 
