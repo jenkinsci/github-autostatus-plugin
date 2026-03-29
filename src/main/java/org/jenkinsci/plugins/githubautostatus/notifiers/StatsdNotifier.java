@@ -76,8 +76,8 @@ public class StatsdNotifier extends BuildNotifier {
     /**
      * Sends duration metric to StatsD by doing a timer metric.
      *
-     * @param jobName   the name of the job
-     * @param stageItem stage item describing the new state
+     * @param jobName   the name of the job (currently ignored, required for interface)
+     * @param stageItem stage item describing the new state (its name and state is what gets reported)
      */
     public void notifyBuildStageStatus(String jobName, BuildStage stageItem) {
         if (stageItem == null) {
@@ -154,7 +154,7 @@ public class StatsdNotifier extends BuildNotifier {
     /**
      * Sends build status metric to StatsD by doing an increment on the buildState categories.
      *
-     * @param jobName name of the job
+     * @param jobName name of the job (currently ignored)
      * @param nodeName the stage of the status on which to report on
      */
     public void sendNonStageError(String jobName, String nodeName) {
