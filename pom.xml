@@ -9,7 +9,7 @@
     </parent>
 
     <artifactId>github-autostatus</artifactId>
-    <version>3.6.3-SNAPSHOT</version>
+    <version>3.6.3</version>
     <packaging>hpi</packaging>
 
     <properties>
