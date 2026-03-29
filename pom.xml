@@ -9,14 +9,16 @@
     </parent>
 
     <artifactId>github-autostatus</artifactId>
-    <version>3.6.4-SNAPSHOT</version>
+    <version>${revision}${changelist}</version>
     <packaging>hpi</packaging>
 
     <properties>
+        <revision>3.6.4</revision>
+        <changelist>-SNAPSHOT</changelist>
+        <gitHubRepo>jenkinsci/${project.artifactId}-plugin</gitHubRepo>
         <!-- https://www.jenkins.io/doc/developer/plugin-development/choosing-jenkins-baseline/ -->
         <jenkins.baseline>2.541</jenkins.baseline>
         <jenkins.version>${jenkins.baseline}.1</jenkins.version>
-        <gitHubRepo>jenkinsci/${project.artifactId}-plugin</gitHubRepo>
         <hpi.compatibleSinceVersion>3.0</hpi.compatibleSinceVersion>
         <jenkins.bom.version>6166.va_a_8b_5eda_8ef5</jenkins.bom.version>
 <!--
@@ -46,8 +48,8 @@
     <scm>
         <connection>scm:git:https://github.com/${gitHubRepo}.git</connection>
         <developerConnection>scm:git:git@github.com:${gitHubRepo}.git</developerConnection>
+        <tag>${scmTag}</tag>
         <url>https://github.com/${gitHubRepo}</url>
-        <tag>github-autostatus-3.6.3</tag>
     </scm>
 
     <developers>
