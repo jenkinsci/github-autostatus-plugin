@@ -18,7 +18,7 @@
         <jenkins.version>${jenkins.baseline}.1</jenkins.version>
         <gitHubRepo>jenkinsci/${project.artifactId}-plugin</gitHubRepo>
         <hpi.compatibleSinceVersion>3.0</hpi.compatibleSinceVersion>
-        <jenkins.bom.version>6098.v29a_dff8a_0c19</jenkins.bom.version>
+        <jenkins.bom.version>6166.va_a_8b_5eda_8ef5</jenkins.bom.version>
 <!--
         <spotbugs.effort>Max</spotbugs.effort>
         <spotbugs.threshold>Low</spotbugs.threshold>
