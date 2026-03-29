@@ -80,21 +80,19 @@ public class StatsdNotifier extends BuildNotifier {
      * @param stageItem stage item describing the new state
      */
     public void notifyBuildStageStatus(String jobName, BuildStage stageItem) {
+        if (stageItem == null) {
+            return;
+        }
+
         BuildStage.State buildState = stageItem.getBuildState();
 
         if (buildState == BuildStage.State.Pending) {
             return;
         }
 
-        Object timingInfo = stageItem.getDuration();
+        long nodeDuration = stageItem.getDuration();
         String nodeName = stageItem.getStageName();
-        long nodeDuration;
-        try {
-            nodeDuration = (long) timingInfo;
-        } catch (NullPointerException e) {
-            nodeDuration = 0;
-        }
-        // public void notifyBuildStageStatus(String jobName, String nodeName, BuildState buildState, long nodeDuration) {
+        // TBD: public void notifyBuildStageStatus(String jobName, String nodeName, BuildState buildState, long nodeDuration) {
 
         String result = buildState.toString();
         int statsDMaxSize = Integer.parseInt(config.getStatsdMaxSize().trim());
