@@ -18,7 +18,7 @@
         <jenkins.version>${jenkins.baseline}.1</jenkins.version>
         <gitHubRepo>jenkinsci/${project.artifactId}-plugin</gitHubRepo>
         <hpi.compatibleSinceVersion>3.0</hpi.compatibleSinceVersion>
-        <jenkins.bom.version>6098.v29a_dff8a_0c19</jenkins.bom.version>
+        <jenkins.bom.version>6166.va_a_8b_5eda_8ef5</jenkins.bom.version>
 <!--
         <spotbugs.effort>Max</spotbugs.effort>
         <spotbugs.threshold>Low</spotbugs.threshold>
@@ -29,7 +29,7 @@
              not listed in parent pom, and version won't likely change -->
         <cobertura.plugin.version>1.17</cobertura.plugin.version>
         <jacoco.plugin.version>3.3.7</jacoco.plugin.version>
-        <dogstatsd.version>2.8.1</dogstatsd.version>
+        <dogstatsd.version>4.4.5</dogstatsd.version>
         <system-stubs.version>2.1.8</system-stubs.version>
     </properties>
 

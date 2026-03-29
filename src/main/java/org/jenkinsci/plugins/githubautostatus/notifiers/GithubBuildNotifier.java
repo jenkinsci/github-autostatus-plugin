@@ -27,6 +27,7 @@ import com.google.common.collect.ImmutableMap;
 import java.util.Map;
 import java.util.logging.Level;
 import java.util.logging.Logger;
+import org.jenkinsci.plugins.githubautostatus.config.GithubNotificationConfig;
 import org.jenkinsci.plugins.githubautostatus.model.BuildStage;
 import org.kohsuke.github.GHCommitState;
 import org.kohsuke.github.GHRepository;
@@ -38,9 +39,17 @@ import org.kohsuke.github.GHRepository;
  */
 public class GithubBuildNotifier extends BuildNotifier {
 
-    private final GHRepository repository;
+    private volatile GHRepository repository;
     private final String shaString;
     private final String targetUrl;
+    private final GithubNotificationConfig config;
+    private volatile long repositoryCreatedAt;
+
+    /**
+     * GitHub App tokens expire after 60 minutes. Re-resolve credentials
+     * if the cached repository is older than this threshold.
+     */
+    static final long CREDENTIAL_REFRESH_MILLIS = 50 * 60 * 1000L; // 50 minutes
 
     static final ImmutableMap<BuildStage.State, GHCommitState> STATE_MAP = new ImmutableMap.Builder()
             .put(BuildStage.State.Pending, GHCommitState.PENDING)
@@ -68,9 +77,23 @@ public class GithubBuildNotifier extends BuildNotifier {
      * @param targetUrl target Url (link back to Jenkins)
      */
     public GithubBuildNotifier(GHRepository repository, String shaString, String targetUrl) {
+        this(repository, shaString, targetUrl, null);
+    }
+
+    /**
+     * Constructor with config for credential refresh support.
+     *
+     * @param repository the GitHub repository
+     * @param shaString the commit notifications are being provided for
+     * @param targetUrl target Url (link back to Jenkins)
+     * @param config config for re-resolving credentials when tokens expire
+     */
+    public GithubBuildNotifier(GHRepository repository, String shaString, String targetUrl, GithubNotificationConfig config) {
         this.repository = repository;
         this.shaString = shaString;
         this.targetUrl = targetUrl;
+        this.config = config;
+        this.repositoryCreatedAt = System.currentTimeMillis();
     }
 
     /**
@@ -102,16 +125,57 @@ public class GithubBuildNotifier extends BuildNotifier {
             return;
         }
         try {
+            GHRepository repo = getRepository();
             BuildStage.State buildState = stageItem.getBuildState();
-            repository.createCommitStatus(shaString, STATE_MAP.get(buildState), targetUrl, DESCRIPTION_MAP.get(buildState), stageItem.getStageName());
+            repo.createCommitStatus(shaString, STATE_MAP.get(buildState), targetUrl, DESCRIPTION_MAP.get(buildState), stageItem.getStageName());
         } catch (org.kohsuke.github.HttpException ex) {
-            if (ex.getResponseCode() < 200 || ex.getResponseCode() > 299) {
+            if (ex.getResponseCode() == 401 && config != null) {
+                // Token likely expired (GitHub App tokens have a 60-minute TTL).
+                // Force credential re-resolution and retry once.
+                log(Level.INFO, "Received HTTP 401 for job %s, refreshing GitHub credentials and retrying", jobName);
+                try {
+                    refreshRepository();
+                    BuildStage.State buildState = stageItem.getBuildState();
+                    repository.createCommitStatus(shaString, STATE_MAP.get(buildState), targetUrl, DESCRIPTION_MAP.get(buildState), stageItem.getStageName());
+                } catch (Exception retryEx) {
+                    log(Level.SEVERE, "Retry after credential refresh failed for job %s", jobName);
+                    log(Level.SEVERE, retryEx);
+                }
+            } else if (ex.getResponseCode() < 200 || ex.getResponseCode() > 299) {
                 log(Level.SEVERE, "Exception while creating status for job %s", jobName);
                 log(Level.SEVERE, ex);
             }
         } catch (Exception ex) {
             log(Level.SEVERE, "Exception while creating status for job %s", jobName);
             log(Level.SEVERE, ex);
+        }
+    }
+
+    /**
+     * Returns the cached GHRepository, refreshing credentials if the cached
+     * instance is older than {@link #CREDENTIAL_REFRESH_MILLIS}.
+     */
+    private GHRepository getRepository() {
+        if (config != null && System.currentTimeMillis() - repositoryCreatedAt > CREDENTIAL_REFRESH_MILLIS) {
+            refreshRepository();
+        }
+        return repository;
+    }
+
+    /**
+     * Forces credential re-resolution and replaces the cached GHRepository.
+     */
+    private synchronized void refreshRepository() {
+        if (config == null) {
+            return;
+        }
+        GHRepository freshRepo = config.createRepository();
+        if (freshRepo != null) {
+            log(Level.INFO, "Successfully refreshed GitHub credentials");
+            repository = freshRepo;
+            repositoryCreatedAt = System.currentTimeMillis();
+        } else {
+            log(Level.WARNING, "Failed to refresh GitHub credentials, continuing with existing token");
         }
     }
 
