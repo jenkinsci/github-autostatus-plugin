@@ -51,7 +51,8 @@ public class GithubBuildNotifier extends BuildNotifier {
      */
     static final long CREDENTIAL_REFRESH_MILLIS = 50 * 60 * 1000L; // 50 minutes
 
-    static final ImmutableMap<BuildStage.State, GHCommitState> STATE_MAP = new ImmutableMap.Builder()
+    static final ImmutableMap<BuildStage.State, GHCommitState> STATE_MAP = new ImmutableMap.Builder<
+                    BuildStage.State, GHCommitState>()
             .put(BuildStage.State.Pending, GHCommitState.PENDING)
             .put(BuildStage.State.CompletedError, GHCommitState.ERROR)
             .put(BuildStage.State.CompletedSuccess, GHCommitState.SUCCESS)
@@ -60,7 +61,8 @@ public class GithubBuildNotifier extends BuildNotifier {
             .put(BuildStage.State.SkippedConditional, GHCommitState.SUCCESS)
             .build();
 
-    static final ImmutableMap<BuildStage.State, String> DESCRIPTION_MAP = new ImmutableMap.Builder()
+    static final ImmutableMap<BuildStage.State, String> DESCRIPTION_MAP = new ImmutableMap.Builder<
+                    BuildStage.State, String>()
             .put(BuildStage.State.Pending, "Building stage")
             .put(BuildStage.State.CompletedError, "Failed to build stage")
             .put(BuildStage.State.CompletedSuccess, "Stage built successfully")
