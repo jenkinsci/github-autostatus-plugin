@@ -22,14 +22,12 @@
         <!-- TODO: Bump when introducing breaking changes, e.g. fixing https://github.com/jenkinsci/github-autostatus-plugin/issues/176 -->
         <hpi.compatibleSinceVersion>3.0</hpi.compatibleSinceVersion>
         <jenkins.bom.version>6210.v69ea_fd8a_f010</jenkins.bom.version>
-<!--
         <spotbugs.effort>Max</spotbugs.effort>
         <spotbugs.threshold>Low</spotbugs.threshold>
         <spotless.check.skip>false</spotless.check.skip>
--->
         <ban-junit4-imports.skip>false</ban-junit4-imports.skip>
         <!-- cobertura and jacoco plugins are now archived code,
-             not listed in parent pom, and version won't likely change -->
+             not listed in parent pom, and the version won't likely change -->
         <cobertura.plugin.version>1.17</cobertura.plugin.version>
         <jacoco.plugin.version>3.3.7</jacoco.plugin.version>
         <dogstatsd.version>4.4.5</dogstatsd.version>
@@ -243,11 +241,11 @@
 
     <build>
         <plugins>
-<!--
             <plugin>
                 <artifactId>maven-checkstyle-plugin</artifactId>
                 <version>3.6.0</version>
                 <configuration>
+                    <failsOnError>true</failsOnError>
                     <configLocation>${basedir}/checkstyle.xml</configLocation>
                     <includeTestSourceDirectory>true</includeTestSourceDirectory>
                     <sourceDirectories>
@@ -259,15 +257,15 @@
                 </configuration>
                 <executions>
                     <execution>
+                        <id>validate</id>
+                        <phase>validate</phase>
                         <goals>
                             <goal>check</goal>
                         </goals>
                     </execution>
                 </executions>
             </plugin>
- -->
 
-<!--
             <plugin>
               <groupId>org.apache.maven.plugins</groupId>
               <artifactId>maven-compiler-plugin</artifactId>
@@ -279,7 +277,6 @@
                 </compilerArgs>
               </configuration>
             </plugin>
- -->
 
         </plugins>
     </build>
