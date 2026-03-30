@@ -67,6 +67,8 @@
          not listed in parent pom, and the version won't likely change -->
     <cobertura.plugin.version>1.17</cobertura.plugin.version>
     <jacoco.plugin.version>3.3.7</jacoco.plugin.version>
+    <!-- TODO: Find a way to rely on Jenkins datadog-plugin instead -->
+    <hpi.bundledArtifacts>java-dogstatsd-client</hpi.bundledArtifacts>
     <dogstatsd.version>4.4.5</dogstatsd.version>
     <system-stubs.version>2.1.8</system-stubs.version>
   </properties>
