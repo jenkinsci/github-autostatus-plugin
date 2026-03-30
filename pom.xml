@@ -242,26 +242,16 @@
     <build>
         <plugins>
             <plugin>
-                <artifactId>maven-checkstyle-plugin</artifactId>
-                <version>3.6.0</version>
-                <configuration>
-                    <failsOnError>true</failsOnError>
-                    <configLocation>${basedir}/checkstyle.xml</configLocation>
-                    <includeTestSourceDirectory>true</includeTestSourceDirectory>
-                    <sourceDirectories>
-                        <sourceDirectory>${project.build.sourceDirectory}</sourceDirectory>
-                    </sourceDirectories>
-                    <testSourceDirectories>
-                        <sourceDirectory>${project.build.testSourceDirectory}</sourceDirectory>
-                    </testSourceDirectories>
-                </configuration>
+                <groupId>com.diffplug.spotless</groupId>
+                <artifactId>spotless-maven-plugin</artifactId>
                 <executions>
                     <execution>
-                        <id>validate</id>
-                        <phase>validate</phase>
+                        <id>spotless-check</id>
                         <goals>
                             <goal>check</goal>
                         </goals>
+                        <!-- In CI, run check early in the build -->
+                        <phase>process-sources</phase>
                     </execution>
                 </executions>
             </plugin>
