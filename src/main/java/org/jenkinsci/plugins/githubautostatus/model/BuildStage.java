@@ -28,6 +28,7 @@ import hudson.model.Run;
 import org.jenkinsci.plugins.githubautostatus.notifiers.BuildNotifierConstants;
 
 import javax.annotation.Nonnull;
+import java.io.Serializable;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -35,7 +36,9 @@ import java.util.Map;
  *
  * @author Jeff Pearce (GitHub jeffpearce)
  */
-public class BuildStage {
+public class BuildStage implements Serializable {
+
+    private static final long serialVersionUID = 1L;
 
     private String stageName;
     @SkipSerialisation

@@ -27,16 +27,10 @@ import hudson.model.AbstractBuild;
 import hudson.model.Job;
 import hudson.model.Result;
 import hudson.model.TaskListener;
-import java.util.HashMap;
-import java.util.Map;
-
 import org.jenkinsci.plugins.githubautostatus.model.BuildStage;
-import org.jenkinsci.plugins.githubautostatus.model.BuildState;
-import org.junit.After;
-import org.junit.AfterClass;
-import org.junit.Before;
-import org.junit.BeforeClass;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
+
+import static org.mockito.ArgumentMatchers.*;
 import static org.mockito.Mockito.*;
 
 /**
@@ -44,25 +38,6 @@ import static org.mockito.Mockito.*;
  * @author Jeff Pearce (GitHub jeffpearce)
  */
 public class BuildStatusJobListenerTest {
-
-    public BuildStatusJobListenerTest() {
-    }
-
-    @BeforeClass
-    public static void setUpClass() {
-    }
-
-    @AfterClass
-    public static void tearDownClass() {
-    }
-
-    @Before
-    public void setUp() {
-    }
-
-    @After
-    public void tearDown() {
-    }
 
     /**
      * Verifies BuildStatusJobListener onCompleted can be called when there's no
@@ -92,10 +67,10 @@ public class BuildStatusJobListenerTest {
         TaskListener listener = null;
 
         BuildStatusJobListener instance = new BuildStatusJobListener();
-        HashMap<String, Object> jobParams = new HashMap<String, Object>();
 
         instance.onCompleted(build, listener);
-        verify(action).updateBuildStatusForJob(eq(BuildStage.State.CompletedSuccess), anyMapOf(String.class, Object.class));
+        /* FIXME: Convert into Mockito 5 that we wanted anyMapOf(String.class, Object.class) here */
+        verify(action).updateBuildStatusForJob(eq(BuildStage.State.CompletedSuccess), anyMap());
     }
 
     @Test
@@ -111,6 +86,7 @@ public class BuildStatusJobListenerTest {
         BuildStatusJobListener instance = new BuildStatusJobListener();
 
         instance.onCompleted(build, listener);
-        verify(action).updateBuildStatusForJob(eq(BuildStage.State.CompletedError), anyMapOf(String.class, Object.class));
+        /* FIXME: Convert into Mockito 5 that we wanted anyMapOf(String.class, Object.class) here */
+        verify(action).updateBuildStatusForJob(eq(BuildStage.State.CompletedError), anyMap());
     }
 }

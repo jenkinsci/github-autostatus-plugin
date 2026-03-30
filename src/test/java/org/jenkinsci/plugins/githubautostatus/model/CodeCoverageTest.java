@@ -8,38 +8,17 @@ import hudson.plugins.cobertura.targets.CoverageMetric;
 import hudson.plugins.jacoco.JacocoBuildAction;
 import hudson.plugins.jacoco.model.Coverage;
 import hudson.plugins.jacoco.model.CoverageElement;
-import org.junit.*;
-import org.junit.runner.RunWith;
-import org.powermock.api.mockito.PowerMockito;
-import org.powermock.core.classloader.annotations.PrepareForTest;
-import org.powermock.modules.junit4.PowerMockRunner;
+import org.junit.jupiter.api.Test;
 
 import java.io.File;
 import java.util.HashMap;
 import java.util.Map;
 
-import static org.junit.Assert.*;
+import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
-@RunWith(PowerMockRunner.class)
-@PrepareForTest({JacocoBuildAction.class, CoberturaBuildAction.class})
 public class CodeCoverageTest {
-  @BeforeClass
-  public static void setUpClass() {
-  }
-
-  @AfterClass
-  public static void tearDownClass() {
-  }
-
-  @Before
-  public void setUp() {
-  }
-
-  @After
-  public void tearDown() {
-  }
 
   @Test
   public void testFromJacoco_null(){
@@ -53,7 +32,7 @@ public class CodeCoverageTest {
   
   @Test
   public void testFromCobertura(){
-    CoberturaBuildAction action = PowerMockito.mock(CoberturaBuildAction.class);
+    CoberturaBuildAction action = mock(CoberturaBuildAction.class);
     AbstractBuild build = mock(AbstractBuild.class);
     when(action.getOwner()).thenReturn(build);
     File file = mock(File.class);
@@ -111,7 +90,7 @@ public class CodeCoverageTest {
     jacocoRatios.put(clazz, true);
     jacocoRatios.put(instruction, true);
 
-    JacocoBuildAction action = PowerMockito.mock(JacocoBuildAction.class);
+    JacocoBuildAction action = mock(JacocoBuildAction.class);
     when(action.getCoverageRatios()).thenReturn(jacocoRatios);
 
     CodeCoverage coverage = CodeCoverage.fromJacoco(action);

@@ -25,16 +25,14 @@ package org.jenkinsci.plugins.githubautostatus.notifiers;
 
 import java.io.IOException;
 import java.util.Collections;
+import org.jenkinsci.plugins.githubautostatus.config.GithubNotificationConfig;
 import org.jenkinsci.plugins.githubautostatus.model.BuildStage;
-import org.jenkinsci.plugins.githubautostatus.model.BuildState;
-import org.junit.After;
-import org.junit.AfterClass;
-import org.junit.Before;
-import org.junit.BeforeClass;
-import org.junit.Test;
-import static org.junit.Assert.*;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+import static org.junit.jupiter.api.Assertions.*;
 import org.kohsuke.github.GHCommitState;
 import org.kohsuke.github.GHRepository;
+import org.kohsuke.github.HttpException;
 import static org.mockito.Mockito.*;
 
 /**
@@ -51,25 +49,10 @@ public class GithubBuildNotifierTest {
     static String targetUrl = "http://mock-target";
     static GHRepository repository;
 
-    public GithubBuildNotifierTest() {
-    }
-
-    @BeforeClass
-    public static void setUpClass() {
-    }
-
-    @AfterClass
-    public static void tearDownClass() {
-    }
-
-    @Before
+    @BeforeEach
     public void setUp() {
         repository = mock(GHRepository.class);
         when(repository.getName()).thenReturn(repoName);
-    }
-
-    @After
-    public void tearDown() {
     }
 
     /**
@@ -166,5 +149,48 @@ public class GithubBuildNotifierTest {
         notifier.notifyBuildStageStatus(jobName, stageItem);
 
         verify(repository, never()).createCommitStatus(any(), any(), any(), any());
+    }
+
+    /**
+     * Verifies that on HTTP 401 (token expired), the notifier refreshes
+     * credentials and retries the API call when a config is provided.
+     */
+    @Test
+    public void testRetryOn401WithConfig() throws IOException {
+        GHRepository freshRepo = mock(GHRepository.class);
+        GithubNotificationConfig config = mock(GithubNotificationConfig.class);
+        when(config.createRepository()).thenReturn(freshRepo);
+
+        // First call throws 401, simulating expired GitHub App token
+        doThrow(new HttpException("Unauthorized", 401, "Unauthorized", null))
+                .when(repository).createCommitStatus(any(), any(), any(), any(), any());
+
+        GithubBuildNotifier notifier = new GithubBuildNotifier(repository, sha, targetUrl, config);
+
+        BuildStage stageItem = new BuildStage(stageName);
+        notifier.notifyBuildStageStatus(jobName, stageItem);
+
+        // Verify credentials were refreshed
+        verify(config).createRepository();
+        // Verify retry was attempted on the fresh repo
+        verify(freshRepo).createCommitStatus(sha, GHCommitState.PENDING, targetUrl, "Building stage", stageName);
+    }
+
+    /**
+     * Verifies that on HTTP 401 without a config, no retry is attempted
+     * (backward-compatible behavior).
+     */
+    @Test
+    public void testNoRetryOn401WithoutConfig() throws IOException {
+        doThrow(new HttpException("Unauthorized", 401, "Unauthorized", null))
+                .when(repository).createCommitStatus(any(), any(), any(), any(), any());
+
+        GithubBuildNotifier notifier = new GithubBuildNotifier(repository, sha, targetUrl);
+
+        BuildStage stageItem = new BuildStage(stageName);
+        notifier.notifyBuildStageStatus(jobName, stageItem);
+
+        // Only one call attempt, no retry
+        verify(repository, times(1)).createCommitStatus(any(), any(), any(), any(), any());
     }
 }

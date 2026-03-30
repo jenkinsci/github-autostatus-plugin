@@ -23,7 +23,7 @@
  */
 package org.jenkinsci.plugins.githubautostatus;
 
-import com.timgroup.statsd.NonBlockingStatsDClient;
+import com.timgroup.statsd.NonBlockingStatsDClientBuilder;
 import com.timgroup.statsd.StatsDClient;
 import com.timgroup.statsd.StatsDClientException;
 import java.util.concurrent.ScheduledThreadPoolExecutor;
@@ -39,7 +39,7 @@ import java.util.logging.Logger;
  */
 public class StatsdClient implements StatsdWrapper {
 
-    private final int CLIENT_TTL = 300;
+    private static final int CLIENT_TTL = 300;
     private static final Logger LOGGER = Logger.getLogger(StatsdClient.class.getName());
 
     private StatsDClient client;
@@ -60,7 +60,11 @@ public class StatsdClient implements StatsdWrapper {
         Lock wl = lock.writeLock();
         StatsDClient newClient = null;
         try {
-            newClient = new NonBlockingStatsDClient(prefix, hostname, port);
+            newClient = new NonBlockingStatsDClientBuilder()
+                    .prefix(prefix)
+                    .hostname(hostname)
+                    .port(port)
+                    .build();
             LOGGER.info("New StatsD client created. " + newClient.hashCode());
         } catch (StatsDClientException e) {
             LOGGER.warning("Could not refresh client, will continue to use old instance");

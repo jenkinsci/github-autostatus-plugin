@@ -16,27 +16,23 @@ import org.apache.http.impl.client.CloseableHttpClient;
 import org.apache.http.util.EntityUtils;
 import org.jenkinsci.plugins.githubautostatus.config.HttpNotifierConfig;
 import org.jenkinsci.plugins.githubautostatus.model.*;
-import org.junit.Before;
-import org.junit.Test;
-import org.junit.runner.RunWith;
+import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+import org.mockito.MockedStatic;
 import org.mockito.invocation.InvocationOnMock;
-import org.powermock.api.mockito.PowerMockito;
-import org.powermock.core.classloader.annotations.PrepareForTest;
-import org.powermock.modules.junit4.PowerMockRunner;
 
 import java.io.IOException;
 import java.util.Base64;
 import java.util.HashMap;
 import java.util.Map;
 
-import static org.junit.Assert.*;
+import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.Mockito.*;
 
 /**
  * @author nthienan
  */
-@RunWith(PowerMockRunner.class)
-@PrepareForTest({Jenkins.class})
 public class HttpNotifierTest {
 
   private HttpNotifierConfig mockConfig;
@@ -62,8 +58,15 @@ public class HttpNotifierTest {
   private final String jenkinsUrl = "https://mock-jenkins.com:8443/";
   private int buildNumber = 123123;
 
-  @Before
+  private MockedStatic<Jenkins> jenkinsStatic;
+
+  @BeforeEach
   public void setUp() throws Exception {
+    jenkinsStatic = mockStatic(Jenkins.class);
+    Jenkins jenkins = mock(Jenkins.class);
+    when(jenkins.getRootUrl()).thenReturn(jenkinsUrl);
+    jenkinsStatic.when(Jenkins::get).thenReturn(jenkins);
+
     mockConfig = mock(HttpNotifierConfig.class);
 
     when(mockConfig.getHttpEndpoint()).thenReturn("https://mock.com/jenkins");
@@ -106,11 +109,13 @@ public class HttpNotifierTest {
     mockStageMap = mock(HashMap.class);
     notifier = new HttpNotifier(mockConfig);
     notifier.stageMap = mockStageMap;
+  }
 
-    Jenkins jenkins = mock(Jenkins.class);
-    when(jenkins.getRootUrl()).thenReturn(jenkinsUrl);
-    PowerMockito.mockStatic(Jenkins.class);
-    when(Jenkins.get()).thenReturn(jenkins);
+  @AfterEach
+  public void tearDown() {
+    if (jenkinsStatic != null) {
+      jenkinsStatic.close();
+    }
   }
 
   @Test

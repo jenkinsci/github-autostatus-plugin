@@ -74,28 +74,38 @@ public class StatsdNotifier extends BuildNotifier {
     }
 
     /**
-     * Sends duration metric to StatsD by doing a timer metric.
+     * Sends duration metric to StatsD by doing a timer metric - interface-dictated
+     * wrapper around {@link #notifyBuildStageStatus(String, String, BuildStage.State, long)}.
      *
-     * @param jobName   the name of the job
-     * @param stageItem stage item describing the new state
+     * @param jobName   the name of the job (currently ignored, required for interface)
+     * @param stageItem stage item describing the new state (its name and state is what gets reported)
      */
     public void notifyBuildStageStatus(String jobName, BuildStage stageItem) {
+        if (stageItem == null) {
+            return;
+        }
+
         BuildStage.State buildState = stageItem.getBuildState();
 
         if (buildState == BuildStage.State.Pending) {
             return;
         }
 
-        Object timingInfo = stageItem.getDuration();
+        long nodeDuration = stageItem.getDuration();
         String nodeName = stageItem.getStageName();
-        long nodeDuration;
-        try {
-            nodeDuration = (long) timingInfo;
-        } catch (NullPointerException e) {
-            nodeDuration = 0;
-        }
-        // public void notifyBuildStageStatus(String jobName, String nodeName, BuildState buildState, long nodeDuration) {
+        notifyBuildStageStatus(jobName, nodeName, buildState, nodeDuration);
+    }
 
+    /**
+     * Sends duration metric to StatsD by doing a timer metric -
+     * actual implementation.
+     *
+     * @param jobName   the name of the job (currently ignored)
+     * @param nodeName  the name of the node (stage)
+     * @param buildState the new state
+     * @param nodeDuration the duration of the node
+     */
+    public void notifyBuildStageStatus(String jobName, String nodeName, BuildStage.State buildState, long nodeDuration) {
         String result = buildState.toString();
         int statsDMaxSize = Integer.parseInt(config.getStatsdMaxSize().trim());
 
@@ -156,7 +166,7 @@ public class StatsdNotifier extends BuildNotifier {
     /**
      * Sends build status metric to StatsD by doing an increment on the buildState categories.
      *
-     * @param jobName name of the job
+     * @param jobName name of the job (currently ignored)
      * @param nodeName the stage of the status on which to report on
      */
     public void sendNonStageError(String jobName, String nodeName) {
