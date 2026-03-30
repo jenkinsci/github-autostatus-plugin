@@ -21,7 +21,7 @@
         <jenkins.version>${jenkins.baseline}.1</jenkins.version>
         <!-- TODO: Bump when introducing breaking changes, e.g. fixing https://github.com/jenkinsci/github-autostatus-plugin/issues/176 -->
         <hpi.compatibleSinceVersion>3.0</hpi.compatibleSinceVersion>
-        <jenkins.bom.version>6166.va_a_8b_5eda_8ef5</jenkins.bom.version>
+        <jenkins.bom.version>6210.v69ea_fd8a_f010</jenkins.bom.version>
 <!--
         <spotbugs.effort>Max</spotbugs.effort>
         <spotbugs.threshold>Low</spotbugs.threshold>
