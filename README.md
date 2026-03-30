@@ -1,10 +1,19 @@
 # Job And Stage Monitoring Plugin
 
+[![Jenkins Plugin](https://img.shields.io/jenkins/plugin/v/github-autostatus.svg)](https://plugins.jenkins.io/github-autostatus)
+[![GitHub release](https://img.shields.io/github/release/jenkinsci/github-autostatus-plugin.svg?label=release)](https://github.com/jenkinsci/github-autostatus-plugin/releases/latest)
+[![Jenkins Plugin Installs](https://img.shields.io/jenkins/plugin/i/github-autostatus.svg?color=blue)](https://plugins.jenkins.io/github-autostatus)
+[![Build Status](https://ci.jenkins.io/buildStatus/icon?job=Plugins%2Fgithub-autostatus-plugin%2Fmaster)](https://ci.jenkins.io/job/Plugins/job/github-autostatus-plugin/job/master/)
+[![GitHub license](https://img.shields.io/github/license/jenkinsci/github-autostatus-plugin.svg)](https://github.com/jenkinsci/github-autostatus-plugin/blob/master/LICENSE.txt)
+[![Maintenance](https://img.shields.io/maintenance/yes/2026.svg)](https://github.com/jenkinsci/github-autostatus-plugin)
+
 This is a job monitoring plugin, which watches for pipeline builds and automatically sends job and stage level stats to various endpoints, including:
 
 - GitHub (to see pending/success/error status from your PR)
 - InfluxDB (for building monitoring dashboards).
-- StatsD (alternative monitoring metrics)
+- Datadog StatsD (alternative monitoring metrics)
+
+Historic note: This plugin started life as "GitHub Autostatus plugin" (hence the git repository name), was generalized to "Autostatus plugin" with the addition of InfluxDB support in 2018, and was soon renamed to "Job And Stage Monitoring Plugin" with the addition of StatsD.
 
 For example:
 
@@ -26,7 +35,7 @@ For example:
 
         }
 
-    }
+      }
 
     }
 

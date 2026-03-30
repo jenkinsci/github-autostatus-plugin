@@ -39,7 +39,7 @@ import java.util.logging.Logger;
  */
 public class StatsdClient implements StatsdWrapper {
 
-    private final int CLIENT_TTL = 300;
+    private static final int CLIENT_TTL = 300;
     private static final Logger LOGGER = Logger.getLogger(StatsdClient.class.getName());
 
     private StatsDClient client;

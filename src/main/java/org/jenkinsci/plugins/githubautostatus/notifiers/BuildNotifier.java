@@ -39,12 +39,12 @@ public abstract class BuildNotifier implements ExtensionPoint {
     /**
      * Establishing a default long for use in getLong.
      */
-    protected final long DEFAULT_LONG = 0;
+    protected static final long DEFAULT_LONG = 0;
 
     /**
      * Establishing a default string for use in notifiers.
      */
-    protected final String DEFAULT_STRING = "none";
+    protected static final String DEFAULT_STRING = "none";
 
     /**
      * Determines whether this notifier is enabled.
