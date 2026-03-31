@@ -29,10 +29,11 @@ public class CodeCoverageTest {
     }
 
     @Test
+    @SuppressWarnings("unchecked")
     public void testFromCobertura() {
         CoberturaBuildAction action = mock(CoberturaBuildAction.class);
         AbstractBuild build = mock(AbstractBuild.class);
-        when(action.getOwner()).thenReturn(build);
+        when(action.getOwner()).thenReturn((AbstractBuild) build);
         File file = mock(File.class);
         when(build.getRootDir()).thenReturn(file);
         Map<CoverageMetric, Ratio> results = new HashMap<>();

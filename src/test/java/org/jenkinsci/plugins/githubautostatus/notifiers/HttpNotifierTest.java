@@ -105,7 +105,7 @@ public class HttpNotifierTest {
         when(mockRun.getNumber()).thenReturn(buildNumber);
         when(mockRun.getUrl()).thenReturn(buildUrl);
 
-        mockStageMap = mock(HashMap.class);
+        mockStageMap = new HashMap<>();
         notifier = new HttpNotifier(mockConfig);
         notifier.stageMap = mockStageMap;
     }
@@ -148,7 +148,7 @@ public class HttpNotifierTest {
         String stageName = "stage-1";
         BuildStage stage = new BuildStage(stageName, new HashMap<>(), BuildStage.State.Pending);
         notifier.notifyBuildStageStatus(stageName, stage);
-        verify(mockStageMap, times(0)).put(any(), any());
+        assertEquals(0, mockStageMap.size());
     }
 
     @Test
@@ -156,7 +156,9 @@ public class HttpNotifierTest {
         String stageName = "stage-1";
         BuildStage stage = new BuildStage(stageName, new HashMap<>(), BuildStage.State.SkippedConditional);
         notifier.notifyBuildStageStatus(stageName, stage);
-        verify(mockStageMap, times(1)).put(eq(stageName), any(BuildStage.class));
+        assertEquals(1, mockStageMap.size());
+        assertNotNull(mockStageMap.get(stageName));
+        assertInstanceOf(BuildStage.class, mockStageMap.get(stageName));
     }
 
     @Test
@@ -164,7 +166,9 @@ public class HttpNotifierTest {
         String stageName = "stage-1";
         BuildStage stage = new BuildStage(stageName, new HashMap<>(), BuildStage.State.SkippedUnstable);
         notifier.notifyBuildStageStatus(stageName, stage);
-        verify(mockStageMap, times(1)).put(eq(stageName), any(BuildStage.class));
+        assertEquals(1, mockStageMap.size());
+        assertNotNull(mockStageMap.get(stageName));
+        assertInstanceOf(BuildStage.class, mockStageMap.get(stageName));
     }
 
     @Test
@@ -172,7 +176,9 @@ public class HttpNotifierTest {
         String stageName = "stage-1";
         BuildStage stage = new BuildStage(stageName, new HashMap<>(), BuildStage.State.SkippedFailure);
         notifier.notifyBuildStageStatus(stageName, stage);
-        verify(mockStageMap, times(1)).put(eq(stageName), any(BuildStage.class));
+        assertEquals(1, mockStageMap.size());
+        assertNotNull(mockStageMap.get(stageName));
+        assertInstanceOf(BuildStage.class, mockStageMap.get(stageName));
     }
 
     @Test
@@ -180,7 +186,9 @@ public class HttpNotifierTest {
         String stageName = "stage-1";
         BuildStage stage = new BuildStage(stageName, new HashMap<>(), BuildStage.State.CompletedSuccess);
         notifier.notifyBuildStageStatus(stageName, stage);
-        verify(mockStageMap, times(1)).put(eq(stageName), any(BuildStage.class));
+        assertEquals(1, mockStageMap.size());
+        assertNotNull(mockStageMap.get(stageName));
+        assertInstanceOf(BuildStage.class, mockStageMap.get(stageName));
     }
 
     @Test
@@ -188,7 +196,9 @@ public class HttpNotifierTest {
         String stageName = "stage-1";
         BuildStage stage = new BuildStage(stageName, new HashMap<>(), BuildStage.State.CompletedError);
         notifier.notifyBuildStageStatus(stageName, stage);
-        verify(mockStageMap, times(1)).put(eq(stageName), any(BuildStage.class));
+        assertEquals(1, mockStageMap.size());
+        assertNotNull(mockStageMap.get(stageName));
+        assertInstanceOf(BuildStage.class, mockStageMap.get(stageName));
     }
 
     @Test

@@ -211,6 +211,7 @@ public class GithubBuildStatusGraphListenerTest {
             }
 
             @Override
+            @SuppressWarnings("unchecked")
             public <T extends Action> T getAction(Class<T> type) {
                 if (type == TimingAction.class) {
                     return (T) endTime;

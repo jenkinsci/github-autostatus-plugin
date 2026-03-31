@@ -40,12 +40,13 @@ import org.junit.jupiter.api.Test;
 public class BuildQueueListenerTest {
 
     @Test
+    @SuppressWarnings("unchecked")
     public void testEnterBlockedPlaceHolder() throws Exception {
 
         Run run = mock(Run.class);
 
         ExecutorStepExecution.PlaceholderTask task = mock(ExecutorStepExecution.PlaceholderTask.class);
-        when(task.run()).thenReturn(run);
+        when(task.run()).thenReturn((Run) run);
 
         BlockedItem item = mock(BlockedItem.class);
 
@@ -92,6 +93,7 @@ public class BuildQueueListenerTest {
     }
 
     @Test
+    @SuppressWarnings("unchecked")
     public void testLeaveBlockedUpdatesAction() throws Exception {
 
         Run run = mock(Run.class);
@@ -99,7 +101,7 @@ public class BuildQueueListenerTest {
         when(run.getAction(BuildBlockedAction.class)).thenReturn(buildBlockedAction);
 
         ExecutorStepExecution.PlaceholderTask task = mock(ExecutorStepExecution.PlaceholderTask.class);
-        when(task.run()).thenReturn(run);
+        when(task.run()).thenReturn((Run) run);
 
         BlockedItem item = mock(BlockedItem.class);
 
