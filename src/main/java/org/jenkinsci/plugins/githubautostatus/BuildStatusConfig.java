@@ -51,6 +51,7 @@ import jenkins.model.GlobalConfiguration;
 import jenkins.model.Jenkins;
 import net.sf.json.JSONObject;
 import org.apache.commons.lang.StringUtils;
+import org.jenkinsci.Symbol;
 import org.jenkinsci.plugins.githubautostatus.model.BuildStage;
 import org.jenkinsci.plugins.githubautostatus.model.BuildState;
 import org.kohsuke.stapler.AncestorInPath;
@@ -64,6 +65,7 @@ import org.kohsuke.stapler.StaplerRequest;
  * @author Jeff Pearce (GitHub jeffpearce)
  */
 @Extension
+@Symbol("buildStatusConfig")
 public class BuildStatusConfig extends GlobalConfiguration {
 
     private String credentialsId;
