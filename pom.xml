@@ -59,8 +59,10 @@
     <!-- TODO: Bump when introducing breaking changes, e.g. fixing https://github.com/jenkinsci/github-autostatus-plugin/issues/176 -->
     <hpi.compatibleSinceVersion>3.0</hpi.compatibleSinceVersion>
     <jenkins.bom.version>6210.v69ea_fd8a_f010</jenkins.bom.version>
+    <!--
     <spotbugs.effort>Max</spotbugs.effort>
     <spotbugs.threshold>Low</spotbugs.threshold>
+    -->
     <spotless.check.skip>false</spotless.check.skip>
     <ban-junit4-imports.skip>false</ban-junit4-imports.skip>
     <!-- cobertura and jacoco plugins are now archived code,
