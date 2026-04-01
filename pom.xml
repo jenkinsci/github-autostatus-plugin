@@ -244,6 +244,15 @@
             <plugin>
                 <groupId>com.diffplug.spotless</groupId>
                 <artifactId>spotless-maven-plugin</artifactId>
+                <configuration>
+                    <!--
+                    On Windows, spotless might convert the line endings of these files to LF.
+                    We're instructing it to respect the line-ending definitions in .gitattributes
+                    for these files.
+                    For more details, please refer to https://github.com/apache/hbase/pull/7087
+                    -->
+                    <lineEndings>GIT_ATTRIBUTES</lineEndings>
+                </configuration>
                 <executions>
                     <execution>
                         <id>spotless-check</id>
