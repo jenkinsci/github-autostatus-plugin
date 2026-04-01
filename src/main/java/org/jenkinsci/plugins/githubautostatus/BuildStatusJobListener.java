@@ -29,19 +29,18 @@ import hudson.model.listeners.RunListener;
 import hudson.plugins.cobertura.CoberturaBuildAction;
 import hudson.plugins.jacoco.JacocoBuildAction;
 import hudson.tasks.junit.TestResultAction;
+import java.util.Collections;
+import java.util.HashMap;
+import java.util.Map;
+import java.util.logging.Level;
+import java.util.logging.Logger;
+import javax.annotation.Nonnull;
 import org.jenkinsci.plugins.githubautostatus.config.HttpNotifierConfig;
 import org.jenkinsci.plugins.githubautostatus.config.InfluxDbNotifierConfig;
 import org.jenkinsci.plugins.githubautostatus.model.BuildStage;
 import org.jenkinsci.plugins.githubautostatus.model.CodeCoverage;
 import org.jenkinsci.plugins.githubautostatus.model.TestResults;
 import org.jenkinsci.plugins.githubautostatus.notifiers.BuildNotifierConstants;
-
-import javax.annotation.Nonnull;
-import java.util.Collections;
-import java.util.HashMap;
-import java.util.Map;
-import java.util.logging.Level;
-import java.util.logging.Logger;
 
 /**
  * Implements {@link RunListener} extension point to
@@ -77,7 +76,11 @@ public class BuildStatusJobListener extends RunListener<Run<?, ?>> {
 
             Result result = build.getResult();
             if (result == null) {
-                log(Level.WARNING, String.format("Could not get result of build \"%s\". Notifications are ignored.", statusAction.getRepoName()));
+                log(
+                        Level.WARNING,
+                        String.format(
+                                "Could not get result of build \"%s\". Notifications are ignored.",
+                                statusAction.getRepoName()));
                 return;
             }
             statusAction.updateBuildStatusForJob(BuildStage.State.fromResult(result), parameters);

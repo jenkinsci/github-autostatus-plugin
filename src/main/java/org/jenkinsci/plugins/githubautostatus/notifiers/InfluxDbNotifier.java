@@ -26,17 +26,6 @@ package org.jenkinsci.plugins.githubautostatus.notifiers;
 import com.cloudbees.plugins.credentials.common.UsernamePasswordCredentials;
 import hudson.model.Cause;
 import hudson.model.Run;
-import org.apache.commons.lang.StringUtils;
-import org.apache.http.HttpEntity;
-import org.apache.http.client.methods.CloseableHttpResponse;
-import org.apache.http.client.methods.HttpPost;
-import org.apache.http.entity.StringEntity;
-import org.apache.http.impl.client.CloseableHttpClient;
-import org.apache.http.util.EntityUtils;
-import org.jenkinsci.plugins.githubautostatus.config.InfluxDbNotifierConfig;
-import org.jenkinsci.plugins.githubautostatus.model.*;
-
-import javax.annotation.Nullable;
 import java.io.IOException;
 import java.io.UnsupportedEncodingException;
 import java.net.URLEncoder;
@@ -50,6 +39,16 @@ import java.util.List;
 import java.util.Map;
 import java.util.logging.Level;
 import java.util.logging.Logger;
+import javax.annotation.Nullable;
+import org.apache.commons.lang.StringUtils;
+import org.apache.http.HttpEntity;
+import org.apache.http.client.methods.CloseableHttpResponse;
+import org.apache.http.client.methods.HttpPost;
+import org.apache.http.entity.StringEntity;
+import org.apache.http.impl.client.CloseableHttpClient;
+import org.apache.http.util.EntityUtils;
+import org.jenkinsci.plugins.githubautostatus.config.InfluxDbNotifierConfig;
+import org.jenkinsci.plugins.githubautostatus.model.*;
 
 /**
  * Writes job and stage measurements to an InfluxDB REST API.
@@ -81,8 +80,9 @@ public class InfluxDbNotifier extends BuildNotifier {
                 String influxDbUser = credentials.getUsername();
                 String influxDbPassword = credentials.getPassword().getPlainText();
 
-                authorization = Base64.getEncoder().encodeToString(
-                        String.format("%s:%s", influxDbUser, influxDbPassword).getBytes(StandardCharsets.UTF_8));
+                authorization = Base64.getEncoder()
+                        .encodeToString(String.format("%s:%s", influxDbUser, influxDbPassword)
+                                .getBytes(StandardCharsets.UTF_8));
             }
             if (!StringUtils.isEmpty(config.getInfluxDbRetentionPolicy())) {
                 urlString = urlString.concat(
@@ -110,7 +110,6 @@ public class InfluxDbNotifier extends BuildNotifier {
         }
     }
 
-
     /**
      * Determines whether this notifier is enabled.
      *
@@ -120,7 +119,6 @@ public class InfluxDbNotifier extends BuildNotifier {
     public boolean isEnabled() {
         return this.config != null;
     }
-
 
     /**
      * Get whether the notifier wants to know about errors that happen outside of a stage.
@@ -149,17 +147,19 @@ public class InfluxDbNotifier extends BuildNotifier {
         Cause cause = stageItem.getRun().getCause(Cause.class);
         String buildCause = cause == null ? BuildNotifierConstants.DEFAULT_STRING : cause.getShortDescription();
 
-        String data = config.getSchema().formatStage(jobName,
-                repoOwner,
-                repoName,
-                branchName,
-                stageItem.getStageName(),
-                stageItem.getBuildState().toString(),
-                stageItem.getDuration(),
-                stageItem.isPassed() ? 1 : 0,
-                buildUrl,
-                buildNumber,
-                buildCause);
+        String data = config.getSchema()
+                .formatStage(
+                        jobName,
+                        repoOwner,
+                        repoName,
+                        branchName,
+                        stageItem.getStageName(),
+                        stageItem.getBuildState().toString(),
+                        stageItem.getDuration(),
+                        stageItem.isPassed() ? 1 : 0,
+                        buildUrl,
+                        buildNumber,
+                        buildCause);
 
         postData(data);
     }
@@ -173,7 +173,8 @@ public class InfluxDbNotifier extends BuildNotifier {
     @Override
     public void notifyFinalBuildStatus(BuildStage.State buildState, Map<String, Object> parameters) {
         Run<?, ?> run = (Run<?, ?>) parameters.get(BuildNotifierConstants.BUILD_OBJECT);
-        String jobName = (String) parameters.getOrDefault(BuildNotifierConstants.JOB_NAME, BuildNotifierConstants.DEFAULT_STRING);
+        String jobName = (String)
+                parameters.getOrDefault(BuildNotifierConstants.JOB_NAME, BuildNotifierConstants.DEFAULT_STRING);
         int passed = buildState == BuildStage.State.CompletedSuccess ? 1 : 0;
         long blockedDuration = BuildNotifierConstants.getLong(parameters, BuildNotifierConstants.BLOCKED_DURATION);
         int blocked = blockedDuration > 0 ? 1 : 0;
@@ -182,18 +183,21 @@ public class InfluxDbNotifier extends BuildNotifier {
         Cause cause = run.getCause(Cause.class);
         String buildCause = cause == null ? BuildNotifierConstants.DEFAULT_STRING : cause.getShortDescription();
 
-        String data = config.getSchema().formatJob(jobName,
-                repoOwner,
-                repoName,
-                branchName,
-                buildState.toString(),
-                blocked,
-                BuildNotifierConstants.getLong(parameters, BuildNotifierConstants.JOB_DURATION) - blockedDuration,
-                blockedDuration,
-                passed,
-                buildUrl,
-                buildNumber,
-                buildCause);
+        String data = config.getSchema()
+                .formatJob(
+                        jobName,
+                        repoOwner,
+                        repoName,
+                        branchName,
+                        buildState.toString(),
+                        blocked,
+                        BuildNotifierConstants.getLong(parameters, BuildNotifierConstants.JOB_DURATION)
+                                - blockedDuration,
+                        blockedDuration,
+                        passed,
+                        buildUrl,
+                        buildNumber,
+                        buildCause);
 
         postData(data);
 
@@ -212,20 +216,22 @@ public class InfluxDbNotifier extends BuildNotifier {
             Cause cause = run.getCause(Cause.class);
             String buildCause = cause == null ? BuildNotifierConstants.DEFAULT_STRING : cause.getShortDescription();
 
-            String data = config.getSchema().formatCoverage(jobName,
-                    repoOwner,
-                    repoName,
-                    branchName,
-                    coverageInfo.getClasses(),
-                    coverageInfo.getConditionals(),
-                    coverageInfo.getFiles(),
-                    coverageInfo.getLines(),
-                    coverageInfo.getMethods(),
-                    coverageInfo.getPackages(),
-                    coverageInfo.getInstructions(),
-                    buildUrl,
-                    buildNumber,
-                    buildCause);
+            String data = config.getSchema()
+                    .formatCoverage(
+                            jobName,
+                            repoOwner,
+                            repoName,
+                            branchName,
+                            coverageInfo.getClasses(),
+                            coverageInfo.getConditionals(),
+                            coverageInfo.getFiles(),
+                            coverageInfo.getLines(),
+                            coverageInfo.getMethods(),
+                            coverageInfo.getPackages(),
+                            coverageInfo.getInstructions(),
+                            buildUrl,
+                            buildNumber,
+                            buildCause);
 
             postData(data);
         }
@@ -238,19 +244,21 @@ public class InfluxDbNotifier extends BuildNotifier {
             Cause cause = run.getCause(Cause.class);
             String buildCause = cause == null ? BuildNotifierConstants.DEFAULT_STRING : cause.getShortDescription();
 
-            String data = config.getSchema().formatTests(jobName,
-                    repoOwner,
-                    repoName,
-                    branchName,
-                    testResults.getPassedTestCaseCount(),
-                    testResults.getSkippedTestCaseCount(),
-                    testResults.getFailedTestCaseCount(),
-                    buildUrl,
-                    buildNumber,
-                    buildCause);
+            String data = config.getSchema()
+                    .formatTests(
+                            jobName,
+                            repoOwner,
+                            repoName,
+                            branchName,
+                            testResults.getPassedTestCaseCount(),
+                            testResults.getSkippedTestCaseCount(),
+                            testResults.getFailedTestCaseCount(),
+                            buildUrl,
+                            buildNumber,
+                            buildCause);
 
             postData(data);
-	    
+
             for (TestSuite testSuite : testResults.getTestSuites()) {
                 notifyTestSuite(jobName, testSuite, run);
             }
@@ -263,27 +271,28 @@ public class InfluxDbNotifier extends BuildNotifier {
         int buildNumber = run.getNumber();
         Cause cause = run.getCause(Cause.class);
         String buildCause = cause == null ? BuildNotifierConstants.DEFAULT_STRING : cause.getShortDescription();
-	List<String> testSuiteQuery = new ArrayList<>();
+        List<String> testSuiteQuery = new ArrayList<>();
 
-        String data = config.getSchema().formatTestSuite(jobName,
-                repoOwner,
-                repoName,
-                branchName,
-                suiteName,
-                testSuite.getDuration(),
-                testSuite.getPassedTestCaseCount(),
-                testSuite.getSkippedTestCaseCount(),
-                testSuite.getFailedTestCaseCount(),
-                buildUrl,
-                buildNumber,
-                buildCause);
+        String data = config.getSchema()
+                .formatTestSuite(
+                        jobName,
+                        repoOwner,
+                        repoName,
+                        branchName,
+                        suiteName,
+                        testSuite.getDuration(),
+                        testSuite.getPassedTestCaseCount(),
+                        testSuite.getSkippedTestCaseCount(),
+                        testSuite.getFailedTestCaseCount(),
+                        buildUrl,
+                        buildNumber,
+                        buildCause);
 
-	testSuiteQuery.add(data);
+        testSuiteQuery.add(data);
         for (TestCase testCase : testSuite.getTestCases()) {
             testSuiteQuery.add(notifyTestCase(jobName, suiteName, testCase, run));
         }
-	postData(String.join("\\n", testSuiteQuery));
-	
+        postData(String.join("\\n", testSuiteQuery));
     }
 
     private String notifyTestCase(String jobName, String suiteName, TestCase testCase, Run<?, ?> run) {
@@ -292,20 +301,22 @@ public class InfluxDbNotifier extends BuildNotifier {
         Cause cause = run.getCause(Cause.class);
         String buildCause = cause == null ? BuildNotifierConstants.DEFAULT_STRING : cause.getShortDescription();
 
-        String data = config.getSchema().formatTestCase(jobName,
-                repoOwner,
-                repoName,
-                branchName,
-                suiteName,
-                testCase.getName(),
-                testCase.getPassedCount(),
-                testCase.getSkippedCount(),
-                testCase.getFailedCount(),
-                buildUrl,
-                buildNumber,
-                buildCause);
+        String data = config.getSchema()
+                .formatTestCase(
+                        jobName,
+                        repoOwner,
+                        repoName,
+                        branchName,
+                        suiteName,
+                        testCase.getName(),
+                        testCase.getPassedCount(),
+                        testCase.getSkippedCount(),
+                        testCase.getFailedCount(),
+                        buildUrl,
+                        buildNumber,
+                        buildCause);
 
-	return data;
+        return data;
     }
 
     /**
@@ -316,8 +327,8 @@ public class InfluxDbNotifier extends BuildNotifier {
     private synchronized void postData(String seriesInfo) {
         try (CloseableHttpClient httpclient = config.getHttpClient(false)) {
             HttpPost httppost = new HttpPost(influxDbUrlString);
-            
-            httppost.setEntity(new StringEntity(seriesInfo,"UTF-8"));
+
+            httppost.setEntity(new StringEntity(seriesInfo, "UTF-8"));
 
             if (!StringUtils.isEmpty(authorization)) {
                 httppost.setHeader("Authorization", String.format("Basic %s", authorization));
@@ -337,7 +348,6 @@ public class InfluxDbNotifier extends BuildNotifier {
                         String reason = EntityUtils.toString(entity, StandardCharsets.UTF_8);
                         log(Level.WARNING, "%s", reason);
                     }
-
                 }
             }
         } catch (IOException | KeyStoreException | NoSuchAlgorithmException | KeyManagementException ex) {

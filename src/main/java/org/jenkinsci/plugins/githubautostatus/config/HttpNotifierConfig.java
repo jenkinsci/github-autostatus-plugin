@@ -2,9 +2,8 @@ package org.jenkinsci.plugins.githubautostatus.config;
 
 import com.cloudbees.plugins.credentials.common.UsernamePasswordCredentials;
 import com.google.common.base.Strings;
-import org.jenkinsci.plugins.githubautostatus.BuildStatusConfig;
-
 import javax.annotation.CheckForNull;
+import org.jenkinsci.plugins.githubautostatus.BuildStatusConfig;
 
 /**
  * Encapsulates the logic of determining HTTP notifier configuration for a build.
@@ -81,10 +80,9 @@ public class HttpNotifierConfig extends AbstractNotifierConfig {
      */
     @CheckForNull
     public UsernamePasswordCredentials getCredentials() {
-        return !Strings.isNullOrEmpty(httpCredentialsId) ?
-                BuildStatusConfig.getCredentials(UsernamePasswordCredentials.class,
-                        httpCredentialsId) :
-                null;
+        return !Strings.isNullOrEmpty(httpCredentialsId)
+                ? BuildStatusConfig.getCredentials(UsernamePasswordCredentials.class, httpCredentialsId)
+                : null;
     }
 
     public static HttpNotifierConfig fromGlobalConfig(String repoOwner, String repoName, String branchName) {

@@ -23,15 +23,14 @@
  */
 package org.jenkinsci.plugins.githubautostatus.notifiers;
 
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Map;
 import org.jenkinsci.plugins.githubautostatus.StatsdNotifierConfig;
 import org.jenkinsci.plugins.githubautostatus.config.GithubNotificationConfig;
 import org.jenkinsci.plugins.githubautostatus.config.HttpNotifierConfig;
 import org.jenkinsci.plugins.githubautostatus.config.InfluxDbNotifierConfig;
 import org.jenkinsci.plugins.githubautostatus.model.BuildStage;
-
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Map;
 
 /**
  * Manages send build notifications to one or more notifiers.
@@ -67,7 +66,8 @@ public class BuildNotifierManager {
      * @return the notifier which was added
      */
     public BuildNotifier addGithubNotifier(GithubNotificationConfig config) {
-        GithubBuildNotifier buildNotifier = new GithubBuildNotifier(config.getRepo(), config.getShaString(), this.targetUrl, config);
+        GithubBuildNotifier buildNotifier =
+                new GithubBuildNotifier(config.getRepo(), config.getShaString(), this.targetUrl, config);
         return addBuildNotifier(buildNotifier);
     }
 

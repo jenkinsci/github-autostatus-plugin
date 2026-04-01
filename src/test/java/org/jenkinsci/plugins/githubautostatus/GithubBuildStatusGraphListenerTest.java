@@ -23,9 +23,17 @@
  */
 package org.jenkinsci.plugins.githubautostatus;
 
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.mockito.Mockito.*;
+
 import hudson.model.AbstractBuild;
 import hudson.model.Action;
 import hudson.model.Queue.Executable;
+import java.io.IOException;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.List;
+import java.util.stream.Collectors;
 import org.jenkinsci.plugins.githubautostatus.config.GithubNotificationConfig;
 import org.jenkinsci.plugins.githubautostatus.model.BuildStage;
 import org.jenkinsci.plugins.pipeline.StageStatus;
@@ -41,21 +49,10 @@ import org.jenkinsci.plugins.workflow.flow.FlowExecution;
 import org.jenkinsci.plugins.workflow.flow.FlowExecutionOwner;
 import org.jenkinsci.plugins.workflow.graph.FlowNode;
 import org.jenkinsci.plugins.workflow.graph.FlowStartNode;
-
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
-
 import org.mockito.MockedStatic;
-
-import java.io.IOException;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.List;
-import java.util.stream.Collectors;
-
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.mockito.Mockito.*;
 
 /**
  *
@@ -81,7 +78,9 @@ public class GithubBuildStatusGraphListenerTest {
 
         GithubNotificationConfig githubConfig = mock(GithubNotificationConfig.class);
         githubNotificationConfigStatic = mockStatic(GithubNotificationConfig.class);
-        githubNotificationConfigStatic.when(() -> GithubNotificationConfig.fromRun(any(), any())).thenReturn(githubConfig);
+        githubNotificationConfigStatic
+                .when(() -> GithubNotificationConfig.fromRun(any(), any()))
+                .thenReturn(githubConfig);
 
         when(githubConfig.getRepoOwner()).thenReturn(repoOwner);
         when(githubConfig.getRepoName()).thenReturn(repoName);
@@ -141,7 +140,16 @@ public class GithubBuildStatusGraphListenerTest {
         innerStages.getStages().get(2).setStages(innerInnerStages);
         stages.getStages().get(1).setParallelContent(parallelStages.getStages());
         // Create a linear list of the pipeline stages for comparison
-        List<String> fullStageList = Arrays.asList(new String[]{"Outer Stage 1", "Inner Stage 1", "Inner Stage 2", "Inner Stage 3", "Inner Inner Stage 1", "Outer Stage 2", "Parallel Stage 1", "Parallel Stage 2"});
+        List<String> fullStageList = Arrays.asList(new String[] {
+            "Outer Stage 1",
+            "Inner Stage 1",
+            "Inner Stage 2",
+            "Inner Stage 3",
+            "Inner Inner Stage 1",
+            "Outer Stage 2",
+            "Parallel Stage 1",
+            "Parallel Stage 2"
+        });
 
         when(executionModel.getStages()).thenReturn(stages);
 
@@ -149,7 +157,11 @@ public class GithubBuildStatusGraphListenerTest {
         instance.onNewHead(stageNode);
         verify(build).addAction(any(BuildStatusAction.class));
         // Check that the pipeline stages found match the list of expected stages
-        assertEquals(fullStageList, GithubBuildStatusGraphListener.getDeclarativeStages(build).stream().map(BuildStage::getStageName).collect(Collectors.toList()));
+        assertEquals(
+                fullStageList,
+                GithubBuildStatusGraphListener.getDeclarativeStages(build).stream()
+                        .map(BuildStage::getStageName)
+                        .collect(Collectors.toList()));
     }
 
     @Test
@@ -199,6 +211,7 @@ public class GithubBuildStatusGraphListenerTest {
             }
 
             @Override
+            @SuppressWarnings("unchecked")
             public <T extends Action> T getAction(Class<T> type) {
                 if (type == TimingAction.class) {
                     return (T) endTime;
@@ -253,7 +266,7 @@ public class GithubBuildStatusGraphListenerTest {
     @Test
     public void testBuildStateForStageWithTag() throws IOException {
         CpsFlowExecution execution = mock(CpsFlowExecution.class);
-        StepStartNode stageStartNode = mock (StepStartNode.class);
+        StepStartNode stageStartNode = mock(StepStartNode.class);
         StepEndNode stageEndNode = new StepEndNode(execution, stageStartNode, mock(FlowNode.class));
         TagsAction tag = mock(TagsAction.class);
         stageEndNode.addAction(tag);

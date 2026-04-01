@@ -23,6 +23,8 @@
  */
 package org.jenkinsci.plugins.githubautostatus.config;
 
+import static com.cloudbees.plugins.credentials.CredentialsProvider.lookupCredentials;
+
 import com.cloudbees.plugins.credentials.Credentials;
 import com.cloudbees.plugins.credentials.CredentialsMatchers;
 import com.cloudbees.plugins.credentials.common.UsernamePasswordCredentials;
@@ -31,6 +33,12 @@ import hudson.model.Item;
 import hudson.model.ItemGroup;
 import hudson.model.Run;
 import hudson.security.ACL;
+import java.io.IOException;
+import java.util.Collections;
+import java.util.logging.Level;
+import java.util.logging.Logger;
+import javax.annotation.Nonnull;
+import javax.annotation.Nullable;
 import jenkins.plugins.git.AbstractGitSCMSource;
 import jenkins.scm.api.SCMRevision;
 import jenkins.scm.api.SCMRevisionAction;
@@ -44,15 +52,6 @@ import org.jenkinsci.plugins.workflow.multibranch.WorkflowMultiBranchProject;
 import org.kohsuke.github.GHRepository;
 import org.kohsuke.github.GitHub;
 import org.kohsuke.github.GitHubBuilder;
-
-import javax.annotation.Nonnull;
-import javax.annotation.Nullable;
-import java.io.IOException;
-import java.util.Collections;
-import java.util.logging.Level;
-import java.util.logging.Logger;
-
-import static com.cloudbees.plugins.credentials.CredentialsProvider.lookupCredentials;
 
 /**
  * Encapsulates the logic of determining GitHub configuration for a build.
@@ -216,7 +215,8 @@ public class GithubNotificationConfig {
         }
         SCMRevision revision = scmRevisionAction.getRevision();
         if (revision instanceof AbstractGitSCMSource.SCMRevisionImpl) {
-            branchName = ((AbstractGitSCMSource.SCMRevisionImpl) revision).getHead().getName();
+            branchName =
+                    ((AbstractGitSCMSource.SCMRevisionImpl) revision).getHead().getName();
         } else if (revision instanceof PullRequestSCMRevision) {
             PullRequestSCMHead pullRequestSCMHead = (PullRequestSCMHead) ((PullRequestSCMRevision) revision).getHead();
 
@@ -301,12 +301,14 @@ public class GithubNotificationConfig {
         String userName = null;
         String password = "";
 
-        UsernamePasswordCredentials credentials = getCredentials(UsernamePasswordCredentials.class, credentialsId, build.getParent());
+        UsernamePasswordCredentials credentials =
+                getCredentials(UsernamePasswordCredentials.class, credentialsId, build.getParent());
         if (credentials != null) {
             userName = credentials.getUsername();
             password = credentials.getPassword().getPlainText();
         } else {
-            StringCredentials stringCredentials = getCredentials(StringCredentials.class, credentialsId, build.getParent());
+            StringCredentials stringCredentials =
+                    getCredentials(StringCredentials.class, credentialsId, build.getParent());
             if (stringCredentials != null) {
                 userName = stringCredentials.getId();
                 password = stringCredentials.getSecret().getPlainText();
@@ -332,12 +334,12 @@ public class GithubNotificationConfig {
         return github.getUser(owner).getRepository(name);
     }
 
-    private static <T extends Credentials> T getCredentials(@Nonnull Class<T> type, @Nonnull String credentialsId, Item context) {
-        return CredentialsMatchers.firstOrNull(lookupCredentials(
-                type, context, ACL.SYSTEM,
-                Collections.<DomainRequirement>emptyList()), CredentialsMatchers.allOf(
-                CredentialsMatchers.withId(credentialsId),
-                CredentialsMatchers.instanceOf(type)));
+    private static <T extends Credentials> T getCredentials(
+            @Nonnull Class<T> type, @Nonnull String credentialsId, Item context) {
+        return CredentialsMatchers.firstOrNull(
+                lookupCredentials(type, context, ACL.SYSTEM, Collections.<DomainRequirement>emptyList()),
+                CredentialsMatchers.allOf(
+                        CredentialsMatchers.withId(credentialsId), CredentialsMatchers.instanceOf(type)));
     }
 
     private static void log(Level level, Throwable exception) {

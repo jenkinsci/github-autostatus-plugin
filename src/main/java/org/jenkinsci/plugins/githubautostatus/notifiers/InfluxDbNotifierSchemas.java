@@ -23,7 +23,6 @@
  */
 package org.jenkinsci.plugins.githubautostatus.notifiers;
 
-
 /**
  * Encapsulates the logic of determining influxdb configuration for a build.
  *
@@ -31,10 +30,7 @@ package org.jenkinsci.plugins.githubautostatus.notifiers;
  */
 public class InfluxDbNotifierSchemas {
 
-    private static final SchemaInfo[] schemas = {
-            new SchemaInfo.V1(),
-            new SchemaInfo.V2()
-    };
+    private static final SchemaInfo[] schemas = {new SchemaInfo.V1(), new SchemaInfo.V2()};
 
     public static int getSchemaCount() {
         return schemas.length;
@@ -61,8 +57,10 @@ public class InfluxDbNotifierSchemas {
         private static final String Result = "result";
         private static final String Blocked = "blocked"; // This is for v1 compat; don't use as a tag going forward
         private static final String StageName = "stagename";
+
         @Deprecated
         private static final String Suite = "suite";
+
         private static final String SuiteName = "suitename";
 
         private static class Test {
@@ -95,6 +93,7 @@ public class InfluxDbNotifierSchemas {
         private static class TestSuite {
             @Deprecated
             private static final String Suite = "suite";
+
             private static final String Duration = "duration";
         }
 
@@ -112,97 +111,104 @@ public class InfluxDbNotifierSchemas {
     }
 
     public interface SchemaInfo {
-        public String formatJob(String jobName,
-                                String owner,
-                                String repo,
-                                String branch,
-                                String result,
-                                int blocked,
-                                long jobtime,
-                                long blockedtime,
-                                int passed,
-                                String buildUrl,
-                                int buildNumber,
-                                String buildCause);
+        public String formatJob(
+                String jobName,
+                String owner,
+                String repo,
+                String branch,
+                String result,
+                int blocked,
+                long jobtime,
+                long blockedtime,
+                int passed,
+                String buildUrl,
+                int buildNumber,
+                String buildCause);
 
-        public String formatStage(String jobName,
-                                  String owner,
-                                  String repo,
-                                  String branch,
-                                  String stageName,
-                                  String result,
-                                  long stageTime,
-                                  int passed,
-                                  String buildUrl,
-                                  int buildNumber,
-                                  String buildCause);
+        public String formatStage(
+                String jobName,
+                String owner,
+                String repo,
+                String branch,
+                String stageName,
+                String result,
+                long stageTime,
+                int passed,
+                String buildUrl,
+                int buildNumber,
+                String buildCause);
 
-        public String formatCoverage(String jobName,
-                                     String owner,
-                                     String repo,
-                                     String branch,
-                                     float classes,
-                                     float conditionals,
-                                     float files,
-                                     float lines,
-                                     float methods,
-                                     float packages,
-                                     float instructions,
-                                     String buildUrl,
-                                     int buildNumber,
-                                     String buildCause);
+        public String formatCoverage(
+                String jobName,
+                String owner,
+                String repo,
+                String branch,
+                float classes,
+                float conditionals,
+                float files,
+                float lines,
+                float methods,
+                float packages,
+                float instructions,
+                String buildUrl,
+                int buildNumber,
+                String buildCause);
 
-        public String formatTests(String jobName,
-                                  String owner,
-                                  String repo,
-                                  String branch,
-                                  int passed,
-                                  int skipped,
-                                  int failed,
-                                  String buildUrl,
-                                  int buildNumber,
-                                  String buildCause);
+        public String formatTests(
+                String jobName,
+                String owner,
+                String repo,
+                String branch,
+                int passed,
+                int skipped,
+                int failed,
+                String buildUrl,
+                int buildNumber,
+                String buildCause);
 
-        public String formatTestSuite(String jobName,
-                                      String owner,
-                                      String repo,
-                                      String branch,
-                                      String suite,
-                                      float duration,
-                                      int passed,
-                                      int skipped,
-                                      int failed,
-                                      String buildUrl,
-                                      int buildNumber,
-                                      String buildCause);
+        public String formatTestSuite(
+                String jobName,
+                String owner,
+                String repo,
+                String branch,
+                String suite,
+                float duration,
+                int passed,
+                int skipped,
+                int failed,
+                String buildUrl,
+                int buildNumber,
+                String buildCause);
 
-        public String formatTestCase(String jobName,
-                                     String owner,
-                                     String repo,
-                                     String branch,
-                                     String suite,
-                                     String testCase,
-                                     int passed,
-                                     int skipped,
-                                     int failed,
-                                     String buildUrl,
-                                     int buildNumber,
-                                     String buildCause);
+        public String formatTestCase(
+                String jobName,
+                String owner,
+                String repo,
+                String branch,
+                String suite,
+                String testCase,
+                int passed,
+                int skipped,
+                int failed,
+                String buildUrl,
+                int buildNumber,
+                String buildCause);
 
         public class V1 implements SchemaInfo {
             // "job,jobname=%s,owner=%s,repo=%s,branch=%s,result=%s,blocked=%d jobtime=%d,blockedtime=%d,passed=%d",
-            public String formatJob(String jobName,
-                                    String owner,
-                                    String repo,
-                                    String branch,
-                                    String result,
-                                    int blocked,
-                                    long jobtime,
-                                    long blockedtime,
-                                    int passed,
-                                    String buildUrl,
-                                    int buildNumber,
-                                    String buildCause) {
+            public String formatJob(
+                    String jobName,
+                    String owner,
+                    String repo,
+                    String branch,
+                    String result,
+                    int blocked,
+                    long jobtime,
+                    long blockedtime,
+                    int passed,
+                    String buildUrl,
+                    int buildNumber,
+                    String buildCause) {
                 return new InfluxDbLineBuilder(SeriesNames.Job)
                         .appendTagValue(TagNames.Jobname, jobName)
                         .appendTagValue(TagNames.Owner, owner)
@@ -210,26 +216,25 @@ public class InfluxDbNotifierSchemas {
                         .appendTagValue(TagNames.Branch, branch)
                         .appendTagValue(TagNames.Result, result)
                         .appendTagValue(TagNames.Blocked, blocked)
-
                         .appendFieldValue(FieldNames.JobTime, jobtime)
                         .appendFieldValue(FieldNames.BlockedTime, blockedtime)
                         .appendFieldValue(FieldNames.Passed, passed)
-
                         .build();
             }
 
             // "stage,jobname=%s,owner=%s,repo=%s,branch=%s,stagename=%s,result=%s stagetime=%d,passed=%d"
-            public String formatStage(String jobName,
-                                      String owner,
-                                      String repo,
-                                      String branch,
-                                      String stageName,
-                                      String result,
-                                      long stageTime,
-                                      int passed,
-                                      String buildUrl,
-                                      int buildNumber,
-                                      String buildCause) {
+            public String formatStage(
+                    String jobName,
+                    String owner,
+                    String repo,
+                    String branch,
+                    String stageName,
+                    String result,
+                    long stageTime,
+                    int passed,
+                    String buildUrl,
+                    int buildNumber,
+                    String buildCause) {
                 return new InfluxDbLineBuilder(SeriesNames.Stage)
                         .appendTagValue(TagNames.Jobname, jobName)
                         .appendTagValue(TagNames.Owner, owner)
@@ -237,108 +242,106 @@ public class InfluxDbNotifierSchemas {
                         .appendTagValue(TagNames.Branch, branch)
                         .appendTagValue(TagNames.StageName, stageName)
                         .appendTagValue(TagNames.Result, result)
-
                         .appendFieldValue(FieldNames.StageTime, stageTime)
                         .appendFieldValue(FieldNames.Passed, passed)
-
                         .build();
             }
 
-            // coverage,jobname=%s,owner=%s,repo=%s,branch=%s "classes=%f,conditionals=%f,files=%f,lines=%f,methods=%f,packages=%f
-            public String formatCoverage(String jobName,
-                                         String owner,
-                                         String repo,
-                                         String branch,
-                                         float classes,
-                                         float conditionals,
-                                         float files,
-                                         float lines,
-                                         float methods,
-                                         float packages,
-                                         float instructions,
-                                         String buildUrl,
-                                         int buildNumber,
-                                         String buildCause) {
+            // coverage,jobname=%s,owner=%s,repo=%s,branch=%s
+            // "classes=%f,conditionals=%f,files=%f,lines=%f,methods=%f,packages=%f
+            public String formatCoverage(
+                    String jobName,
+                    String owner,
+                    String repo,
+                    String branch,
+                    float classes,
+                    float conditionals,
+                    float files,
+                    float lines,
+                    float methods,
+                    float packages,
+                    float instructions,
+                    String buildUrl,
+                    int buildNumber,
+                    String buildCause) {
                 return new InfluxDbLineBuilder(SeriesNames.Coverage)
                         .appendTagValue(TagNames.Jobname, jobName)
                         .appendTagValue(TagNames.Owner, owner)
                         .appendTagValue(TagNames.Repo, repo)
                         .appendTagValue(TagNames.Branch, branch)
-
                         .appendFieldValue(FieldNames.Coverage.Classes, classes)
                         .appendFieldValue(FieldNames.Coverage.Conditionals, conditionals)
                         .appendFieldValue(FieldNames.Coverage.Files, files)
                         .appendFieldValue(FieldNames.Coverage.Lines, lines)
                         .appendFieldValue(FieldNames.Coverage.Methods, methods)
                         .appendFieldValue(FieldNames.Coverage.Packages, packages)
-
                         .build();
             }
 
             // tests,jobname=%s,owner=%s,repo=%s,branch=%s passed=%d,skipped=%d,failed=%d"
-            public String formatTests(String jobName,
-                                      String owner,
-                                      String repo,
-                                      String branch,
-                                      int passed,
-                                      int skipped,
-                                      int failed,
-                                      String buildUrl,
-                                      int buildNumber,
-                                      String buildCause) {
+            public String formatTests(
+                    String jobName,
+                    String owner,
+                    String repo,
+                    String branch,
+                    int passed,
+                    int skipped,
+                    int failed,
+                    String buildUrl,
+                    int buildNumber,
+                    String buildCause) {
                 return new InfluxDbLineBuilder(SeriesNames.Tests)
                         .appendTagValue(TagNames.Jobname, jobName)
                         .appendTagValue(TagNames.Owner, owner)
                         .appendTagValue(TagNames.Repo, repo)
                         .appendTagValue(TagNames.Branch, branch)
-
                         .appendFieldValue(FieldNames.Test.Passed, passed)
                         .appendFieldValue(FieldNames.Test.Skipped, skipped)
                         .appendFieldValue(FieldNames.Test.Failed, failed)
-
                         .build();
             }
 
             // "testsuite,jobname=%s,owner=%s,repo=%s,branch=%s,suite=%s passed=%d,skipped=%d,failed=%d"
-            public String formatTestSuite(String jobName,
-                                          String owner,
-                                          String repo,
-                                          String branch,
-                                          String suite,
-                                          float duration,
-                                          int passed,
-                                          int skipped,
-                                          int failed,
-                                          String buildUrl,
-                                          int buildNumber,
-                                          String buildCause) {
+            public String formatTestSuite(
+                    String jobName,
+                    String owner,
+                    String repo,
+                    String branch,
+                    String suite,
+                    float duration,
+                    int passed,
+                    int skipped,
+                    int failed,
+                    String buildUrl,
+                    int buildNumber,
+                    String buildCause) {
                 return new InfluxDbLineBuilder(SeriesNames.TestSuite)
                         .appendTagValue(TagNames.Jobname, jobName)
                         .appendTagValue(TagNames.Owner, owner)
                         .appendTagValue(TagNames.Repo, repo)
                         .appendTagValue(TagNames.Branch, branch)
                         .appendTagValue(TagNames.Test.Suite, suite)
-
                         .appendFieldValue(FieldNames.TestSuite.Duration, duration)
                         .appendFieldValue(FieldNames.Test.Passed, passed)
                         .appendFieldValue(FieldNames.Test.Skipped, skipped)
                         .appendFieldValue(FieldNames.Test.Failed, failed)
-
                         .build();
             }
 
             // "testcase,jobname=%s,owner=%s,repo=%s,branch=%s,suite=%s,testcase=%s passed=%d,skipped=%d,failed=%d"
-            public String formatTestCase(String jobName,
-                                         String owner,
-                                         String repo,
-                                         String branch,
-                                         String suite, String testCase,
-                                         int passed,
-                                         int skipped,
-                                         int failed,
-                                         String buildUrl,
-                                         int buildNumber,
-                                         String buildCause) {
+            public String formatTestCase(
+                    String jobName,
+                    String owner,
+                    String repo,
+                    String branch,
+                    String suite,
+                    String testCase,
+                    int passed,
+                    int skipped,
+                    int failed,
+                    String buildUrl,
+                    int buildNumber,
+                    String buildCause) {
                 return new InfluxDbLineBuilder(SeriesNames.TestCase)
                         .appendTagValue(TagNames.Jobname, jobName)
                         .appendTagValue(TagNames.Owner, owner)
@@ -346,34 +349,32 @@ public class InfluxDbNotifierSchemas {
                         .appendTagValue(TagNames.Branch, branch)
                         .appendTagValue(TagNames.Test.Suite, suite)
                         .appendTagValue(TagNames.Test.TestCase, testCase)
-
                         .appendFieldValue(FieldNames.Test.Passed, passed)
                         .appendFieldValue(FieldNames.Test.Skipped, skipped)
                         .appendFieldValue(FieldNames.Test.Failed, failed)
-
                         .build();
             }
         }
 
         public class V2 implements SchemaInfo {
 
-            public String formatJob(String jobName,
-                                    String owner,
-                                    String repo,
-                                    String branch,
-                                    String result,
-                                    int blocked,
-                                    long jobtime,
-                                    long blockedtime,
-                                    int passed,
-                                    String buildUrl,
-                                    int buildNumber,
-                                    String buildCause) {
+            public String formatJob(
+                    String jobName,
+                    String owner,
+                    String repo,
+                    String branch,
+                    String result,
+                    int blocked,
+                    long jobtime,
+                    long blockedtime,
+                    int passed,
+                    String buildUrl,
+                    int buildNumber,
+                    String buildCause) {
                 return new InfluxDbLineBuilder(SeriesNames.Job)
                         .appendTagValue(TagNames.Owner, owner)
                         .appendTagValue(TagNames.Repo, repo)
                         .appendTagValue(TagNames.Result, result)
-
                         .appendFieldValue(FieldNames.JobName, jobName)
                         .appendFieldValue(FieldNames.Branch, branch)
                         .appendFieldValue(FieldNames.Blocked, blocked)
@@ -383,27 +384,26 @@ public class InfluxDbNotifierSchemas {
                         .appendFieldValue(FieldNames.BuildUrl, buildUrl)
                         .appendFieldValue(FieldNames.BuildNumber, buildNumber)
                         .appendFieldValue(FieldNames.Trigger, buildCause)
-
                         .build();
             }
 
-            public String formatStage(String jobName,
-                                      String owner,
-                                      String repo,
-                                      String branch,
-                                      String stageName,
-                                      String result,
-                                      long stageTime,
-                                      int passed,
-                                      String buildUrl,
-                                      int buildNumber,
-                                      String buildCause) {
+            public String formatStage(
+                    String jobName,
+                    String owner,
+                    String repo,
+                    String branch,
+                    String stageName,
+                    String result,
+                    long stageTime,
+                    int passed,
+                    String buildUrl,
+                    int buildNumber,
+                    String buildCause) {
                 return new InfluxDbLineBuilder(SeriesNames.Stage)
                         .appendTagValue(TagNames.Owner, owner)
                         .appendTagValue(TagNames.Repo, repo)
                         .appendTagValue(TagNames.StageName, stageName)
                         .appendTagValue(TagNames.Result, result)
-
                         .appendFieldValue(FieldNames.JobName, jobName)
                         .appendFieldValue(FieldNames.Branch, branch)
                         .appendFieldValue(FieldNames.StageTime, stageTime)
@@ -411,28 +411,27 @@ public class InfluxDbNotifierSchemas {
                         .appendFieldValue(FieldNames.BuildUrl, buildUrl)
                         .appendFieldValue(FieldNames.BuildNumber, buildNumber)
                         .appendFieldValue(FieldNames.Trigger, buildCause)
-
                         .build();
             }
 
-            public String formatCoverage(String jobName,
-                                         String owner,
-                                         String repo,
-                                         String branch,
-                                         float classes,
-                                         float conditionals,
-                                         float files,
-                                         float lines,
-                                         float methods,
-                                         float packages,
-                                         float instructions,
-                                         String buildUrl,
-                                         int buildNumber,
-                                         String buildCause) {
+            public String formatCoverage(
+                    String jobName,
+                    String owner,
+                    String repo,
+                    String branch,
+                    float classes,
+                    float conditionals,
+                    float files,
+                    float lines,
+                    float methods,
+                    float packages,
+                    float instructions,
+                    String buildUrl,
+                    int buildNumber,
+                    String buildCause) {
                 return new InfluxDbLineBuilder(SeriesNames.Coverage)
                         .appendTagValue(TagNames.Owner, owner)
                         .appendTagValue(TagNames.Repo, repo)
-
                         .appendFieldValue(FieldNames.JobName, jobName)
                         .appendFieldValue(FieldNames.Branch, branch)
                         .appendFieldValue(FieldNames.Coverage.Classes, classes)
@@ -445,24 +444,23 @@ public class InfluxDbNotifierSchemas {
                         .appendFieldValue(FieldNames.BuildUrl, buildUrl)
                         .appendFieldValue(FieldNames.BuildNumber, buildNumber)
                         .appendFieldValue(FieldNames.Trigger, buildCause)
-
                         .build();
             }
 
-            public String formatTests(String jobName,
-                                      String owner,
-                                      String repo,
-                                      String branch,
-                                      int passed,
-                                      int skipped,
-                                      int failed,
-                                      String buildUrl,
-                                      int buildNumber,
-                                      String buildCause) {
+            public String formatTests(
+                    String jobName,
+                    String owner,
+                    String repo,
+                    String branch,
+                    int passed,
+                    int skipped,
+                    int failed,
+                    String buildUrl,
+                    int buildNumber,
+                    String buildCause) {
                 return new InfluxDbLineBuilder(SeriesNames.Tests)
                         .appendTagValue(TagNames.Owner, owner)
                         .appendTagValue(TagNames.Repo, repo)
-
                         .appendFieldValue(FieldNames.JobName, jobName)
                         .appendFieldValue(FieldNames.Branch, branch)
                         .appendFieldValue(FieldNames.Test.Passed, passed)
@@ -471,28 +469,26 @@ public class InfluxDbNotifierSchemas {
                         .appendFieldValue(FieldNames.BuildUrl, buildUrl)
                         .appendFieldValue(FieldNames.BuildNumber, buildNumber)
                         .appendFieldValue(FieldNames.Trigger, buildCause)
-
                         .build();
             }
 
-            public String formatTestSuite(String jobName,
-                                          String owner,
-                                          String repo,
-                                          String branch,
-                                          String suite,
-                                          float duration,
-                                          int passed,
-                                          int skipped,
-                                          int failed,
-                                          String buildUrl,
-                                          int buildNumber,
-                                          String buildCause) {
+            public String formatTestSuite(
+                    String jobName,
+                    String owner,
+                    String repo,
+                    String branch,
+                    String suite,
+                    float duration,
+                    int passed,
+                    int skipped,
+                    int failed,
+                    String buildUrl,
+                    int buildNumber,
+                    String buildCause) {
                 return new InfluxDbLineBuilder(SeriesNames.TestSuite)
                         .appendTagValue(TagNames.Owner, owner)
                         .appendTagValue(TagNames.Repo, repo)
                         .appendTagValue(TagNames.SuiteName, suite)
-
-
                         .appendFieldValue(FieldNames.JobName, jobName)
                         .appendFieldValue(FieldNames.Branch, branch)
                         .appendFieldValue(FieldNames.TestSuite.Suite, suite)
@@ -503,27 +499,26 @@ public class InfluxDbNotifierSchemas {
                         .appendFieldValue(FieldNames.BuildUrl, buildUrl)
                         .appendFieldValue(FieldNames.BuildNumber, buildNumber)
                         .appendFieldValue(FieldNames.Trigger, buildCause)
-
                         .build();
             }
 
-            public String formatTestCase(String jobName,
-                                         String owner,
-                                         String repo,
-                                         String branch,
-                                         String suite,
-                                         String testCase,
-                                         int passed,
-                                         int skipped,
-                                         int failed,
-                                         String buildUrl,
-                                         int buildNumber,
-                                         String buildCause) {
+            public String formatTestCase(
+                    String jobName,
+                    String owner,
+                    String repo,
+                    String branch,
+                    String suite,
+                    String testCase,
+                    int passed,
+                    int skipped,
+                    int failed,
+                    String buildUrl,
+                    int buildNumber,
+                    String buildCause) {
                 return new InfluxDbLineBuilder(SeriesNames.TestCase)
                         .appendTagValue(TagNames.Owner, owner)
                         .appendTagValue(TagNames.Repo, repo)
                         .appendTagValue(TagNames.SuiteName, suite)
-
                         .appendFieldValue(FieldNames.JobName, jobName)
                         .appendFieldValue(FieldNames.Branch, branch)
                         .appendFieldValue(TagNames.Suite, suite)
@@ -534,11 +529,8 @@ public class InfluxDbNotifierSchemas {
                         .appendFieldValue(FieldNames.BuildUrl, buildUrl)
                         .appendFieldValue(FieldNames.BuildNumber, buildNumber)
                         .appendFieldValue(FieldNames.Trigger, buildCause)
-
                         .build();
             }
-
         }
-
     }
 }

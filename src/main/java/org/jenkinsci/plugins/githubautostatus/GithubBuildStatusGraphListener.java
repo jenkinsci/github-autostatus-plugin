@@ -27,6 +27,12 @@ import hudson.Extension;
 import hudson.model.Queue;
 import hudson.model.Result;
 import hudson.model.Run;
+import java.io.IOException;
+import java.util.*;
+import java.util.logging.Level;
+import java.util.logging.Logger;
+import java.util.stream.StreamSupport;
+import javax.annotation.CheckForNull;
 import net.sf.json.JSONObject;
 import org.jenkinsci.plugins.displayurlapi.DisplayURLProvider;
 import org.jenkinsci.plugins.githubautostatus.model.BuildStage;
@@ -41,14 +47,6 @@ import org.jenkinsci.plugins.workflow.flow.GraphListener;
 import org.jenkinsci.plugins.workflow.graph.FlowNode;
 import org.jenkinsci.plugins.workflow.graphanalysis.DepthFirstScanner;
 import org.jenkinsci.plugins.workflow.steps.FlowInterruptedException;
-
-import javax.annotation.CheckForNull;
-import java.io.IOException;
-import java.util.*;
-import java.util.logging.Level;
-import java.util.logging.Logger;
-import java.util.stream.StreamSupport;
-
 
 /**
  * GraphListener implementation which provides status (pending, error or
@@ -135,7 +133,7 @@ public class GithubBuildStatusGraphListener implements GraphListener {
                 }
             }
         }
-   }
+    }
 
     static Result resultForStage(FlowNode startNode, FlowNode endNode) {
         Result errorResult = Result.SUCCESS;
@@ -173,8 +171,7 @@ public class GithubBuildStatusGraphListener implements GraphListener {
                 result = Result.FAILURE;
             }
             buildState = BuildStage.State.fromResult(result);
-        }
-        else if (tags != null) {
+        } else if (tags != null) {
             String status = tags.getTagValue(StageStatus.TAG_NAME);
             if (status != null) {
                 if (status.equals(StageStatus.getSkippedForFailure())) {
@@ -192,7 +189,6 @@ public class GithubBuildStatusGraphListener implements GraphListener {
             buildState = BuildStage.State.fromResult(result);
         }
         return buildState;
-
     }
 
     /**
@@ -225,8 +221,10 @@ public class GithubBuildStatusGraphListener implements GraphListener {
             // This filters out labelled steps, such as `sh(script: "echo 'hello'", label: 'echo')`
             return false;
         }
-        return node != null && ((node.getAction(StageAction.class) != null)
-                || (node.getAction(LabelAction.class) != null && node.getAction(ThreadNameAction.class) == null));
+        return node != null
+                && ((node.getAction(StageAction.class) != null)
+                        || (node.getAction(LabelAction.class) != null
+                                && node.getAction(ThreadNameAction.class) == null));
     }
 
     /**
@@ -300,7 +298,6 @@ public class GithubBuildStatusGraphListener implements GraphListener {
             return false;
         }
         return getDeclarativeStages(run) != null;
-
     }
 
     /**
@@ -356,7 +353,10 @@ public class GithubBuildStatusGraphListener implements GraphListener {
                             ModelASTKeyValueOrMethodCallPair arg2 = (ModelASTKeyValueOrMethodCallPair) arg;
                             JSONObject value = (JSONObject) arg2.getValue().toJSON();
 
-                            environmentVariables.put(String.format("%s.%s", option.getName(), arg2.getKey().getKey()),
+                            environmentVariables.put(
+                                    String.format(
+                                            "%s.%s",
+                                            option.getName(), arg2.getKey().getKey()),
                                     value.get("value"));
                         }
                     }

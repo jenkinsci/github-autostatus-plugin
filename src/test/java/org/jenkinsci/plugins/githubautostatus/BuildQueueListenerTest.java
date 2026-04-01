@@ -23,17 +23,15 @@
  */
 package org.jenkinsci.plugins.githubautostatus;
 
+import static org.mockito.Mockito.*;
+
 import hudson.model.Queue.BlockedItem;
 import hudson.model.Queue.NonBlockingTask;
 import hudson.model.Run;
-
 import java.lang.reflect.Field;
 import java.lang.reflect.Modifier;
-
 import org.jenkinsci.plugins.workflow.support.steps.ExecutorStepExecution;
 import org.junit.jupiter.api.Test;
-
-import static org.mockito.Mockito.*;
 
 /**
  *
@@ -42,12 +40,13 @@ import static org.mockito.Mockito.*;
 public class BuildQueueListenerTest {
 
     @Test
+    @SuppressWarnings("unchecked")
     public void testEnterBlockedPlaceHolder() throws Exception {
 
         Run run = mock(Run.class);
 
         ExecutorStepExecution.PlaceholderTask task = mock(ExecutorStepExecution.PlaceholderTask.class);
-        when(task.run()).thenReturn(run);
+        when(task.run()).thenReturn((Run) run);
 
         BlockedItem item = mock(BlockedItem.class);
 
@@ -94,6 +93,7 @@ public class BuildQueueListenerTest {
     }
 
     @Test
+    @SuppressWarnings("unchecked")
     public void testLeaveBlockedUpdatesAction() throws Exception {
 
         Run run = mock(Run.class);
@@ -101,7 +101,7 @@ public class BuildQueueListenerTest {
         when(run.getAction(BuildBlockedAction.class)).thenReturn(buildBlockedAction);
 
         ExecutorStepExecution.PlaceholderTask task = mock(ExecutorStepExecution.PlaceholderTask.class);
-        when(task.run()).thenReturn(run);
+        when(task.run()).thenReturn((Run) run);
 
         BlockedItem item = mock(BlockedItem.class);
 

@@ -23,36 +23,33 @@
  */
 package org.jenkinsci.plugins.githubautostatus.config;
 
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNull;
+import static org.mockito.ArgumentMatchers.*;
+import static org.mockito.Mockito.*;
+
 import com.cloudbees.plugins.credentials.CredentialsMatchers;
 import com.cloudbees.plugins.credentials.CredentialsScope;
 import com.cloudbees.plugins.credentials.impl.UsernamePasswordCredentialsImpl;
 import hudson.model.Run;
+import java.net.Proxy;
+import java.util.Collections;
 import jenkins.plugins.git.AbstractGitSCMSource.SCMRevisionImpl;
 import jenkins.scm.api.SCMRevisionAction;
 import org.jenkinsci.plugins.github_branch_source.BranchSCMHead;
 import org.jenkinsci.plugins.github_branch_source.GitHubSCMSource;
-//import org.jenkinsci.plugins.github_branch_source.PullRequestSCMRevision;
 import org.jenkinsci.plugins.githubautostatus.BuildStatusConfig;
 import org.jenkinsci.plugins.workflow.job.WorkflowJob;
 import org.jenkinsci.plugins.workflow.multibranch.WorkflowMultiBranchProject;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
-
 import org.kohsuke.github.GHRepository;
 import org.kohsuke.github.GHUser;
 import org.kohsuke.github.GitHub;
 import org.kohsuke.github.GitHubBuilder;
 import org.mockito.MockedStatic;
 import org.mockito.Mockito;
-
-import java.net.Proxy;
-import java.util.Collections;
-
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertNull;
-import static org.mockito.ArgumentMatchers.*;
-import static org.mockito.Mockito.*;
 
 /**
  *
@@ -105,11 +102,7 @@ public class GithubNotificationConfigTest {
         credentialsMatchersStatic
                 .when(() -> CredentialsMatchers.firstOrNull(any(), any()))
                 .thenReturn(new UsernamePasswordCredentialsImpl(
-                        CredentialsScope.GLOBAL,
-                        "user-pass",
-                        null,
-                        "git-user",
-                        "git-password"));
+                        CredentialsScope.GLOBAL, "user-pass", null, "git-user", "git-password"));
 
         GitHub github = mock(GitHub.class);
         GHUser mockUser = mock(GHUser.class);
@@ -134,37 +127,37 @@ public class GithubNotificationConfigTest {
         assertNull(GithubNotificationConfig.fromRun(mock(Run.class), null));
     }
 
-//    @Test
-//    public void testConfigPullRequest() throws Exception {
-//        Run build = Mockito.mock(Run.class);
-//        SCMRevisionAction mockSCMRevisionAction = mock(SCMRevisionAction.class);
-//        when(build.getAction(SCMRevisionAction.class)).thenReturn(mockSCMRevisionAction);
-//
-//        GitHubSCMSource source = mock(GitHubSCMSource.class);
-//        when(source.getCredentialsId()).thenReturn("git-user");
-//        when(source.getRepoOwner()).thenReturn("repo-owner");
-//        when(source.getRepository()).thenReturn("repo");
-//        PullRequestSCMHead head = mock(PullRequestSCMHead.class);
-//        PullRequestSCMRevision revision = mock(PullRequestSCMRevision.class);
-//
-//        when(revision.getPullHash()).thenReturn("what-the-hash");
-//        when(revision.getHead()).thenReturn(head);
-//
-//        when(mockSCMRevisionAction.getRevision()).thenReturn(revision);
-//
-//        GitHub github = mock(GitHub.class);
-//        GHUser mockUser = mock(GHUser.class);
-//        GHRepository mockRepo = mock(GHRepository.class);
-//        when(github.getUser(any())).thenReturn(mockUser);
-//        when(mockUser.getRepository(any())).thenReturn(mockRepo);
-//        GitHubBuilder builder = PowerMockito.mock(GitHubBuilder.class);
-//
-//        PowerMockito.when(builder.withProxy(Matchers.<Proxy>anyObject())).thenReturn(builder);
-//        PowerMockito.when(builder.withOAuthToken(anyString(), anyString())).thenReturn(builder);
-//        PowerMockito.when(builder.build()).thenReturn(github);
-//        PowerMockito.when(builder.withEndpoint(any())).thenReturn(builder);
-//
-//
-//        GithubNotificationConfig instance = GithubNotificationConfig.fromRun(build, builder);
-//    }
+    //    @Test
+    //    public void testConfigPullRequest() throws Exception {
+    //        Run build = Mockito.mock(Run.class);
+    //        SCMRevisionAction mockSCMRevisionAction = mock(SCMRevisionAction.class);
+    //        when(build.getAction(SCMRevisionAction.class)).thenReturn(mockSCMRevisionAction);
+    //
+    //        GitHubSCMSource source = mock(GitHubSCMSource.class);
+    //        when(source.getCredentialsId()).thenReturn("git-user");
+    //        when(source.getRepoOwner()).thenReturn("repo-owner");
+    //        when(source.getRepository()).thenReturn("repo");
+    //        PullRequestSCMHead head = mock(PullRequestSCMHead.class);
+    //        PullRequestSCMRevision revision = mock(PullRequestSCMRevision.class);
+    //
+    //        when(revision.getPullHash()).thenReturn("what-the-hash");
+    //        when(revision.getHead()).thenReturn(head);
+    //
+    //        when(mockSCMRevisionAction.getRevision()).thenReturn(revision);
+    //
+    //        GitHub github = mock(GitHub.class);
+    //        GHUser mockUser = mock(GHUser.class);
+    //        GHRepository mockRepo = mock(GHRepository.class);
+    //        when(github.getUser(any())).thenReturn(mockUser);
+    //        when(mockUser.getRepository(any())).thenReturn(mockRepo);
+    //        GitHubBuilder builder = PowerMockito.mock(GitHubBuilder.class);
+    //
+    //        PowerMockito.when(builder.withProxy(Matchers.<Proxy>anyObject())).thenReturn(builder);
+    //        PowerMockito.when(builder.withOAuthToken(anyString(), anyString())).thenReturn(builder);
+    //        PowerMockito.when(builder.build()).thenReturn(github);
+    //        PowerMockito.when(builder.withEndpoint(any())).thenReturn(builder);
+    //
+    //
+    //        GithubNotificationConfig instance = GithubNotificationConfig.fromRun(build, builder);
+    //    }
 }

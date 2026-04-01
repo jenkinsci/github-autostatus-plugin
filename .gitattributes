@@ -1,0 +1,5 @@
+# Pin EOL format for files spotless cares about, otherwise spotless:check bugs out.
+*.java text=auto eol=crlf
+*.xml  text=auto eol=crlf
+*      text=auto
+

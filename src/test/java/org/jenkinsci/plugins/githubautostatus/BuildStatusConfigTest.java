@@ -23,22 +23,21 @@
  */
 package org.jenkinsci.plugins.githubautostatus;
 
+import static org.junit.jupiter.api.Assertions.*;
+
 import com.cloudbees.plugins.credentials.CredentialsProvider;
 import com.cloudbees.plugins.credentials.CredentialsScope;
 import com.cloudbees.plugins.credentials.common.StandardUsernameCredentials;
 import com.cloudbees.plugins.credentials.domains.Domain;
 import com.cloudbees.plugins.credentials.impl.UsernamePasswordCredentialsImpl;
+import hudson.model.Descriptor.FormException;
 import hudson.util.FormValidation;
 import hudson.util.FormValidation.Kind;
 import hudson.util.ListBoxModel;
-import hudson.model.Descriptor.FormException;
 import java.io.IOException;
-
+import org.junit.jupiter.api.Test;
 import org.jvnet.hudson.test.JenkinsRule;
 import org.jvnet.hudson.test.junit.jupiter.WithJenkins;
-import org.junit.jupiter.api.Test;
-
-import static org.junit.jupiter.api.Assertions.*;
 
 /**
  *
@@ -165,7 +164,7 @@ public class BuildStatusConfigTest {
     }
 
     /**
-     * Verifies doCheckCredentialsId returns OK if empty 
+     * Verifies doCheckCredentialsId returns OK if empty
      */
     @Test
     public void testDoCheckCredentialsIdEmpty(JenkinsRule j) {
@@ -174,8 +173,8 @@ public class BuildStatusConfigTest {
     }
 
     /**
-     * Verifies doCheckCredentialsId returns OK for credentials in the store 
-     * @throws IOException 
+     * Verifies doCheckCredentialsId returns OK for credentials in the store
+     * @throws IOException
      */
     @Test
     public void testDoCheckCredentialsFound(JenkinsRule j) throws IOException, FormException {
@@ -188,8 +187,8 @@ public class BuildStatusConfigTest {
     }
 
     /**
-     * Verifies doCheckCredentialsId returns ERROR for credentials not in the store 
-     * @throws IOException 
+     * Verifies doCheckCredentialsId returns ERROR for credentials not in the store
+     * @throws IOException
      */
     @Test
     public void testDoCheckCredentialsNotFound(JenkinsRule j) throws IOException, FormException {
@@ -220,21 +219,21 @@ public class BuildStatusConfigTest {
         assertEquals(currentValue, item2.value);
     }
 
-
     /**
      * Verifies doFillCredentialsIdItems adds values from the credentials store
-     * @throws IOException 
+     * @throws IOException
      */
     @Test
     public void testDoFillCredentialsIdItemsAddsFromCredentialsStore(JenkinsRule j) throws IOException, FormException {
-        StandardUsernameCredentials user = new UsernamePasswordCredentialsImpl(CredentialsScope.GLOBAL, testCredentials, "Description", testCredentialsUser, testCredentialsPassword);
+        StandardUsernameCredentials user = new UsernamePasswordCredentialsImpl(
+                CredentialsScope.GLOBAL, testCredentials, "Description", testCredentialsUser, testCredentialsPassword);
         CredentialsProvider.lookupStores(j.getInstance()).iterator().next().addCredentials(Domain.global(), user);
 
         BuildStatusConfig instance = new TestBuildStatusConfig();
         instance.setCredentialsId(testCredentials);
-        
+
         ListBoxModel model = instance.doFillCredentialsIdItems(testCredentials);
-        
+
         assertEquals(2, model.size());
         ListBoxModel.Option item1 = model.get(0);
         assertEquals("", item1.value);
@@ -387,7 +386,8 @@ public class BuildStatusConfigTest {
      */
     @Test
     public void testDoCheckHttpCredentialsFound(JenkinsRule j) throws IOException, FormException {
-        StandardUsernameCredentials user = new UsernamePasswordCredentialsImpl(CredentialsScope.GLOBAL, testCredentials, "Description", testCredentialsUser, testCredentialsPassword);
+        StandardUsernameCredentials user = new UsernamePasswordCredentialsImpl(
+                CredentialsScope.GLOBAL, testCredentials, "Description", testCredentialsUser, testCredentialsPassword);
         CredentialsProvider.lookupStores(j.getInstance()).iterator().next().addCredentials(Domain.global(), user);
 
         BuildStatusConfig instance = new TestBuildStatusConfig();
@@ -400,7 +400,8 @@ public class BuildStatusConfigTest {
      */
     @Test
     public void testDoCheckHttpCredentialsNotFound(JenkinsRule j) throws IOException, FormException {
-        StandardUsernameCredentials user = new UsernamePasswordCredentialsImpl(CredentialsScope.GLOBAL, testCredentials, "Description", testCredentialsUser, testCredentialsPassword);
+        StandardUsernameCredentials user = new UsernamePasswordCredentialsImpl(
+                CredentialsScope.GLOBAL, testCredentials, "Description", testCredentialsUser, testCredentialsPassword);
         CredentialsProvider.lookupStores(j.getInstance()).iterator().next().addCredentials(Domain.global(), user);
 
         BuildStatusConfig instance = new TestBuildStatusConfig();
@@ -431,8 +432,10 @@ public class BuildStatusConfigTest {
      * @throws IOException
      */
     @Test
-    public void testDoFillHttpCredentialsIdItemsAddsFromCredentialsStore(JenkinsRule j) throws IOException, FormException {
-        StandardUsernameCredentials user = new UsernamePasswordCredentialsImpl(CredentialsScope.GLOBAL, testCredentials, "Description", testCredentialsUser, testCredentialsPassword);
+    public void testDoFillHttpCredentialsIdItemsAddsFromCredentialsStore(JenkinsRule j)
+            throws IOException, FormException {
+        StandardUsernameCredentials user = new UsernamePasswordCredentialsImpl(
+                CredentialsScope.GLOBAL, testCredentials, "Description", testCredentialsUser, testCredentialsPassword);
         CredentialsProvider.lookupStores(j.getInstance()).iterator().next().addCredentials(Domain.global(), user);
 
         BuildStatusConfig instance = new TestBuildStatusConfig();
@@ -453,7 +456,7 @@ public class BuildStatusConfigTest {
      * Test of get/set httpEndpoint method, of class BuildStatusConfig.
      */
     @Test
-    public void testHttpEndpoint () {
+    public void testHttpEndpoint() {
         BuildStatusConfig instance = new TestBuildStatusConfig();
         String expResult = "https://mock.com";
         instance.setHttpEndpoint(expResult);

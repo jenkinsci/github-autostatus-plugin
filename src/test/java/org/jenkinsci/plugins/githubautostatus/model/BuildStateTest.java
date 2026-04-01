@@ -1,34 +1,34 @@
 package org.jenkinsci.plugins.githubautostatus.model;
 
+import static org.junit.jupiter.api.Assertions.assertEquals;
+
 import hudson.model.Result;
 import org.junit.jupiter.api.Test;
 
-import static org.junit.jupiter.api.Assertions.assertEquals;
-
 public class BuildStateTest {
 
-  @Test
-  public void testFromResultSuccess(){
-    assertEquals(BuildState.CompletedSuccess, BuildState.fromResult(Result.SUCCESS));
-  }
+    @Test
+    public void testFromResultSuccess() {
+        assertEquals(BuildState.CompletedSuccess, BuildState.fromResult(Result.SUCCESS));
+    }
 
-  @Test
-  public void testFromResultUnstable(){
-    assertEquals(BuildState.Unstable, BuildState.fromResult(Result.UNSTABLE));
-  }
+    @Test
+    public void testFromResultUnstable() {
+        assertEquals(BuildState.Unstable, BuildState.fromResult(Result.UNSTABLE));
+    }
 
-  @Test
-  public void testFromResultFailure(){
-    assertEquals(BuildState.CompletedError, BuildState.fromResult(Result.FAILURE));
-  }
+    @Test
+    public void testFromResultFailure() {
+        assertEquals(BuildState.CompletedError, BuildState.fromResult(Result.FAILURE));
+    }
 
-  @Test
-  public void testFromResultNotBuilt(){
-    assertEquals(BuildState.NotBuild, BuildState.fromResult(Result.NOT_BUILT));
-  }
+    @Test
+    public void testFromResultNotBuilt() {
+        assertEquals(BuildState.NotBuild, BuildState.fromResult(Result.NOT_BUILT));
+    }
 
-  @Test
-  public void testFromResultAborted(){
-    assertEquals(BuildState.Aborted, BuildState.fromResult(Result.ABORTED));
-  }
+    @Test
+    public void testFromResultAborted() {
+        assertEquals(BuildState.Aborted, BuildState.fromResult(Result.ABORTED));
+    }
 }

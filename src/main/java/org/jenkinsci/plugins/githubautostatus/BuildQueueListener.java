@@ -37,9 +37,7 @@ import org.jenkinsci.plugins.workflow.support.steps.ExecutorStepExecution;
 @Extension
 public class BuildQueueListener extends QueueListener {
 
-    public BuildQueueListener() {
-
-    }
+    public BuildQueueListener() {}
 
     /**
      * {@inheritDoc}

@@ -24,7 +24,6 @@
 package org.jenkinsci.plugins.githubautostatus.model;
 
 import hudson.model.Result;
-
 import javax.annotation.Nonnull;
 
 /**
@@ -35,7 +34,6 @@ import javax.annotation.Nonnull;
  * @author Jeff Pearce (GitHub jeffpearce)
  */
 public enum BuildState {
-
     Unknown,
     CompletedSuccess,
     CompletedError,
@@ -60,4 +58,3 @@ public enum BuildState {
         }
     }
 }
-

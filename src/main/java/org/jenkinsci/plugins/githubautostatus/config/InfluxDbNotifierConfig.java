@@ -24,7 +24,6 @@
 package org.jenkinsci.plugins.githubautostatus.config;
 
 import com.cloudbees.plugins.credentials.common.UsernamePasswordCredentials;
-
 import java.io.IOException;
 import java.net.MalformedURLException;
 import java.net.URL;
@@ -32,7 +31,6 @@ import java.net.URLConnection;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import javax.annotation.CheckForNull;
-
 import org.apache.commons.lang.StringUtils;
 import org.apache.http.impl.client.CloseableHttpClient;
 import org.apache.http.impl.client.HttpClients;
@@ -149,10 +147,9 @@ public class InfluxDbNotifierConfig extends AbstractNotifierConfig {
      */
     @CheckForNull
     public UsernamePasswordCredentials getCredentials() {
-        return !StringUtils.isEmpty(influxDbCredentialsId) ?
-                BuildStatusConfig.getCredentials(UsernamePasswordCredentials.class,
-                        influxDbCredentialsId) :
-                null;
+        return !StringUtils.isEmpty(influxDbCredentialsId)
+                ? BuildStatusConfig.getCredentials(UsernamePasswordCredentials.class, influxDbCredentialsId)
+                : null;
     }
 
     /**

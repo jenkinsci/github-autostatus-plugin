@@ -24,7 +24,6 @@
 package org.jenkinsci.plugins.githubautostatus.model;
 
 import hudson.tasks.junit.CaseResult;
-
 import java.util.Objects;
 
 /**
@@ -60,7 +59,6 @@ public class TestCase {
         }
         testCase.setName(caseResult.getFullName());
         return testCase;
-
     }
 
     public boolean isPassed() {
@@ -125,11 +123,11 @@ public class TestCase {
         if (this == o) return true;
         if (!(o instanceof TestCase)) return false;
         TestCase testCase = (TestCase) o;
-        return isFailed() == testCase.isFailed() &&
-                isPassed() == testCase.isPassed() &&
-                isSkipped() == testCase.isSkipped() &&
-                Objects.equals(getName(), testCase.getName()) &&
-                getResult() == testCase.getResult();
+        return isFailed() == testCase.isFailed()
+                && isPassed() == testCase.isPassed()
+                && isSkipped() == testCase.isSkipped()
+                && Objects.equals(getName(), testCase.getName())
+                && getResult() == testCase.getResult();
     }
 
     @Override

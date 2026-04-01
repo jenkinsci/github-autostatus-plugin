@@ -39,8 +39,10 @@ public class TestResults {
 
     @SerializedName("passed")
     private int passedTestCaseCount;
+
     @SerializedName("skipped")
     private int skippedTestCaseCount;
+
     @SerializedName("failed")
     private int failedTestCaseCount;
 
@@ -112,14 +114,15 @@ public class TestResults {
         if (this == o) return true;
         if (!(o instanceof TestResults)) return false;
         TestResults that = (TestResults) o;
-        return getPassedTestCaseCount() == that.getPassedTestCaseCount() &&
-                getSkippedTestCaseCount() == that.getSkippedTestCaseCount() &&
-                getFailedTestCaseCount() == that.getFailedTestCaseCount() &&
-                Objects.equals(getTestSuites(), that.getTestSuites());
+        return getPassedTestCaseCount() == that.getPassedTestCaseCount()
+                && getSkippedTestCaseCount() == that.getSkippedTestCaseCount()
+                && getFailedTestCaseCount() == that.getFailedTestCaseCount()
+                && Objects.equals(getTestSuites(), that.getTestSuites());
     }
 
     @Override
     public int hashCode() {
-        return Objects.hash(getPassedTestCaseCount(), getSkippedTestCaseCount(), getFailedTestCaseCount(), getTestSuites());
+        return Objects.hash(
+                getPassedTestCaseCount(), getSkippedTestCaseCount(), getFailedTestCaseCount(), getTestSuites());
     }
 }

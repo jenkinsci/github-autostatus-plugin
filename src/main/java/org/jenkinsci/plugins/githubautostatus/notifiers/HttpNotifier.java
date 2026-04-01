@@ -31,16 +31,6 @@ import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 import hudson.model.Cause;
 import hudson.model.Run;
-import jenkins.model.Jenkins;
-import org.apache.http.HttpEntity;
-import org.apache.http.client.methods.CloseableHttpResponse;
-import org.apache.http.client.methods.HttpPost;
-import org.apache.http.entity.StringEntity;
-import org.apache.http.impl.client.CloseableHttpClient;
-import org.apache.http.util.EntityUtils;
-import org.jenkinsci.plugins.githubautostatus.config.HttpNotifierConfig;
-import org.jenkinsci.plugins.githubautostatus.model.*;
-
 import java.io.IOException;
 import java.nio.charset.StandardCharsets;
 import java.security.KeyManagementException;
@@ -53,6 +43,15 @@ import java.util.Map;
 import java.util.TimeZone;
 import java.util.logging.Level;
 import java.util.logging.Logger;
+import jenkins.model.Jenkins;
+import org.apache.http.HttpEntity;
+import org.apache.http.client.methods.CloseableHttpResponse;
+import org.apache.http.client.methods.HttpPost;
+import org.apache.http.entity.StringEntity;
+import org.apache.http.impl.client.CloseableHttpClient;
+import org.apache.http.util.EntityUtils;
+import org.jenkinsci.plugins.githubautostatus.config.HttpNotifierConfig;
+import org.jenkinsci.plugins.githubautostatus.model.*;
 
 public class HttpNotifier extends BuildNotifier {
 
@@ -78,8 +77,8 @@ public class HttpNotifier extends BuildNotifier {
             String username = credentials.getUsername();
             String password = credentials.getPassword().getPlainText();
 
-            authorization = Base64.getEncoder().encodeToString(
-                    String.format("%s:%s", username, password).getBytes(StandardCharsets.UTF_8));
+            authorization = Base64.getEncoder()
+                    .encodeToString(String.format("%s:%s", username, password).getBytes(StandardCharsets.UTF_8));
         }
         gson = new GsonBuilder()
                 .addSerializationExclusionStrategy(new ExclusionStrategy() {
@@ -129,11 +128,13 @@ public class HttpNotifier extends BuildNotifier {
 
     private BuildStatus constructBuildStatus(BuildStage.State buildState, Map<String, Object> parameters) {
         Run<?, ?> run = (Run<?, ?>) parameters.get(BuildNotifierConstants.BUILD_OBJECT);
-        String jobName = (String) parameters.getOrDefault(BuildNotifierConstants.JOB_NAME, BuildNotifierConstants.DEFAULT_STRING);
+        String jobName = (String)
+                parameters.getOrDefault(BuildNotifierConstants.JOB_NAME, BuildNotifierConstants.DEFAULT_STRING);
         long blockedDuration = BuildNotifierConstants.getLong(parameters, BuildNotifierConstants.BLOCKED_DURATION);
         String buildUrl = run.getUrl();
         int buildNumber = run.getNumber();
-        long buildDuration = BuildNotifierConstants.getLong(parameters, BuildNotifierConstants.JOB_DURATION) - blockedDuration;
+        long buildDuration =
+                BuildNotifierConstants.getLong(parameters, BuildNotifierConstants.JOB_DURATION) - blockedDuration;
         Cause cause = run.getCause(Cause.class);
         String buildCause = cause == null ? BuildNotifierConstants.DEFAULT_STRING : cause.getShortDescription();
         BuildStatus result = new org.jenkinsci.plugins.githubautostatus.model.BuildStatus();
@@ -157,7 +158,7 @@ public class HttpNotifier extends BuildNotifier {
         try (CloseableHttpClient httpclient = config.getHttpClient(!config.getHttpVerifySSL())) {
             HttpPost httppost = new HttpPost(config.getHttpEndpoint());
 
-            httppost.setEntity(new StringEntity(jsonData,"UTF-8"));
+            httppost.setEntity(new StringEntity(jsonData, "UTF-8"));
             httppost.setHeader("Content-Type", "application/json");
             httppost.setHeader("Referer", Jenkins.get().getRootUrl());
             if (!Strings.isNullOrEmpty(authorization)) {

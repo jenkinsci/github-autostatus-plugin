@@ -4,6 +4,9 @@
  */
 package org.jenkinsci.plugins.githubautostatus.integration;
 
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.Mockito.*;
+
 import hudson.model.Result;
 import jenkins.model.CauseOfInterruption;
 import org.jenkinsci.plugins.githubautostatus.BuildStatusAction;
@@ -11,13 +14,9 @@ import org.jenkinsci.plugins.githubautostatus.model.BuildStage;
 import org.jenkinsci.plugins.workflow.cps.CpsFlowDefinition;
 import org.jenkinsci.plugins.workflow.job.WorkflowJob;
 import org.jenkinsci.plugins.workflow.job.WorkflowRun;
+import org.junit.jupiter.api.Test;
 import org.jvnet.hudson.test.JenkinsRule;
 import org.jvnet.hudson.test.junit.jupiter.WithJenkins;
-
-import org.junit.jupiter.api.Test;
-
-import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.Mockito.*;
 
 @WithJenkins
 public class DeclarativePipelineTest {
@@ -31,17 +30,16 @@ public class DeclarativePipelineTest {
 
         WorkflowJob p = r.jenkins.createProject(WorkflowJob.class, "p");
         p.setDefinition(new CpsFlowDefinition(
-                "pipeline {\n" +
-                        "    agent any\n" +
-                        "    stages {\n" +
-                        "        stage('The stage') {\n" +
-                        "            steps {\n" +
-                        "                echo 'hello'\n" +
-                        "                echo 'goodbye'\n" +
-                        "            }\n" +
-                        "        }\n" +
-                        "    }\n" +
-                        "}",
+                "pipeline {\n" + "    agent any\n"
+                        + "    stages {\n"
+                        + "        stage('The stage') {\n"
+                        + "            steps {\n"
+                        + "                echo 'hello'\n"
+                        + "                echo 'goodbye'\n"
+                        + "            }\n"
+                        + "        }\n"
+                        + "    }\n"
+                        + "}",
                 true));
 
         WorkflowRun b = p.scheduleBuild2(0).waitForStart();
@@ -50,7 +48,8 @@ public class DeclarativePipelineTest {
         r.waitForCompletion(b);
         Thread.sleep(500);
 
-        verify(buildStatus, times(1)).updateBuildStatusForStage(eq("The stage"), eq(BuildStage.State.CompletedSuccess), anyLong());
+        verify(buildStatus, times(1))
+                .updateBuildStatusForStage(eq("The stage"), eq(BuildStage.State.CompletedSuccess), anyLong());
         verify(buildStatus, times(1)).updateBuildStatusForJob(eq(BuildStage.State.CompletedSuccess), any());
 
         verify(buildStatus, times(1)).updateBuildStatusForStage(any(), any(), anyLong());
@@ -66,25 +65,24 @@ public class DeclarativePipelineTest {
 
         WorkflowJob p = r.jenkins.createProject(WorkflowJob.class, "p");
         p.setDefinition(new CpsFlowDefinition(
-                "pipeline {\n" +
-                        "agent any\n" +
-                        "stages {\n" +
-                            "stage('Parallel') {\n" +
-                                "parallel {\n" +
-                                    "stage ('Stage A') {\n" +
-                                        "steps {\n" +
-                                            "sh 'echo hello'\n" +
-                                        "}\n" +
-                                    "}\n" +
-                                    "stage ('Stage B') {\n" +
-                                        "steps {\n" +
-                                            "sh 'echo hello'\n" +
-                                        "}\n" +
-                                    "}\n" +
-                                "}\n" +
-                            "}\n" +
-                        "}\n" +
-                    "}",
+                "pipeline {\n" + "agent any\n"
+                        + "stages {\n"
+                        + "stage('Parallel') {\n"
+                        + "parallel {\n"
+                        + "stage ('Stage A') {\n"
+                        + "steps {\n"
+                        + "sh 'echo hello'\n"
+                        + "}\n"
+                        + "}\n"
+                        + "stage ('Stage B') {\n"
+                        + "steps {\n"
+                        + "sh 'echo hello'\n"
+                        + "}\n"
+                        + "}\n"
+                        + "}\n"
+                        + "}\n"
+                        + "}\n"
+                        + "}",
                 true));
 
         WorkflowRun b = p.scheduleBuild2(0).waitForStart();
@@ -93,9 +91,12 @@ public class DeclarativePipelineTest {
         r.waitForCompletion(b);
         Thread.sleep(500);
 
-        verify(buildStatus, times(1)).updateBuildStatusForStage(eq("Parallel"), eq(BuildStage.State.CompletedSuccess), anyLong());
-        verify(buildStatus, times(1)).updateBuildStatusForStage(eq("Stage A"), eq(BuildStage.State.CompletedSuccess), anyLong());
-        verify(buildStatus, times(1)).updateBuildStatusForStage(eq("Stage B"), eq(BuildStage.State.CompletedSuccess), anyLong());
+        verify(buildStatus, times(1))
+                .updateBuildStatusForStage(eq("Parallel"), eq(BuildStage.State.CompletedSuccess), anyLong());
+        verify(buildStatus, times(1))
+                .updateBuildStatusForStage(eq("Stage A"), eq(BuildStage.State.CompletedSuccess), anyLong());
+        verify(buildStatus, times(1))
+                .updateBuildStatusForStage(eq("Stage B"), eq(BuildStage.State.CompletedSuccess), anyLong());
 
         verify(buildStatus, times(3)).updateBuildStatusForStage(any(), any(), anyLong());
         verify(buildStatus, times(1)).updateBuildStatusForJob(any(), any());
@@ -110,17 +111,16 @@ public class DeclarativePipelineTest {
 
         WorkflowJob p = r.jenkins.createProject(WorkflowJob.class, "p");
         p.setDefinition(new CpsFlowDefinition(
-                "pipeline {\n" +
-                        "    agent any\n" +
-                        "    stages {\n" +
-                        "        stage('The stage') {\n" +
-                        "            steps {\n" +
-                        "                echo 'hello'\n" +
-                        "                error('fail')\n" +
-                        "            }\n" +
-                        "        }\n" +
-                        "    }\n" +
-                        "}",
+                "pipeline {\n" + "    agent any\n"
+                        + "    stages {\n"
+                        + "        stage('The stage') {\n"
+                        + "            steps {\n"
+                        + "                echo 'hello'\n"
+                        + "                error('fail')\n"
+                        + "            }\n"
+                        + "        }\n"
+                        + "    }\n"
+                        + "}",
                 true));
 
         WorkflowRun b = p.scheduleBuild2(0).waitForStart();
@@ -129,7 +129,8 @@ public class DeclarativePipelineTest {
         r.waitForCompletion(b);
         Thread.sleep(500);
 
-        verify(buildStatus, times(1)).updateBuildStatusForStage(eq("The stage"), eq(BuildStage.State.CompletedError), anyLong());
+        verify(buildStatus, times(1))
+                .updateBuildStatusForStage(eq("The stage"), eq(BuildStage.State.CompletedError), anyLong());
         verify(buildStatus, times(1)).updateBuildStatusForJob(eq(BuildStage.State.CompletedError), any());
 
         verify(buildStatus, atMost(1)).updateBuildStatusForStage(any(), any(), anyLong());
@@ -145,20 +146,19 @@ public class DeclarativePipelineTest {
 
         WorkflowJob p = r.jenkins.createProject(WorkflowJob.class, "p");
         p.setDefinition(new CpsFlowDefinition(
-                "pipeline {\n" +
-                        "    agent any\n" +
-                        "    stages {\n" +
-                        "        stage('The stage') {\n" +
-                        "            steps {\n" +
-                        "                script {\n" +
-                        "                    try {\n" +
-                        "                        sh 'exit 1'\n" +
-                        "                    } catch (Exception ignored) {}\n" +
-                        "                }\n" +
-                        "            }\n" +
-                        "        }\n" +
-                        "    }\n" +
-                        "}",
+                "pipeline {\n" + "    agent any\n"
+                        + "    stages {\n"
+                        + "        stage('The stage') {\n"
+                        + "            steps {\n"
+                        + "                script {\n"
+                        + "                    try {\n"
+                        + "                        sh 'exit 1'\n"
+                        + "                    } catch (Exception ignored) {}\n"
+                        + "                }\n"
+                        + "            }\n"
+                        + "        }\n"
+                        + "    }\n"
+                        + "}",
                 true));
 
         WorkflowRun b = p.scheduleBuild2(0).waitForStart();
@@ -167,7 +167,8 @@ public class DeclarativePipelineTest {
         r.waitForCompletion(b);
         Thread.sleep(500);
 
-        verify(buildStatus, times(1)).updateBuildStatusForStage(eq("The stage"), eq(BuildStage.State.CompletedSuccess), anyLong());
+        verify(buildStatus, times(1))
+                .updateBuildStatusForStage(eq("The stage"), eq(BuildStage.State.CompletedSuccess), anyLong());
         verify(buildStatus, times(1)).updateBuildStatusForJob(eq(BuildStage.State.CompletedSuccess), any());
 
         verify(buildStatus, times(1)).updateBuildStatusForStage(any(), any(), anyLong());
@@ -182,30 +183,29 @@ public class DeclarativePipelineTest {
 
         WorkflowJob p = r.jenkins.createProject(WorkflowJob.class, "p");
         p.setDefinition(new CpsFlowDefinition(
-                "pipeline {\n" +
-                        "    agent any\n" +
-                        "    stages {\n" +
-                        "        stage('Before stage') {\n" +
-                        "            steps {\n" +
-                        "                echo 'hello'\n" +
-                        "            }\n" +
-                        "        }\n" +
-                        "        stage('Error stage') {\n" +
-                        "            steps {\n" +
-                        "                echo 'before step'\n" +
-                        "                catchError(buildResult: 'SUCCESS', stageResult: 'FAILURE') {\n" +
-                        "                    error 'fail on purpose'\n" +
-                        "                }\n" +
-                        "                echo 'after step'\n" +
-                        "            }\n" +
-                        "        }\n" +
-                        "        stage('After stage') {\n" +
-                        "            steps {\n" +
-                        "                echo 'goodbye'\n" +
-                        "            }\n" +
-                        "        }\n" +
-                        "    }\n" +
-                        "}",
+                "pipeline {\n" + "    agent any\n"
+                        + "    stages {\n"
+                        + "        stage('Before stage') {\n"
+                        + "            steps {\n"
+                        + "                echo 'hello'\n"
+                        + "            }\n"
+                        + "        }\n"
+                        + "        stage('Error stage') {\n"
+                        + "            steps {\n"
+                        + "                echo 'before step'\n"
+                        + "                catchError(buildResult: 'SUCCESS', stageResult: 'FAILURE') {\n"
+                        + "                    error 'fail on purpose'\n"
+                        + "                }\n"
+                        + "                echo 'after step'\n"
+                        + "            }\n"
+                        + "        }\n"
+                        + "        stage('After stage') {\n"
+                        + "            steps {\n"
+                        + "                echo 'goodbye'\n"
+                        + "            }\n"
+                        + "        }\n"
+                        + "    }\n"
+                        + "}",
                 true));
 
         WorkflowRun b = p.scheduleBuild2(0).waitForStart();
@@ -214,9 +214,12 @@ public class DeclarativePipelineTest {
         r.waitForCompletion(b);
         Thread.sleep(500);
 
-        verify(buildStatus, times(1)).updateBuildStatusForStage(eq("Before stage"), eq(BuildStage.State.CompletedSuccess), anyLong());
-        verify(buildStatus, times(1)).updateBuildStatusForStage(eq("Error stage"), eq(BuildStage.State.CompletedError), anyLong());
-        verify(buildStatus, times(1)).updateBuildStatusForStage(eq("After stage"), eq(BuildStage.State.CompletedSuccess), anyLong());
+        verify(buildStatus, times(1))
+                .updateBuildStatusForStage(eq("Before stage"), eq(BuildStage.State.CompletedSuccess), anyLong());
+        verify(buildStatus, times(1))
+                .updateBuildStatusForStage(eq("Error stage"), eq(BuildStage.State.CompletedError), anyLong());
+        verify(buildStatus, times(1))
+                .updateBuildStatusForStage(eq("After stage"), eq(BuildStage.State.CompletedSuccess), anyLong());
         verify(buildStatus, times(1)).updateBuildStatusForJob(eq(BuildStage.State.CompletedSuccess), any());
 
         verify(buildStatus, times(3)).updateBuildStatusForStage(any(), any(), anyLong());
@@ -232,18 +235,17 @@ public class DeclarativePipelineTest {
 
         WorkflowJob p = r.jenkins.createProject(WorkflowJob.class, "p");
         p.setDefinition(new CpsFlowDefinition(
-                "pipeline {\n" +
-                        "    agent any\n" +
-                        "    stages {\n" +
-                        "        stage('Error stage') {\n" +
-                        "            steps {\n" +
-                        "                catchError(buildResult: 'SUCCESS', stageResult: 'ABORTED') {\n" +
-                        "                    error 'fail on purpose'\n" +
-                        "                }\n" +
-                        "            }\n" +
-                        "        }\n" +
-                        "    }\n" +
-                        "}",
+                "pipeline {\n" + "    agent any\n"
+                        + "    stages {\n"
+                        + "        stage('Error stage') {\n"
+                        + "            steps {\n"
+                        + "                catchError(buildResult: 'SUCCESS', stageResult: 'ABORTED') {\n"
+                        + "                    error 'fail on purpose'\n"
+                        + "                }\n"
+                        + "            }\n"
+                        + "        }\n"
+                        + "    }\n"
+                        + "}",
                 true));
 
         WorkflowRun b = p.scheduleBuild2(0).waitForStart();
@@ -252,7 +254,8 @@ public class DeclarativePipelineTest {
         r.waitForCompletion(b);
         Thread.sleep(500);
 
-        verify(buildStatus, times(1)).updateBuildStatusForStage(eq("Error stage"), eq(BuildStage.State.Aborted), anyLong());
+        verify(buildStatus, times(1))
+                .updateBuildStatusForStage(eq("Error stage"), eq(BuildStage.State.Aborted), anyLong());
         verify(buildStatus, times(1)).updateBuildStatusForJob(eq(BuildStage.State.CompletedSuccess), any());
 
         verify(buildStatus, times(1)).updateBuildStatusForStage(any(), any(), anyLong());
@@ -268,16 +271,15 @@ public class DeclarativePipelineTest {
 
         WorkflowJob p = r.jenkins.createProject(WorkflowJob.class, "p");
         p.setDefinition(new CpsFlowDefinition(
-                "pipeline {\n" +
-                        "    agent any\n" +
-                        "    stages {\n" +
-                        "        stage('Error stage') {\n" +
-                        "            steps {\n" +
-                        "                sleep time: 5, unit: 'MINUTES'\n" +
-                        "            }\n" +
-                        "        }\n" +
-                        "    }\n" +
-                        "}",
+                "pipeline {\n" + "    agent any\n"
+                        + "    stages {\n"
+                        + "        stage('Error stage') {\n"
+                        + "            steps {\n"
+                        + "                sleep time: 5, unit: 'MINUTES'\n"
+                        + "            }\n"
+                        + "        }\n"
+                        + "    }\n"
+                        + "}",
                 true));
 
         WorkflowRun b = p.scheduleBuild2(0).waitForStart();
@@ -295,7 +297,8 @@ public class DeclarativePipelineTest {
         r.waitForCompletion(b);
         Thread.sleep(500);
 
-        verify(buildStatus, times(1)).updateBuildStatusForStage(eq("Error stage"), eq(BuildStage.State.Aborted), anyLong());
+        verify(buildStatus, times(1))
+                .updateBuildStatusForStage(eq("Error stage"), eq(BuildStage.State.Aborted), anyLong());
         verify(buildStatus, times(1)).updateBuildStatusForJob(eq(BuildStage.State.Aborted), any());
 
         verify(buildStatus, times(1)).updateBuildStatusForStage(any(), any(), anyLong());

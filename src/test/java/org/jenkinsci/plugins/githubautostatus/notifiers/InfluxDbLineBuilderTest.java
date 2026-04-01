@@ -1,9 +1,9 @@
 package org.jenkinsci.plugins.githubautostatus.notifiers;
 
+import static org.junit.jupiter.api.Assertions.*;
+
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
-
-import static org.junit.jupiter.api.Assertions.*;
 
 public class InfluxDbLineBuilderTest {
 
@@ -26,6 +26,7 @@ public class InfluxDbLineBuilderTest {
         builder.appendTagValue("tag", 10);
         assertEquals("msr,tag=10", builder.build());
     }
+
     @Test
     public void appendStringFieldValue() {
         builder.appendFieldValue("field", "value");
@@ -60,8 +61,6 @@ public class InfluxDbLineBuilderTest {
         assertEquals("msr,tag1=value3,tag2=value4 field1=\"value1\",field2=\"value2\"", builder.build());
     }
 
-
     @Test
-    public void build() {
-    }
+    public void build() {}
 }

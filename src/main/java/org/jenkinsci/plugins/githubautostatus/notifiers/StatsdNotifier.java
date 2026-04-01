@@ -24,9 +24,9 @@
 package org.jenkinsci.plugins.githubautostatus.notifiers;
 
 import java.nio.charset.StandardCharsets;
+import java.util.Map;
 import java.util.logging.Level;
 import java.util.logging.Logger;
-import java.util.Map;
 import org.jenkinsci.plugins.githubautostatus.StatsdClient;
 import org.jenkinsci.plugins.githubautostatus.StatsdNotifierConfig;
 import org.jenkinsci.plugins.githubautostatus.StatsdWrapper;
@@ -105,11 +105,13 @@ public class StatsdNotifier extends BuildNotifier {
      * @param buildState the new state
      * @param nodeDuration the duration of the node
      */
-    public void notifyBuildStageStatus(String jobName, String nodeName, BuildStage.State buildState, long nodeDuration) {
+    public void notifyBuildStageStatus(
+            String jobName, String nodeName, BuildStage.State buildState, long nodeDuration) {
         String result = buildState.toString();
         int statsDMaxSize = Integer.parseInt(config.getStatsdMaxSize().trim());
 
-        String stageStatus = String.format("%s.stage.%s.status.%s", getBranchPath(), sanitizeAll(nodeName), sanitizeAll(result));
+        String stageStatus =
+                String.format("%s.stage.%s.status.%s", getBranchPath(), sanitizeAll(nodeName), sanitizeAll(result));
         byte[] stageStatusSize;
         stageStatusSize = stageStatus.getBytes(StandardCharsets.UTF_16);
         if (stageStatusSize.length > statsDMaxSize) {
@@ -146,14 +148,12 @@ public class StatsdNotifier extends BuildNotifier {
         }
         client.increment(fqp, 1);
 
-
         fqp = String.format("%s.job.duration", getBranchPath());
         fqpSize = fqp.getBytes(StandardCharsets.UTF_16);
         if (fqpSize.length > statsDMaxSize) {
             log(Level.WARNING, "StatsD notify exceeds max. packet size for duration");
         }
         client.time(fqp, buildDuration);
-
 
         fqp = String.format("%s.job.blocked_duration", getBranchPath());
         fqpSize = fqp.getBytes(StandardCharsets.UTF_16);

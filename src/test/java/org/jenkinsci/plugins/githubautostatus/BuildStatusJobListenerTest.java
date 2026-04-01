@@ -23,15 +23,15 @@
  */
 package org.jenkinsci.plugins.githubautostatus;
 
+import static org.mockito.ArgumentMatchers.*;
+import static org.mockito.Mockito.*;
+
 import hudson.model.AbstractBuild;
 import hudson.model.Job;
 import hudson.model.Result;
 import hudson.model.TaskListener;
 import org.jenkinsci.plugins.githubautostatus.model.BuildStage;
 import org.junit.jupiter.api.Test;
-
-import static org.mockito.ArgumentMatchers.*;
-import static org.mockito.Mockito.*;
 
 /**
  *
