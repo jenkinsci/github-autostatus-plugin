@@ -13,7 +13,7 @@ This is a job monitoring plugin, which watches for pipeline builds and automatic
 - InfluxDB (for building monitoring dashboards).
 - Datadog StatsD (alternative monitoring metrics)
 
-Historic note: This plugin started life as "GitHub Autostatus plugin" (hence the git repository name), was generalized to "Autostatus plugin" with the addition of InfluxDB support in 2018, and was soon renamed to "Job And Stage Monitoring Plugin" with the addition of StatsD.
+Historic note: This plugin started life as "GitHub Autostatus plugin" (hence the Git repository and Java artifact name), was generalized to "Autostatus plugin" with the addition of InfluxDB support in 2018, and was soon renamed to "Job And Stage Monitoring Plugin" with the addition of StatsD.
 
 For example:
 
