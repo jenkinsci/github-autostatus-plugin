@@ -252,6 +252,12 @@
                     For more details, please refer to https://github.com/apache/hbase/pull/7087
                     -->
                     <lineEndings>GIT_ATTRIBUTES</lineEndings>
+                    <pom>
+                        <sortPom>
+                            <!-- We need datadog after jnr-posix-api, which is unalphabetic -->
+                            <sortDependencies>none</sortDependencies>
+                        </sortPom>
+                    </pom>
                 </configuration>
                 <executions>
                     <execution>
