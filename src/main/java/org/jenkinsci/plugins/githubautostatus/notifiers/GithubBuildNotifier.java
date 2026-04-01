@@ -65,7 +65,9 @@ public class GithubBuildNotifier extends BuildNotifier {
             .put(BuildStage.State.CompletedError, "Failed to build stage")
             .put(BuildStage.State.CompletedSuccess, "Stage built successfully")
             .put(BuildStage.State.SkippedFailure, "Stage did not run due to earlier failure(s)")
-            .put(BuildStage.State.SkippedUnstable, "Stage did not run due to earlier stage(s) marking the build as unstable")
+            .put(
+                    BuildStage.State.SkippedUnstable,
+                    "Stage did not run due to earlier stage(s) marking the build as unstable")
             .put(BuildStage.State.SkippedConditional, "Stage did not run due to when conditional")
             .build();
 
@@ -88,7 +90,8 @@ public class GithubBuildNotifier extends BuildNotifier {
      * @param targetUrl target Url (link back to Jenkins)
      * @param config config for re-resolving credentials when tokens expire
      */
-    public GithubBuildNotifier(GHRepository repository, String shaString, String targetUrl, GithubNotificationConfig config) {
+    public GithubBuildNotifier(
+            GHRepository repository, String shaString, String targetUrl, GithubNotificationConfig config) {
         this.repository = repository;
         this.shaString = shaString;
         this.targetUrl = targetUrl;
@@ -127,7 +130,12 @@ public class GithubBuildNotifier extends BuildNotifier {
         try {
             GHRepository repo = getRepository();
             BuildStage.State buildState = stageItem.getBuildState();
-            repo.createCommitStatus(shaString, STATE_MAP.get(buildState), targetUrl, DESCRIPTION_MAP.get(buildState), stageItem.getStageName());
+            repo.createCommitStatus(
+                    shaString,
+                    STATE_MAP.get(buildState),
+                    targetUrl,
+                    DESCRIPTION_MAP.get(buildState),
+                    stageItem.getStageName());
         } catch (org.kohsuke.github.HttpException ex) {
             if (ex.getResponseCode() == 401 && config != null) {
                 // Token likely expired (GitHub App tokens have a 60-minute TTL).
@@ -136,7 +144,12 @@ public class GithubBuildNotifier extends BuildNotifier {
                 try {
                     refreshRepository();
                     BuildStage.State buildState = stageItem.getBuildState();
-                    repository.createCommitStatus(shaString, STATE_MAP.get(buildState), targetUrl, DESCRIPTION_MAP.get(buildState), stageItem.getStageName());
+                    repository.createCommitStatus(
+                            shaString,
+                            STATE_MAP.get(buildState),
+                            targetUrl,
+                            DESCRIPTION_MAP.get(buildState),
+                            stageItem.getStageName());
                 } catch (Exception retryEx) {
                     log(Level.SEVERE, "Retry after credential refresh failed for job %s", jobName);
                     log(Level.SEVERE, retryEx);
@@ -187,8 +200,7 @@ public class GithubBuildNotifier extends BuildNotifier {
      * @param parameters build parameters
      */
     @Override
-    public void notifyFinalBuildStatus(BuildStage.State buildState, Map<String, Object> parameters) {
-    }
+    public void notifyFinalBuildStatus(BuildStage.State buildState, Map<String, Object> parameters) {}
 
     private static void log(Level level, Throwable exception) {
         getLogger().log(level, null, exception);

@@ -23,18 +23,16 @@
  */
 package org.jenkinsci.plugins.githubautostatus.notifiers;
 
-import org.jenkinsci.plugins.githubautostatus.StatsdClient;
-import org.jenkinsci.plugins.githubautostatus.StatsdNotifierConfig;
-import org.jenkinsci.plugins.githubautostatus.model.BuildStage;
-import org.jenkinsci.plugins.githubautostatus.model.BuildState;
-import org.junit.jupiter.api.BeforeEach;
-import org.junit.jupiter.api.Test;
+import static org.junit.jupiter.api.Assertions.*;
+import static org.mockito.Mockito.*;
 
 import java.io.IOException;
 import java.util.HashMap;
-
-import static org.junit.jupiter.api.Assertions.*;
-import static org.mockito.Mockito.*;
+import org.jenkinsci.plugins.githubautostatus.StatsdClient;
+import org.jenkinsci.plugins.githubautostatus.StatsdNotifierConfig;
+import org.jenkinsci.plugins.githubautostatus.model.BuildStage;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 
 /**
  *
@@ -46,8 +44,7 @@ public class StatsdNotifierTest {
     private StatsdNotifier notifier;
     private StatsdClient client;
 
-    public StatsdNotifierTest() {
-    }
+    public StatsdNotifierTest() {}
 
     @BeforeEach
     public void setUp() throws Exception {
@@ -68,7 +65,6 @@ public class StatsdNotifierTest {
         // be turned into a single underscore.
         assertEquals("folder0_._folder1_._folder2._folder_3", out);
     }
-
 
     @Test
     public void testSanitizeAll() throws IOException {
@@ -123,8 +119,12 @@ public class StatsdNotifierTest {
         stageItem.addAllToEnvironment(environment);
 
         instance.notifyBuildStageStatus("Job Name!", stageItem);
-        verify(client).increment("pipeline.main_folder.sub_folder.job_name.branch_name.stage.stage_name.status.completederror", 1);
-        verify(client).time("pipeline.main_folder.sub_folder.job_name.branch_name.stage.stage_name.duration", buildDuration);
+        verify(client)
+                .increment(
+                        "pipeline.main_folder.sub_folder.job_name.branch_name.stage.stage_name.status.completederror",
+                        1);
+        verify(client)
+                .time("pipeline.main_folder.sub_folder.job_name.branch_name.stage.stage_name.duration", buildDuration);
     }
 
     /*
@@ -142,8 +142,10 @@ public class StatsdNotifierTest {
         stageItem.addAllToEnvironment(environment);
 
         instance.notifyBuildStageStatus("Job Name!", stageItem);
-        verify(client, times(0)).increment("pipeline.main_folder.sub_folder.job_name.branch_name.job.status.pending", 1);
-        verify(client, times(0)).time("pipeline.main_folder.sub_folder.job_name.branch_name.job.duration", buildDuration);
+        verify(client, times(0))
+                .increment("pipeline.main_folder.sub_folder.job_name.branch_name.job.status.pending", 1);
+        verify(client, times(0))
+                .time("pipeline.main_folder.sub_folder.job_name.branch_name.job.duration", buildDuration);
     }
 
     /*
@@ -174,6 +176,7 @@ public class StatsdNotifierTest {
         when(config.getExternalizedID()).thenReturn("Main Folder/Sub Folder/job name/branch name");
         StatsdNotifier instance = new StatsdNotifier(client, config);
         instance.sendNonStageError("Job Name!", "Stage Name$");
-        verify(client).increment("pipeline.main_folder.sub_folder.job_name.branch_name.stage.stage_name.non_stage_error", 1);
+        verify(client)
+                .increment("pipeline.main_folder.sub_folder.job_name.branch_name.stage.stage_name.non_stage_error", 1);
     }
 }

@@ -23,10 +23,11 @@
  */
 package org.jenkinsci.plugins.githubautostatus.model;
 
-import org.junit.jupiter.api.Test;
 import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.Mockito.*;
+
 import hudson.tasks.junit.CaseResult;
+import org.junit.jupiter.api.Test;
 
 /**
  *
@@ -34,8 +35,7 @@ import hudson.tasks.junit.CaseResult;
  */
 public class TestCaseTest {
 
-    public TestCaseTest() {
-    }
+    public TestCaseTest() {}
 
     @Test
     public void testInitialPassedTrue() {
@@ -100,5 +100,4 @@ public class TestCaseTest {
         assertFalse(result.isFailed());
         assertNull(result.getResult());
     }
-
 }

@@ -23,17 +23,15 @@
  */
 package org.jenkinsci.plugins.githubautostatus;
 
+import static org.mockito.Mockito.*;
+
 import hudson.model.Queue.BlockedItem;
 import hudson.model.Queue.NonBlockingTask;
 import hudson.model.Run;
-
 import java.lang.reflect.Field;
 import java.lang.reflect.Modifier;
-
 import org.jenkinsci.plugins.workflow.support.steps.ExecutorStepExecution;
 import org.junit.jupiter.api.Test;
-
-import static org.mockito.Mockito.*;
 
 /**
  *

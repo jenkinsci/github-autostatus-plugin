@@ -23,16 +23,16 @@
  */
 package org.jenkinsci.plugins.githubautostatus.model;
 
+import static org.junit.jupiter.api.Assertions.*;
+import static org.mockito.Mockito.*;
+
 import hudson.tasks.junit.CaseResult;
 import hudson.tasks.junit.SuiteResult;
 import hudson.tasks.junit.TestResult;
 import hudson.tasks.junit.TestResultAction;
 import java.util.ArrayList;
 import java.util.Collections;
-
-import static org.junit.jupiter.api.Assertions.*;
 import org.junit.jupiter.api.Test;
-import static org.mockito.Mockito.*;
 
 /**
  *
@@ -75,7 +75,7 @@ public class TestResultsTest {
     @Test
     public void testfromJUnitTestResultsNull() {
         TestResults instance = TestResults.fromJUnitTestResults(null);
-        
+
         assertNull(instance);
     }
 
@@ -87,7 +87,7 @@ public class TestResultsTest {
         when(testResult.getSuites()).thenReturn(Collections.emptyList());
 
         TestResults instance = TestResults.fromJUnitTestResults(testResultAction);
-        
+
         assertNotNull(instance);
         assertEquals(0, instance.getPassedTestCaseCount());
         assertEquals(0, instance.getSkippedTestCaseCount());
@@ -101,7 +101,7 @@ public class TestResultsTest {
         SuiteResult suiteResult = mock(SuiteResult.class);
         ArrayList<SuiteResult> suiteResults = new ArrayList<>();
         suiteResults.add(suiteResult);
-        
+
         ArrayList<CaseResult> testCases = new ArrayList<>();
         CaseResult caseResult = mock(CaseResult.class);
         when(caseResult.isPassed()).thenReturn(true);
@@ -112,9 +112,9 @@ public class TestResultsTest {
 
         when(testResultAction.getResult()).thenReturn(testResult);
         when(testResult.getSuites()).thenReturn(suiteResults);
-        
+
         TestResults instance = TestResults.fromJUnitTestResults(testResultAction);
-        
+
         assertNotNull(instance);
         assertEquals(1, instance.getTestSuites().size());
         assertEquals(1, instance.getPassedTestCaseCount());

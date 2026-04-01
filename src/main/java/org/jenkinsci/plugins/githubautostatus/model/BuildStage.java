@@ -25,12 +25,11 @@ package org.jenkinsci.plugins.githubautostatus.model;
 
 import hudson.model.Result;
 import hudson.model.Run;
-import org.jenkinsci.plugins.githubautostatus.notifiers.BuildNotifierConstants;
-
-import javax.annotation.Nonnull;
 import java.io.Serializable;
 import java.util.HashMap;
 import java.util.Map;
+import javax.annotation.Nonnull;
+import org.jenkinsci.plugins.githubautostatus.notifiers.BuildNotifierConstants;
 
 /**
  *
@@ -41,12 +40,16 @@ public class BuildStage implements Serializable {
     private static final long serialVersionUID = 1L;
 
     private String stageName;
+
     @SkipSerialisation
     private Map<String, Object> environment;
+
     private State buildState;
     private transient Run<?, ?> run;
+
     @SkipSerialisation
     private boolean isStage = true;
+
     private long duration;
     private boolean passed;
 
@@ -62,8 +65,7 @@ public class BuildStage implements Serializable {
         Aborted,
         Unknown;
 
-        public static @Nonnull
-        State fromResult(Result result) {
+        public static @Nonnull State fromResult(Result result) {
             switch (result.ordinal) {
                 case 0:
                     return State.CompletedSuccess;
@@ -89,9 +91,7 @@ public class BuildStage implements Serializable {
         this(stageName, environment, State.Pending);
     }
 
-    public BuildStage(String stageName,
-                      Map<String, Object> environment,
-                      State buildState) {
+    public BuildStage(String stageName, Map<String, Object> environment, State buildState) {
         this.stageName = stageName;
         this.environment = new HashMap<>(environment);
         Object timingInfo = this.environment.get(BuildNotifierConstants.STAGE_DURATION);

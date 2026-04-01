@@ -23,6 +23,9 @@
  */
 package org.jenkinsci.plugins.githubautostatus;
 
+import static com.cloudbees.plugins.credentials.CredentialsProvider.lookupCredentials;
+import static hudson.model.Run.XSTREAM2;
+
 import com.cloudbees.plugins.credentials.Credentials;
 import com.cloudbees.plugins.credentials.CredentialsMatchers;
 import com.cloudbees.plugins.credentials.CredentialsProvider;
@@ -38,6 +41,12 @@ import hudson.model.Item;
 import hudson.security.ACL;
 import hudson.util.FormValidation;
 import hudson.util.ListBoxModel;
+import java.io.IOException;
+import java.io.ObjectInputStream;
+import java.net.MalformedURLException;
+import java.net.URL;
+import java.util.Collections;
+import javax.annotation.Nonnull;
 import jenkins.model.GlobalConfiguration;
 import jenkins.model.Jenkins;
 import net.sf.json.JSONObject;
@@ -48,16 +57,6 @@ import org.kohsuke.stapler.AncestorInPath;
 import org.kohsuke.stapler.DataBoundSetter;
 import org.kohsuke.stapler.QueryParameter;
 import org.kohsuke.stapler.StaplerRequest;
-
-import javax.annotation.Nonnull;
-import java.io.IOException;
-import java.io.ObjectInputStream;
-import java.net.MalformedURLException;
-import java.net.URL;
-import java.util.Collections;
-
-import static com.cloudbees.plugins.credentials.CredentialsProvider.lookupCredentials;
-import static hudson.model.Run.XSTREAM2;
 
 /**
  * Provides configuration options for this plugin.
@@ -72,10 +71,13 @@ public class BuildStatusConfig extends GlobalConfiguration {
     private String influxDbDatabase;
     private boolean ignoreSendingTestCoverageToInflux;
     private boolean ignoreSendingTestResultsToInflux = true;
+
     @Deprecated
     private transient String influxDbUser;
+
     @Deprecated
     private transient String influxDbPassword;
+
     private String influxDbRetentionPolicy;
     private boolean enableInfluxDb;
     private boolean disableGithub;
@@ -351,7 +353,6 @@ public class BuildStatusConfig extends GlobalConfiguration {
         save();
     }
 
-
     /**
      * Gets whether to ignore sending test coverage.
      *
@@ -397,7 +398,9 @@ public class BuildStatusConfig extends GlobalConfiguration {
      *
      * @return the database version
      */
-    public Integer getDbVersion() { return dbVersion; }
+    public Integer getDbVersion() {
+        return dbVersion;
+    }
 
     /**
      * Sets the InfluxDB database version.
@@ -409,7 +412,7 @@ public class BuildStatusConfig extends GlobalConfiguration {
         this.dbVersion = Integer.parseInt(dbVersion);
         save();
     }
-    
+
     @DataBoundSetter
     public void setDbVersion(Integer dbVersion) {
         this.dbVersion = dbVersion;
@@ -543,7 +546,8 @@ public class BuildStatusConfig extends GlobalConfiguration {
                         Jenkins.get(),
                         StandardCredentials.class,
                         Collections.<DomainRequirement>emptyList(),
-                        CredentialsMatchers.anyOf(CredentialsMatchers.instanceOf(StandardUsernamePasswordCredentials.class)))
+                        CredentialsMatchers.anyOf(
+                                CredentialsMatchers.instanceOf(StandardUsernamePasswordCredentials.class)))
                 .includeCurrentValue(credentialsId);
     }
 
@@ -570,8 +574,7 @@ public class BuildStatusConfig extends GlobalConfiguration {
                 return FormValidation.ok();
             }
         } else {
-            if (!item.hasPermission(Item.EXTENDED_READ)
-                    && !item.hasPermission(CredentialsProvider.USE_ITEM)) {
+            if (!item.hasPermission(Item.EXTENDED_READ) && !item.hasPermission(CredentialsProvider.USE_ITEM)) {
                 return FormValidation.ok();
             }
         }
@@ -605,11 +608,10 @@ public class BuildStatusConfig extends GlobalConfiguration {
     }
 
     public static <T extends Credentials> T getCredentials(@Nonnull Class<T> type, @Nonnull String credentialsId) {
-        return CredentialsMatchers.firstOrNull(lookupCredentials(
-                type, Jenkins.get(), ACL.SYSTEM,
-                Collections.<DomainRequirement>emptyList()), CredentialsMatchers.allOf(
-                CredentialsMatchers.withId(credentialsId),
-                CredentialsMatchers.instanceOf(type)));
+        return CredentialsMatchers.firstOrNull(
+                lookupCredentials(type, Jenkins.get(), ACL.SYSTEM, Collections.<DomainRequirement>emptyList()),
+                CredentialsMatchers.allOf(
+                        CredentialsMatchers.withId(credentialsId), CredentialsMatchers.instanceOf(type)));
     }
 
     private void readObject(ObjectInputStream in) throws IOException, ClassNotFoundException {

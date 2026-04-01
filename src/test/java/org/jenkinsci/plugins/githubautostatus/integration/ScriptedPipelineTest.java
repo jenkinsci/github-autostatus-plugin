@@ -4,26 +4,9 @@
  */
 package org.jenkinsci.plugins.githubautostatus.integration;
 
-import jenkins.model.Jenkins;
-
-import org.jenkinsci.plugins.githubautostatus.BuildStatusAction;
-import org.jenkinsci.plugins.githubautostatus.model.BuildStage;
-import org.jenkinsci.plugins.workflow.cps.CpsFlowDefinition;
-import org.jenkinsci.plugins.workflow.job.WorkflowJob;
-import org.jenkinsci.plugins.workflow.job.WorkflowRun;
-
-import org.junit.jupiter.api.Timeout;
-import org.jvnet.hudson.test.Issue;
-import org.jvnet.hudson.test.JenkinsRule;
-import org.jvnet.hudson.test.junit.jupiter.WithJenkins;
-
-import uk.org.webcompere.systemstubs.jupiter.SystemStub;
-import uk.org.webcompere.systemstubs.stream.SystemErr;
-import uk.org.webcompere.systemstubs.stream.output.MultiplexOutput;
-import uk.org.webcompere.systemstubs.stream.output.Output;
-import uk.org.webcompere.systemstubs.stream.output.TapStream;
-
-import org.junit.jupiter.api.Test;
+import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.Mockito.*;
 
 import java.util.ArrayList;
 import java.util.ConcurrentModificationException;
@@ -33,10 +16,22 @@ import java.util.concurrent.TimeUnit;
 import java.util.logging.Handler;
 import java.util.logging.LogRecord;
 import java.util.logging.Logger;
-
-import static org.junit.jupiter.api.Assertions.assertFalse;
-import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.Mockito.*;
+import jenkins.model.Jenkins;
+import org.jenkinsci.plugins.githubautostatus.BuildStatusAction;
+import org.jenkinsci.plugins.githubautostatus.model.BuildStage;
+import org.jenkinsci.plugins.workflow.cps.CpsFlowDefinition;
+import org.jenkinsci.plugins.workflow.job.WorkflowJob;
+import org.jenkinsci.plugins.workflow.job.WorkflowRun;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.Timeout;
+import org.jvnet.hudson.test.Issue;
+import org.jvnet.hudson.test.JenkinsRule;
+import org.jvnet.hudson.test.junit.jupiter.WithJenkins;
+import uk.org.webcompere.systemstubs.jupiter.SystemStub;
+import uk.org.webcompere.systemstubs.stream.SystemErr;
+import uk.org.webcompere.systemstubs.stream.output.MultiplexOutput;
+import uk.org.webcompere.systemstubs.stream.output.Output;
+import uk.org.webcompere.systemstubs.stream.output.TapStream;
 
 @WithJenkins
 public class ScriptedPipelineTest {
@@ -63,14 +58,13 @@ public class ScriptedPipelineTest {
 
         WorkflowJob p = r.jenkins.createProject(WorkflowJob.class, "p");
         p.setDefinition(new CpsFlowDefinition(
-                "node {\n" +
-                        "    stage('Stage 1') {\n" +
-                        "        echo 'hi'\n" +
-                        "    }\n" +
-                        "    stage('Stage 2') {\n" +
-                        "        echo 'bye'\n" +
-                        "    }\n" +
-                        "}",
+                "node {\n" + "    stage('Stage 1') {\n"
+                        + "        echo 'hi'\n"
+                        + "    }\n"
+                        + "    stage('Stage 2') {\n"
+                        + "        echo 'bye'\n"
+                        + "    }\n"
+                        + "}",
                 true));
 
         WorkflowRun b = p.scheduleBuild2(0).waitForStart();
@@ -79,8 +73,10 @@ public class ScriptedPipelineTest {
         r.waitForCompletion(b);
         Thread.sleep(500);
 
-        verify(buildStatus, times(1)).updateBuildStatusForStage(eq("Stage 1"), eq(BuildStage.State.CompletedSuccess), anyLong());
-        verify(buildStatus, times(1)).updateBuildStatusForStage(eq("Stage 2"), eq(BuildStage.State.CompletedSuccess), anyLong());
+        verify(buildStatus, times(1))
+                .updateBuildStatusForStage(eq("Stage 1"), eq(BuildStage.State.CompletedSuccess), anyLong());
+        verify(buildStatus, times(1))
+                .updateBuildStatusForStage(eq("Stage 2"), eq(BuildStage.State.CompletedSuccess), anyLong());
         verify(buildStatus, times(1)).updateBuildStatusForJob(eq(BuildStage.State.CompletedSuccess), any());
 
         verify(buildStatus, times(2)).updateBuildStatusForStage(any(), any(), anyLong());
@@ -96,17 +92,16 @@ public class ScriptedPipelineTest {
 
         WorkflowJob p = r.jenkins.createProject(WorkflowJob.class, "p");
         p.setDefinition(new CpsFlowDefinition(
-                "node {\n" +
-                        "    stage('Stage 1') {\n" +
-                        "        echo 'hi'\n" +
-                        "    }\n" +
-                        "    stage('Stage fail') {\n" +
-                        "        error 'fail on purpose'\n" +
-                        "    }\n" +
-                        "    stage('Stage 2') {\n" +
-                        "        echo 'bye'\n" +
-                        "    }\n" +
-                        "}",
+                "node {\n" + "    stage('Stage 1') {\n"
+                        + "        echo 'hi'\n"
+                        + "    }\n"
+                        + "    stage('Stage fail') {\n"
+                        + "        error 'fail on purpose'\n"
+                        + "    }\n"
+                        + "    stage('Stage 2') {\n"
+                        + "        echo 'bye'\n"
+                        + "    }\n"
+                        + "}",
                 true));
 
         WorkflowRun b = p.scheduleBuild2(0).waitForStart();
@@ -115,8 +110,10 @@ public class ScriptedPipelineTest {
         r.waitForCompletion(b);
         Thread.sleep(500);
 
-        verify(buildStatus, times(1)).updateBuildStatusForStage(eq("Stage 1"), eq(BuildStage.State.CompletedSuccess), anyLong());
-        verify(buildStatus, times(1)).updateBuildStatusForStage(eq("Stage fail"), eq(BuildStage.State.CompletedError), anyLong());
+        verify(buildStatus, times(1))
+                .updateBuildStatusForStage(eq("Stage 1"), eq(BuildStage.State.CompletedSuccess), anyLong());
+        verify(buildStatus, times(1))
+                .updateBuildStatusForStage(eq("Stage fail"), eq(BuildStage.State.CompletedError), anyLong());
         verify(buildStatus, times(0)).updateBuildStatusForStage(eq("Stage 2"), any(), anyLong());
         verify(buildStatus, times(1)).updateBuildStatusForJob(eq(BuildStage.State.CompletedError), any());
 
@@ -133,15 +130,14 @@ public class ScriptedPipelineTest {
 
         WorkflowJob p = r.jenkins.createProject(WorkflowJob.class, "p");
         p.setDefinition(new CpsFlowDefinition(
-                "node {\n" +
-                        "    stage('Stage 1') {\n" +
-                        "        echo 'hi'\n" +
-                        "    }\n" +
-                        "    sh 'exit(1)'\n" +
-                        "    stage('Stage 2') {\n" +
-                        "        echo 'bye'\n" +
-                        "    }\n" +
-                        "}",
+                "node {\n" + "    stage('Stage 1') {\n"
+                        + "        echo 'hi'\n"
+                        + "    }\n"
+                        + "    sh 'exit(1)'\n"
+                        + "    stage('Stage 2') {\n"
+                        + "        echo 'bye'\n"
+                        + "    }\n"
+                        + "}",
                 true));
 
         WorkflowRun b = p.scheduleBuild2(0).waitForStart();
@@ -150,7 +146,8 @@ public class ScriptedPipelineTest {
         r.waitForCompletion(b);
         Thread.sleep(500);
 
-        verify(buildStatus, times(1)).updateBuildStatusForStage(eq("Stage 1"), eq(BuildStage.State.CompletedSuccess), anyLong());
+        verify(buildStatus, times(1))
+                .updateBuildStatusForStage(eq("Stage 1"), eq(BuildStage.State.CompletedSuccess), anyLong());
         verify(buildStatus, atLeast(1)).sendNonStageError("script returned exit code 2");
         verify(buildStatus, times(0)).updateBuildStatusForStage(eq("Stage 2"), any(), anyLong());
         verify(buildStatus, times(1)).updateBuildStatusForJob(eq(BuildStage.State.CompletedError), any());
@@ -168,11 +165,10 @@ public class ScriptedPipelineTest {
 
         WorkflowJob p = r.jenkins.createProject(WorkflowJob.class, "p");
         p.setDefinition(new CpsFlowDefinition(
-                "node {\n" +
-                        "    stage('The stage') {\n" +
-                        "          sh(script: \"echo 'hello'\", label: 'echo')\n" +
-                        "    }\n" +
-                        "}",
+                "node {\n" + "    stage('The stage') {\n"
+                        + "          sh(script: \"echo 'hello'\", label: 'echo')\n"
+                        + "    }\n"
+                        + "}",
                 true));
 
         WorkflowRun b = p.scheduleBuild2(0).waitForStart();
@@ -183,7 +179,8 @@ public class ScriptedPipelineTest {
 
         verify(buildStatus, times(1)).addBuildStatus(any());
 
-        verify(buildStatus, times(1)).updateBuildStatusForStage(eq("The stage"), eq(BuildStage.State.CompletedSuccess), anyLong());
+        verify(buildStatus, times(1))
+                .updateBuildStatusForStage(eq("The stage"), eq(BuildStage.State.CompletedSuccess), anyLong());
         verify(buildStatus, times(1)).updateBuildStatusForStage(any(), any(), anyLong());
         verify(buildStatus, times(1)).updateBuildStatusForJob(any(), any());
     }
@@ -297,7 +294,8 @@ public class ScriptedPipelineTest {
                 + "}\n"
                 +
                 // flood with cucumber actions, including logging about them
-                "def preflood = " + preflood + "\n"
+                "def preflood = "
+                + preflood + "\n"
                 + "def maxflood = " + maxflood + "\n"
                 + "for (int i = 1; i < preflood; i++) {\n"
                 +
@@ -370,7 +368,8 @@ public class ScriptedPipelineTest {
                 // We use a real object here instead of a mock because:
                 // 1. We want to test the real synchronization inside BuildStatusAction.
                 // 2. XStream serialization (which we're testing for CME) works best with real objects.
-                BuildStatusAction buildStatus = BuildStatusAction.newAction(b, r.getURL().toString(), new ArrayList<>());
+                BuildStatusAction buildStatus =
+                        BuildStatusAction.newAction(b, r.getURL().toString(), new ArrayList<>());
                 b.addOrReplaceAction(buildStatus);
                 wfRuns.add(b);
             }
@@ -435,7 +434,8 @@ public class ScriptedPipelineTest {
                 // FIXME: seems we can not always collect from systemErrTap...
                 //  Maybe due to mixing jupiter and junit4 implementations in
                 //  same test class? (consider another variant of system-stubs)
-                LOGGER.info("We tapped into JVM stderr but this collected nothing: could not systemErrTap.getText(): " + npe.getMessage());
+                LOGGER.info("We tapped into JVM stderr but this collected nothing: could not systemErrTap.getText(): "
+                        + npe.getMessage());
             }
             if (stderrLog != null && !(stderrLog.trim().isEmpty())) {
                 LOGGER.info("Check JVM stderr that CME related messages are absent");

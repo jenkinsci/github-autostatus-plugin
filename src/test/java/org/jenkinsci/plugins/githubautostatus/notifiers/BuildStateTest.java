@@ -27,5 +27,4 @@ package org.jenkinsci.plugins.githubautostatus.notifiers;
  *
  * @author Jeff Pearce (GitHub jeffpearce)
  */
-public class BuildStateTest {
-}
+public class BuildStateTest {}

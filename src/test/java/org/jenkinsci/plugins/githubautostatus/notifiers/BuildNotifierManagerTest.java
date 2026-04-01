@@ -23,24 +23,22 @@
  */
 package org.jenkinsci.plugins.githubautostatus.notifiers;
 
+import static org.junit.jupiter.api.Assertions.*;
+import static org.mockito.Mockito.*;
+
+import java.util.Collections;
+import java.util.HashMap;
 import org.jenkinsci.plugins.githubautostatus.StatsdNotifierConfig;
 import org.jenkinsci.plugins.githubautostatus.config.GithubNotificationConfig;
 import org.jenkinsci.plugins.githubautostatus.config.HttpNotifierConfig;
 import org.jenkinsci.plugins.githubautostatus.config.InfluxDbNotifierConfig;
 import org.jenkinsci.plugins.githubautostatus.model.BuildStage;
-import org.jenkinsci.plugins.githubautostatus.model.BuildState;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.kohsuke.github.GHRepository;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
-
-import java.util.Collections;
-import java.util.HashMap;
-
-import static org.junit.jupiter.api.Assertions.*;
-import static org.mockito.Mockito.*;
 
 /**
  *
@@ -51,21 +49,25 @@ public class BuildNotifierManagerTest {
 
     @Mock
     private GithubNotificationConfig githubNotificationConfig;
+
     @Mock
     private InfluxDbNotifierConfig influxDbNotificationConfig;
+
     @Mock
     private StatsdNotifierConfig statsdNotificationConfig;
+
     @Mock
     private HttpNotifierConfig httpNotifierConfig;
+
     @Mock
     private GHRepository repo;
+
     private BuildNotifierManager instance;
     private final String mockJobName = "mock-jobname";
     private final String mockTargetUrl = "mock-targeturl";
     private final String stageName = "mock-stagename";
 
-    public BuildNotifierManagerTest() {
-    }
+    public BuildNotifierManagerTest() {}
 
     @BeforeEach
     public void setUp() {
@@ -128,10 +130,10 @@ public class BuildNotifierManagerTest {
     public void testNotifyBuildStageStatus() {
         GithubBuildNotifier notifier = mock(GithubBuildNotifier.class);
         instance.notifiers.add(notifier);
-        
+
         BuildStage stageItem = new BuildStage(stageName);
         stageItem.setBuildState(BuildStage.State.CompletedSuccess);
-        
+
         instance.notifyBuildStageStatus(stageItem);
 
         verify(notifier).notifyBuildStageStatus(mockJobName, stageItem);
@@ -159,11 +161,8 @@ public class BuildNotifierManagerTest {
         instance.notifiers.add(notifier);
         when(notifier.wantsOutOfStageErrors()).thenReturn(true);
 
-        BuildStage stageItem = new BuildStage(stageName,
-                new HashMap<>(),
-                BuildStage.State.CompletedError);
+        BuildStage stageItem = new BuildStage(stageName, new HashMap<>(), BuildStage.State.CompletedError);
         stageItem.setIsStage(false);
-
 
         instance.sendNonStageError(stageItem);
 
@@ -179,11 +178,8 @@ public class BuildNotifierManagerTest {
         instance.notifiers.add(notifier);
         when(notifier.wantsOutOfStageErrors()).thenReturn(false);
 
-        BuildStage stageItem = new BuildStage(stageName,
-                new HashMap<>(),
-                BuildStage.State.CompletedError);
+        BuildStage stageItem = new BuildStage(stageName, new HashMap<>(), BuildStage.State.CompletedError);
         stageItem.setIsStage(false);
-
 
         instance.sendNonStageError(stageItem);
 

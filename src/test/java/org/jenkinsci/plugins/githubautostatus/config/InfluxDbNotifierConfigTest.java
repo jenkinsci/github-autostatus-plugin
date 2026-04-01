@@ -23,6 +23,13 @@
  */
 package org.jenkinsci.plugins.githubautostatus.config;
 
+import static org.junit.jupiter.api.Assertions.*;
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.eq;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.mockStatic;
+import static org.mockito.Mockito.when;
+
 import com.cloudbees.plugins.credentials.CredentialsScope;
 import com.cloudbees.plugins.credentials.common.StandardUsernameCredentials;
 import com.cloudbees.plugins.credentials.impl.UsernamePasswordCredentialsImpl;
@@ -32,13 +39,6 @@ import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.mockito.MockedStatic;
-
-import static org.junit.jupiter.api.Assertions.*;
-import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.ArgumentMatchers.eq;
-import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.mockStatic;
-import static org.mockito.Mockito.when;
 
 /**
  *
@@ -85,108 +85,88 @@ public class InfluxDbNotifierConfigTest {
 
     @Test
     public void testGetRepoOwner() {
-        InfluxDbNotifierConfig instance
-                = InfluxDbNotifierConfig.fromGlobalConfig(repositoryOwner, "", "");
+        InfluxDbNotifierConfig instance = InfluxDbNotifierConfig.fromGlobalConfig(repositoryOwner, "", "");
         String result = instance.getRepoOwner();
         assertEquals(repositoryOwner, result);
     }
 
     @Test
     public void testGetRepoName() {
-        InfluxDbNotifierConfig instance
-                = InfluxDbNotifierConfig.fromGlobalConfig("", repository, "");
+        InfluxDbNotifierConfig instance = InfluxDbNotifierConfig.fromGlobalConfig("", repository, "");
         String result = instance.getRepoName();
         assertEquals(repository, result);
     }
 
     @Test
     public void testGetBranchName() {
-        InfluxDbNotifierConfig instance
-                = InfluxDbNotifierConfig.fromGlobalConfig("", "", branch);
+        InfluxDbNotifierConfig instance = InfluxDbNotifierConfig.fromGlobalConfig("", "", branch);
         String result = instance.getBranchName();
         assertEquals(branch, result);
     }
 
     @Test
     public void testGetInfluxDbUrlString() {
-        InfluxDbNotifierConfig instance
-                = InfluxDbNotifierConfig.fromGlobalConfig("", "", branch);
+        InfluxDbNotifierConfig instance = InfluxDbNotifierConfig.fromGlobalConfig("", "", branch);
         assertEquals(influxUrl, instance.getInfluxDbUrlString());
     }
 
     @Test
     public void testGetInfluxDbDatabase() {
-        InfluxDbNotifierConfig instance
-                = InfluxDbNotifierConfig.fromGlobalConfig("", "", branch);
+        InfluxDbNotifierConfig instance = InfluxDbNotifierConfig.fromGlobalConfig("", "", branch);
         assertEquals(influxDatabase, instance.getInfluxDbDatabase());
     }
 
     @Test
     public void testGetCredentialsNotEmpty() throws FormException {
-        StandardUsernameCredentials credentials = 
-                new UsernamePasswordCredentialsImpl(CredentialsScope.GLOBAL, 
-                        influxDbCredentialsId, 
-                        "Description", 
-                        influxDbUser, 
-                        influxDbPassword);
-        buildStatusConfigStatic.when(() -> BuildStatusConfig.getCredentials(any(), eq(influxDbCredentialsId)))
+        StandardUsernameCredentials credentials = new UsernamePasswordCredentialsImpl(
+                CredentialsScope.GLOBAL, influxDbCredentialsId, "Description", influxDbUser, influxDbPassword);
+        buildStatusConfigStatic
+                .when(() -> BuildStatusConfig.getCredentials(any(), eq(influxDbCredentialsId)))
                 .thenReturn(credentials);
         when(config.getCredentialsId()).thenReturn("");
-        InfluxDbNotifierConfig instance
-                = InfluxDbNotifierConfig.fromGlobalConfig("", "", branch);
+        InfluxDbNotifierConfig instance = InfluxDbNotifierConfig.fromGlobalConfig("", "", branch);
         assertNull(instance.getCredentials(), influxDbCredentialsId);
     }
 
     @Test
     public void testGetCredentialsEmpty() throws FormException {
-        StandardUsernameCredentials credentials = 
-                new UsernamePasswordCredentialsImpl(CredentialsScope.GLOBAL, 
-                        influxDbCredentialsId, 
-                        "Description", 
-                        influxDbUser, 
-                        influxDbPassword);
-        buildStatusConfigStatic.when(() -> BuildStatusConfig.getCredentials(any(), any()))
+        StandardUsernameCredentials credentials = new UsernamePasswordCredentialsImpl(
+                CredentialsScope.GLOBAL, influxDbCredentialsId, "Description", influxDbUser, influxDbPassword);
+        buildStatusConfigStatic
+                .when(() -> BuildStatusConfig.getCredentials(any(), any()))
                 .thenReturn(credentials);
-        InfluxDbNotifierConfig instance
-                = InfluxDbNotifierConfig.fromGlobalConfig("", "", branch);
+        InfluxDbNotifierConfig instance = InfluxDbNotifierConfig.fromGlobalConfig("", "", branch);
         assertNotNull(instance.getCredentials(), influxDbCredentialsId);
     }
 
     @Test
     public void testGetIgnoreSendingTestCoverageToInflux() {
-        InfluxDbNotifierConfig instance
-                = InfluxDbNotifierConfig.fromGlobalConfig("", "", branch);
+        InfluxDbNotifierConfig instance = InfluxDbNotifierConfig.fromGlobalConfig("", "", branch);
         assertEquals(ignoreSendingTestCoverageToInflux, instance.getIgnoreSendingTestCoverageToInflux());
     }
 
     @Test
     public void testGetIgnoreSendingTestResultsToInflux() {
-        InfluxDbNotifierConfig instance
-                = InfluxDbNotifierConfig.fromGlobalConfig("", "", branch);
+        InfluxDbNotifierConfig instance = InfluxDbNotifierConfig.fromGlobalConfig("", "", branch);
         assertEquals(ignoreSendingTestResultsToInflux, instance.getIgnoreSendingTestResultsToInflux());
     }
 
     @Test
     public void testGetInfluxDbRetentionPolicy() {
-        InfluxDbNotifierConfig instance
-                = InfluxDbNotifierConfig.fromGlobalConfig("", "", branch);
+        InfluxDbNotifierConfig instance = InfluxDbNotifierConfig.fromGlobalConfig("", "", branch);
         assertEquals(influxDbRetention, instance.getInfluxDbRetentionPolicy());
     }
 
     @Test
     public void testinfluxDbIsReachableFalse() {
-        InfluxDbNotifierConfig instance
-                = InfluxDbNotifierConfig.fromGlobalConfig("", "", branch);
+        InfluxDbNotifierConfig instance = InfluxDbNotifierConfig.fromGlobalConfig("", "", branch);
         assertFalse(instance.influxDbIsReachable());
-
     }
 
     @Test
     public void testinfluxDbIsReachableMalformed() {
         when(config.getInfluxDbUrl()).thenReturn("not-a-url");
-        InfluxDbNotifierConfig instance
-                = InfluxDbNotifierConfig.fromGlobalConfig("", "", branch);
+        InfluxDbNotifierConfig instance = InfluxDbNotifierConfig.fromGlobalConfig("", "", branch);
         assertFalse(instance.influxDbIsReachable());
-
     }
 }

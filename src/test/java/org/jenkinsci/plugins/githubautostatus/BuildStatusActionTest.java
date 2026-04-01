@@ -23,8 +23,16 @@
  */
 package org.jenkinsci.plugins.githubautostatus;
 
+import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.mockito.ArgumentMatchers.*;
+import static org.mockito.Mockito.*;
+
 import hudson.model.AbstractBuild;
 import hudson.model.Run;
+import java.io.IOException;
+import java.util.ArrayList;
+import java.util.List;
 import org.jenkinsci.plugins.githubautostatus.config.GithubNotificationConfig;
 import org.jenkinsci.plugins.githubautostatus.config.HttpNotifierConfig;
 import org.jenkinsci.plugins.githubautostatus.config.InfluxDbNotifierConfig;
@@ -33,19 +41,9 @@ import org.jenkinsci.plugins.githubautostatus.notifiers.BuildNotifierManager;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
-
 import org.kohsuke.github.GHCommitState;
 import org.kohsuke.github.GHRepository;
 import org.mockito.MockedStatic;
-
-import java.io.IOException;
-import java.util.ArrayList;
-import java.util.List;
-
-import static org.junit.jupiter.api.Assertions.assertFalse;
-import static org.junit.jupiter.api.Assertions.assertTrue;
-import static org.mockito.ArgumentMatchers.*;
-import static org.mockito.Mockito.*;
 
 /**
  *
@@ -63,7 +61,7 @@ public class BuildStatusActionTest {
     static GithubNotificationConfig githubConfig;
     static StatsdNotifierConfig statsdNotifierConfig;
     static BuildNotifierManager buildNotifierManager;
-    Run<?,?> mockRun;
+    Run<?, ?> mockRun;
 
     private MockedStatic<GithubNotificationConfig> githubNotificationConfigStatic;
     private MockedStatic<InfluxDbNotifierConfig> influxDbNotifierConfigStatic;
@@ -81,7 +79,9 @@ public class BuildStatusActionTest {
         when(githubConfig.getRepo()).thenReturn(repository);
         when(githubConfig.getShaString()).thenReturn(sha);
         when(githubConfig.getBranchName()).thenReturn(branchName);
-        githubNotificationConfigStatic.when(() -> GithubNotificationConfig.fromRun(any())).thenReturn(githubConfig);
+        githubNotificationConfigStatic
+                .when(() -> GithubNotificationConfig.fromRun(any()))
+                .thenReturn(githubConfig);
 
         influxDbNotifierConfigStatic = mockStatic(InfluxDbNotifierConfig.class);
         influxDbNotifierConfigStatic
@@ -90,10 +90,14 @@ public class BuildStatusActionTest {
 
         statsdNotifierConfig = mock(StatsdNotifierConfig.class);
         statsdNotifierConfigStatic = mockStatic(StatsdNotifierConfig.class);
-        statsdNotifierConfigStatic.when(() -> StatsdNotifierConfig.fromGlobalConfig(any())).thenReturn(statsdNotifierConfig);
+        statsdNotifierConfigStatic
+                .when(() -> StatsdNotifierConfig.fromGlobalConfig(any()))
+                .thenReturn(statsdNotifierConfig);
 
         statsdClientStatic = mockStatic(StatsdClient.class);
-        statsdClientStatic.when(() -> StatsdClient.getInstance(any(), any(), anyInt())).thenReturn(null);
+        statsdClientStatic
+                .when(() -> StatsdClient.getInstance(any(), any(), anyInt()))
+                .thenReturn(null);
 
         httpNotifierConfigStatic = mockStatic(HttpNotifierConfig.class);
         httpNotifierConfigStatic
@@ -153,7 +157,8 @@ public class BuildStatusActionTest {
         instance.updateBuildStatusForStage(stageName, BuildStage.State.CompletedSuccess);
 
         verify(repository).createCommitStatus(sha, GHCommitState.PENDING, targetUrl, "Building stage", stageName);
-        verify(repository).createCommitStatus(sha, GHCommitState.SUCCESS, targetUrl, "Stage built successfully", stageName);
+        verify(repository)
+                .createCommitStatus(sha, GHCommitState.SUCCESS, targetUrl, "Stage built successfully", stageName);
     }
 
     /**
@@ -211,7 +216,8 @@ public class BuildStatusActionTest {
 
         instance.close();
 
-        verify(repository).createCommitStatus(sha, GHCommitState.SUCCESS, targetUrl, "Stage built successfully", stageName);
+        verify(repository)
+                .createCommitStatus(sha, GHCommitState.SUCCESS, targetUrl, "Stage built successfully", stageName);
     }
 
     @Test

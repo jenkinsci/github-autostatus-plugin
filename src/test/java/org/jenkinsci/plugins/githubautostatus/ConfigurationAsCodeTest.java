@@ -1,20 +1,19 @@
 package org.jenkinsci.plugins.githubautostatus;
 
+import static io.jenkins.plugins.casc.misc.Util.*;
+import static org.hamcrest.MatcherAssert.assertThat;
+import static org.hamcrest.core.Is.is;
+import static org.junit.jupiter.api.Assertions.*;
+
 import hudson.ExtensionList;
 import io.jenkins.plugins.casc.ConfigurationAsCode;
 import io.jenkins.plugins.casc.ConfigurationContext;
 import io.jenkins.plugins.casc.ConfiguratorRegistry;
 import io.jenkins.plugins.casc.model.CNode;
+import java.net.URL;
+import org.junit.jupiter.api.Test;
 import org.jvnet.hudson.test.JenkinsRule;
 import org.jvnet.hudson.test.junit.jupiter.WithJenkins;
-import org.junit.jupiter.api.Test;
-
-import java.net.URL;
-
-import static io.jenkins.plugins.casc.misc.Util.*;
-import static org.hamcrest.core.Is.is;
-import static org.hamcrest.MatcherAssert.assertThat;
-import static org.junit.jupiter.api.Assertions.*;
 
 @WithJenkins
 public class ConfigurationAsCodeTest {

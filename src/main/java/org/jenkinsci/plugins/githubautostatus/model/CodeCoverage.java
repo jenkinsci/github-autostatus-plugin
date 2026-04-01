@@ -23,24 +23,17 @@
  */
 package org.jenkinsci.plugins.githubautostatus.model;
 
-import hudson.model.AbstractBuild;
+import static hudson.plugins.cobertura.CoberturaPublisher.COBERTURA_FILENAME_FILTER;
+
 import hudson.plugins.cobertura.CoberturaBuildAction;
-import hudson.plugins.cobertura.CoberturaPublisher;
 import hudson.plugins.cobertura.Ratio;
 import hudson.plugins.cobertura.targets.CoverageMetric;
 import hudson.plugins.jacoco.JacocoBuildAction;
 import hudson.plugins.jacoco.model.Coverage;
-import hudson.util.DescribableList;
-
 import java.io.File;
-import java.io.FileInputStream;
-import java.io.FileNotFoundException;
-import java.io.IOException;
 import java.util.Map;
 import java.util.Objects;
 import javax.annotation.Nullable;
-
-import static hudson.plugins.cobertura.CoberturaPublisher.COBERTURA_FILENAME_FILTER;
 
 /**
  *
@@ -74,7 +67,6 @@ public class CodeCoverage {
             codeCoverage.setPackages(results.get(CoverageMetric.PACKAGES));
         }
         codeCoverage.reportFiles = coberturaAction.getOwner().getRootDir().listFiles(COBERTURA_FILENAME_FILTER);
-
 
         return codeCoverage;
     }
@@ -225,17 +217,24 @@ public class CodeCoverage {
         if (this == o) return true;
         if (!(o instanceof CodeCoverage)) return false;
         CodeCoverage coverage = (CodeCoverage) o;
-        return Float.compare(coverage.getConditionals(), getConditionals()) == 0 &&
-                Float.compare(coverage.getClasses(), getClasses()) == 0 &&
-                Float.compare(coverage.getFiles(), getFiles()) == 0 &&
-                Float.compare(coverage.getLines(), getLines()) == 0 &&
-                Float.compare(coverage.getMethods(), getMethods()) == 0 &&
-                Float.compare(coverage.getPackages(), getPackages()) == 0 &&
-                Float.compare(coverage.getInstructions(), getInstructions()) == 0;
+        return Float.compare(coverage.getConditionals(), getConditionals()) == 0
+                && Float.compare(coverage.getClasses(), getClasses()) == 0
+                && Float.compare(coverage.getFiles(), getFiles()) == 0
+                && Float.compare(coverage.getLines(), getLines()) == 0
+                && Float.compare(coverage.getMethods(), getMethods()) == 0
+                && Float.compare(coverage.getPackages(), getPackages()) == 0
+                && Float.compare(coverage.getInstructions(), getInstructions()) == 0;
     }
 
     @Override
     public int hashCode() {
-        return Objects.hash(getConditionals(), getClasses(), getFiles(), getLines(), getMethods(), getPackages(), getInstructions());
+        return Objects.hash(
+                getConditionals(),
+                getClasses(),
+                getFiles(),
+                getLines(),
+                getMethods(),
+                getPackages(),
+                getInstructions());
     }
 }

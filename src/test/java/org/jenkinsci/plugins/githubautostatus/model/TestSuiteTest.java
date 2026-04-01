@@ -23,10 +23,11 @@
  */
 package org.jenkinsci.plugins.githubautostatus.model;
 
-import java.util.ArrayList;
-import org.junit.jupiter.api.Test;
 import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.Mockito.*;
+
+import java.util.ArrayList;
+import org.junit.jupiter.api.Test;
 
 /**
  *
@@ -36,8 +37,7 @@ public class TestSuiteTest {
 
     private final String mockName = "mock-name";
 
-    public TestSuiteTest() {
-    }
+    public TestSuiteTest() {}
 
     @Test
     public void testGetNameInitial() {
@@ -107,7 +107,7 @@ public class TestSuiteTest {
     @Test
     public void testGetSetSkippedTestCaseCount() {
         int count = 2008;
-        
+
         TestSuite instance = new TestSuite();
         instance.setSkippedTestCaseCount(count);
         assertEquals(count, instance.getSkippedTestCaseCount());
@@ -116,7 +116,7 @@ public class TestSuiteTest {
     @Test
     public void testGetSetFailedTestCaseCount() {
         int count = 1973;
-        
+
         TestSuite instance = new TestSuite();
         instance.setFailedTestCaseCount(count);
         assertEquals(count, instance.getFailedTestCaseCount());

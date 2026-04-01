@@ -23,36 +23,34 @@
  */
 package org.jenkinsci.plugins.githubautostatus.notifiers;
 
-import com.cloudbees.plugins.credentials.CredentialsScope;
-import com.cloudbees.plugins.credentials.common.UsernamePasswordCredentials;
-import com.cloudbees.plugins.credentials.impl.UsernamePasswordCredentialsImpl;
-import java.io.IOException;
-import java.util.Base64;
-import java.util.HashMap;
-import java.util.Map;
-
-import hudson.model.AbstractBuild;
-import hudson.model.Cause;
-import hudson.model.Descriptor.FormException;
-
-import hudson.model.Run;
-import org.apache.http.HttpEntity;
-import org.apache.http.StatusLine;
-import org.apache.http.client.methods.CloseableHttpResponse;
-import org.apache.http.client.methods.HttpPost;
-import org.apache.http.impl.client.CloseableHttpClient;
-import org.apache.http.util.EntityUtils;
-import org.jenkinsci.plugins.githubautostatus.model.BuildStage;
-import org.jenkinsci.plugins.githubautostatus.model.BuildState;
-import org.jenkinsci.plugins.githubautostatus.config.InfluxDbNotifierConfig;
-import org.junit.jupiter.api.BeforeEach;
-import org.junit.jupiter.api.Test;
 import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
+
+import com.cloudbees.plugins.credentials.CredentialsScope;
+import com.cloudbees.plugins.credentials.common.UsernamePasswordCredentials;
+import com.cloudbees.plugins.credentials.impl.UsernamePasswordCredentialsImpl;
+import hudson.model.AbstractBuild;
+import hudson.model.Cause;
+import hudson.model.Descriptor.FormException;
+import hudson.model.Run;
+import java.io.IOException;
+import java.util.Base64;
+import java.util.HashMap;
+import java.util.Map;
+import org.apache.http.HttpEntity;
+import org.apache.http.StatusLine;
+import org.apache.http.client.methods.CloseableHttpResponse;
+import org.apache.http.client.methods.HttpPost;
+import org.apache.http.impl.client.CloseableHttpClient;
+import org.apache.http.util.EntityUtils;
+import org.jenkinsci.plugins.githubautostatus.config.InfluxDbNotifierConfig;
+import org.jenkinsci.plugins.githubautostatus.model.BuildStage;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 import org.mockito.invocation.InvocationOnMock;
 
 /**
@@ -68,11 +66,10 @@ public class InfluxDbNotifierTest {
     private String statusLine;
     private CloseableHttpClient mockHttpClient;
     private StatusLine mockStatusLine;
-    private Run<?,?> mockRun;
+    private Run<?, ?> mockRun;
     private Cause mockCause;
 
-    public InfluxDbNotifierTest() {
-    }
+    public InfluxDbNotifierTest() {}
 
     @BeforeEach
     public void setUp() throws Exception {
@@ -111,7 +108,6 @@ public class InfluxDbNotifierTest {
         when(mockRun.getUrl()).thenReturn("https://jenkins.com/1");
     }
 
-
     /**
      * Test of isEnabled method, of class InfluxDbNotifier.
      */
@@ -143,20 +139,13 @@ public class InfluxDbNotifierTest {
 
     @Test
     public void testBasicAuth() throws FormException {
-        UsernamePasswordCredentials credentials
-                = new UsernamePasswordCredentialsImpl(CredentialsScope.GLOBAL,
-                        influxDbCredentialsId,
-                        "Description",
-                        influxDbUser,
-                        influxDbPassword);
-        when(config.getCredentials())
-                .thenReturn(credentials);
+        UsernamePasswordCredentials credentials = new UsernamePasswordCredentialsImpl(
+                CredentialsScope.GLOBAL, influxDbCredentialsId, "Description", influxDbUser, influxDbPassword);
+        when(config.getCredentials()).thenReturn(credentials);
 
         InfluxDbNotifier instance = new InfluxDbNotifier(config);
-        assertEquals("http://fake/write?db=mockdb",
-                instance.influxDbUrlString);
-        assertEquals(new String(Base64.getDecoder().decode(instance.authorization)),
-                "mock-user:mock-password");
+        assertEquals("http://fake/write?db=mockdb", instance.influxDbUrlString);
+        assertEquals(new String(Base64.getDecoder().decode(instance.authorization)), "mock-user:mock-password");
     }
 
     @Test
@@ -234,9 +223,9 @@ public class InfluxDbNotifierTest {
         instance.notifyBuildStageStatus("mockjobname", stageItem);
 
         verify(mockHttpClient).execute(any());
-        assertEquals("stage,owner=mockowner,repo=mockrepo,stagename=mocknodename,result=CompletedSuccess jobname=\"mockjobname\",branch=\"mockbranch\",stagetime=0,passed=1,buildurl=\"https://jenkins.com/1\",buildnumber=1,trigger=\"user A\"",
-        statusLine);
-
+        assertEquals(
+                "stage,owner=mockowner,repo=mockrepo,stagename=mocknodename,result=CompletedSuccess jobname=\"mockjobname\",branch=\"mockbranch\",stagetime=0,passed=1,buildurl=\"https://jenkins.com/1\",buildnumber=1,trigger=\"user A\"",
+                statusLine);
     }
 
     @Test
@@ -283,7 +272,8 @@ public class InfluxDbNotifierTest {
         instance.notifyFinalBuildStatus(BuildStage.State.CompletedError, parameters);
 
         verify(mockHttpClient).execute(any());
-        assertEquals("job,owner=mockowner,repo=mockrepo,result=CompletedError jobname=\"mockjobname\",branch=\"mockbranch\",blocked=0,jobtime=1010,blockedtime=0,passed=0,buildurl=\"https://jenkins.com/1\",buildnumber=1,trigger=\"user A\"",
+        assertEquals(
+                "job,owner=mockowner,repo=mockrepo,result=CompletedError jobname=\"mockjobname\",branch=\"mockbranch\",blocked=0,jobtime=1010,blockedtime=0,passed=0,buildurl=\"https://jenkins.com/1\",buildnumber=1,trigger=\"user A\"",
                 statusLine);
     }
 
@@ -312,10 +302,9 @@ public class InfluxDbNotifierTest {
         instance.notifyBuildStageStatus("mockjobname", stageItem);
 
         verify(mockHttpClient).execute(any());
-        assertEquals("stage,owner=mockowner,repo=mockrepo,stagename=mockstagename,result=CompletedError jobname=\"mockjobname\",branch=\"mockbranch\",stagetime=2020,passed=0,buildurl=\"https://jenkins.com/1\",buildnumber=1,trigger=\"user" +
-                        " A\"",
-        statusLine);
-
+        assertEquals(
+                "stage,owner=mockowner,repo=mockrepo,stagename=mockstagename,result=CompletedError jobname=\"mockjobname\",branch=\"mockbranch\",stagetime=2020,passed=0,buildurl=\"https://jenkins.com/1\",buildnumber=1,trigger=\"user"
+                        + " A\"",
+                statusLine);
     }
-
 }

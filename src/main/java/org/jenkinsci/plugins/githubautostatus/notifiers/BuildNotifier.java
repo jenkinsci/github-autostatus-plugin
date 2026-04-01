@@ -25,9 +25,8 @@ package org.jenkinsci.plugins.githubautostatus.notifiers;
 
 import hudson.ExtensionList;
 import hudson.ExtensionPoint;
-import org.jenkinsci.plugins.githubautostatus.model.BuildStage;
-
 import java.util.Map;
+import org.jenkinsci.plugins.githubautostatus.model.BuildStage;
 
 /**
  * A notification subscriber which can send build stats to a particular sink.
@@ -51,7 +50,7 @@ public abstract class BuildNotifier implements ExtensionPoint {
      *
      * @return true if enabled; false otherwise
      */
-    abstract public boolean isEnabled();
+    public abstract boolean isEnabled();
 
     /**
      * Sends a state change with timing info.
@@ -59,7 +58,7 @@ public abstract class BuildNotifier implements ExtensionPoint {
      * @param jobName the name of the job
      * @param stageItem stage item
      */
-    abstract public void notifyBuildStageStatus(String jobName, BuildStage stageItem);
+    public abstract void notifyBuildStageStatus(String jobName, BuildStage stageItem);
 
     /**
      * Sends a notification when a job is complete.
@@ -67,7 +66,7 @@ public abstract class BuildNotifier implements ExtensionPoint {
      * @param buildState state indicating success or failure
      * @param parameters build parameters
      */
-    abstract public void notifyFinalBuildStatus(BuildStage.State buildState, Map<String, Object> parameters);
+    public abstract void notifyFinalBuildStatus(BuildStage.State buildState, Map<String, Object> parameters);
 
     /**
      * Get whether the notifier wants to know about errors that happen outside of a stage.

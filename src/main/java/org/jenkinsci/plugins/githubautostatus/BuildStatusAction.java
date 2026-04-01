@@ -27,6 +27,10 @@ import hudson.ExtensionList;
 import hudson.model.InvisibleAction;
 import hudson.model.JobProperty;
 import hudson.model.Run;
+import java.io.Serializable;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 import net.jcip.annotations.GuardedBy;
 import org.jenkinsci.plugins.githubautostatus.config.GithubNotificationConfig;
 import org.jenkinsci.plugins.githubautostatus.config.HttpNotifierConfig;
@@ -37,11 +41,6 @@ import org.jenkinsci.plugins.githubautostatus.notifiers.BuildNotifierConstants;
 import org.jenkinsci.plugins.githubautostatus.notifiers.BuildNotifierManager;
 import org.jenkinsci.plugins.workflow.job.WorkflowJob;
 import org.jenkinsci.plugins.workflow.job.WorkflowRun;
-
-import java.io.Serializable;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
 
 /**
  * Keeps track of build status for each stage in a build, and provides
@@ -103,7 +102,7 @@ public class BuildStatusAction extends InvisibleAction implements Serializable {
      * @param targetUrl link back to Jenkins
      * @param stageList list of stages if known
      */
-    public static BuildStatusAction newAction (Run<?, ?> run, String targetUrl, List<BuildStage> stageList) {
+    public static BuildStatusAction newAction(Run<?, ?> run, String targetUrl, List<BuildStage> stageList) {
         return new BuildStatusAction(run, targetUrl, stageList);
     }
 
@@ -183,7 +182,8 @@ public class BuildStatusAction extends InvisibleAction implements Serializable {
     private void addGlobalProperties() {
         if (run instanceof WorkflowRun) {
             WorkflowRun workflowRun = (WorkflowRun) run;
-            List<JobProperty<? super WorkflowJob>> properties = workflowRun.getParent().getAllProperties();
+            List<JobProperty<? super WorkflowJob>> properties =
+                    workflowRun.getParent().getAllProperties();
             for (JobProperty property : properties) {
                 jobParameters.put(property.getClass().getSimpleName(), property);
             }

@@ -23,17 +23,18 @@
  */
 package org.jenkinsci.plugins.githubautostatus.notifiers;
 
+import static org.junit.jupiter.api.Assertions.*;
+import static org.mockito.Mockito.*;
+
 import java.io.IOException;
 import java.util.Collections;
 import org.jenkinsci.plugins.githubautostatus.config.GithubNotificationConfig;
 import org.jenkinsci.plugins.githubautostatus.model.BuildStage;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
-import static org.junit.jupiter.api.Assertions.*;
 import org.kohsuke.github.GHCommitState;
 import org.kohsuke.github.GHRepository;
 import org.kohsuke.github.HttpException;
-import static org.mockito.Mockito.*;
 
 /**
  *
@@ -103,7 +104,8 @@ public class GithubBuildNotifierTest {
         stageItem.setBuildState(BuildStage.State.CompletedSuccess);
 
         notifier.notifyBuildStageStatus(jobName, stageItem);
-        verify(repository).createCommitStatus(sha, GHCommitState.SUCCESS, targetUrl, "Stage built successfully", stageName);
+        verify(repository)
+                .createCommitStatus(sha, GHCommitState.SUCCESS, targetUrl, "Stage built successfully", stageName);
     }
 
     /**
@@ -124,7 +126,7 @@ public class GithubBuildNotifierTest {
 
     /**
      * Verifies notifyFinalBuildStatus doesn't send any commit status
-     * @throws IOException 
+     * @throws IOException
      */
     @Test
     public void testNotifyFinalBuildStatus() throws IOException {
@@ -132,7 +134,7 @@ public class GithubBuildNotifierTest {
         notifier.notifyFinalBuildStatus(BuildStage.State.CompletedSuccess, Collections.emptyMap());
         verify(repository, never()).createCommitStatus(any(), any(), any(), any());
     }
-    
+
     /**
      * Verifies notifier doesn't report errors that happen outside a stage.
      *
@@ -145,7 +147,7 @@ public class GithubBuildNotifierTest {
         BuildStage stageItem = new BuildStage(stageName);
         stageItem.setIsStage(false);
         stageItem.setBuildState(BuildStage.State.CompletedError);
-        
+
         notifier.notifyBuildStageStatus(jobName, stageItem);
 
         verify(repository, never()).createCommitStatus(any(), any(), any(), any());
@@ -163,7 +165,8 @@ public class GithubBuildNotifierTest {
 
         // First call throws 401, simulating expired GitHub App token
         doThrow(new HttpException("Unauthorized", 401, "Unauthorized", null))
-                .when(repository).createCommitStatus(any(), any(), any(), any(), any());
+                .when(repository)
+                .createCommitStatus(any(), any(), any(), any(), any());
 
         GithubBuildNotifier notifier = new GithubBuildNotifier(repository, sha, targetUrl, config);
 
@@ -183,7 +186,8 @@ public class GithubBuildNotifierTest {
     @Test
     public void testNoRetryOn401WithoutConfig() throws IOException {
         doThrow(new HttpException("Unauthorized", 401, "Unauthorized", null))
-                .when(repository).createCommitStatus(any(), any(), any(), any(), any());
+                .when(repository)
+                .createCommitStatus(any(), any(), any(), any(), any());
 
         GithubBuildNotifier notifier = new GithubBuildNotifier(repository, sha, targetUrl);
 

@@ -23,13 +23,13 @@
  */
 package org.jenkinsci.plugins.githubautostatus;
 
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.mockito.Mockito.*;
+
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.mockito.MockedStatic;
-
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.mockito.Mockito.*;
 
 /**
  *
@@ -69,77 +69,67 @@ public class StatsdNotifierConfigTest {
 
     @Test
     public void testGetExternalizedId() {
-        StatsdNotifierConfig instance
-                = StatsdNotifierConfig.fromGlobalConfig(externalizedID);
+        StatsdNotifierConfig instance = StatsdNotifierConfig.fromGlobalConfig(externalizedID);
         String result = instance.getExternalizedID();
         assertEquals(externalizedID, result);
     }
 
     @Test
     public void testGetStatsdHost() {
-        StatsdNotifierConfig instance
-                = StatsdNotifierConfig.fromGlobalConfig(externalizedID);
+        StatsdNotifierConfig instance = StatsdNotifierConfig.fromGlobalConfig(externalizedID);
         assertEquals(statsdURL, instance.getStatsdHost());
     }
 
     @Test
     public void testGetStatsdDisabled() {
         when(config.getEnableStatsd()).thenReturn(false);
-        StatsdNotifierConfig instance
-                = StatsdNotifierConfig.fromGlobalConfig(externalizedID);
+        StatsdNotifierConfig instance = StatsdNotifierConfig.fromGlobalConfig(externalizedID);
         assertEquals(null, instance);
     }
 
     @Test
     public void testGetStatsdHostEmpty() {
         when(config.getStatsdHost()).thenReturn("");
-        StatsdNotifierConfig instance
-                = StatsdNotifierConfig.fromGlobalConfig(externalizedID);
+        StatsdNotifierConfig instance = StatsdNotifierConfig.fromGlobalConfig(externalizedID);
         assertEquals(null, instance);
     }
 
     @Test
     public void testGetStatsdPort() {
-        StatsdNotifierConfig instance
-                = StatsdNotifierConfig.fromGlobalConfig(externalizedID);
+        StatsdNotifierConfig instance = StatsdNotifierConfig.fromGlobalConfig(externalizedID);
         assertEquals(9999, instance.getStatsdPort());
     }
 
     @Test
     public void testGetStatsdPortEmpty() {
         when(config.getStatsdPort()).thenReturn("");
-        StatsdNotifierConfig instance
-                = StatsdNotifierConfig.fromGlobalConfig(externalizedID);
+        StatsdNotifierConfig instance = StatsdNotifierConfig.fromGlobalConfig(externalizedID);
         assertEquals(8125, instance.getStatsdPort());
     }
 
     @Test
     public void testGetStatsdPortNull() {
         when(config.getStatsdPort()).thenReturn(null);
-        StatsdNotifierConfig instance
-                = StatsdNotifierConfig.fromGlobalConfig(externalizedID);
+        StatsdNotifierConfig instance = StatsdNotifierConfig.fromGlobalConfig(externalizedID);
         assertEquals(8125, instance.getStatsdPort());
     }
 
     @Test
     public void testGetStatsdPortNotANumber() {
         when(config.getStatsdPort()).thenReturn("notANumber");
-        StatsdNotifierConfig instance
-                = StatsdNotifierConfig.fromGlobalConfig(externalizedID);
+        StatsdNotifierConfig instance = StatsdNotifierConfig.fromGlobalConfig(externalizedID);
         assertEquals(8125, instance.getStatsdPort());
     }
 
     @Test
     public void testGetStatsdBucket() {
-        StatsdNotifierConfig instance
-                = StatsdNotifierConfig.fromGlobalConfig(externalizedID);
+        StatsdNotifierConfig instance = StatsdNotifierConfig.fromGlobalConfig(externalizedID);
         assertEquals(statsdBucket, instance.getStatsdBucket());
     }
 
     @Test
     public void testGetStatsdMaxSize() {
-        StatsdNotifierConfig instance
-                = StatsdNotifierConfig.fromGlobalConfig(externalizedID);
+        StatsdNotifierConfig instance = StatsdNotifierConfig.fromGlobalConfig(externalizedID);
         assertEquals(statsdMaxSize, instance.getStatsdMaxSize());
     }
 }

@@ -23,22 +23,20 @@
  */
 package org.jenkinsci.plugins.githubautostatus.notifiers;
 
-import org.junit.jupiter.api.Test;
+import static org.junit.jupiter.api.Assertions.*;
 
 import java.util.HashMap;
 import java.util.Map;
-
-import static org.junit.jupiter.api.Assertions.*;
+import org.junit.jupiter.api.Test;
 
 /**
  *
  * @author Jeff Pearce (GitHub jeffpearce)
  */
 public class BuildNotifierConstantsTest {
-    
-    public BuildNotifierConstantsTest() {
-    }
-    
+
+    public BuildNotifierConstantsTest() {}
+
     @Test
     public void testConstants() {
         new BuildNotifierConstants();
@@ -57,7 +55,7 @@ public class BuildNotifierConstantsTest {
     }
 
     @Test
-    public void testGetLong(){
+    public void testGetLong() {
         Map<String, Object> map = new HashMap<>();
         long expectedResult = 1234L;
         map.put("key", expectedResult);
@@ -65,7 +63,7 @@ public class BuildNotifierConstantsTest {
     }
 
     @Test
-    public void testGetLongWithDefaultValue(){
+    public void testGetLongWithDefaultValue() {
         Map<String, Object> map = new HashMap<>();
         map.put("key", "value");
         assertEquals(BuildNotifierConstants.DEFAULT_LONG, BuildNotifierConstants.getLong(map, "not-exist"));
