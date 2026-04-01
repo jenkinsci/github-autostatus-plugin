@@ -273,6 +273,7 @@
         </executions>
       </plugin>
 
+      <!-- // Linting disabled so far: breaks Java 25 builds :
       <plugin>
         <groupId>org.apache.maven.plugins</groupId>
         <artifactId>maven-compiler-plugin</artifactId>
@@ -284,6 +285,7 @@
           </compilerArgs>
         </configuration>
       </plugin>
+      -->
 
     </plugins>
   </build>
