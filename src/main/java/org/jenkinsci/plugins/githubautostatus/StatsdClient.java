@@ -26,6 +26,7 @@ package org.jenkinsci.plugins.githubautostatus;
 import com.timgroup.statsd.NonBlockingStatsDClientBuilder;
 import com.timgroup.statsd.StatsDClient;
 import com.timgroup.statsd.StatsDClientException;
+import edu.umd.cs.findbugs.annotations.SuppressFBWarnings;
 import java.util.concurrent.ScheduledThreadPoolExecutor;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.locks.Lock;
@@ -52,11 +53,18 @@ public class StatsdClient implements StatsdWrapper {
 
     /**
      * Attempts to create a new StatsD client instance, if successful then
-     * the active client is safely swapped out.
+     * the active client is safely swapped out.<br/>
+     *
+     * Marked "final" so it is not considered an "overridable method used
+     * in constructor".
      *
      * @throws StatsDClientException if unable to refresh client
      */
-    public void newClient() throws StatsDClientException {
+    @SuppressFBWarnings(
+            value = {"CWO_CLOSED_WITHOUT_OPENED" /*, "UL_UNRELEASED_LOCK_EXCEPTION_PATH"*/},
+            justification =
+                    "Spotbugs says the try-block below 'releases lock without acquiring it in the first place' but it seems a false positive, possibly dependent on bytecode emitters that can enter that finally/unlock if lock() throws")
+    public final void newClient() throws StatsDClientException {
         Lock wl = lock.writeLock();
         StatsDClient newClient = null;
         try {
@@ -85,9 +93,6 @@ public class StatsdClient implements StatsdWrapper {
             this.client = newClient;
         } catch (Exception e) {
             LOGGER.warning("Could not refresh client, will continue to use old instance");
-            if (this.client == null) {
-                throw e;
-            }
         } finally {
             wl.unlock();
         }
@@ -118,7 +123,7 @@ public class StatsdClient implements StatsdWrapper {
         exec.scheduleAtFixedRate(refreshClient, CLIENT_TTL, CLIENT_TTL, TimeUnit.SECONDS);
 
         this.newClient();
-        LOGGER.info("StatsdClient wrapper created. " + this.hashCode());
+        LOGGER.info("StatsdClient wrapper created.");
     }
 
     public static StatsdClient getInstance(String prefix, String hostname, int port) {

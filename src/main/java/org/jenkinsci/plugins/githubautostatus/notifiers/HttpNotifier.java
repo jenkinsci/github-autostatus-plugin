@@ -81,18 +81,20 @@ public class HttpNotifier extends BuildNotifier {
                     .encodeToString(String.format("%s:%s", username, password).getBytes(StandardCharsets.UTF_8));
         }
         gson = new GsonBuilder()
-                .addSerializationExclusionStrategy(new ExclusionStrategy() {
-                    @Override
-                    public boolean shouldSkipField(FieldAttributes f) {
-                        return f.getAnnotation(SkipSerialisation.class) != null;
-                    }
-
-                    @Override
-                    public boolean shouldSkipClass(Class<?> clazz) {
-                        return false;
-                    }
-                })
+                .addSerializationExclusionStrategy(new SkipSerialisationExclusionStrategy())
                 .create();
+    }
+
+    private static class SkipSerialisationExclusionStrategy implements ExclusionStrategy {
+        @Override
+        public boolean shouldSkipField(FieldAttributes f) {
+            return f.getAnnotation(SkipSerialisation.class) != null;
+        }
+
+        @Override
+        public boolean shouldSkipClass(Class<?> clazz) {
+            return false;
+        }
     }
 
     @Override

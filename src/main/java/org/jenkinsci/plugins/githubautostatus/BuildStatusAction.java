@@ -59,6 +59,10 @@ public class BuildStatusAction extends InvisibleAction implements Serializable {
     private String repoName;
     private String branchName;
     private transient Run<?, ?> run;
+
+    private void readObject(java.io.ObjectInputStream in) throws java.io.IOException, ClassNotFoundException {
+        in.defaultReadObject();
+    }
     // Only modified from the constructor, so not synchronized in other code
     private final Map<String, Object> jobParameters;
 
