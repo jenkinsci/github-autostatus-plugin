@@ -112,11 +112,11 @@ public class BuildStatusConfig extends GlobalConfiguration {
         return GlobalConfiguration.all().get(BuildStatusConfig.class);
     }
 
-    /**
-     * Default constructor - loads the configuration
-     */
-    public BuildStatusConfig() {
-        load();
+    public BuildStatusConfig() {}
+
+    @Override
+    public void load() {
+        super.load();
         if (dbVersion == null) {
             if (influxDbUrl == null && influxDbDatabase == null) {
                 dbVersion = 2;
