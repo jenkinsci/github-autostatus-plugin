@@ -71,7 +71,6 @@ public class GithubBuildStatusGraphListener implements GraphListener {
             // they have a nice model containing all the stages
 
             ErrorAction errorAction = fn.getError();
-            String nodeName = null;
 
             if (errorAction == null) {
                 return;
