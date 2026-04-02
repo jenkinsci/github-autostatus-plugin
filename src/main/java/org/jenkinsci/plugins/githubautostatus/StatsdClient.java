@@ -118,7 +118,7 @@ public class StatsdClient implements StatsdWrapper {
         exec.scheduleAtFixedRate(refreshClient, CLIENT_TTL, CLIENT_TTL, TimeUnit.SECONDS);
 
         this.newClient();
-        LOGGER.info("StatsdClient wrapper created. " + this.hashCode());
+        LOGGER.info("StatsdClient wrapper created.");
     }
 
     public static StatsdClient getInstance(String prefix, String hostname, int port) {
