@@ -38,6 +38,9 @@
             <f:entry title="Maximum packet size" field="statsdMaxSize" name="statsdMaxSize">
                 <f:textbox default="1400" />
             </f:entry>
+            <f:entry title="Use Datadog Plugin" field="useDatadogPlugin">
+                <f:checkbox checked="${instance.useDatadogPlugin}"/>
+            </f:entry>
         </f:optionalBlock>
         <f:optionalBlock inline="true" name="enableHttp" title="Send to an HTTP endpoint" checked="${instance.enableHttp}">
             <f:entry title="HTTP endpoint" field="httpEndpoint" name="httpEndpoint">

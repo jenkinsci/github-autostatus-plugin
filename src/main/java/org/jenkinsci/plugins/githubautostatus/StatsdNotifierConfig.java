@@ -38,6 +38,7 @@ public class StatsdNotifierConfig {
     private int statsdPort;
     private String statsdBucket;
     private String statsdMaxSize;
+    private boolean useDatadogPlugin;
     private static final Logger LOGGER = Logger.getLogger(StatsdWrapper.class.getName());
 
     /**
@@ -86,6 +87,15 @@ public class StatsdNotifierConfig {
     }
 
     /**
+     * Gets whether to use the Datadog plugin.
+     *
+     * @return true if using the Datadog plugin
+     */
+    public boolean getUseDatadogPlugin() {
+        return useDatadogPlugin;
+    }
+
+    /**
      * Creates a StatsD notification config based on the global settings.
      *
      * @param externalizedID externalized id
@@ -106,6 +116,7 @@ public class StatsdNotifierConfig {
 
         if (config.getEnableStatsd()) {
             statsdNotifierConfig.externalizedID = externalizedID;
+            statsdNotifierConfig.useDatadogPlugin = config.getUseDatadogPlugin();
 
             statsdNotifierConfig.statsdHost = config.getStatsdHost();
             int port = 8125;

@@ -84,6 +84,7 @@ public class BuildStatusConfig extends GlobalConfiguration {
     private boolean enableInfluxDb;
     private boolean disableGithub;
     private boolean enableStatsd;
+    private boolean useDatadogPlugin;
     private String statsdHost;
     private String statsdPort;
     private String statsdBucket;
@@ -447,6 +448,26 @@ public class BuildStatusConfig extends GlobalConfiguration {
     @DataBoundSetter
     public void setEnableStatsd(boolean enableStatsd) {
         this.enableStatsd = enableStatsd;
+        save();
+    }
+
+    /**
+     * Gets whether to use the Datadog plugin for StatsD.
+     *
+     * @return true if using the Datadog plugin
+     */
+    public boolean getUseDatadogPlugin() {
+        return useDatadogPlugin;
+    }
+
+    /**
+     * Sets whether to use the Datadog plugin for StatsD.
+     *
+     * @param useDatadogPlugin true to use the Datadog plugin
+     */
+    @DataBoundSetter
+    public void setUseDatadogPlugin(boolean useDatadogPlugin) {
+        this.useDatadogPlugin = useDatadogPlugin;
         save();
     }
 
