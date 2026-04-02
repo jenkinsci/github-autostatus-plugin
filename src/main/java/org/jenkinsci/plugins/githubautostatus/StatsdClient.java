@@ -52,11 +52,14 @@ public class StatsdClient implements StatsdWrapper {
 
     /**
      * Attempts to create a new StatsD client instance, if successful then
-     * the active client is safely swapped out.
+     * the active client is safely swapped out.<br/>
+     *
+     * Marked "final" so it is not considered an "overridable method used
+     * in constructor".
      *
      * @throws StatsDClientException if unable to refresh client
      */
-    public void newClient() throws StatsDClientException {
+    public final void newClient() throws StatsDClientException {
         Lock wl = lock.writeLock();
         StatsDClient newClient = null;
         try {
