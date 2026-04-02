@@ -93,7 +93,6 @@ public class BuildStatusConfig extends GlobalConfiguration {
     private String httpCredentialsId;
     private boolean httpVerifySSL;
     private Integer dbVersion;
-    private Integer configVersion = 2;
 
     /**
      * Adds compatibility aliases to prevent "old data" warnings.
