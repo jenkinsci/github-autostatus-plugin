@@ -85,9 +85,6 @@ public class StatsdClient implements StatsdWrapper {
             this.client = newClient;
         } catch (Exception e) {
             LOGGER.warning("Could not refresh client, will continue to use old instance");
-            if (this.client == null) {
-                throw e;
-            }
         } finally {
             wl.unlock();
         }
