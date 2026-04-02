@@ -26,6 +26,7 @@ package org.jenkinsci.plugins.githubautostatus;
 import com.timgroup.statsd.NonBlockingStatsDClientBuilder;
 import com.timgroup.statsd.StatsDClient;
 import com.timgroup.statsd.StatsDClientException;
+import edu.umd.cs.findbugs.annotations.SuppressFBWarnings;
 import java.util.concurrent.ScheduledThreadPoolExecutor;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.locks.Lock;
@@ -59,6 +60,10 @@ public class StatsdClient implements StatsdWrapper {
      *
      * @throws StatsDClientException if unable to refresh client
      */
+    @SuppressFBWarnings(
+            value = {"CWO_CLOSED_WITHOUT_OPENED" /*, "UL_UNRELEASED_LOCK_EXCEPTION_PATH"*/},
+            justification =
+                    "Spotbugs says the try-block below 'releases lock without acquiring it in the first place' but it seems a false positive, possibly dependent on bytecode emitters that can enter that finally/unlock if lock() throws")
     public final void newClient() throws StatsDClientException {
         Lock wl = lock.writeLock();
         StatsDClient newClient = null;
