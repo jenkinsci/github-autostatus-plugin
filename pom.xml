@@ -67,9 +67,7 @@
          not listed in parent pom, and the version won't likely change -->
     <cobertura.plugin.version>1.17</cobertura.plugin.version>
     <jacoco.plugin.version>3.3.7</jacoco.plugin.version>
-    <!-- TODO: Find a way to rely on Jenkins datadog-plugin instead -->
-    <hpi.bundledArtifacts>java-dogstatsd-client</hpi.bundledArtifacts>
-    <dogstatsd.version>4.4.5</dogstatsd.version>
+    <datadog.plugin.version>5.6.2</datadog.plugin.version>
     <system-stubs.version>2.1.8</system-stubs.version>
   </properties>
 
@@ -132,15 +130,20 @@
       <artifactId>jnr-posix-api</artifactId>
     </dependency>
 
-    <!-- TOTHINK: Use https://plugins.jenkins.io/datadog/ instead?
-         A quick shot at this failed: there are version conflicts
-         for its dependencies, and with exclusions it did compile,
-         but the tests quickly failed to start JenkinsRule instances.
-      -->
     <dependency>
-      <groupId>com.datadoghq</groupId>
-      <artifactId>java-dogstatsd-client</artifactId>
-      <version>${dogstatsd.version}</version>
+      <groupId>org.datadog.jenkins.plugins</groupId>
+      <artifactId>datadog</artifactId>
+      <version>${datadog.plugin.version}</version>
+      <exclusions>
+        <exclusion>
+          <groupId>org.bouncycastle</groupId>
+          <artifactId>bcpg-jdk18on</artifactId>
+        </exclusion>
+        <exclusion>
+          <groupId>org.bouncycastle</groupId>
+          <artifactId>bcprov-jdk18on</artifactId>
+        </exclusion>
+      </exclusions>
     </dependency>
 
     <dependency>
