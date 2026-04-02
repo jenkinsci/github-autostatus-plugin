@@ -40,6 +40,7 @@ import java.util.logging.Logger;
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 import jenkins.plugins.git.AbstractGitSCMSource;
+import jenkins.scm.api.SCMHead;
 import jenkins.scm.api.SCMRevision;
 import jenkins.scm.api.SCMRevisionAction;
 import jenkins.scm.api.SCMSource;
@@ -218,9 +219,12 @@ public class GithubNotificationConfig {
             branchName =
                     ((AbstractGitSCMSource.SCMRevisionImpl) revision).getHead().getName();
         } else if (revision instanceof PullRequestSCMRevision) {
-            PullRequestSCMHead pullRequestSCMHead = (PullRequestSCMHead) ((PullRequestSCMRevision) revision).getHead();
-
-            branchName = pullRequestSCMHead.getSourceBranch();
+            SCMHead head = ((PullRequestSCMRevision) revision).getHead();
+            if (head instanceof PullRequestSCMHead) {
+                branchName = ((PullRequestSCMHead) head).getSourceBranch();
+            } else {
+                return false;
+            }
         }
         return true;
     }
