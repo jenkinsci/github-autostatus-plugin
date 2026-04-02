@@ -164,9 +164,14 @@ public class GithubBuildStatusGraphListener implements GraphListener {
         ErrorAction errorAction = endNode.getError();
         if (errorAction != null) {
             Result result;
-            if (errorAction.getError() instanceof FlowInterruptedException) {
-                result = ((FlowInterruptedException) errorAction.getError()).getResult();
+            Throwable error = errorAction.getError();
+            if (error instanceof FlowInterruptedException) {
+                result = ((FlowInterruptedException) error).getResult();
             } else {
+                // if (error==null) => instanceof==false,
+                // we also get here, although that (null)
+                // should never happen; other throwable
+                // types may well be:
                 result = Result.FAILURE;
             }
             buildState = BuildStage.State.fromResult(result);
