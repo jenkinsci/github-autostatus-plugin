@@ -23,7 +23,7 @@
  */
 package org.jenkinsci.plugins.githubautostatus;
 
-import com.timgroup.statsd.NonBlockingStatsDClientBuilder;
+import com.timgroup.statsd.NonBlockingStatsDClient;
 import com.timgroup.statsd.StatsDClient;
 import com.timgroup.statsd.StatsDClientException;
 import edu.umd.cs.findbugs.annotations.SuppressFBWarnings;
@@ -68,13 +68,9 @@ public class StatsdClient implements StatsdWrapper {
         Lock wl = lock.writeLock();
         StatsDClient newClient = null;
         try {
-            newClient = new NonBlockingStatsDClientBuilder()
-                    .prefix(prefix)
-                    .hostname(hostname)
-                    .port(port)
-                    .build();
+            newClient = new NonBlockingStatsDClient(prefix, hostname, port);
             LOGGER.info("New StatsD client created. " + newClient.hashCode());
-        } catch (StatsDClientException e) {
+        } catch (Exception e) {
             LOGGER.warning("Could not refresh client, will continue to use old instance");
 
             if (this.client == null) {
