@@ -67,7 +67,7 @@
          not listed in parent pom, and the version won't likely change -->
     <cobertura.plugin.version>1.17</cobertura.plugin.version>
     <jacoco.plugin.version>3.3.7</jacoco.plugin.version>
-    <datadog.plugin.version>5.6.2</datadog.plugin.version>
+    <datadog.plugin.version>9.1.8</datadog.plugin.version>
     <system-stubs.version>2.1.8</system-stubs.version>
   </properties>
 
@@ -142,6 +142,10 @@
         <exclusion>
           <groupId>org.bouncycastle</groupId>
           <artifactId>bcprov-jdk18on</artifactId>
+        </exclusion>
+        <exclusion>
+          <groupId>org.json</groupId>
+          <artifactId>json</artifactId>
         </exclusion>
       </exclusions>
     </dependency>
