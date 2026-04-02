@@ -24,6 +24,7 @@
 package org.jenkinsci.plugins.githubautostatus.notifiers;
 
 import java.nio.charset.StandardCharsets;
+import java.util.Locale;
 import java.util.Map;
 import java.util.logging.Level;
 import java.util.logging.Logger;
@@ -234,7 +235,8 @@ public class StatsdNotifier extends BuildNotifier {
      * @return sanitized key
      */
     public String sanitizeAll(String key) {
-        return collapseEmptyBuckets(statsdSanitizeKey(sanitizeKey(sanitizeBuildNumber(key.toLowerCase()))));
+        return collapseEmptyBuckets(
+                statsdSanitizeKey(sanitizeKey(sanitizeBuildNumber(key.toLowerCase(Locale.ENGLISH)))));
     }
 
     private static void log(Level level, String format, Object... args) {
