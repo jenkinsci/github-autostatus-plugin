@@ -58,7 +58,7 @@
     <jenkins.version>${jenkins.baseline}.3</jenkins.version>
     <!-- TODO: Bump when introducing breaking changes, e.g. fixing https://github.com/jenkinsci/github-autostatus-plugin/issues/176 -->
     <hpi.compatibleSinceVersion>3.0</hpi.compatibleSinceVersion>
-    <jenkins.bom.version>6815.v1fb_2a_fee3765</jenkins.bom.version>
+    <jenkins.bom.version>7002.v028a_3607ddc8</jenkins.bom.version>
     <spotbugs.effort>Max</spotbugs.effort>
     <spotbugs.threshold>Low</spotbugs.threshold>
     <spotless.check.skip>false</spotless.check.skip>
