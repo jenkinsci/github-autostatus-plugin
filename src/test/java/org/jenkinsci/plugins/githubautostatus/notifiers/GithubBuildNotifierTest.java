@@ -27,6 +27,7 @@ import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.Mockito.*;
 
 import java.io.IOException;
+import java.nio.charset.StandardCharsets;
 import java.util.Collections;
 import org.jenkinsci.plugins.githubautostatus.config.GithubNotificationConfig;
 import org.jenkinsci.plugins.githubautostatus.model.BuildStage;
@@ -195,6 +196,109 @@ public class GithubBuildNotifierTest {
         notifier.notifyBuildStageStatus(jobName, stageItem);
 
         // Only one call attempt, no retry
+        verify(repository, times(1)).createCommitStatus(any(), any(), any(), any(), any());
+    }
+
+    private static HttpException contextTooLong() {
+        return new HttpException(
+                "{\"message\":\"Validation Failed\",\"errors\":\"Validation failed: Context is too long (maximum is 255 characters)\"}",
+                422,
+                "Unprocessable Entity",
+                null);
+    }
+
+    /**
+     * Verifies that an over-long stage name is first sent "as is", and only
+     * after GitHub rejects it is a shortened context sent.
+     */
+    @Test
+    public void testLongContextRetriedShortened() throws IOException {
+        String longName = "X".repeat(300);
+        String shortName = GithubBuildNotifier.shortenContext(longName);
+        assertEquals(GithubBuildNotifier.MAX_CONTEXT_LENGTH, shortName.length());
+
+        doThrow(contextTooLong())
+                .when(repository)
+                .createCommitStatus(sha, GHCommitState.PENDING, targetUrl, "Building stage", longName);
+
+        GithubBuildNotifier notifier = new GithubBuildNotifier(repository, sha, targetUrl);
+        notifier.notifyBuildStageStatus(jobName, new BuildStage(longName));
+
+        verify(repository).createCommitStatus(sha, GHCommitState.PENDING, targetUrl, "Building stage", longName);
+        verify(repository).createCommitStatus(sha, GHCommitState.PENDING, targetUrl, "Building stage", shortName);
+    }
+
+    /**
+     * Verifies that long names differing only in their tails stay distinct.
+     */
+    @Test
+    public void testShortenedContextsStayDistinct() {
+        String base = "Y".repeat(300);
+        assertNotEquals(GithubBuildNotifier.shortenContext(base + "a"), GithubBuildNotifier.shortenContext(base + "b"));
+        assertEquals("short", GithubBuildNotifier.shortenContext("short"));
+    }
+
+    /**
+     * Verifies that shortening accounts for UTF-8 bytes and worst-case JSON
+     * escapes, and never splits a multi-byte character (including surrogate
+     * pairs).
+     */
+    @Test
+    public void testShortenedContextMultiByte() {
+        // 2-byte chars: 200 chars = 400 bytes, over limit though under 255 chars
+        String twoByte = "é".repeat(200);
+        String shortened = GithubBuildNotifier.shortenContext(twoByte);
+        assertTrue(GithubBuildNotifier.jsonCost(shortened) <= GithubBuildNotifier.MAX_CONTEXT_LENGTH);
+        assertTrue(shortened.getBytes(StandardCharsets.UTF_8).length <= GithubBuildNotifier.MAX_CONTEXT_LENGTH);
+        assertTrue(shortened.startsWith("é"));
+        assertFalse(shortened.contains("�"));
+
+        // 4-byte chars (surrogate pairs): never a lone surrogate left over
+        String fourByte = "😀".repeat(100);
+        shortened = GithubBuildNotifier.shortenContext(fourByte);
+        assertTrue(GithubBuildNotifier.jsonCost(shortened) <= GithubBuildNotifier.MAX_CONTEXT_LENGTH);
+        assertEquals(shortened, new String(shortened.getBytes(StandardCharsets.UTF_8), StandardCharsets.UTF_8));
+        assertTrue(shortened.codePoints().noneMatch(cp -> Character.isSurrogate((char) cp)));
+
+        // Pure ASCII still fills the limit exactly
+        assertEquals(
+                GithubBuildNotifier.MAX_CONTEXT_LENGTH,
+                GithubBuildNotifier.shortenContext("X".repeat(300)).length());
+    }
+
+    /**
+     * Verifies that characters which JSON escapes (quotes, backslashes,
+     * control characters) count for more than their length.
+     */
+    @Test
+    public void testShortenedContextJsonEscapes() {
+        // 200 chars, each 2 bytes when escaped: 400 > 255
+        String quoted = "\"".repeat(100) + "\\".repeat(100);
+        assertEquals(400, GithubBuildNotifier.jsonCost(quoted));
+        String shortened = GithubBuildNotifier.shortenContext(quoted);
+        assertTrue(GithubBuildNotifier.jsonCost(shortened) <= GithubBuildNotifier.MAX_CONTEXT_LENGTH);
+
+        // Control characters may take 6 bytes as a JSON unicode escape
+        String control = "\t".repeat(100);
+        shortened = GithubBuildNotifier.shortenContext(control);
+        assertTrue(GithubBuildNotifier.jsonCost(shortened) <= GithubBuildNotifier.MAX_CONTEXT_LENGTH);
+
+        // Short values stay as they are
+        assertEquals("a \"b\"", GithubBuildNotifier.shortenContext("a \"b\""));
+    }
+
+    /**
+     * Verifies that other 422 errors are not retried with a shortened context.
+     */
+    @Test
+    public void testNoShortenRetryOnOther422() throws IOException {
+        doThrow(new HttpException("{\"message\":\"Validation Failed\"}", 422, "Unprocessable Entity", null))
+                .when(repository)
+                .createCommitStatus(any(), any(), any(), any(), any());
+
+        GithubBuildNotifier notifier = new GithubBuildNotifier(repository, sha, targetUrl);
+        notifier.notifyBuildStageStatus(jobName, new BuildStage("X".repeat(300)));
+
         verify(repository, times(1)).createCommitStatus(any(), any(), any(), any(), any());
     }
 }

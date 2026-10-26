@@ -24,7 +24,10 @@
 package org.jenkinsci.plugins.githubautostatus.notifiers;
 
 import com.google.common.collect.ImmutableMap;
+import java.io.IOException;
+import java.nio.charset.StandardCharsets;
 import java.util.Map;
+import java.util.UUID;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import org.jenkinsci.plugins.githubautostatus.config.GithubNotificationConfig;
@@ -50,6 +53,9 @@ public class GithubBuildNotifier extends BuildNotifier {
      * if the cached repository is older than this threshold.
      */
     static final long CREDENTIAL_REFRESH_MILLIS = 50 * 60 * 1000L; // 50 minutes
+
+    /** Maximum commit status context length accepted by GitHub (we keep it in worst-case JSON bytes to be safe). */
+    static final int MAX_CONTEXT_LENGTH = 255;
 
     static final ImmutableMap<BuildStage.State, GHCommitState> STATE_MAP = new ImmutableMap.Builder<
                     BuildStage.State, GHCommitState>()
@@ -130,14 +136,7 @@ public class GithubBuildNotifier extends BuildNotifier {
             return;
         }
         try {
-            GHRepository repo = getRepository();
-            BuildStage.State buildState = stageItem.getBuildState();
-            repo.createCommitStatus(
-                    shaString,
-                    STATE_MAP.get(buildState),
-                    targetUrl,
-                    DESCRIPTION_MAP.get(buildState),
-                    stageItem.getStageName());
+            createGithubStatus(getRepository(), stageItem);
         } catch (org.kohsuke.github.HttpException ex) {
             if (ex.getResponseCode() == 401 && config != null) {
                 // Token likely expired (GitHub App tokens have a 60-minute TTL).
@@ -145,13 +144,7 @@ public class GithubBuildNotifier extends BuildNotifier {
                 log(Level.INFO, "Received HTTP 401 for job %s, refreshing GitHub credentials and retrying", jobName);
                 try {
                     refreshRepository();
-                    BuildStage.State buildState = stageItem.getBuildState();
-                    repository.createCommitStatus(
-                            shaString,
-                            STATE_MAP.get(buildState),
-                            targetUrl,
-                            DESCRIPTION_MAP.get(buildState),
-                            stageItem.getStageName());
+                    createGithubStatus(repository, stageItem);
                 } catch (Exception retryEx) {
                     log(Level.SEVERE, "Retry after credential refresh failed for job %s", jobName);
                     log(Level.SEVERE, retryEx);
@@ -164,6 +157,98 @@ public class GithubBuildNotifier extends BuildNotifier {
             log(Level.SEVERE, "Exception while creating status for job %s", jobName);
             log(Level.SEVERE, ex);
         }
+    }
+
+    /**
+     * Creates the commit status using the stage name as the context "as is".
+     * If GitHub rejects it as too long, retries once with a shortened context.
+     */
+    private void createGithubStatus(GHRepository repo, BuildStage stageItem) throws IOException {
+        BuildStage.State buildState = stageItem.getBuildState();
+        String context = stageItem.getStageName();
+        try {
+            repo.createCommitStatus(
+                    shaString, STATE_MAP.get(buildState), targetUrl, DESCRIPTION_MAP.get(buildState), context);
+        } catch (org.kohsuke.github.HttpException ex) {
+            if (ex.getResponseCode() != 422
+                    || context == null
+                    || ex.getMessage() == null
+                    || !ex.getMessage().contains("Context is too long")) {
+                throw ex;
+            }
+            String shortContext = shortenContext(context);
+            if (shortContext.equals(context)) {
+                // Nothing to shorten, so a retry would fail the same way
+                throw ex;
+            }
+            log(
+                    Level.INFO,
+                    "GitHub rejected status context of %d characters, retrying with: %s",
+                    context.length(),
+                    shortContext);
+            repo.createCommitStatus(
+                    shaString, STATE_MAP.get(buildState), targetUrl, DESCRIPTION_MAP.get(buildState), shortContext);
+        }
+    }
+
+    /**
+     * Worst-case size of one code point once it is a part of a JSON string
+     * in the request body, in bytes: {@code "} and {@code \} are escaped
+     * with a backslash, control characters may become {@code \}{@code u00XX},
+     * and non-ASCII characters are either raw UTF-8 or {@code \}{@code uXXXX}
+     * escapes (one per UTF-16 unit) depending on the serializer, so we assume
+     * the larger of these.
+     */
+    static int jsonCost(int codePoint) {
+        if (codePoint == '"' || codePoint == '\\') {
+            return 2;
+        }
+        if (codePoint < 0x20) {
+            return 6;
+        }
+        if (codePoint < 0x80) {
+            return 1;
+        }
+        int utf8 = new String(Character.toChars(codePoint)).getBytes(StandardCharsets.UTF_8).length;
+        return Math.max(utf8, 6 * Character.charCount(codePoint));
+    }
+
+    /** Worst-case size of the string as a JSON value, see {@link #jsonCost(int)}. */
+    static int jsonCost(String s) {
+        return s.codePoints().map(GithubBuildNotifier::jsonCost).sum();
+    }
+
+    /**
+     * Shortens a context so that even in the worst case of its JSON
+     * representation (see {@link #jsonCost(int)}) it takes at most
+     * {@link #MAX_CONTEXT_LENGTH} bytes, to be safe if GitHub counts bytes
+     * rather than characters, or the markup/escapes in the request body.
+     * Whole code points are kept or dropped, so a multi-byte character
+     * is never cut in the middle. A shortened value ends with a short hash
+     * of the full value, so that distinct long stage names (which often
+     * differ only in their tail) stay distinct.
+     */
+    static String shortenContext(String context) {
+        if (context == null || jsonCost(context) <= MAX_CONTEXT_LENGTH) {
+            return context;
+        }
+        String hash = UUID.nameUUIDFromBytes(context.getBytes(StandardCharsets.UTF_8))
+                .toString()
+                .substring(0, 8);
+        // hash and the two "~" markers are all plain ASCII, so one byte each
+        int budget = MAX_CONTEXT_LENGTH - hash.length() - 2;
+        StringBuilder sb = new StringBuilder();
+        int cost = 0;
+        for (int i = 0; i < context.length(); ) {
+            int cp = context.codePointAt(i);
+            cost += jsonCost(cp);
+            if (cost > budget) {
+                break;
+            }
+            sb.appendCodePoint(cp);
+            i += Character.charCount(cp);
+        }
+        return sb.append('~').append(hash).append('~').toString();
     }
 
     /**

@@ -59,6 +59,20 @@ the PR page will show the following:
 
 ![](images/github-checks-passed.png)
 
+### Long stage names
+
+The stage name is used as the commit status "context", which GitHub limits to 255 characters
+(pipelines that generate stage names from many labels, such as matrix builds, can exceed this).
+The plugin first sends the stage name as is. If GitHub rejects it with
+"Context is too long", the plugin retries once with a shortened context:
+
+- The limit is applied conservatively, to the worst-case size of the value in the JSON request body:
+  quotes and backslashes count as 2 bytes, control characters as 6, and non-ASCII characters as
+  the larger of their UTF-8 size and their `\uXXXX` escapes (so such names may be cut shorter than 255 characters).
+- Whole characters are kept or dropped; a multi-byte character (or an emoji) is never cut in the middle.
+- The shortened value ends with `~` and 8 hex digits of a hash of the full name and a closing `~`,
+  so that distinct long names which differ only in their tails keep distinct statuses.
+
 ## Grafana dashboards
 
 The plugin can also be configured to send job and stage stats to an InfluxDB instance, which can be used to build dashboards in Grafana to monitor build time and success rate. For example:
